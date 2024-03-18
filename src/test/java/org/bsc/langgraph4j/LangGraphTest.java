@@ -3,6 +3,8 @@ package org.bsc.langgraph4j;
 import org.bsc.langgraph4j.state.AgentState;
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import static org.bsc.langgraph4j.GraphState.END;
@@ -15,12 +17,16 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class LangGraphTest
 {
+    <State extends AgentState> List<Map.Entry<String,Object>> sort(State state ) {
+        return state.data().entrySet().stream().sorted(Map.Entry.comparingByKey()).toList();
+    }
+
     record BaseAgentState( Map<String,Object> data ) implements AgentState {}
 
     @Test
     void testValidation() throws Exception {
 
-        var workflow = new GraphState<BaseAgentState>(BaseAgentState::new);
+        var workflow = new GraphState<>(BaseAgentState::new);
         var exception = assertThrows(GraphStateException.class, workflow::compile);
         System.out.println(exception.getMessage());
         assertEquals( "missing Entry Point", exception.getMessage());
@@ -71,4 +77,30 @@ public class LangGraphTest
 
     }
 
+    @Test
+    public void testRunningOneNode() throws Exception {
+
+        var workflow = new GraphState<>(BaseAgentState::new);
+        workflow.setEntryPoint("agent_1");
+
+        workflow.addNode("agent_1", node_async( state -> {
+            System.out.print( "agent_1");
+            System.out.println( state );
+            return Map.of("prop1", "test");
+        }));
+
+        workflow.addEdge( "agent_1",  END);
+
+        var app = workflow.compile();
+
+        var result = app.invoke( Map.of( "input", "test1") );
+        assertTrue( result.isPresent() );
+
+        System.out.println( result.get().data() );
+        var  expected = Map.of("input", "test1","prop1","test");
+
+        assertIterableEquals( expected.entrySet(), sort(result.get()) );
+        //assertDictionaryOfAnyEqual( expected, result.data )
+
+    }
 }
