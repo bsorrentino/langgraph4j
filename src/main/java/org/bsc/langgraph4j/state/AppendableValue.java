@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j;
+package org.bsc.langgraph4j.state;
 
 import java.util.List;
 

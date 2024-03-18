@@ -1,10 +1,15 @@
 package org.bsc.langgraph4j;
 
+import org.bsc.langgraph4j.action.EdgeAction;
+import org.bsc.langgraph4j.action.EdgeAsyncAction;
+import org.bsc.langgraph4j.action.NodeAsyncAction;
+import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.AgentStateFactory;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
 
@@ -32,7 +37,7 @@ enum GraphStateError {
     }
 }
 
-record EdgeCondition<S extends AgentState>(EdgeAction<S> action, Map<String,String> mappings) {}
+record EdgeCondition<S extends AgentState>(EdgeAsyncAction<S> action, Map<String,String> mappings) {}
 record EdgeValue<State extends AgentState>(String id, EdgeCondition<State> value) {}
 public class GraphState<State extends AgentState> {
 
@@ -117,7 +122,7 @@ public class GraphState<State extends AgentState> {
         edges.add( edge );
     }
 
-    public void addConditionalEdge( String sourceId, EdgeAction<State> condition, Map<String,String> mappings ) throws GraphStateException {
+    public void addConditionalEdge(String sourceId, EdgeAsyncAction<State> condition, Map<String,String> mappings ) throws GraphStateException {
         if( Objects.equals( sourceId, END)) {
             throw GraphStateError.invalidEdgeIdentifier.exception(END);
         }
