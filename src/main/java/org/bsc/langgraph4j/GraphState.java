@@ -2,6 +2,7 @@ package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.action.EdgeAsyncAction;
 import org.bsc.langgraph4j.action.NodeAsyncAction;
+import org.bsc.langgraph4j.flow.SyncSubmissionPublisher;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 
@@ -157,7 +158,7 @@ public class GraphState<State extends AgentState> {
 
 
         public Flow.Publisher<NodeOutput<State>> stream( Map<String,Object> inputs ) throws Exception {
-                var publisher = new SubmissionPublisher<NodeOutput<State>>();
+                var publisher = new SyncSubmissionPublisher<NodeOutput<State>>();
 
                 var executor = Executors.newSingleThreadExecutor();
 

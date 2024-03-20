@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class LangGraphTest
 {
-    <State extends AgentState> List<Map.Entry<String,Object>> sort(State state ) {
-        return state.data().entrySet().stream().sorted(Map.Entry.comparingByKey()).toList();
+    <T> List<Map.Entry<String,T>> sort(Map<String,T> map ) {
+        return map.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList();
     }
 
     record BaseAgentState( Map<String,Object> data ) implements AgentState {}
@@ -96,10 +96,9 @@ public class LangGraphTest
         var result = app.invoke( Map.of( "input", "test1") );
         assertTrue( result.isPresent() );
 
-        System.out.println( result.get().data() );
         var  expected = Map.of("input", "test1","prop1","test");
 
-        assertIterableEquals( expected.entrySet(), sort(result.get()) );
+        assertIterableEquals( sort(expected), sort(result.get().data()) );
         //assertDictionaryOfAnyEqual( expected, result.data )
 
     }
