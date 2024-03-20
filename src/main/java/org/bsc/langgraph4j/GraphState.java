@@ -1,15 +1,19 @@
 package org.bsc.langgraph4j;
 
+import lombok.Value;
+import lombok.var;
 import org.bsc.langgraph4j.action.EdgeAsyncAction;
 import org.bsc.langgraph4j.action.NodeAsyncAction;
+import org.bsc.langgraph4j.flow.SyncSubmissionPublisher;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Flow;
-import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -17,8 +21,17 @@ import java.util.stream.StreamSupport;
 import static java.lang.String.format;
 
 
-record EdgeCondition<S extends AgentState>(EdgeAsyncAction<S> action, Map<String,String> mappings) {}
-record EdgeValue<State extends AgentState>(String id, EdgeCondition<State> value) {}
+@Value
+class EdgeCondition<S extends AgentState> {
+    EdgeAsyncAction<S> action;
+    Map<String,String> mappings;
+}
+
+@Value
+class EdgeValue<State extends AgentState> {
+    String id;
+    EdgeCondition<State> value;
+}
 
 
 public class GraphState<State extends AgentState> {
@@ -46,16 +59,35 @@ public class GraphState<State extends AgentState> {
         }
     }
 
-    public static <T> CompletableFuture<Stream<T>> convertPublisherToStream( Flow.Publisher<T> publisher ) {
+    enum RunnableErrors {
+
+        missingNodeInEdgeMapping("cannot find edge mapping for id: %s in conditional edge with sourceId: %s "),
+        missingNode("node with id: %s doesn't exist!"),
+        missingEdge("edge with sourceId: %s doesn't exist!"),
+        executionError("%s")
+        ;
+        private final String errorMessage;
+
+        RunnableErrors(String errorMessage ) {
+            this.errorMessage = errorMessage;
+        }
+
+        GraphRunnerException exception(String... args ) {
+            return new GraphRunnerException( format(errorMessage, (Object[]) args) );
+        }
+
+    }
+
+    public static <T> CompletableFuture<Stream<T>> convertPublisherToStream( Publisher<T> publisher ) {
 
             var future = new CompletableFuture<Stream<T>>();
 
             var list = new ArrayList<T>();
 
-            publisher.subscribe(new Flow.Subscriber<>() {
+            publisher.subscribe(new Subscriber<T>() {
 
                 @Override
-                public void onSubscribe(Flow.Subscription subscription) {
+                public void onSubscribe(Subscription subscription) {
                     subscription.request(Long.MAX_VALUE);
                 }
 
@@ -82,25 +114,12 @@ public class GraphState<State extends AgentState> {
 
     public class Runnable {
 
-        enum Errors {
 
-            missingNodeInEdgeMapping("cannot find edge mapping for id: %s in conditional edge with sourceId: %s "),
-            missingNode("node with id: %s doesn't exist!"),
-            missingEdge("edge with sourceId: %s doesn't exist!"),
-            executionError("%s")
-            ;
-            private final String errorMessage;
-
-            Errors(String errorMessage ) {
-                this.errorMessage = errorMessage;
-            }
-
-            GraphRunnerException exception(String... args ) {
-                return new GraphRunnerException( format(errorMessage, (Object[]) args) );
-            }
-
+        @Value
+        public class NodeOutput<S extends AgentState> {
+            String node;
+            S state;
         }
-        public record NodeOutput<State extends AgentState>( String node, State state) {}
 
         final Map<String, NodeAsyncAction<State>> nodes = new HashMap<>();
         final Map<String, EdgeValue<State>> edges = new HashMap<>();
@@ -108,11 +127,11 @@ public class GraphState<State extends AgentState> {
         Runnable() {
 
             GraphState.this.nodes.forEach( n ->
-                nodes.put(n.id(), n.action())
+                nodes.put(n.getId(), n.getAction())
             );
 
             GraphState.this.edges.forEach( e ->
-                edges.put(e.sourceId(), e.target())
+                edges.put(e.getSourceId(), e.getTarget())
             );
         }
 
@@ -122,7 +141,7 @@ public class GraphState<State extends AgentState> {
             if( partialState == null || partialState.isEmpty() ) {
                 return currentState;
             }
-            var mergedMap = Stream.concat(currentState.data().entrySet().stream(), partialState.entrySet().stream())
+            var mergedMap = Stream.concat(currentState.getData().entrySet().stream(), partialState.entrySet().stream())
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             Map.Entry::getValue,
@@ -135,29 +154,29 @@ public class GraphState<State extends AgentState> {
 
             var route = edges.get(nodeId);
             if( route == null ) {
-                throw Errors.missingEdge.exception(nodeId);
+                throw RunnableErrors.missingEdge.exception(nodeId);
             }
-            if( route.id() != null ) {
-                return route.id();
+            if( route.getId() != null ) {
+                return route.getId();
             }
-            if( route.value() != null ) {
-                var condition = route.value().action();
+            if( route.getValue() != null ) {
+                var condition = route.getValue().getAction();
 
                 var newRoute = condition.apply(state).get();
 
-                var result = route.value().mappings().get(newRoute);
+                var result = route.getValue().getMappings().get(newRoute);
                 if( result == null ) {
-                    throw Errors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
+                    throw RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
                 }
             }
 
-            throw Errors.executionError.exception( format("invalid edge value for nodeId: %s !", nodeId) );
+            throw RunnableErrors.executionError.exception( format("invalid edge value for nodeId: %s !", nodeId) );
 
         }
 
 
-        public Flow.Publisher<NodeOutput<State>> stream( Map<String,Object> inputs ) throws Exception {
-                var publisher = new SubmissionPublisher<NodeOutput<State>>();
+        public Publisher<NodeOutput<State>> stream( Map<String,Object> inputs ) throws Exception {
+                var publisher = new SyncSubmissionPublisher<NodeOutput<State>>();
 
                 var executor = Executors.newSingleThreadExecutor();
 
@@ -166,11 +185,11 @@ public class GraphState<State extends AgentState> {
                     var currentNodeId = entryPoint;
                     Map<String, Object> partialState;
 
-                    do {
-                        try {
+                    try {
+                        do {
                             var action = nodes.get(currentNodeId);
                             if (action == null) {
-                                publisher.closeExceptionally(Errors.missingNode.exception(currentNodeId));
+                                publisher.closeExceptionally(RunnableErrors.missingNode.exception(currentNodeId));
                                 break;
                             }
 
@@ -186,14 +205,13 @@ public class GraphState<State extends AgentState> {
 
                             currentNodeId = nextNodeId(currentNodeId, currentState);
 
-                        } catch (Exception e) {
-                            publisher.closeExceptionally(e);
-                            break;
-                        }
+                        } while (!Objects.equals(currentNodeId, END));
 
-                    } while (!Objects.equals(currentNodeId, END));
+                        publisher.close();
 
-                    publisher.close();
+                    } catch (Exception e) {
+                        publisher.closeExceptionally(e);
+                    }
                 });
 
                 return publisher;
@@ -205,12 +223,15 @@ public class GraphState<State extends AgentState> {
 
             var result = future.get();
 
-            return  result.reduce((a, b) -> b).map( NodeOutput::state);
+            return  result.reduce((a, b) -> b).map( NodeOutput::getState);
         }
     }
     public static String END = "__END__";
 
-    record Node<State extends AgentState>(String id, NodeAsyncAction<State> action) {
+    @Value
+    class Node<S extends AgentState> {
+        String id;
+        NodeAsyncAction<State> action;
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -224,7 +245,10 @@ public class GraphState<State extends AgentState> {
             return Objects.hash(id);
         }
     }
-    record Edge<State extends AgentState>(String sourceId, EdgeValue<State> target) {
+    @Value
+    class Edge<S extends AgentState> {
+        String sourceId;
+        EdgeValue<State> target;
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -327,13 +351,13 @@ public class GraphState<State extends AgentState> {
                 throw Errors.missingNodeReferencedByEdge.exception(edge.sourceId);
             }
 
-            if( edge.target.id() != null ) {
-                if(!Objects.equals(edge.target.id(), END) && !nodes.contains( makeFakeNode(edge.target.id()) ) ) {
-                    throw Errors.missingNodeReferencedByEdge.exception(edge.target.id());
+            if( edge.target.getId() != null ) {
+                if(!Objects.equals(edge.target.getId(), END) && !nodes.contains( makeFakeNode(edge.target.getId()) ) ) {
+                    throw Errors.missingNodeReferencedByEdge.exception(edge.target.getId());
                 }
             }
-            else if( edge.target.value() != null ) {
-                for ( String nodeId: edge.target.value().mappings().values() ) {
+            else if( edge.target.getValue() != null ) {
+                for ( String nodeId: edge.target.getValue().getMappings().values() ) {
                     if(!Objects.equals(nodeId, END) && !nodes.contains( makeFakeNode(nodeId) ) ) {
                         throw Errors.missingNodeInEdgeMapping.exception(edge.sourceId, nodeId);
                     }

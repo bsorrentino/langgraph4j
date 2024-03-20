@@ -1,11 +1,15 @@
 package org.bsc.langgraph4j.action;
 
+import lombok.Value;
+import lombok.var;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-record NodeAsyncActionAdapter<State extends AgentState>(NodeAction<State> action) implements NodeAsyncAction<State> {
+@Value
+class NodeAsyncActionAdapter<State extends AgentState> implements NodeAsyncAction<State> {
+    NodeAction<State> action;
     @Override public CompletableFuture<Map<String, Object>> apply(State t)  {
         var result = new CompletableFuture<Map<String, Object>>();
         try {
