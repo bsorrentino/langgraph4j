@@ -1,7 +1,7 @@
 package org.bsc.langgraph4j;
 
-import org.bsc.langgraph4j.action.EdgeAsyncAction;
-import org.bsc.langgraph4j.action.NodeAsyncAction;
+import org.bsc.langgraph4j.action.AsyncEdgeAction;
+import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.flow.SyncSubmissionPublisher;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
-import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -18,7 +17,7 @@ import java.util.stream.StreamSupport;
 import static java.lang.String.format;
 
 
-record EdgeCondition<S extends AgentState>(EdgeAsyncAction<S> action, Map<String,String> mappings) {}
+record EdgeCondition<S extends AgentState>(AsyncEdgeAction<S> action, Map<String,String> mappings) {}
 record EdgeValue<State extends AgentState>(String id, EdgeCondition<State> value) {}
 
 
@@ -103,7 +102,7 @@ public class GraphState<State extends AgentState> {
         }
         public record NodeOutput<State extends AgentState>( String node, State state) {}
 
-        final Map<String, NodeAsyncAction<State>> nodes = new HashMap<>();
+        final Map<String, AsyncNodeAction<State>> nodes = new HashMap<>();
         final Map<String, EdgeValue<State>> edges = new HashMap<>();
 
         Runnable() {
@@ -211,7 +210,7 @@ public class GraphState<State extends AgentState> {
     }
     public static String END = "__END__";
 
-    record Node<State extends AgentState>(String id, NodeAsyncAction<State> action) {
+    record Node<State extends AgentState>(String id, AsyncNodeAction<State> action) {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -261,7 +260,7 @@ public class GraphState<State extends AgentState> {
         this.finishPoint = finishPoint;
     }
 
-    public void addNode(String id, NodeAsyncAction<State> action) throws GraphStateException {
+    public void addNode(String id, AsyncNodeAction<State> action) throws GraphStateException {
         if( Objects.equals( id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
@@ -287,7 +286,7 @@ public class GraphState<State extends AgentState> {
         edges.add( edge );
     }
 
-    public void addConditionalEdge(String sourceId, EdgeAsyncAction<State> condition, Map<String,String> mappings ) throws GraphStateException {
+    public void addConditionalEdge(String sourceId, AsyncEdgeAction<State> condition, Map<String,String> mappings ) throws GraphStateException {
         if( Objects.equals( sourceId, END)) {
             throw Errors.invalidEdgeIdentifier.exception(END);
         }

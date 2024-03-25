@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.bsc.langgraph4j.GraphState.END;
-import static org.bsc.langgraph4j.action.EdgeAction.edge_async;
-import static org.bsc.langgraph4j.action.NodeAction.node_async;
+import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
+import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
