@@ -4,10 +4,9 @@ import org.bsc.langgraph4j.async.AsyncIterator;
 import org.bsc.langgraph4j.async.AsyncQueue;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.StreamSupport;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.ForkJoinPool.commonPool;
@@ -103,6 +102,88 @@ public class AsyncTest {
 
         assertEquals( result.size(), 10 );
         assertIterableEquals(result, List.of("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"));
+
+    }
+
+    @Test
+    public void asyncQueueToStreamTest() throws Exception {
+
+        // AsyncQueue initialized with a direct executor. No thread is used on next() invocation
+        final var queue = new AsyncQueue<String>(Runnable::run);
+
+        commonPool().execute( () -> {
+            try(queue) {
+                for( int i = 0 ; i < 10 ; ++i ) {
+                    queue.put( "e"+i );
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+
+        var sourceIterator = queue.iterator();
+
+        var result = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
+                false);
+
+        var lastElement =   result.reduce((a, b) -> b);
+
+        assertTrue( lastElement.isPresent());
+        assertEquals( lastElement.get(), "e9" );
+
+    }
+
+    @Test
+    public void asyncQueueIteratorExceptionTest() throws Exception {
+
+        // AsyncQueue initialized with a direct executor. No thread is used on next() invocation
+        final var queue = new AsyncQueue<String>(Runnable::run);
+
+        commonPool().execute( () -> {
+            try(queue) {
+                for( int i = 0 ; i < 2 ; ++i ) {
+                    queue.put( "e"+i );
+                }
+                queue.closeExceptionally(new Exception("test"));
+
+            } catch (Exception e) {
+                queue.closeExceptionally(e);
+            }
+
+        });
+
+        var sourceIterator = queue.iterator();
+
+        var result = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
+                false);
+
+        assertThrows( Exception.class,  () -> result.reduce((a, b) -> b ));
+
+    }
+
+    @Test
+    public void asyncQueueForEachExceptionTest() throws Exception {
+
+        // AsyncQueue initialized with a direct executor. No thread is used on next() invocation
+        final var queue = new AsyncQueue<String>(Runnable::run);
+
+        commonPool().execute( () -> {
+            try(queue) {
+                for( int i = 0 ; i < 2 ; ++i ) {
+                    queue.put( "e"+i );
+                }
+                queue.closeExceptionally(new Exception("test"));
+
+            } catch (Exception e) {
+                queue.closeExceptionally(e);
+            }
+
+        });
+
+        assertThrows( Exception.class, () -> queue.forEachAsync( consumer_async(System.out::println) ).get() );
 
     }
 

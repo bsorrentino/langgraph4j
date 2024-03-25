@@ -2,6 +2,7 @@ package org.bsc.langgraph4j.async;
 
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -9,6 +10,7 @@ public class AsyncQueue<E> implements AsyncIterator<E>, AutoCloseable {
 
     private BlockingQueue<Data<E>> queue;
     private final Executor executor;
+    private final AtomicReference<Throwable> exception = new AtomicReference<>();
 
     public AsyncQueue() {
         this(ForkJoinPool.commonPool());
@@ -24,30 +26,36 @@ public class AsyncQueue<E> implements AsyncIterator<E>, AutoCloseable {
      * @throws InterruptedException if interrupted while waiting for space to become available
      */
     public void put(E e) throws InterruptedException {
-        Objects.requireNonNull(queue);
+        if( exception.get() != null ) {
+            throw new IllegalStateException("Queue has been closed with exception!");
+        }
         queue.put(new Data<>(e, false));
+    }
+
+    public void closeExceptionally(Throwable ex) {
+        exception.set(ex);
     }
 
     @Override
     public void close() throws Exception {
-        Objects.requireNonNull(queue);
-        queue.put(new Data<>(null, true));
-        queue = null;
+        if (exception.get() != null) {
+            queue.put(new Data<>(exception.get()));
+        }
+        else {
+            queue.put(new Data<>(null, true));
+        }
     }
 
 
     @Override
     public CompletableFuture<Data<E>> next() {
-        // queue has been closed
-        if( queue == null ) {
-//            final var result = new CompletableFuture<Data<E>>();
-//            result.completeExceptionally( new IllegalStateException("Queue has been closed"));
-//            return result;
-            return completedFuture(new Data<>(null, true));
-        }
         return CompletableFuture.supplyAsync( () -> {
             try {
-                return queue.take();
+                var result = queue.take();
+                if( result.error() != null ) {
+                    queue = null;
+                }
+                return result;
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

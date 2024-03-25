@@ -2,6 +2,8 @@ package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.async.AsyncIterator;
+import org.bsc.langgraph4j.async.AsyncQueue;
 import org.bsc.langgraph4j.flow.SyncSubmissionPublisher;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -44,40 +46,6 @@ public class GraphState<State extends AgentState> {
         GraphStateException exception(String... args ) {
             return new GraphStateException( format(errorMessage, (Object[]) args) );
         }
-    }
-
-    public static <T> CompletableFuture<Stream<T>> convertPublisherToStream( Flow.Publisher<T> publisher ) {
-
-            var future = new CompletableFuture<Stream<T>>();
-
-            var list = new ArrayList<T>();
-
-            publisher.subscribe(new Flow.Subscriber<>() {
-
-                @Override
-                public void onSubscribe(Flow.Subscription subscription) {
-                    subscription.request(Long.MAX_VALUE);
-                }
-
-                @Override
-                public void onNext(T item) {
-                    list.add(item);
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    future.completeExceptionally(throwable);
-                }
-
-                @Override
-                public void onComplete() {
-                    var result = StreamSupport.stream(Spliterators.spliterator(list, Spliterator.ORDERED), false);
-                    future.complete(result);
-
-                }
-            });
-
-            return future;
     }
 
     public class Runnable {
@@ -156,21 +124,22 @@ public class GraphState<State extends AgentState> {
         }
 
 
-        public Flow.Publisher<NodeOutput<State>> stream( Map<String,Object> inputs ) throws Exception {
-                var publisher = new SyncSubmissionPublisher<NodeOutput<State>>();
+        public AsyncIterator<NodeOutput<State>> stream( Map<String,Object> inputs ) throws Exception {
 
-                var executor = Executors.newSingleThreadExecutor();
+            var queue = new AsyncQueue<NodeOutput<State>>( java.lang.Runnable::run );
 
-                executor.submit(() -> {
+            var executor = Executors.newSingleThreadExecutor();
+
+            executor.submit(() -> {
                     var currentState = stateFactory.apply(inputs);
                     var currentNodeId = entryPoint;
                     Map<String, Object> partialState;
 
-                    do {
-                        try {
+                    try (queue) {
+                        do {
                             var action = nodes.get(currentNodeId);
                             if (action == null) {
-                                publisher.closeExceptionally(Errors.missingNode.exception(currentNodeId));
+                                queue.closeExceptionally(Errors.missingNode.exception(currentNodeId));
                                 break;
                             }
 
@@ -178,7 +147,7 @@ public class GraphState<State extends AgentState> {
 
                             currentState = mergeState(currentState, partialState);
 
-                            publisher.submit(new NodeOutput<>(currentNodeId, currentState));
+                            queue.put(new NodeOutput<>(currentNodeId, currentState));
 
                             if (Objects.equals(currentNodeId, finishPoint)) {
                                 break;
@@ -186,24 +155,24 @@ public class GraphState<State extends AgentState> {
 
                             currentNodeId = nextNodeId(currentNodeId, currentState);
 
-                        } catch (Exception e) {
-                            publisher.closeExceptionally(e);
-                            break;
-                        }
+                        } while (!Objects.equals(currentNodeId, END));
 
-                    } while (!Objects.equals(currentNodeId, END));
+                    } catch (Exception e) {
+                        queue.closeExceptionally(e);
+                    }
 
-                    publisher.close();
-                });
+            });
 
-                return publisher;
+            return queue;
         }
 
         public Optional<State> invoke( Map<String,Object> inputs ) throws Exception {
 
-            var future = convertPublisherToStream(stream(inputs));
+            var sourceIterator = stream(inputs).iterator();
 
-            var result = future.get();
+            var result = StreamSupport.stream(
+                    Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
+                    false);
 
             return  result.reduce((a, b) -> b).map( NodeOutput::state);
         }

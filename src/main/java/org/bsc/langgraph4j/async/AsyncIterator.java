@@ -9,13 +9,25 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 
 public interface AsyncIterator<T> extends Iterable<T> {
 
-    record Data<T>(T data, boolean done) {}
+    record Data<T>(T data, boolean done, Throwable error) {
+        public Data(T data, boolean done) {
+            this(data, done, null );
+        }
+        public Data(Throwable error) {
+            this(null, false, error );
+        }
+    }
 
     CompletableFuture<Data<T>> next();
 
     default CompletableFuture<Void> forEachAsync(  final AsyncFunction<T,Void> consumer) {
 
         return next().thenCompose(data -> {
+                    if (data.error != null  ) {
+                        var error = new CompletableFuture<Void>();
+                        error.completeExceptionally(data.error);
+                        return error;
+                    }
                     if (data.done) {
                         return completedFuture(null);
                     }
@@ -35,8 +47,9 @@ public interface AsyncIterator<T> extends Iterable<T> {
                     return false;
                 }
 
-                return !currentFetchedData.updateAndGet( (v) -> AsyncIterator.this.next().join() ).done;
+                var next =  currentFetchedData.updateAndGet( (v) -> AsyncIterator.this.next().join() );
 
+                return !next.done();
             }
 
             @Override
@@ -47,11 +60,14 @@ public interface AsyncIterator<T> extends Iterable<T> {
                         throw new NoSuchElementException("no more elements into iterator");
                     }
                 }
-                if (currentFetchedData.get().done) {
+                if (currentFetchedData.get().error() != null ) {
+                    throw new IllegalStateException(currentFetchedData.get().error());
+                }
+                if (currentFetchedData.get().done()) {
                     throw new NoSuchElementException("no more elements into iterator");
                 }
 
-               return currentFetchedData.getAndUpdate((v) -> null).data;
+                return currentFetchedData.getAndUpdate((v) -> null).data();
             }
         };
     }
