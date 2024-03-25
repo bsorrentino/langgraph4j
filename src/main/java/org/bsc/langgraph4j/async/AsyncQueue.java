@@ -26,24 +26,20 @@ public class AsyncQueue<E> implements AsyncIterator<E>, AutoCloseable {
      * @throws InterruptedException if interrupted while waiting for space to become available
      */
     public void put(E e) throws InterruptedException {
-        if( exception.get() != null ) {
-            throw new IllegalStateException("Queue has been closed with exception!");
-        }
+        Objects.requireNonNull(queue);
         queue.put(new Data<>(e, false));
     }
 
     public void closeExceptionally(Throwable ex) {
+        Objects.requireNonNull(queue);
         exception.set(ex);
     }
 
     @Override
     public void close() throws Exception {
-        if (exception.get() != null) {
-            queue.put(new Data<>(exception.get()));
-        }
-        else {
-            queue.put(new Data<>(null, true));
-        }
+        Objects.requireNonNull(queue);
+        queue.put(new Data<>(null, true));
+        queue = null;
     }
 
 
@@ -52,8 +48,8 @@ public class AsyncQueue<E> implements AsyncIterator<E>, AutoCloseable {
         return CompletableFuture.supplyAsync( () -> {
             try {
                 var result = queue.take();
-                if( result.error() != null ) {
-                    queue = null;
+                if( exception.get()!=null ) {
+                    throw new RuntimeException(exception.get());
                 }
                 return result;
             } catch (InterruptedException e) {
