@@ -2,17 +2,15 @@ package org.bsc.langgraph4j;
 
 import lombok.Value;
 import lombok.var;
-import org.bsc.langgraph4j.action.EdgeAsyncAction;
-import org.bsc.langgraph4j.action.NodeAsyncAction;
-import org.bsc.langgraph4j.flow.SyncSubmissionPublisher;
+import org.bsc.langgraph4j.action.AsyncEdgeAction;
+import org.bsc.langgraph4j.action.AsyncEdgeAction;
+import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.async.AsyncIterator;
+import org.bsc.langgraph4j.async.AsyncQueue;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,7 +21,7 @@ import static java.lang.String.format;
 
 @Value
 class EdgeCondition<S extends AgentState> {
-    EdgeAsyncAction<S> action;
+    AsyncEdgeAction<S> action;
     Map<String,String> mappings;
 }
 
@@ -78,39 +76,6 @@ public class GraphState<State extends AgentState> {
 
     }
 
-    public static <T> CompletableFuture<Stream<T>> convertPublisherToStream( Publisher<T> publisher ) {
-
-            var future = new CompletableFuture<Stream<T>>();
-
-            var list = new ArrayList<T>();
-
-            publisher.subscribe(new Subscriber<T>() {
-
-                @Override
-                public void onSubscribe(Subscription subscription) {
-                    subscription.request(Long.MAX_VALUE);
-                }
-
-                @Override
-                public void onNext(T item) {
-                    list.add(item);
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    future.completeExceptionally(throwable);
-                }
-
-                @Override
-                public void onComplete() {
-                    var result = StreamSupport.stream(Spliterators.spliterator(list, Spliterator.ORDERED), false);
-                    future.complete(result);
-
-                }
-            });
-
-            return future;
-    }
 
     public class Runnable {
 
@@ -121,7 +86,7 @@ public class GraphState<State extends AgentState> {
             S state;
         }
 
-        final Map<String, NodeAsyncAction<State>> nodes = new HashMap<>();
+        final Map<String, AsyncNodeAction<State>> nodes = new HashMap<>();
         final Map<String, EdgeValue<State>> edges = new HashMap<>();
 
         Runnable() {
@@ -175,53 +140,60 @@ public class GraphState<State extends AgentState> {
         }
 
 
-        public Publisher<NodeOutput<State>> stream( Map<String,Object> inputs ) throws Exception {
-                var publisher = new SyncSubmissionPublisher<NodeOutput<State>>();
 
-                var executor = Executors.newSingleThreadExecutor();
+        public AsyncIterator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
 
-                executor.submit(() -> {
-                    var currentState = stateFactory.apply(inputs);
-                    var currentNodeId = entryPoint;
-                    Map<String, Object> partialState;
+            var queue = new AsyncQueue<NodeOutput<State>>(java.lang.Runnable::run);
 
-                    try {
-                        do {
-                            var action = nodes.get(currentNodeId);
-                            if (action == null) {
-                                publisher.closeExceptionally(RunnableErrors.missingNode.exception(currentNodeId));
-                                break;
-                            }
+            var executor = Executors.newSingleThreadExecutor();
 
-                            partialState = action.apply(currentState).get();
+            executor.submit(() -> {
+                var currentState = stateFactory.apply(inputs);
+                var currentNodeId = entryPoint;
+                Map<String, Object> partialState;
 
-                            currentState = mergeState(currentState, partialState);
+                try {
+                    do {
+                        var action = nodes.get(currentNodeId);
+                        if (action == null) {
+                            queue.closeExceptionally(RunnableErrors.missingNode.exception(currentNodeId));
+                            break;
+                        }
 
-                            publisher.submit(new NodeOutput<>(currentNodeId, currentState));
+                        partialState = action.apply(currentState).get();
 
-                            if (Objects.equals(currentNodeId, finishPoint)) {
-                                break;
-                            }
+                        currentState = mergeState(currentState, partialState);
 
-                            currentNodeId = nextNodeId(currentNodeId, currentState);
+                        queue.put(new NodeOutput<>(currentNodeId, currentState));
 
-                        } while (!Objects.equals(currentNodeId, END));
+                        if (Objects.equals(currentNodeId, finishPoint)) {
+                            break;
+                        }
 
-                        publisher.close();
+                        currentNodeId = nextNodeId(currentNodeId, currentState);
 
-                    } catch (Exception e) {
-                        publisher.closeExceptionally(e);
-                    }
-                });
+                    } while (!Objects.equals(currentNodeId, END));
 
-                return publisher;
+                } catch (Exception e) {
+                    queue.closeExceptionally(e);
+                }
+                finally {
+                    executor.shutdown();
+                    queue.tryClose();
+                }
+
+            });
+
+            return queue;
         }
 
         public Optional<State> invoke( Map<String,Object> inputs ) throws Exception {
 
-            var future = convertPublisherToStream(stream(inputs));
+            var sourceIterator = stream(inputs).iterator();
 
-            var result = future.get();
+            var result = StreamSupport.stream(
+                    Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
+                    false);
 
             return  result.reduce((a, b) -> b).map( NodeOutput::getState);
         }
@@ -231,7 +203,7 @@ public class GraphState<State extends AgentState> {
     @Value
     class Node<S extends AgentState> {
         String id;
-        NodeAsyncAction<State> action;
+        AsyncNodeAction<State> action;
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -284,7 +256,7 @@ public class GraphState<State extends AgentState> {
         this.finishPoint = finishPoint;
     }
 
-    public void addNode(String id, NodeAsyncAction<State> action) throws GraphStateException {
+    public void addNode(String id, AsyncNodeAction<State> action) throws GraphStateException {
         if( Objects.equals( id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
@@ -310,7 +282,7 @@ public class GraphState<State extends AgentState> {
         edges.add( edge );
     }
 
-    public void addConditionalEdge(String sourceId, EdgeAsyncAction<State> condition, Map<String,String> mappings ) throws GraphStateException {
+    public void addConditionalEdge(String sourceId, AsyncEdgeAction<State> condition, Map<String,String> mappings ) throws GraphStateException {
         if( Objects.equals( sourceId, END)) {
             throw Errors.invalidEdgeIdentifier.exception(END);
         }
