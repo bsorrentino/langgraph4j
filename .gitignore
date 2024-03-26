@@ -34,3 +34,5 @@ build/
 ### Mac OS ###
 .DS_Store
 .java-version
+
+.env
