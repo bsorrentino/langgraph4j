@@ -35,19 +35,19 @@ public class Agent {
     }
 
     private PromptTemplate getToolResponseTemplate( ) {
-        var TEMPLATE_TOOL_RESPONSE = new StringBuilder()
-                .append("TOOL RESPONSE:").append('\n')
-                .append("---------------------").append('\n')
-                .append("{{observation}}").append('\n')
-                .append( "--------------------" ).append('\n')
-                .append('\n')
-                .toString();
+        var TEMPLATE_TOOL_RESPONSE = """
+                TOOL RESPONSE:
+                ---------------------
+                {{observation}}
+                --------------------
+                """;
         return PromptTemplate.from(TEMPLATE_TOOL_RESPONSE);
     }
 
     public Response<AiMessage> execute( String input, List<AgentExecutor.IntermediateStep> intermediateSteps ) {
         var agentScratchpadTemplate = getToolResponseTemplate();
-        var userMessageTemplate = PromptTemplate.from( "USER'S INPUT: {{input}}" ).apply( Map.of( "input", input));
+        var userMessageTemplate = PromptTemplate.from( "USER'S INPUT: {{input}}" )
+                                                    .apply( Map.of( "input", input));
 
         var messages = new ArrayList<ChatMessage>();
 
@@ -58,9 +58,9 @@ public class Agent {
         }
 
         for( AgentExecutor.IntermediateStep step: intermediateSteps ) {
-            var agentScratchpad = agentScratchpadTemplate.apply( Map.of("observation", step.observation()) );
+            var agentScratchpad = agentScratchpadTemplate
+                                        .apply( Map.of("observation", step.observation()) );
             messages.add(new UserMessage(agentScratchpad.text()));
-                            ;
         }
 
         return chatLanguageModel.generate( messages, tools );
