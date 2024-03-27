@@ -52,8 +52,8 @@ public class AsyncTest {
     public void asyncQueueTest() throws Exception {
 
         var result = new ArrayList<String>();
-
-        try ( final var queue = new AsyncQueue<String>() ) {
+        final var queue = new AsyncQueue<String>();
+        try {
 
             queue.forEachAsync( consumer_async(result::add)).thenAccept( (t) -> {
                 System.out.println( "Finished");
@@ -63,6 +63,9 @@ public class AsyncTest {
                 queue.put("e"+i );
             }
 
+        }
+        finally {
+            queue.close();
         }
 
         assertEquals(result.size(), 10);
@@ -77,12 +80,15 @@ public class AsyncTest {
         final var queue = new AsyncQueue<String>(Runnable::run);
 
         commonPool().execute( () -> {
-            try(queue) {
+            try {
                 for( int i = 0 ; i < 10 ; ++i ) {
                         queue.put( "e"+i );
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            }
+            finally {
+                queue.close();
             }
 
         });
@@ -112,12 +118,15 @@ public class AsyncTest {
         final var queue = new AsyncQueue<String>(Runnable::run);
 
         commonPool().execute( () -> {
-            try(queue) {
+            try {
                 for( int i = 0 ; i < 10 ; ++i ) {
                     queue.put( "e"+i );
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            }
+            finally {
+                queue.close();
             }
 
         });
@@ -142,7 +151,7 @@ public class AsyncTest {
         final var queue = new AsyncQueue<String>(Runnable::run);
 
         commonPool().execute( () -> {
-            try(queue) {
+            try {
                 for( int i = 0 ; i < 2 ; ++i ) {
                     queue.put( "e"+i );
                 }
@@ -150,6 +159,9 @@ public class AsyncTest {
 
             } catch (Exception e) {
                 queue.closeExceptionally(e);
+            }
+            finally {
+                queue.close();
             }
 
         });
@@ -171,7 +183,7 @@ public class AsyncTest {
         final var queue = new AsyncQueue<String>(Runnable::run);
 
         commonPool().execute( () -> {
-            try(queue) {
+            try {
                 for( int i = 0 ; i < 2 ; ++i ) {
                     queue.put( "e"+i );
                 }
@@ -179,6 +191,9 @@ public class AsyncTest {
 
             } catch (Exception e) {
                 queue.closeExceptionally(e);
+            }
+            finally {
+                queue.close();
             }
 
         });

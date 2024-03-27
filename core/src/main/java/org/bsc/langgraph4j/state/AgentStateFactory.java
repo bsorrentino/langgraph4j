@@ -1,8 +1,6 @@
 package org.bsc.langgraph4j.state;
 
 
-import org.bsc.langgraph4j.state.AgentState;
-
 import java.util.Map;
 import java.util.function.Function;
 
