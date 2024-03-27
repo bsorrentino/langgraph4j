@@ -6,6 +6,7 @@ import org.bsc.langgraph4j.async.AsyncIterator;
 import org.bsc.langgraph4j.async.AsyncQueue;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
+import org.bsc.langgraph4j.state.AppendableValue;
 
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -70,6 +71,8 @@ public class GraphState<State extends AgentState> {
         final Map<String, AsyncNodeAction<State>> nodes = new HashMap<>();
         final Map<String, EdgeValue<State>> edges = new HashMap<>();
 
+        private final int maxIterations = 25;
+
         Runnable() {
 
             GraphState.this.nodes.forEach( n ->
@@ -81,6 +84,13 @@ public class GraphState<State extends AgentState> {
             );
         }
 
+        private Object mergeFunction(Object currentValue, Object newValue) {
+            if (currentValue instanceof AppendableValue<?> ) {
+                ((AppendableValue<?>) currentValue).append( newValue );
+                return currentValue;
+            }
+            return newValue;
+        }
         private State mergeState( State currentState, Map<String,Object> partialState) {
             Objects.requireNonNull(currentState, "currentState");
 
@@ -91,7 +101,7 @@ public class GraphState<State extends AgentState> {
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             Map.Entry::getValue,
-                            (oldValue, newValue) -> newValue));
+                            this::mergeFunction));
 
             return stateFactory.apply(mergedMap);
         }
@@ -114,9 +124,10 @@ public class GraphState<State extends AgentState> {
                 if( result == null ) {
                     throw Errors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
                 }
+                return result;
             }
 
-            throw Errors.executionError.exception( format("invalid edge value for nodeId: %s !", nodeId) );
+            throw Errors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
 
         }
 
@@ -132,8 +143,8 @@ public class GraphState<State extends AgentState> {
                     var currentNodeId = entryPoint;
                     Map<String, Object> partialState;
 
-                    try (queue) {
-                        do {
+                    try  {
+                        for( int i = 0; i < maxIterations &&  !Objects.equals(currentNodeId, END); ++i ) {
                             var action = nodes.get(currentNodeId);
                             if (action == null) {
                                 queue.closeExceptionally(Errors.missingNode.exception(currentNodeId));
@@ -152,10 +163,13 @@ public class GraphState<State extends AgentState> {
 
                             currentNodeId = nextNodeId(currentNodeId, currentState);
 
-                        } while (!Objects.equals(currentNodeId, END));
+                        }
 
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         queue.closeExceptionally(e);
+                    }
+                    finally {
+                        queue.close();
                     }
 
             });
