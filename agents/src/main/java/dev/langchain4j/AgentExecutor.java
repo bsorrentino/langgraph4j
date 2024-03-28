@@ -72,11 +72,8 @@ public class AgentExecutor {
 
         if( response.finishReason() == FinishReason.TOOL_EXECUTION ) {
 
-            var toolExecutionRequest = response.content().toolExecutionRequests();
-            if (toolExecutionRequest.size() != 1) {
-                throw new IllegalStateException("unexpected number of tool execution requests: " + toolExecutionRequest.size());
-            }
-            var action = new AgentAction( toolExecutionRequest.get(0), "");
+            var toolExecutionRequests = response.content().toolExecutionRequests();
+            var action = new AgentAction( toolExecutionRequests.get(0), "");
 
             return Map.of("agent_outcome", new AgentOutcome( action, null ) );
 

@@ -1,13 +1,10 @@
 package dev.langchain4j;
 
-import dev.langchain4j.agent.tool.P;
-import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 
 public class AgentExecutorTest {
@@ -33,8 +30,8 @@ public class AgentExecutorTest {
 
             var iterator = agentExecutor.execute(
                     chatLanguageModel,
-                    //Map.of( "input", "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'"),
-                    Map.of( "input", "what is the result of test with messages: 'MY FIRST TEST'"),
+                    Map.of( "input", "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'"),
+                    //Map.of( "input", "what is the result of test with messages: 'MY FIRST TEST'"),
                     List.of(new TestTool()) );
 
            AgentExecutor.State output = null;
