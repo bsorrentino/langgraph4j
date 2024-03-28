@@ -35,10 +35,8 @@ public class AgentExecutor {
 
         public State( Map<String,Object> initData ) {
             this.data = new HashMap<>(initData);
-            if( !data.containsKey("intermediate_steps")) {
-                this.data.put("intermediate_steps",
-                        new AppendableValue<IntermediateStep>());
-            }
+            this.data.putIfAbsent("intermediate_steps",
+                    new AppendableValue<IntermediateStep>());
         }
 
         public Map<String,Object> data() {
@@ -65,8 +63,9 @@ public class AgentExecutor {
 
         var input = state.input()
                         .orElseThrow(() -> new IllegalArgumentException("no input provided!"));
+
         var intermediateSteps = state.intermediateSteps()
-                        .orElseThrow(() -> new IllegalArgumentException("no intermediateSteps provided!"));
+                .orElseThrow(() -> new IllegalArgumentException("no intermediateSteps provided!"));
 
         var response = agentRunnable.execute( input, intermediateSteps );
 
