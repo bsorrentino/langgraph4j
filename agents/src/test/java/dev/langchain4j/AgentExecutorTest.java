@@ -2,6 +2,7 @@ package dev.langchain4j;
 
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
+import dev.langchain4j.model.openai.OpenAiChatModel;
 
 import java.util.List;
 import java.util.Map;
@@ -15,11 +16,25 @@ public class AgentExecutorTest {
 
         DotEnvConfig.load();
 
-        var agentExecutor = new AgentExecutor();
+        var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
+                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
+
+        var chatLanguageModel = OpenAiChatModel.builder()
+                .apiKey( openApiKey )
+                .modelName( "gpt-3.5-turbo-0125" )
+                .logResponses(true)
+                .maxRetries(2)
+                .temperature(0.0)
+                .maxTokens(2000)
+                .build();
 
         try {
+            var agentExecutor = new AgentExecutor();
+
             var iterator = agentExecutor.execute(
-                    Map.of( "input", "what is the result of test with message: 'MY FIRST TEST'?"),
+                    chatLanguageModel,
+                    //Map.of( "input", "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'"),
+                    Map.of( "input", "what is the result of test with messages: 'MY FIRST TEST'"),
                     List.of(new TestTool()) );
 
            AgentExecutor.State output = null;

@@ -2,6 +2,7 @@ package dev.langchain4j;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.GraphState;
@@ -117,20 +118,8 @@ public class AgentExecutor {
         return "continue";
     }
 
-    public AsyncIterator<GraphState.Runnable.NodeOutput<State>> execute(Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
+    public AsyncIterator<GraphState.Runnable.NodeOutput<State>> execute(ChatLanguageModel chatLanguageModel, Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
 
-
-        var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                            .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
-
-        var chatLanguageModel = OpenAiChatModel.builder()
-                .apiKey( openApiKey )
-                .modelName( "gpt-3.5-turbo-0613" )
-                .logResponses(true)
-                .maxRetries(2)
-                .temperature(0.0)
-                .maxTokens(2000)
-                .build();
 
         var toolInfoList = ToolInfo.fromList( objectsWithTools );
 

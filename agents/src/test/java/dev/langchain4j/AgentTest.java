@@ -6,6 +6,7 @@ import dev.langchain4j.model.output.FinishReason;
 import org.junit.jupiter.api.BeforeAll;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,7 +41,7 @@ public class AgentTest {
                 .build();
 
         var msg = "hello world";
-        var response = agent.execute( Map.of("input", format("this is an AI test with message: '%s'", msg) ));
+        var response = agent.execute( format("this is an AI test with message: '%s'", msg), List.of() );
 
         assertNotNull(response);
         assertEquals(response.finishReason(), FinishReason.TOOL_EXECUTION );
