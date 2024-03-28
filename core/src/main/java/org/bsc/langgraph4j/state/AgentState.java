@@ -15,7 +15,7 @@ public interface AgentState {
 
     default <T> Optional<List<T>> appendableValue(String key ) {
         return ofNullable( ((AppendableValue<T>)data().get(key)))
-                    .map( ( v ) -> v.values );
+                    .map(AppendableValue::values);
 
     }
 }

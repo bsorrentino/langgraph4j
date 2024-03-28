@@ -6,12 +6,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class AppendableValue<T> {
-    final List<T> values;
+    private final List<T> values;
     public AppendableValue( List<T> values) {
         this.values = new ArrayList<>(values);
     }
     public AppendableValue() {
         this(Collections.emptyList());
+    }
+
+    public List<T> values() {
+        return List.copyOf(values);
     }
     public void append(Object value) {
         if (value instanceof Collection ) {
