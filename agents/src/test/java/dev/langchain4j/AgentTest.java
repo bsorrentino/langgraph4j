@@ -5,6 +5,7 @@ import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.output.FinishReason;
 import org.junit.jupiter.api.BeforeAll;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -16,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AgentTest {
 
     @BeforeAll
-    static void init() {
+    public static void loadEnv() {
         DotEnvConfig.load();
     }
 
-    public static void main( String[] args) throws Exception  {
-        DotEnvConfig.load();
+    @Test
+    public void runAgentTest() throws Exception  {
 
         assertTrue(DotEnvConfig.valueOf("OPENAI_API_KEY").isPresent());
 
@@ -54,8 +55,6 @@ public class AgentTest {
         var toolExecutionRequest = toolExecutionRequests.get(0);
         assertEquals("execTest", toolExecutionRequest.name());
         assertEquals("{  \"arg0\": \"hello world\"}", toolExecutionRequest.arguments().replaceAll("\n",""));
-
-        System.out.println( response );
 
     }
 }

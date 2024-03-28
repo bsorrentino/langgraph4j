@@ -1,17 +1,22 @@
 package dev.langchain4j;
 
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Optional.ofNullable;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AgentExecutorTest {
 
-    public static void main( String[] args)  {
-
+    @BeforeAll
+    public static void loadEnv() {
         DotEnvConfig.load();
+    }
+
+    private AgentExecutor.State executeAgent(String prompt )  throws Exception {
 
         var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
@@ -25,31 +30,54 @@ public class AgentExecutorTest {
                 .maxTokens(2000)
                 .build();
 
-        try {
-            var agentExecutor = new AgentExecutor();
 
-            var iterator = agentExecutor.execute(
-                    chatLanguageModel,
-                    Map.of( "input", "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'"),
-                    //Map.of( "input", "what is the result of test with messages: 'MY FIRST TEST'"),
-                    List.of(new TestTool()) );
+        var agentExecutor = new AgentExecutor();
 
-           AgentExecutor.State output = null;
+        var iterator = agentExecutor.execute(
+                chatLanguageModel,
+                Map.of( "input", prompt ),
+                List.of(new TestTool()) );
 
-            for( var i : iterator ) {
-                output = i.state();
-                System.out.println(i.node());
-            }
-            System.out.println( "Finished! " + ofNullable(output)
-                                                .flatMap(AgentExecutor.State::agentOutcome)
-                                                .map(AgentExecutor.AgentOutcome::finish)
-                                                .map(AgentExecutor.AgentFinish::returnValues)
-                                                .orElse(Map.of( "result", "state undefined!")) );
+       AgentExecutor.State state = null;
 
-        } catch (Exception e) {
-            System.out.println( "ERROR! "  + e.getMessage() );
+        for( var i : iterator ) {
+            state = i.state();
+            System.out.println(i.node());
         }
-        System.exit(0);
+
+        return state;
+
+    }
+
+    @Test
+    void executeAgentWithSingleToolInvocation() throws Exception {
+
+        var state = executeAgent("what is the result of test with messages: 'MY FIRST TEST'");
+
+        assertNotNull(state);
+        assertTrue(state.intermediateSteps().isPresent());
+        assertEquals( 1, state.intermediateSteps().get().size());
+        assertTrue(state.agentOutcome().isPresent());
+        assertNotNull(state.agentOutcome().get().finish());
+        assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
+        assertEquals("The test with the message 'MY FIRST TEST' has been executed successfully.",
+                state.agentOutcome().get().finish().returnValues().get("returnValues") );
+    }
+    @Test
+    void executeAgentWithDoubleToolInvocation() throws Exception {
+
+        var state = executeAgent("what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'");
+
+        assertNotNull(state);
+        assertTrue(state.intermediateSteps().isPresent());
+        assertEquals( 2, state.intermediateSteps().get().size());
+        assertTrue(state.agentOutcome().isPresent());
+        assertNotNull(state.agentOutcome().get().finish());
+        assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
+        assertEquals(
+                "The result of the test with the message 'MY FIRST TEST' is: test tool executed: MY FIRST TEST\n" +
+                "The result of the test with the message 'MY SECOND TEST' is: test tool executed: MY SECOND TEST",
+                state.agentOutcome().get().finish().returnValues().get("returnValues") );
 
     }
 }
