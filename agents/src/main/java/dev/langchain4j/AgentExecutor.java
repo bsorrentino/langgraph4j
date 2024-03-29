@@ -1,15 +1,18 @@
 package dev.langchain4j;
 
-import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.GraphState;
+import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.async.AsyncIterator;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppendableValue;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.bsc.langgraph4j.GraphState.END;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
@@ -17,17 +20,6 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 public class AgentExecutor {
 
-    record AgentAction ( ToolExecutionRequest toolExecutionRequest, String log ) {
-        public AgentAction {
-            Objects.requireNonNull(toolExecutionRequest);
-        }
-    }
-    record AgentFinish  ( Map<String,Object> returnValues, String log ) {}
-
-    record AgentOutcome(AgentAction action, AgentFinish finish) {}
-
-    public record IntermediateStep(AgentAction action, String observation) {
-    }
     public static class State implements AgentState {
 
         private final Map<String,Object> data;
@@ -113,7 +105,7 @@ public class AgentExecutor {
         return "continue";
     }
 
-    public AsyncIterator<GraphState.Runnable.NodeOutput<State>> execute(ChatLanguageModel chatLanguageModel, Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
+    public AsyncIterator<NodeOutput<State>> execute(ChatLanguageModel chatLanguageModel, Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
 
 
         var toolInfoList = ToolInfo.fromList( objectsWithTools );
