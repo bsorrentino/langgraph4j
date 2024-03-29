@@ -7,11 +7,11 @@
 
 ### Adding LangGraph dependency 
 
-Currently are available only the developer SNAPSHOTs
+> 👉 Currently are available only the developer SNAPSHOTs
 
 **Maven**
 
-** JDK8 compliant **
+**JDK8 compliant**
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
@@ -21,7 +21,7 @@ Currently are available only the developer SNAPSHOTs
 <dependency>
 ```
 
-** JDK17 compliant **
+**JDK17 compliant**
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
@@ -71,63 +71,63 @@ Below you can find a piece of code of the `AgentExecutor` to give you an idea of
 
 ```java
 
-    public static class State implements AgentState {
+public static class State implements AgentState {
 
-        private final Map<String,Object> data;
+    private final Map<String,Object> data;
 
-        public State( Map<String,Object> initData ) {
-            this.data = new HashMap<>(initData);
-            this.data.putIfAbsent("intermediate_steps",
-                    new AppendableValue<IntermediateStep>());
-        }
-
-        public Map<String,Object> data() { return Map.copyOf(data); }
-
-        Optional<String> input() { return value("input"); }
-        Optional<AgentOutcome> agentOutcome() { return value("agent_outcome"); }
-        Optional<List<IntermediateStep>> intermediateSteps() { return appendableValue("intermediate_steps"); }
+    public State( Map<String,Object> initData ) {
+        this.data = new HashMap<>(initData);
+        this.data.putIfAbsent("intermediate_steps",
+                new AppendableValue<IntermediateStep>());
     }
 
+    public Map<String,Object> data() { return Map.copyOf(data); }
 
-    var toolInfoList = ToolInfo.fromList( objectsWithTools );
+    Optional<String> input() { return value("input"); }
+    Optional<AgentOutcome> agentOutcome() { return value("agent_outcome"); }
+    Optional<List<IntermediateStep>> intermediateSteps() { return appendableValue("intermediate_steps"); }
+}
 
-    final List<ToolSpecification> toolSpecifications = toolInfoList.stream()
-            .map(ToolInfo::specification)
-            .toList();
 
-    var agentRunnable = Agent.builder()
-                            .chatLanguageModel(chatLanguageModel)
-                            .tools( toolSpecifications )
-                            .build();
+var toolInfoList = ToolInfo.fromList( objectsWithTools );
 
-    var workflow = new GraphState<>(State::new);
+final List<ToolSpecification> toolSpecifications = toolInfoList.stream()
+        .map(ToolInfo::specification)
+        .toList();
 
-    workflow.setEntryPoint("agent");
+var agentRunnable = Agent.builder()
+                        .chatLanguageModel(chatLanguageModel)
+                        .tools( toolSpecifications )
+                        .build();
 
-    workflow.addNode( "agent", node_async( state ->
-        runAgent(agentRunnable, state)) // see implementation in the repo code
-    );
+var workflow = new GraphState<>(State::new);
 
-    workflow.addNode( "action", node_async( state ->
-        executeTools(toolInfoList, state)) // see implementation in the repo code
-    );
+workflow.setEntryPoint("agent");
 
-    workflow.addConditionalEdge(
-            "agent",
-            edge_async( state -> {
-                if (state.agentOutcome().map(AgentOutcome::finish).isPresent()) {
-                    return "end";
-                }
-                return "continue";
-            }),
-            Map.of("continue", "action", "end", END)
-    );
+workflow.addNode( "agent", node_async( state ->
+    runAgent(agentRunnable, state)) // see implementation in the repo code
+);
 
-    workflow.addEdge("action", "agent");
+workflow.addNode( "action", node_async( state ->
+    executeTools(toolInfoList, state)) // see implementation in the repo code
+);
 
-    var app = workflow.compile();
+workflow.addConditionalEdge(
+        "agent",
+        edge_async( state -> {
+            if (state.agentOutcome().map(AgentOutcome::finish).isPresent()) {
+                return "end";
+            }
+            return "continue";
+        }),
+        Map.of("continue", "action", "end", END)
+);
 
-    return  app.stream( inputs );
+workflow.addEdge("action", "agent");
+
+var app = workflow.compile();
+
+return  app.stream( inputs );
 
 ```
 
