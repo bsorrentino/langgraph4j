@@ -3,7 +3,6 @@ package dev.langchain4j;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.GraphState;
 import org.bsc.langgraph4j.async.AsyncIterator;
