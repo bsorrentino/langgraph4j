@@ -1,9 +1,9 @@
 package org.bsc.langgraph4j.utils;
 
-import lombok.var;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
@@ -11,9 +11,6 @@ import static java.util.Collections.unmodifiableMap;
 public final class CollectionsUtils {
 
 
-    public static <K,V> Map<K,V> copyOf( Map<K,V> map  ) {
-        return unmodifiableMap(map);
-    }
     public static <T> List<T> listOf( T... objects  ) {
         return Arrays.asList(objects);
     }
@@ -22,12 +19,12 @@ public final class CollectionsUtils {
         return emptyMap();
     }
     public static <K,V> Map<K,V> mapOf( K k1, V v1 ) {
-        var result = new HashMap<K,V>();
+        Map<K,V> result = new HashMap<>();
         result.put(k1,v1);
         return unmodifiableMap(result);
     }
     public static <K,V> Map<K,V> mapOf( K k1, V v1, K k2, V v2 ) {
-        var result = new HashMap<K,V>();
+        Map<K,V> result = new HashMap<K,V>();
         result.put(k1,v1);
         result.put(k2,v2);
         return unmodifiableMap(result);
