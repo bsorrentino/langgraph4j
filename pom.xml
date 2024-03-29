@@ -2,20 +2,57 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.bsc</groupId>
-  <artifactId>langgraph4j</artifactId>
+  <groupId>org.bsc.langgraph4j</groupId>
+  <artifactId>langgraph4j-parent</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
-  <name>langgraph4j</name>
-  <url>http://maven.apache.org</url>
+  <name>langgraph4j::parent</name>
+  <url>https://github.com/bsorrentino/langgraph4j</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <langchai4j.version>0.29.1</langchai4j.version>
   </properties>
+
+  <distributionManagement>
+    <repository>
+      <id>${release.repo.id}</id>
+      <name>central</name>
+      <url>${release.repo.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>${snapshot.repo.id}</id>
+      <name>snapshots</name>
+      <url>${snapshot.repo.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+
+  <modules>
+  </modules>
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.32</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.9</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-jdk14</artifactId>
+        <version>2.0.9</version> <!-- Use the latest version -->
+      </dependency>
+
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
@@ -26,29 +63,62 @@
     </dependencies>
   </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
   <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>16</source>
-          <target>16</target>
-        </configuration>
-      </plugin>
-    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.3.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.2.5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
+  <profiles>
+    <profile>
+      <id>Java17andAbove</id>
+      <activation>
+        <jdk>[17,)</jdk>
+    </activation>
+    <modules>
+      <module>agents-jdk17</module>
+      <module>core-jdk17</module> 
+    </modules>
+      <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+      </properties>
+  </profile>
+  <profile>
+    <id>Java8</id>
+    <activation>
+      <jdk>1.8</jdk>
+  </activation>
+  <modules>
+    <module>core-jdk8</module> 
+    <module>agents-jdk8</module>
+  </modules>
+    <properties>
+      <maven.compiler.source>1.8</maven.compiler.source>
+      <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+</profile>
+</profiles>
 </project>
