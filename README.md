@@ -5,15 +5,29 @@
 
 ## Quick Start 
 
-### Adding LangGraph dependency
+### Adding LangGraph dependency 
+
+Currently are available only the developer SNAPSHOTs
 
 **Maven**
 
+** JDK8 compliant **
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <classifier>jdk8<classifier>
+<dependency>
+```
+
+** JDK17 compliant **
+```xml
+<dependency>
+    <groupId>org.bsc.langgraph4j</groupId>
+    <artifactId>langgraph4j</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <classifier>jdk17<classifier>
 <dependency>
 ```
 
