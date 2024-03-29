@@ -79,7 +79,7 @@ public class AsyncQueue<E> implements AsyncIterator<E> {
     public final CompletableFuture<Data<E>> next() {
         return CompletableFuture.supplyAsync( () -> {
             try {
-                var result = queue.poll(timeout, timeoutUnit);
+                Item<E> result = queue.poll(timeout, timeoutUnit);
                 if( result == null ) {
                     queue = null;
                     throw new RuntimeException( format("queue exceed the poll timeout %d %s", timeout, timeoutUnit) );

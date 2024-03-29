@@ -24,6 +24,7 @@ public interface AsyncIterator<T> extends Iterable<T> {
                 });
     }
 
+    @Override
     default Iterator<T> iterator() {
         return new Iterator<>() {
 

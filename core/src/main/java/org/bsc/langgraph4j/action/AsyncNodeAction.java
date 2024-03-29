@@ -13,7 +13,7 @@ public interface AsyncNodeAction<S extends AgentState> extends Function<S, Compl
 
     static <S extends AgentState> AsyncNodeAction<S> node_async(NodeAction<S> syncAction ) {
         return t -> {
-            var result = new CompletableFuture<Map<String, Object>>();
+            CompletableFuture<Map<String, Object>> result = new CompletableFuture<>();
             try {
                 result.complete(syncAction.apply(t));
             } catch (Exception e) {

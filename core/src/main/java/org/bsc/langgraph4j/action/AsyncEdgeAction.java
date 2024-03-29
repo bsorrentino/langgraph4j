@@ -11,7 +11,7 @@ public interface AsyncEdgeAction<S extends AgentState> extends Function<S, Compl
 
     static <S extends AgentState> AsyncEdgeAction<S> edge_async(EdgeAction<S> syncAction ) {
         return t -> {
-            var result = new CompletableFuture<String>();
+            CompletableFuture<String> result = new CompletableFuture<>();
             try {
                 result.complete(syncAction.apply(t));
             } catch (Exception e) {
