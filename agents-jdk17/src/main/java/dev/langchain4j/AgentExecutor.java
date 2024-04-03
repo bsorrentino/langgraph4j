@@ -5,7 +5,7 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.GraphState;
 import org.bsc.langgraph4j.NodeOutput;
-import org.bsc.langgraph4j.async.AsyncIterator;
+import org.bsc.langgraph4j.async.AsyncGenerator;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppendableValue;
 
@@ -105,7 +105,7 @@ public class AgentExecutor {
         return "continue";
     }
 
-    public AsyncIterator<NodeOutput<State>> execute(ChatLanguageModel chatLanguageModel, Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> execute(ChatLanguageModel chatLanguageModel, Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
 
 
         var toolInfoList = ToolInfo.fromList( objectsWithTools );

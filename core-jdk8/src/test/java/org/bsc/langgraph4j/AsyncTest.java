@@ -1,143 +1,86 @@
 package org.bsc.langgraph4j;
 
 import lombok.var;
-import org.bsc.langgraph4j.async.AsyncIterator;
-import org.bsc.langgraph4j.async.AsyncQueue;
+import org.bsc.langgraph4j.async.AsyncGenerator;
+import org.bsc.langgraph4j.async.AsyncGeneratorQueue;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.StreamSupport;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
-import static java.util.concurrent.ForkJoinPool.commonPool;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
-import static org.bsc.langgraph4j.async.AsyncFunction.*;
-
 import static org.junit.jupiter.api.Assertions.*;
+
 public class AsyncTest {
     @Test
     public void asyncIteratorTest() throws Exception {
 
-            String[] myArray = { "e1", "e2", "e3", "e4", "e5"};
+        String[] myArray = { "e1", "e2", "e3", "e4", "e5"};
 
-            final var it = new AsyncIterator<String>() {
+        final var it = new AsyncGenerator<String>() {
 
-                private int cursor = 0;
-                @Override
-                public CompletableFuture<Data<String>> next() {
+            private int cursor = 0;
+            @Override
+            public Data<String> next() {
 
-                    if (cursor == myArray.length) {
-                        return completedFuture(new Data<>(null, true) );
-                    }
-
-                    return completedFuture(new Data<>(myArray[cursor++], false));
+                if (cursor == myArray.length) {
+                    return Data.done();
                 }
-            };
 
-            List<String> result = new ArrayList<>();
-
-            it.forEachAsync( consumer_async(result::add)).thenAccept( t -> {
-                System.out.println( "Finished");
-            });
-
-            for (var i : it) {
-                result.add(i);
-                System.out.println(i);
+                return Data.of(completedFuture(myArray[cursor++]));
             }
-            System.out.println( "Finished");
+        };
 
-            assertEquals( result.size(), myArray.length );
-            assertIterableEquals( result, listOf(myArray));
+        List<String> result = new ArrayList<>();
+
+        it.forEachAsync( result::add ).thenAccept( t -> {
+            System.out.println( "Finished");
+        });
+
+        for (var i : it) {
+            result.add(i);
+            System.out.println(i);
         }
+        System.out.println( "Finished");
+
+        assertEquals( result.size(), myArray.length );
+        assertIterableEquals( result, listOf(myArray));
+    }
     @Test
     public void asyncQueueTest() throws Exception {
 
-        var result = new ArrayList<String>();
-        final var queue = new AsyncQueue<String>();
-        try {
-
-            queue.forEachAsync( consumer_async(result::add)).thenAccept( (t) -> {
-                System.out.println( "Finished");
-            });
-
+        final var it = AsyncGeneratorQueue.of( new LinkedBlockingQueue<AsyncGenerator.Data<String>>(), queue -> {
             for( int i = 0 ; i < 10 ; ++i ) {
-                queue.put("e"+i );
+                queue.add( AsyncGenerator.Data.of( completedFuture("e"+i )) );
             }
+        });
 
-        }
-        finally {
-            queue.close();
-        }
+        List<String> result = new ArrayList<>();
+
+        it.forEachAsync(result::add).thenAccept( (t) -> {
+            System.out.println( "Finished");
+        });
+
 
         assertEquals(result.size(), 10);
         assertIterableEquals(result, listOf("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"));
 
     }
 
-    @Test
-    public void asyncQueueDirectTest() throws Exception {
-
-        // AsyncQueue initialized with a direct executor. No thread is used on next() invocation
-        final var queue = new AsyncQueue<String>(Runnable::run);
-
-        commonPool().execute( () -> {
-            try {
-                for( int i = 0 ; i < 10 ; ++i ) {
-                        queue.put( "e"+i );
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            finally {
-                queue.close();
-            }
-
-        });
-
-        List<String> result = new ArrayList<>();
-
-        for (var i : queue) {
-            result.add(i);
-        }
-
-        System.out.println("Finished");
-
-        queue.forEachAsync( consumer_async(result::add)).thenAccept( t -> {
-            System.out.println( "Finished");
-
-        });
-
-        assertEquals( result.size(), 10 );
-        assertIterableEquals(result, listOf("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"));
-
-    }
 
     @Test
     public void asyncQueueToStreamTest() throws Exception {
 
         // AsyncQueue initialized with a direct executor. No thread is used on next() invocation
-        final var queue = new AsyncQueue<String>(Runnable::run);
-
-        commonPool().execute( () -> {
-            try {
-                for( int i = 0 ; i < 10 ; ++i ) {
-                    queue.put( "e"+i );
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        final var it = AsyncGeneratorQueue.of( new LinkedBlockingQueue<AsyncGenerator.Data<String>>(), queue -> {
+            for( int i = 0 ; i < 10 ; ++i ) {
+                queue.add( AsyncGenerator.Data.of( completedFuture("e"+i )) );
             }
-            finally {
-                queue.close();
-            }
-
         });
 
-        var sourceIterator = queue.iterator();
-
-        var result = StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
-                false);
+        var result = it.stream();
 
         var lastElement =   result.reduce((a, b) -> b);
 
@@ -149,30 +92,18 @@ public class AsyncTest {
     @Test
     public void asyncQueueIteratorExceptionTest() throws Exception {
 
-        // AsyncQueue initialized with a direct executor. No thread is used on next() invocation
-        final var queue = new AsyncQueue<String>(Runnable::run);
+        final var it = AsyncGeneratorQueue.of( new LinkedBlockingQueue<AsyncGenerator.Data<String>>(), queue -> {
+            for( int i = 0 ; i < 10 ; ++i ) {
+                queue.add( AsyncGenerator.Data.of( completedFuture("e"+i )) );
 
-        commonPool().execute( () -> {
-            try {
-                for( int i = 0 ; i < 2 ; ++i ) {
-                    queue.put( "e"+i );
+                if( i == 2 ) {
+                    throw new RuntimeException("error test");
                 }
-                queue.closeExceptionally(new Exception("test"));
-
-            } catch (Exception e) {
-                queue.closeExceptionally(e);
-            }
-            finally {
-                queue.close();
             }
 
         });
 
-        var sourceIterator = queue.iterator();
-
-        var result = StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
-                false);
+        var result = it.stream();
 
         assertThrows( Exception.class,  () -> result.reduce((a, b) -> b ));
 
@@ -181,26 +112,18 @@ public class AsyncTest {
     @Test
     public void asyncQueueForEachExceptionTest() throws Exception {
 
-        // AsyncQueue initialized with a direct executor. No thread is used on next() invocation
-        final var queue = new AsyncQueue<String>(Runnable::run);
+        final var it = AsyncGeneratorQueue.of( new LinkedBlockingQueue<AsyncGenerator.Data<String>>(), queue -> {
+            for( int i = 0 ; i < 10 ; ++i ) {
+                queue.add( AsyncGenerator.Data.of( completedFuture("e"+i )) );
 
-        commonPool().execute( () -> {
-            try {
-                for( int i = 0 ; i < 2 ; ++i ) {
-                    queue.put( "e"+i );
+                if( i == 2 ) {
+                    throw new RuntimeException("error test");
                 }
-                queue.closeExceptionally(new Exception("test"));
-
-            } catch (Exception e) {
-                queue.closeExceptionally(e);
-            }
-            finally {
-                queue.close();
             }
 
         });
 
-        assertThrows( Exception.class, () -> queue.forEachAsync( consumer_async(System.out::println) ).get() );
+        assertThrows( Exception.class, () -> it.forEachAsync( System.out::println ).get() );
 
     }
 

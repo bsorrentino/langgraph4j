@@ -3,19 +3,20 @@ package org.bsc.langgraph4j;
 import lombok.var;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
-import org.bsc.langgraph4j.async.AsyncIterator;
-import org.bsc.langgraph4j.async.AsyncQueue;
+import org.bsc.langgraph4j.async.AsyncGenerator;
+import org.bsc.langgraph4j.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 import org.bsc.langgraph4j.state.AppendableValue;
 
 import java.util.*;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 
 public class GraphState<State extends AgentState> {
     enum Errors {
@@ -127,49 +128,44 @@ public class GraphState<State extends AgentState> {
         }
 
 
-        public AsyncIterator<NodeOutput<State>> stream( Map<String,Object> inputs ) throws Exception {
+        public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
 
-            var queue = new AsyncQueue<NodeOutput<State>>( java.lang.Runnable::run );
+           return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
 
-            var executor = Executors.newSingleThreadExecutor();
+                var currentState = stateFactory.apply(inputs);
+                var currentNodeId = entryPoint;
+                Map<String, Object> partialState;
 
-            executor.submit(() -> {
-                    var currentState = stateFactory.apply(inputs);
-                    var currentNodeId = entryPoint;
-                    Map<String, Object> partialState;
-
-                    try  {
-                        for( int i = 0; i < maxIterations &&  !Objects.equals(currentNodeId, END); ++i ) {
-                            var action = nodes.get(currentNodeId);
-                            if (action == null) {
-                                queue.closeExceptionally(RunnableErrors.missingNode.exception(currentNodeId));
-                                break;
-                            }
-
-                            partialState = action.apply(currentState).get();
-
-                            currentState = mergeState(currentState, partialState);
-
-                            queue.put(new NodeOutput<>(currentNodeId, currentState));
-
-                            if (Objects.equals(currentNodeId, finishPoint)) {
-                                break;
-                            }
-
-                            currentNodeId = nextNodeId(currentNodeId, currentState);
-
+                try  {
+                    for( int i = 0; i < maxIterations &&  !Objects.equals(currentNodeId, END); ++i ) {
+                        var action = nodes.get(currentNodeId);
+                        if (action == null) {
+                            throw RunnableErrors.missingNode.exception(currentNodeId);
                         }
 
-                    } catch (Throwable e) {
-                        queue.closeExceptionally(e);
+                        partialState = action.apply(currentState).get();
+
+                        currentState = mergeState(currentState, partialState);
+
+                        var data = new NodeOutput<>(currentNodeId, currentState);
+
+                        queue.add( AsyncGenerator.Data.of( completedFuture(data) ));
+
+                        if (Objects.equals(currentNodeId, finishPoint)) {
+                            break;
+                        }
+
+                        currentNodeId = nextNodeId(currentNodeId, currentState);
+
                     }
-                    finally {
-                        queue.close();
-                    }
+
+                } catch (Exception e) {
+                    throw new RuntimeException( e );
+                }
 
             });
 
-            return queue;
+
         }
 
         public Optional<State> invoke( Map<String,Object> inputs ) throws Exception {
