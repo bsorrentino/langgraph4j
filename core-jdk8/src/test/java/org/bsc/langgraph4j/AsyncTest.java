@@ -1,8 +1,8 @@
 package org.bsc.langgraph4j;
 
 import lombok.var;
-import org.bsc.langgraph4j.async.AsyncGenerator;
-import org.bsc.langgraph4j.async.AsyncGeneratorQueue;
+import org.bsc.async.AsyncGenerator;
+import org.bsc.async.AsyncGeneratorQueue;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

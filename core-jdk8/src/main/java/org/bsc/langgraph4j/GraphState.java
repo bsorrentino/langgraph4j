@@ -1,10 +1,10 @@
 package org.bsc.langgraph4j;
 
 import lombok.var;
+import org.bsc.async.AsyncGenerator;
+import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
-import org.bsc.langgraph4j.async.AsyncGenerator;
-import org.bsc.langgraph4j.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 import org.bsc.langgraph4j.state.AppendableValue;
@@ -227,7 +227,7 @@ public class GraphState<State extends AgentState> {
         edges.add( edge );
     }
 
-    public void addConditionalEdge(String sourceId, AsyncEdgeAction<State> condition, Map<String,String> mappings ) throws GraphStateException {
+    public void addConditionalEdges(String sourceId, AsyncEdgeAction<State> condition, Map<String,String> mappings ) throws GraphStateException {
         if( Objects.equals( sourceId, END)) {
             throw Errors.invalidEdgeIdentifier.exception(END);
         }

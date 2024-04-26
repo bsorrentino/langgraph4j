@@ -71,7 +71,7 @@ public class LangGraphTest
         System.out.println(exception.getMessage());
 
         exception = assertThrows(GraphStateException.class, () ->
-            workflow.addConditionalEdge("agent_1", edge_async( state  -> "agent_3" ), mapOf() )
+            workflow.addConditionalEdges("agent_1", edge_async(state  -> "agent_3" ), mapOf() )
         );
         System.out.println(exception.getMessage());
 
