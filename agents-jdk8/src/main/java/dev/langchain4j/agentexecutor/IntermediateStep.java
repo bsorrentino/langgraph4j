@@ -1,4 +1,4 @@
-package dev.langchain4j;
+package dev.langchain4j.agentexecutor;
 
 import lombok.Value;
 import lombok.experimental.Accessors;

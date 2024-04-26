@@ -1,4 +1,4 @@
-package dev.langchain4j;
+package dev.langchain4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.*;

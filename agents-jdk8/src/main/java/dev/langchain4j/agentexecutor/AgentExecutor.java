@@ -1,12 +1,12 @@
-package dev.langchain4j;
+package dev.langchain4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import lombok.var;
+import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.GraphState;
 import org.bsc.langgraph4j.NodeOutput;
-import org.bsc.langgraph4j.async.AsyncGenerator;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppendableValue;
 
@@ -132,7 +132,7 @@ public class AgentExecutor {
             executeTools(toolInfoList, state))
         );
 
-        workflow.addConditionalEdge(
+        workflow.addConditionalEdges(
                 "agent",
                 edge_async(this::shouldContinue),
                 mapOf("continue", "action", "end", END)

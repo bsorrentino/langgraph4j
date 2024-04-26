@@ -1,11 +1,9 @@
-package dev.langchain4j;
+package dev.langchain4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Accessors;
-
-import java.util.Objects;
 
 @Value
 @Accessors( fluent = true)

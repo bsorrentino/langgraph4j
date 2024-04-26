@@ -1,4 +1,4 @@
-package dev.langchain4j;
+package dev.langchain4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.DefaultToolExecutor;
 import dev.langchain4j.agent.tool.Tool;
@@ -10,9 +10,7 @@ import lombok.experimental.Accessors;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static dev.langchain4j.agent.tool.ToolSpecifications.toolSpecificationFrom;
 import static java.util.Collections.unmodifiableList;
