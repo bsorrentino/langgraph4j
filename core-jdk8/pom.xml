@@ -27,6 +27,12 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.bsc.async</groupId>
+      <artifactId>async-generator-jdk8</artifactId>
+      <version>1.0.0</version>
+    </dependency>
   </dependencies>
 
   <build>
