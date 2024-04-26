@@ -12,7 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <langchai4j.version>0.29.1</langchai4j.version>
+    <langchai4j.version>0.30.0</langchai4j.version>
   </properties>
 
   <distributionManagement>
