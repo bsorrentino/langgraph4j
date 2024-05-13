@@ -1,34 +1,16 @@
 package org.bsc.langgraph4j.state;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Collections.unmodifiableList;
 
-public class AppendableValue<T> {
-    private final List<T> values;
-    public AppendableValue( List<T> values) {
-        this.values = new ArrayList<>(values);
-    }
-    public AppendableValue() {
-        this(Collections.emptyList());
-    }
+public interface AppendableValue<T> {
 
-    public List<T> values() {
-        return unmodifiableList(values);
-    }
-    public void append(Object value) {
-        if (value instanceof Collection ) {
-            this.values.addAll((Collection<? extends T>) value);
-        }
-        else {
-            this.values.add((T)value);
-        }
-    }
+    List<T> values();
 
-    public String toString() {
-        return String.valueOf(values);
-    }
+    boolean isEmpty() ;
+    int size() ;
+
+    Optional<T> last() ;
+    Optional<T> lastMinus( int n ) ;
 }

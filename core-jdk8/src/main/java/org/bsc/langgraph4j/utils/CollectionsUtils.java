@@ -29,4 +29,11 @@ public final class CollectionsUtils {
         result.put(k2,v2);
         return unmodifiableMap(result);
     }
+    public static <K,V> Map<K,V> mapOf( K k1, V v1, K k2, V v2, K k3, V v3 ) {
+        Map<K,V> result = new HashMap<K,V>();
+        result.put(k1,v1);
+        result.put(k2,v2);
+        result.put(k3,v3);
+        return unmodifiableMap(result);
+    }
 }
