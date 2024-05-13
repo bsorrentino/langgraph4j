@@ -2,25 +2,27 @@ package dev.langchain4j.image_to_diagram;
 
 import dev.langchain4j.data.message.*;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import lombok.var;
+import net.sourceforge.plantuml.ErrorUmlType;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.GraphState;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.AppendableValue;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Optional.ofNullable;
@@ -46,23 +48,34 @@ public class ImageToDiagram {
             return new ImageUrlOrData(null, data );
         }
     }
-    public static class State implements AgentState {
+    public enum EvaluationResult {
+        OK,
+        ERROR,
+        UNKNOWN
+    }
 
-        private final Map<String, Object> data;
+    public static class State extends AgentState {
 
         public State(Map<String, Object> initData) {
-            this.data = new HashMap<>(initData);
+            super(initData);
         }
 
         public Optional<Diagram.Element> diagram() {
             return value("diagram");
         }
-        public Optional<String> diagramCode() {
-            return value("diagramCode");
+        public AppendableValue<String> diagramCode() {
+            return appendableValue("diagramCode");
         }
 
-        public Map<String, Object> data() {
-            return unmodifiableMap(data);
+
+        public Optional<EvaluationResult> evaluationResult() {
+            return value("evaluationResult" );
+        }
+        public Optional<String> evaluationError() {
+            return value("evaluationError" );
+        }
+        public Optional<ErrorUmlType> evaluationErrorType() {
+            return value("evaluationErrorType" );
         }
     }
 
@@ -73,7 +86,7 @@ public class ImageToDiagram {
     }
 
     public ImageToDiagram( String resourceName ) throws  Exception {
-        var imageData = ImageLoader.loadImageAsBase64( "supervisor-diagram.png" );
+        var imageData = ImageLoader.loadImageAsBase64( resourceName );
         imageUrlOrData = ImageUrlOrData.of(imageData);
     }
 
@@ -150,12 +163,66 @@ public class ImageToDiagram {
         return mapOf("diagramCode", result );
     }
 
-    public AsyncGenerator<NodeOutput<State>> execute(  Map<String, Object> inputs ) throws Exception {
+    CompletableFuture<Map<String,Object>> reviewResult(ChatLanguageModel chatLanguageModel, State state)  {
+        CompletableFuture<Map<String,Object>> future = new CompletableFuture<>();
+        try {
 
+            var diagramCode = state.diagramCode().last()
+                    .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
+
+            var error = state.evaluationError()
+                    .orElseThrow(() -> new IllegalArgumentException("no evaluation error provided!"));
+
+            Prompt systemPrompt = loadPromptTemplate( "review_diagram.txt" )
+                        .apply( mapOf( "evaluationError", error, "diagramCode", diagramCode));
+            var response = chatLanguageModel.generate( new SystemMessage(systemPrompt.text()) );
+
+            var result = response.content().text();
+
+            future.complete(mapOf("diagramCode", result ) );
+
+        } catch (Exception e) {
+            future.completeExceptionally(e);
+        }
+
+        return future;
+    }
+
+    private CompletableFuture<Map<String,Object>> evaluateResult(State state) {
+
+        var diagramCode = state.diagramCode().last()
+                .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
+
+        return PlantUMLAction.validate( diagramCode )
+                .thenApply( v -> mapOf( "evaluationResult", (Object)EvaluationResult.OK.name() ) )
+                .exceptionally( e -> {
+                    if( e instanceof PlantUMLAction.Error ) {
+                        return mapOf("evaluationResult", EvaluationResult.ERROR.name(),
+                            "evaluationError",  e.getCause().getMessage(),
+                            "evaluationErrorType", ((PlantUMLAction.Error)e).getType());
+                    }
+                    throw new RuntimeException(e);
+                });
+
+    }
+
+    private  String routeEvaluationResult( State state )  {
+        if( state.evaluationErrorType().map( type -> type == ErrorUmlType.EXECUTION_ERROR ).orElse(false) ) {
+            return EvaluationResult.UNKNOWN.name();
+        }
+        return state.evaluationResult()
+                .map(EvaluationResult::name)
+                .orElse(EvaluationResult.UNKNOWN.name());
+    };
+
+    @Getter(lazy = true)
+    private final OpenAiChatModel LLM = newLLM();
+
+    private OpenAiChatModel newLLM( ) {
         var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
-                            .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
+                .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
 
-        var llm = OpenAiChatModel.builder()
+        return OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-3.5-turbo" )
                 .logRequests(true)
@@ -164,6 +231,14 @@ public class ImageToDiagram {
                 .temperature(0.0)
                 .maxTokens(2000)
                 .build();
+
+    }
+    public AsyncGenerator<NodeOutput<State>> execute(  Map<String, Object> inputs ) throws Exception {
+
+        var llm = getLLM();
+
+        var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
+                .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
 
         var llmVision = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
@@ -184,14 +259,23 @@ public class ImageToDiagram {
                 translateSequenceDiagramDescriptionToPlantUML( llm, state )) );
         workflow.addNode("agent_generic_plantuml", node_async( state ->
                 translateGenericDiagramDescriptionToPlantUML( llm, state )) );
-        workflow.addEdge("agent_sequence_plantuml", END);
-        workflow.addEdge("agent_generic_plantuml", END);
+        workflow.addNode( "agent_review", this::evaluateResult);
+        workflow.addNode( "evaluate_result", this::evaluateResult);
+        workflow.addEdge("agent_sequence_plantuml", "evaluate_result");
         workflow.addConditionalEdges(
                 "agent_describer",
                 edge_async(this::routeDiagramTranslation),
                 mapOf( "sequence", "agent_sequence_plantuml",
                     "generic", "agent_generic_plantuml" )
         );
+        workflow.addConditionalEdges(
+                "evaluate_result",
+                edge_async(this::routeEvaluationResult),
+                mapOf(  "OK", END,
+                        "ERROR", "agent_review",
+                        "UNKNOWN", END )
+        );
+        workflow.addEdge( "agent_review", "evaluate_result" );
         workflow.setEntryPoint("agent_describer");
 
         var app = workflow.compile();

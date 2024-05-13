@@ -40,6 +40,13 @@
             <artifactId>langchain4j-open-ai</artifactId>
             <version>${langchai4j.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.sourceforge.plantuml</groupId>
+            <artifactId>plantuml-mit</artifactId>
+            <version>1.2024.4</version>
+        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

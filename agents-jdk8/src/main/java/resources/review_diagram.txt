@@ -1,0 +1,5 @@
+In the follow PlantUML diagram script there is the error: {{evaluationError}}.
+Rewrite the PlantUML diagram script, correcting the error and applying this correction to any similar errors you find in the script itself.
+
+{{diagramCode}}
+

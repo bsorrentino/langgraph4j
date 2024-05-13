@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 public class DiagramOutputParser implements OutputParser<Diagram.Element> {
     @Override
     public Diagram.Element parse(String s) {
+        // String pattern = "```json\n(.*?)\n```";
         String pattern = "```json\n(.*?)\n```";
 
         // Create a Pattern object
