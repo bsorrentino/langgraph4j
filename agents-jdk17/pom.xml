@@ -19,9 +19,8 @@
 
         <dependency>
             <groupId>org.bsc.langgraph4j</groupId>
-            <artifactId>langgraph4j</artifactId>
+            <artifactId>langgraph4j-jdk17</artifactId>
             <version>${project.version}</version>
-            <classifier>jdk17</classifier>
         </dependency>
 
         <dependency>
@@ -59,6 +58,7 @@
 
     <build>
         <plugins>
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -75,7 +75,7 @@
                   </execution>
                 </executions>
               </plugin>
-        
+              -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

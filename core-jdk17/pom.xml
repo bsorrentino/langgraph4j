@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>langgraph4j</artifactId>
+  <artifactId>langgraph4j-jdk17</artifactId>
   <packaging>jar</packaging>
   <name>langgraph4j::core::jdk17</name>
   
@@ -25,6 +25,7 @@
 
   <build>
     <plugins>
+      <!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -41,6 +42,7 @@
           </execution>
         </executions>
       </plugin>
+      -->
     </plugins>
   </build>
 
