@@ -15,30 +15,31 @@
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>langgraph4j</artifactId>
+    <artifactId>langgraph4j-jdk8</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <classifier>jdk8<classifier>
 <dependency>
 ```
 
 **JDK17 compliant**
-```xml
-<dependency>
-    <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>langgraph4j</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <classifier>jdk17<classifier>
-<dependency>
-```
+> _work in progress_
+
 
 ### Define the agent state
 
-The main type of graph in `langgraph` is the `StatefulGraph`. This graph is parameterized by a state object that it passes around to each node. Each node then returns operations to update that state. These operations can either SET specific attributes on the state (e.g. overwrite the existing values) or ADD to the existing attribute. Whether to set or add is denoted by initialize the property with a `AppendableValue`. The State must be compliant with `AgentState` interface that essentially is a `Map` wrapper.
+The main type of graph in `langgraph` is the `StatefulGraph`. This graph is parameterized by a state object that it passes around to each node. 
+Each node then returns operations to update that state. These operations can either SET specific attributes on the state (e.g. overwrite the existing values) or ADD to the existing attribute. 
+Whether to set or add is denoted by initialize the property with a `AppendableValue`. The State must inherit from `AgentState` base class (that essentially is a `Map` wrapper).
 
 ```java
-public interface AgentState {
+public class AgentState {
 
-    java.util.Map<String,Object> data();
+   public AgentState( Map<String,Object> initData );
+   
+   public final java.util.Map<String,Object> data();
+
+   public final <T> Optional<T> value(String key);
+
+   public final <T> AppendableValue<T> appendableValue(String key );
 
 }
 ```
@@ -73,21 +74,21 @@ Below you can find a piece of code of the `AgentExecutor` to give you an idea of
 
 public static class State implements AgentState {
 
-    private final Map<String,Object> data;
+   public State(Map<String, Object> initData) {
+      super(initData);
+   }
 
-    public State( Map<String,Object> initData ) {
-        this.data = new HashMap<>(initData);
-        this.data.putIfAbsent("intermediate_steps",
-                new AppendableValue<IntermediateStep>());
-    }
-
-    public Map<String,Object> data() { return Map.copyOf(data); }
-
-    Optional<String> input() { return value("input"); }
-    Optional<AgentOutcome> agentOutcome() { return value("agent_outcome"); }
-    Optional<List<IntermediateStep>> intermediateSteps() { return appendableValue("intermediate_steps"); }
+   Optional<String> input() {
+      return value("input");
+   }
+   Optional<AgentOutcome> agentOutcome() {
+      return value("agent_outcome");
+   }
+   AppendableValue<IntermediateStep> intermediateSteps() {
+      return appendableValue("intermediate_steps");
+   }
+   
 }
-
 
 var toolInfoList = ToolInfo.fromList( objectsWithTools );
 
@@ -130,6 +131,10 @@ var app = workflow.compile();
 return  app.stream( inputs );
 
 ```
+## Samples
+
+* [Agent Executor](agents-jdk8/src/main/java/dev/langchain4j/agentexecutor)
+* [Image To PlantUML Diagram](agents-jdk8/src/main/java/dev/langchain4j/image_to_diagram)
 
 # References
 
