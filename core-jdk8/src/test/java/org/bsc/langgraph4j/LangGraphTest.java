@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j;
 
 import lombok.var;
+import org.bsc.langgraph4j.state.AgentState;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class LangGraphTest
     @Test
     void testValidation() throws Exception {
 
-        var workflow = new GraphState<>(BaseAgentState::new);
+        var workflow = new GraphState<>(AgentState::new);
         var exception = assertThrows(GraphStateException.class, workflow::compile);
         System.out.println(exception.getMessage());
         assertEquals( "missing Entry Point", exception.getMessage());
@@ -80,7 +81,7 @@ public class LangGraphTest
     @Test
     public void testRunningOneNode() throws Exception {
 
-        var workflow = new GraphState<>(BaseAgentState::new);
+        var workflow = new GraphState<>(AgentState::new);
         workflow.setEntryPoint("agent_1");
 
         workflow.addNode("agent_1", node_async( state -> {

@@ -21,18 +21,10 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 public class AgentExecutor {
 
-    public static class State implements AgentState {
+    public static class State extends AgentState {
 
-        private final Map<String,Object> data;
-
-        public State( Map<String,Object> initData ) {
-            this.data = new HashMap<>(initData);
-            this.data.putIfAbsent("intermediate_steps",
-                    new AppendableValue<IntermediateStep>());
-        }
-
-        public Map<String,Object> data() {
-            return unmodifiableMap(data);
+        public State(Map<String, Object> initData) {
+            super(initData);
         }
 
         Optional<String> input() {
@@ -41,14 +33,11 @@ public class AgentExecutor {
         Optional<AgentOutcome> agentOutcome() {
             return value("agent_outcome");
         }
-        Optional<List<IntermediateStep>> intermediateSteps() {
+        AppendableValue<IntermediateStep> intermediateSteps() {
             return appendableValue("intermediate_steps");
         }
 
-        @Override
-        public String toString() {
-            return data.toString();
-        }
+
     }
 
     Map<String,Object> runAgent( Agent agentRunnable, State state ) throws Exception {
@@ -56,8 +45,7 @@ public class AgentExecutor {
         var input = state.input()
                         .orElseThrow(() -> new IllegalArgumentException("no input provided!"));
 
-        var intermediateSteps = state.intermediateSteps()
-                .orElseThrow(() -> new IllegalArgumentException("no intermediateSteps provided!"));
+        var intermediateSteps = state.intermediateSteps().values();
 
         var response = agentRunnable.execute( input, intermediateSteps );
 

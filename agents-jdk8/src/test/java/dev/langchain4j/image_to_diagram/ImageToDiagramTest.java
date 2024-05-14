@@ -5,7 +5,10 @@ import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.data.message.*;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import lombok.Value;
 import lombok.var;
+import net.sourceforge.plantuml.ErrorUmlType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,13 +17,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ImageToDiagramTest {
-
 
     private String readTextResource( String resourceName ) throws Exception {
         final ClassLoader classLoader = getClass().getClassLoader();
@@ -113,7 +116,8 @@ public class ImageToDiagramTest {
     @Test
     public void imageToDiagram() throws Exception {
 
-        var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
+        // var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
+        var agentExecutor = new ImageToDiagram("LangChainAgents.png");
 
         var result = agentExecutor.execute( mapOf() );
 
@@ -124,7 +128,94 @@ public class ImageToDiagramTest {
         }
 
 
-        System.out.println( ofNullable(state).flatMap(ImageToDiagram.State::diagramCode).orElse("NO DIAGRAM CODE") );
+        System.out.println( ofNullable(state)
+                                .flatMap( s -> s.diagramCode().last() ).orElse("NO DIAGRAM CODE") );
 
+    }
+
+    @Value( staticConstructor = "of" )
+    static class ReviewResult {
+        boolean retry;
+        ImageToDiagram.State state;
+        String error;
+
+        @Override
+        public String toString() {
+            return "ReviewResult\n" +
+                    "retry=" + retry + "\n" +
+                    "diagramCode\n" +
+                    state.diagramCode().values() +
+                    "\n" +
+                    "error=" + error + "\n";
+
+        }
+    }
+
+    private CompletableFuture<ReviewResult> reviewDiagramResult( ImageToDiagram.State state, ImageToDiagram process )  {
+        assertFalse( state.diagramCode().isEmpty() );
+        assertTrue( state.diagramCode().last().isPresent() );
+
+        String last = state.diagramCode().last().get();
+
+        return PlantUMLAction.validate( last )
+                .thenApply( v -> ReviewResult.of(false, state, null) )
+                .exceptionally(e -> {;
+                    if( e.getCause() instanceof PlantUMLAction.Error ) {
+                        PlantUMLAction.Error err = (PlantUMLAction.Error) e.getCause();
+                        return  ReviewResult.of((err.getType() == ErrorUmlType.SYNTAX_ERROR), state, err.getMessage());
+                    }
+                    Assertions.fail("validation error", e );
+                    return null;
+                })
+                .thenCompose( res -> {
+                    if( !res.isRetry() ) {
+                        return CompletableFuture.completedFuture( res );
+                    }
+                    if( res.state.lastTwoDiagramsAreEqual() ) {
+                        System.out.println("CORRECTION FAILED!");
+                        return CompletableFuture.completedFuture( res );
+                    }
+                    ImageToDiagram.State newState = state.mergeWith(
+                            mapOf(
+                            "evaluationResult", ImageToDiagram.EvaluationResult.ERROR,
+                            "evaluationError", res.getError()), ImageToDiagram.State::new);
+                    return process.reviewResult( newState )
+                            .thenApply( v -> newState.mergeWith( v, ImageToDiagram.State::new ) )
+                            .thenApply( v -> ReviewResult.of( true, v, res.getError() ) );
+                });
+
+    }
+
+    CompletableFuture<ReviewResult> reviewDiagramResultRecursive( ImageToDiagram.State state, ImageToDiagram process ) {
+
+        return reviewDiagramResult(state, process ).thenCompose( v -> {
+            System.out.println( v );
+            if( v.isRetry() ) {
+                if( v.state.lastTwoDiagramsAreEqual() ) {
+                    System.out.println("CORRECTION FAILED!");
+                    return CompletableFuture.completedFuture( v );
+                }
+                return reviewDiagramResultRecursive( v.getState(), process );
+            }
+            else {
+                return CompletableFuture.completedFuture(v);
+            }
+        });
+
+    }
+
+    @Test
+    public void reviewDiagram() throws Exception {
+
+        final String code = readTextResource("wrong_result_5.txt");
+
+        final ImageToDiagram process = new ImageToDiagram("supervisor-diagram.png");
+
+        ImageToDiagram.State state = new ImageToDiagram.State( mapOf( "diagramCode", code ) );
+
+        final ReviewResult result = reviewDiagramResultRecursive(state, process).join();
+
+        System.out.println( "FINAL" );
+        System.out.println( result.state.diagramCode().last().get() );
     }
 }

@@ -7,12 +7,9 @@ import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
-import org.bsc.langgraph4j.state.AppendableValue;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
@@ -80,27 +77,6 @@ public class GraphState<State extends AgentState> {
             );
         }
 
-        private Object mergeFunction(Object currentValue, Object newValue) {
-            if (currentValue instanceof AppendableValue<?> ) {
-                ((AppendableValue<?>) currentValue).append( newValue );
-                return currentValue;
-            }
-            return newValue;
-        }
-        private State mergeState( State currentState, Map<String,Object> partialState) {
-            Objects.requireNonNull(currentState, "currentState");
-
-            if( partialState == null || partialState.isEmpty() ) {
-                return currentState;
-            }
-            var mergedMap = Stream.concat(currentState.data().entrySet().stream(), partialState.entrySet().stream())
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            this::mergeFunction));
-
-            return stateFactory.apply(mergedMap);
-        }
 
         private String nextNodeId( String nodeId , State state ) throws Exception {
 
@@ -145,7 +121,7 @@ public class GraphState<State extends AgentState> {
 
                         partialState = action.apply(currentState).get();
 
-                        currentState = mergeState(currentState, partialState);
+                        currentState = currentState.mergeWith(partialState, stateFactory);
 
                         var data = new NodeOutput<>(currentNodeId, currentState);
 

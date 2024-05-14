@@ -3,7 +3,7 @@ describe the diagram in the image step by step so we can translate it into diagr
  Return a markdown code snippet with a JSON object formatted to look like:
 ```json
 {
-  "type": string // Diagram typology (one word). Eg. "sequence", "class", "process", etc."
+  "type": string // Diagram tipology (one word). Eg. "sequence", "class", "process", etc."
   "title": string // Diagram summary (max one line) or title (if any)
   "participants": array[
     {

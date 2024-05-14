@@ -2,25 +2,28 @@ package dev.langchain4j.image_to_diagram;
 
 import dev.langchain4j.data.message.*;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import net.sourceforge.plantuml.ErrorUmlType;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.GraphState;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.AppendableValue;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Optional.ofNullable;
@@ -29,6 +32,7 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
+@Slf4j
 public class ImageToDiagram {
 
     @Value()
@@ -46,24 +50,53 @@ public class ImageToDiagram {
             return new ImageUrlOrData(null, data );
         }
     }
-    public static class State implements AgentState {
+    public enum EvaluationResult {
+        OK,
+        ERROR,
+        UNKNOWN
+    }
 
-        private final Map<String, Object> data;
+    public static class State extends AgentState {
 
         public State(Map<String, Object> initData) {
-            this.data = new HashMap<>(initData);
+            super(initData);
         }
 
         public Optional<Diagram.Element> diagram() {
             return value("diagram");
         }
-        public Optional<String> diagramCode() {
-            return value("diagramCode");
+        public AppendableValue<String> diagramCode() {
+            return appendableValue("diagramCode");
+        }
+        public Optional<EvaluationResult> evaluationResult() {
+            return value("evaluationResult" );
+        }
+        public Optional<String> evaluationError() {
+            return value("evaluationError" );
+        }
+        public Optional<ErrorUmlType> evaluationErrorType() {
+            return value("evaluationErrorType" );
         }
 
-        public Map<String, Object> data() {
-            return unmodifiableMap(data);
+        public boolean isExecutionError() {
+            return evaluationErrorType()
+                    .map( type -> type == ErrorUmlType.EXECUTION_ERROR )
+                    .orElse(false);
         }
+
+        public boolean lastTwoDiagramsAreEqual() {
+            if( diagramCode().size() < 2 ) return false;
+
+            String last = diagramCode().last()
+                            .map(String::trim)
+                            .orElseThrow( () -> new IllegalStateException( "last() is null!" ) );
+            String prev = diagramCode().lastMinus(1)
+                            .map(String::trim)
+                            .orElseThrow( () -> new IllegalStateException( "last(-1) is null!" ) );
+
+            return last.equals(prev);
+        }
+
     }
 
     private final ImageUrlOrData imageUrlOrData;
@@ -73,7 +106,7 @@ public class ImageToDiagram {
     }
 
     public ImageToDiagram( String resourceName ) throws  Exception {
-        var imageData = ImageLoader.loadImageAsBase64( "supervisor-diagram.png" );
+        var imageData = ImageLoader.loadImageAsBase64( resourceName );
         imageUrlOrData = ImageUrlOrData.of(imageData);
     }
 
@@ -121,7 +154,7 @@ public class ImageToDiagram {
         return mapOf( "diagram",result );
     }
 
-    private Map<String,Object> translateGenericDiagramDescriptionToPlantUML(ChatLanguageModel chatLanguageModel, State state) throws Exception {
+    private Map<String,Object> translateGenericDiagramDescriptionToPlantUML( State state) throws Exception {
 
         var diagram = state.diagram()
                 .orElseThrow(() -> new IllegalArgumentException("no diagram provided!"));
@@ -129,13 +162,13 @@ public class ImageToDiagram {
         var systemPrompt = loadPromptTemplate( "convert_generic_diagram_to_plantuml.txt" )
                 .apply( mapOf( "diagram_description", diagram));
 
-        var response = chatLanguageModel.generate( new SystemMessage(systemPrompt.text()) );
+        var response = getLLM().generate( new SystemMessage(systemPrompt.text()) );
 
         var result = response.content().text();
 
         return mapOf("diagramCode", result );
     }
-    private Map<String,Object> translateSequenceDiagramDescriptionToPlantUML(ChatLanguageModel chatLanguageModel, State state) throws Exception {
+    private Map<String,Object> translateSequenceDiagramDescriptionToPlantUML( State state) throws Exception {
 
         var diagram = state.diagram()
                 .orElseThrow(() -> new IllegalArgumentException("no diagram provided!"));
@@ -143,19 +176,82 @@ public class ImageToDiagram {
         var systemPrompt = loadPromptTemplate( "convert_sequence_diagram_to_plantuml.txt" )
                 .apply( mapOf( "diagram_description", diagram));
 
-        var response = chatLanguageModel.generate( new SystemMessage(systemPrompt.text()) );
+        var response = getLLM().generate( new SystemMessage(systemPrompt.text()) );
 
         var result = response.content().text();
 
         return mapOf("diagramCode", result );
     }
 
-    public AsyncGenerator<NodeOutput<State>> execute(  Map<String, Object> inputs ) throws Exception {
+    CompletableFuture<Map<String,Object>> reviewResult( State state)  {
+        CompletableFuture<Map<String,Object>> future = new CompletableFuture<>();
+        try {
 
+            var diagramCode = state.diagramCode().last()
+                    .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
+
+            var error = state.evaluationError()
+                    .orElseThrow(() -> new IllegalArgumentException("no evaluation error provided!"));
+
+            Prompt systemPrompt = loadPromptTemplate( "review_diagram.txt" )
+                        .apply( mapOf( "evaluationError", error, "diagramCode", diagramCode));
+            var response = getLLM().generate( new SystemMessage(systemPrompt.text()) );
+
+            var result = response.content().text();
+
+            future.complete(mapOf("diagramCode", result ) );
+
+        } catch (Exception e) {
+            future.completeExceptionally(e);
+        }
+
+        return future;
+    }
+
+    private CompletableFuture<Map<String,Object>> evaluateResult(State state) {
+
+        var diagramCode = state.diagramCode().last()
+                .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
+
+        return PlantUMLAction.validate( diagramCode )
+                .thenApply( v -> mapOf( "evaluationResult", (Object)EvaluationResult.OK ) )
+                .exceptionally( e -> {
+                    if( e instanceof PlantUMLAction.Error ) {
+                        return mapOf("evaluationResult", EvaluationResult.ERROR,
+                            "evaluationError",  e.getCause().getMessage(),
+                            "evaluationErrorType", ((PlantUMLAction.Error)e).getType());
+                    }
+                    throw new RuntimeException(e);
+                });
+
+    }
+
+    private  String routeEvaluationResult( State state )  {
+        var evaluationResult = state.evaluationResult()
+                .orElseThrow(() -> new IllegalArgumentException("no evaluationResult provided!"));
+
+        if( evaluationResult == EvaluationResult.ERROR ) {
+            if( state.isExecutionError() ) {
+                log.warn("evaluation execution error: [{}]", state.evaluationError().orElse("unknown") );
+                return EvaluationResult.UNKNOWN.name();
+            }
+            if (state.lastTwoDiagramsAreEqual()) {
+                log.warn("correction failed! ");
+                return EvaluationResult.UNKNOWN.name();
+            }
+        }
+
+        return evaluationResult.name();
+    };
+
+    @Getter(lazy = true)
+    private final OpenAiChatModel LLM = newLLM();
+
+    private OpenAiChatModel newLLM( ) {
         var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
-                            .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
+                .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
 
-        var llm = OpenAiChatModel.builder()
+        return OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-3.5-turbo" )
                 .logRequests(true)
@@ -164,6 +260,12 @@ public class ImageToDiagram {
                 .temperature(0.0)
                 .maxTokens(2000)
                 .build();
+
+    }
+    public AsyncGenerator<NodeOutput<State>> execute(  Map<String, Object> inputs ) throws Exception {
+
+        var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
+                .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
 
         var llmVision = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
@@ -180,17 +282,27 @@ public class ImageToDiagram {
 
         workflow.addNode("agent_describer", node_async( state ->
                 describeDiagramImage( llmVision, imageUrlOrData, state )) );
-        workflow.addNode("agent_sequence_plantuml", node_async( state ->
-                translateSequenceDiagramDescriptionToPlantUML( llm, state )) );
-        workflow.addNode("agent_generic_plantuml", node_async( state ->
-                translateGenericDiagramDescriptionToPlantUML( llm, state )) );
-        workflow.addEdge("agent_sequence_plantuml", END);
-        workflow.addEdge("agent_generic_plantuml", END);
+        workflow.addNode("agent_sequence_plantuml",
+                node_async(this::translateSequenceDiagramDescriptionToPlantUML) );
+        workflow.addNode("agent_generic_plantuml",
+                node_async(this::translateGenericDiagramDescriptionToPlantUML) );
         workflow.addConditionalEdges(
                 "agent_describer",
                 edge_async(this::routeDiagramTranslation),
                 mapOf( "sequence", "agent_sequence_plantuml",
                     "generic", "agent_generic_plantuml" )
+        );
+        workflow.addNode( "agent_review", this::reviewResult );
+        workflow.addNode( "evaluate_result", this::evaluateResult);
+        workflow.addEdge("agent_sequence_plantuml", "evaluate_result");
+        workflow.addEdge("agent_generic_plantuml", "evaluate_result");
+        workflow.addEdge( "agent_review", "evaluate_result" );
+        workflow.addConditionalEdges(
+                "evaluate_result",
+                edge_async(this::routeEvaluationResult),
+                mapOf(  "OK", END,
+                        "ERROR", "agent_review",
+                        "UNKNOWN", END )
         );
         workflow.setEntryPoint("agent_describer");
 

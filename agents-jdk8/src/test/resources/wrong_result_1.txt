@@ -1,0 +1,7 @@
+@startuml
+participant Alice
+oval Bob
+participant Jack
+diamond MyFriend
+Bob --> Alice : hello
+@enduml

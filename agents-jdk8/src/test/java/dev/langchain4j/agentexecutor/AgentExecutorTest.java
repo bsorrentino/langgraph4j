@@ -56,8 +56,8 @@ public class AgentExecutorTest {
         var state = executeAgent("what is the result of test with messages: 'MY FIRST TEST'");
 
         assertNotNull(state);
-        assertTrue(state.intermediateSteps().isPresent());
-        assertEquals( 1, state.intermediateSteps().get().size());
+        assertFalse(state.intermediateSteps().isEmpty());
+        assertEquals( 1, state.intermediateSteps().size());
         assertTrue(state.agentOutcome().isPresent());
         assertNotNull(state.agentOutcome().get().finish());
         assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
@@ -71,8 +71,8 @@ public class AgentExecutorTest {
         var state = executeAgent("what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'");
 
         assertNotNull(state);
-        assertTrue(state.intermediateSteps().isPresent());
-        assertEquals( 2, state.intermediateSteps().get().size());
+        assertFalse(state.intermediateSteps().isEmpty());
+        assertEquals( 2, state.intermediateSteps().size());
         assertTrue(state.agentOutcome().isPresent());
         assertNotNull(state.agentOutcome().get().finish());
         assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
