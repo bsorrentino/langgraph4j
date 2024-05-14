@@ -19,13 +19,11 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
-import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ImageToDiagramTest {
-
 
     private String readTextResource( String resourceName ) throws Exception {
         final ClassLoader classLoader = getClass().getClassLoader();
@@ -118,7 +116,8 @@ public class ImageToDiagramTest {
     @Test
     public void imageToDiagram() throws Exception {
 
-        var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
+        // var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
+        var agentExecutor = new ImageToDiagram("LangChainAgents.png");
 
         var result = agentExecutor.execute( mapOf() );
 
@@ -139,16 +138,6 @@ public class ImageToDiagramTest {
         boolean retry;
         ImageToDiagram.State state;
         String error;
-
-        boolean correctionFailed() {
-            if( !retry ) throw new IllegalStateException( "correctionFailed must be run on retry" );
-            if( state.diagramCode().size() < 2 ) return false;
-
-            String last = state.diagramCode().last().get().trim();
-            String prev = state.diagramCode().lastMinus(1).get().trim();
-
-            return last.equals(prev);
-        }
 
         @Override
         public String toString() {
@@ -182,7 +171,7 @@ public class ImageToDiagramTest {
                     if( !res.isRetry() ) {
                         return CompletableFuture.completedFuture( res );
                     }
-                    if( res.correctionFailed() ) {
+                    if( res.state.lastTwoDiagramsAreEqual() ) {
                         System.out.println("CORRECTION FAILED!");
                         return CompletableFuture.completedFuture( res );
                     }
@@ -190,7 +179,7 @@ public class ImageToDiagramTest {
                             mapOf(
                             "evaluationResult", ImageToDiagram.EvaluationResult.ERROR,
                             "evaluationError", res.getError()), ImageToDiagram.State::new);
-                    return process.reviewResult( process.getLLM(), newState )
+                    return process.reviewResult( newState )
                             .thenApply( v -> newState.mergeWith( v, ImageToDiagram.State::new ) )
                             .thenApply( v -> ReviewResult.of( true, v, res.getError() ) );
                 });
@@ -202,7 +191,7 @@ public class ImageToDiagramTest {
         return reviewDiagramResult(state, process ).thenCompose( v -> {
             System.out.println( v );
             if( v.isRetry() ) {
-                if( v.correctionFailed() ) {
+                if( v.state.lastTwoDiagramsAreEqual() ) {
                     System.out.println("CORRECTION FAILED!");
                     return CompletableFuture.completedFuture( v );
                 }
