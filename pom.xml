@@ -28,8 +28,9 @@
     </snapshotRepository>
   </distributionManagement>
 
-
   <modules>
+    <module>core-jdk8</module>
+    <module>agents-jdk8</module>
   </modules>
 
   <dependencyManagement>
@@ -91,34 +92,4 @@
     </pluginManagement>
   </build>
 
-  <profiles>
-    <profile>
-      <id>Java17andAbove</id>
-      <activation>
-        <jdk>[17,)</jdk>
-    </activation>
-    <modules>
-      <module>agents-jdk17</module>
-      <module>core-jdk17</module> 
-    </modules>
-      <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-      </properties>
-  </profile>
-  <profile>
-    <id>Java8</id>
-    <activation>
-      <jdk>1.8</jdk>
-  </activation>
-  <modules>
-    <module>core-jdk8</module> 
-    <module>agents-jdk8</module>
-  </modules>
-    <properties>
-      <maven.compiler.source>1.8</maven.compiler.source>
-      <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-</profile>
-</profiles>
 </project>
