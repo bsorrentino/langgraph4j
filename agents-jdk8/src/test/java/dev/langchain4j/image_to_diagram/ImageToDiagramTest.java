@@ -5,24 +5,28 @@ import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.data.message.*;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
-import net.sourceforge.plantuml.ErrorUmlType;
-import org.junit.jupiter.api.Assertions;
+import org.bsc.langgraph4j.NodeOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
+import java.util.ArrayList;
+import java.util.logging.LogManager;
 
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Slf4j
 public class ImageToDiagramTest {
 
     private String readTextResource( String resourceName ) throws Exception {
@@ -37,12 +41,16 @@ public class ImageToDiagramTest {
             while ((line = reader.readLine()) != null) {
                 result.append(line).append('\n');
             }
-            return result.toString();
+            var len = result.length();
+            return (len>0) ? result.deleteCharAt(len - 1).toString() : "";
         }
     }
 
     @BeforeEach
-    public void init() {
+    public void init() throws Exception {
+        FileInputStream configFile = new FileInputStream("logging.properties");
+        LogManager.getLogManager().readConfiguration(configFile);
+
         DotEnvConfig.load();
     }
     @Test
@@ -91,7 +99,7 @@ public class ImageToDiagramTest {
 
         System.out.println(imageData );
 
-        var imageUrlOrData = ImageToDiagram.ImageUrlOrData.of( new URI("https://blog.langchain.dev/content/images/2024/01/supervisor-diagram.png")  );
+        var imageUrlOrData = ImageToDiagramProcess.ImageUrlOrData.of( new URI("https://blog.langchain.dev/content/images/2024/01/supervisor-diagram.png")  );
         // var imageUrlOrData = ImageToDiagram.ImageUrlOrData.of( imageData );
 
         ImageContent imageContent = (imageUrlOrData.url()!=null) ?
@@ -117,26 +125,26 @@ public class ImageToDiagramTest {
     public void imageToDiagram() throws Exception {
 
         // var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
-        var agentExecutor = new ImageToDiagram("LangChainAgents.png");
+        var agentExecutor = new ImageToDiagramProcess("LangChainAgents.png");
 
         var result = agentExecutor.execute( mapOf() );
 
-        ImageToDiagram.State state = null;
+        ImageToDiagramProcess.State state = null;
         for( var r : result ) {
             state = r.state();
             System.out.println( state.diagram() );
         }
-
 
         System.out.println( ofNullable(state)
                                 .flatMap( s -> s.diagramCode().last() ).orElse("NO DIAGRAM CODE") );
 
     }
 
+/*
     @Value( staticConstructor = "of" )
     static class ReviewResult {
         boolean retry;
-        ImageToDiagram.State state;
+        ImageToDiagramProcess.State state;
         String error;
 
         @Override
@@ -151,7 +159,7 @@ public class ImageToDiagramTest {
         }
     }
 
-    private CompletableFuture<ReviewResult> reviewDiagramResult( ImageToDiagram.State state, ImageToDiagram process )  {
+    private CompletableFuture<ReviewResult> reviewDiagramResult(ImageToDiagram.State state, DiagramCorrectionProcess process )  {
         assertFalse( state.diagramCode().isEmpty() );
         assertTrue( state.diagramCode().last().isPresent() );
 
@@ -175,18 +183,18 @@ public class ImageToDiagramTest {
                         System.out.println("CORRECTION FAILED!");
                         return CompletableFuture.completedFuture( res );
                     }
-                    ImageToDiagram.State newState = state.mergeWith(
+                    ImageToDiagramProcess.State newState = state.mergeWith(
                             mapOf(
-                            "evaluationResult", ImageToDiagram.EvaluationResult.ERROR,
-                            "evaluationError", res.getError()), ImageToDiagram.State::new);
+                            "evaluationResult", ImageToDiagramProcess.EvaluationResult.ERROR,
+                            "evaluationError", res.getError()), ImageToDiagramProcess.State::new);
                     return process.reviewResult( newState )
-                            .thenApply( v -> newState.mergeWith( v, ImageToDiagram.State::new ) )
+                            .thenApply( v -> newState.mergeWith( v, ImageToDiagramProcess.State::new ) )
                             .thenApply( v -> ReviewResult.of( true, v, res.getError() ) );
                 });
 
     }
 
-    CompletableFuture<ReviewResult> reviewDiagramResultRecursive( ImageToDiagram.State state, ImageToDiagram process ) {
+    CompletableFuture<ReviewResult> reviewDiagramResultRecursive(ImageToDiagramProcess.State state, DiagramCorrectionProcess process ) {
 
         return reviewDiagramResult(state, process ).thenCompose( v -> {
             System.out.println( v );
@@ -203,19 +211,62 @@ public class ImageToDiagramTest {
         });
 
     }
+*/
+
+    public String reviewDiagram( String diagramId ) throws Exception {
+
+        final String diagramCode = readTextResource(format("%s_wrong_result.txt", diagramId));
+
+        final String expectedCode = readTextResource(format("%s_expected_result.txt", diagramId));
+
+        final DiagramCorrectionProcess process = new DiagramCorrectionProcess();
+
+        var list = new ArrayList<NodeOutput<ImageToDiagram.State>>();
+        var result = process.execute( mapOf( "diagramCode", diagramCode ) )
+                .collectAsync( list, v -> log.trace(v.toString()) )
+                .thenApply( v -> {
+                    if( list.isEmpty() ) {
+                        throw new RuntimeException("no results");
+                    }
+                    var last = list.get( list.size() - 1 );
+                    return last.state();
+                })
+                .join();
+
+        var code = result.diagramCode().last();
+        assertTrue( code.isPresent() );
+        assertEquals( expectedCode, code.get().trim() );
+
+        return code.get();
+    }
+
 
     @Test
-    public void reviewDiagram() throws Exception {
-
-        final String code = readTextResource("wrong_result_5.txt");
-
-        final ImageToDiagram process = new ImageToDiagram("supervisor-diagram.png");
-
-        ImageToDiagram.State state = new ImageToDiagram.State( mapOf( "diagramCode", code ) );
-
-        final ReviewResult result = reviewDiagramResultRecursive(state, process).join();
-
-        System.out.println( "FINAL" );
-        System.out.println( result.state.diagramCode().last().get() );
+    public void reviewDiagramWithRuntimeError() throws Exception {
+        reviewDiagram("05");
+    }
+    @Test
+    public void reviewDiagramWithSyntaxError() throws Exception {
+        reviewDiagram("04");
+    }
+    @Test
+    public void reviewDiagram3() throws Exception {
+        reviewDiagram("03");
+    }
+    @Test
+    public void reviewDiagram1() throws Exception {
+        reviewDiagram("01");
+    }
+    @Test
+    public void reviewDiagram2() throws Exception {
+        reviewDiagram("02");
+    }
+    @Test
+    public void reviewDiagram6() throws Exception {
+        reviewDiagram("06");
+    }
+    @Test
+    public void reviewDiagram7() throws Exception {
+        reviewDiagram("07");
     }
 }

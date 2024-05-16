@@ -1,5 +1,5 @@
 @startuml
-
+allowmixing
 diamond MyFriend
 actor Alice
 actor Jack

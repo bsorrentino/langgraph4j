@@ -17,6 +17,10 @@ participant a1
 In the sample above the error indicates that there is an <unknown element> and must be substituted with a valid one.
 
 Rewrite the PlantUML diagram script, correcting the error and applying this correction to any similar errors you find in the script itself.
+Correct diagram considering:
+- mixing is not admitted so if the diagram is not a class diagram "diamond" must be translated in "rectangle"
+
+
 You MUST return only PlantUML script as plain text not using markdown notation
 
 PlantUML diagram script
