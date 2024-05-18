@@ -15,7 +15,7 @@ import java.util.stream.StreamSupport;
 import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-public class GraphState<State extends AgentState> {
+public class StateGraph<State extends AgentState> {
     enum Errors {
         invalidNodeIdentifier( "END is not a valid node id!"),
         invalidEdgeIdentifier( "END is not a valid edge sourceId!"),
@@ -68,11 +68,11 @@ public class GraphState<State extends AgentState> {
 
         Runnable() {
 
-            GraphState.this.nodes.forEach( n ->
+            StateGraph.this.nodes.forEach(n ->
                 nodes.put(n.id(), n.action())
             );
 
-            GraphState.this.edges.forEach( e ->
+            StateGraph.this.edges.forEach(e ->
                 edges.put(e.sourceId(), e.target())
             );
         }
@@ -165,7 +165,7 @@ public class GraphState<State extends AgentState> {
 
     AgentStateFactory<State> stateFactory;
 
-    public GraphState( AgentStateFactory<State> stateFactory ) {
+    public StateGraph(AgentStateFactory<State> stateFactory ) {
         this.stateFactory = stateFactory;
     }
 

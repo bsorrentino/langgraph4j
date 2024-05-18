@@ -7,14 +7,14 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
-import org.bsc.langgraph4j.GraphState;
+import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.Optional.ofNullable;
-import static org.bsc.langgraph4j.GraphState.END;
+import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
@@ -108,7 +108,7 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
     @Override
     public AsyncGenerator<NodeOutput<State>> execute(Map<String, Object> inputs) throws Exception {
 
-        var workflow = new GraphState<>(State::new);
+        var workflow = new StateGraph<>(State::new);
 
         workflow.addNode( "evaluate_result", this::evaluateResult);
         workflow.addNode( "agent_review", this::reviewResult );

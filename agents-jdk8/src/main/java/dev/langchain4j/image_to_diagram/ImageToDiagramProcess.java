@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
-import org.bsc.langgraph4j.GraphState;
+import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
 
 import java.net.URI;
@@ -169,7 +169,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .maxTokens(2000)
                 .build();
 
-        var workflow = new GraphState<>(State::new);
+        var workflow = new StateGraph<>(State::new);
 
         workflow.addNode("agent_describer", node_async( state ->
                 describeDiagramImage( llmVision, imageUrlOrData, state )) );
