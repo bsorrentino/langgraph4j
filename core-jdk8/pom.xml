@@ -23,16 +23,22 @@
     </dependency>
 
     <dependency>
+      <groupId>org.bsc.async</groupId>
+      <artifactId>async-generator-jdk8</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.bsc.async</groupId>
-      <artifactId>async-generator-jdk8</artifactId>
-      <version>1.0.0</version>
-    </dependency>
   </dependencies>
 
   <build>

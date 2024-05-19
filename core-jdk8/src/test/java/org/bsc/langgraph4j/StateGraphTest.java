@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for simple App.
  */
-public class LangGraphTest
+public class StateGraphTest
 {
     public static <T> List<Map.Entry<String,T>> sortMap(Map<String,T> map ) {
         return map.entrySet().stream()
@@ -103,4 +103,6 @@ public class LangGraphTest
         //assertDictionaryOfAnyEqual( expected, result.data )
 
     }
+
+
 }
