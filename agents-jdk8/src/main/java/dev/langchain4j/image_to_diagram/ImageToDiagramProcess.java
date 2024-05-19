@@ -184,21 +184,12 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                     "generic", "agent_generic_plantuml" )
         );
 
-        //workflow.addNode( "agent_review", this::reviewResult );
         workflow.addNode( "evaluate_result", this::evaluateResult);
         workflow.addEdge("agent_sequence_plantuml", "evaluate_result");
         workflow.addEdge("agent_generic_plantuml", "evaluate_result");
-        workflow.addEdge( "agent_review", "evaluate_result" );
-        /*
-        workflow.addConditionalEdges(
-                "evaluate_result",
-                edge_async(this::routeEvaluationResult),
-                mapOf(  "OK", END,
-                        "ERROR", "agent_review",
-                        "UNKNOWN", END )
-        );
-        */
         workflow.setEntryPoint("agent_describer");
+        workflow.setFinishPoint("evaluate_result");
+
 
         var app = workflow.compile();
 
