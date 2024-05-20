@@ -15,7 +15,7 @@ This flow ensures that the agent can handle complex tasks efficiently by leverag
 
 ## Generate PlantUML diagram from Image
 
-The "<u>Generate PlantUML diagram from Image</u>" flow  involves a meticulously structured sequence of steps. Initially, an agent receives an image and is responsible for analyzing and describing its content. This description is then passed to a specialized agent equipped with the skills to translate the description into PlantUML code. To ensure precision in diagram generation, the type of diagram identified within the image dictates the selection of the appropriately skilled agent for the translation task. This ensures that each diagram type is handled by an agent with specific expertise relevant to that diagram. 
+The "<u>Generate PlantUML diagram from Image</u>" flow  involves structured sequence of steps. Initially, an agent receives an image and is responsible for analyzing and describing its content. This description is then passed to a specialized agent equipped with the skills to translate the description into PlantUML code. To ensure precision in diagram generation, the type of diagram identified within the image dictates the selection of the appropriately skilled agent for the translation task. This ensures that each diagram type is handled by an agent with specific expertise relevant to that diagram. 
 
 ![diagram][image_to_diagram]
 
