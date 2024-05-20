@@ -101,7 +101,7 @@ var agentRunnable = Agent.builder()
                         .tools( toolSpecifications )
                         .build();
 
-var workflow = new GraphState<>(State::new);
+var workflow = new StateGraph<>(State::new);
 
 workflow.setEntryPoint("agent");
 
@@ -133,8 +133,8 @@ return  app.stream( inputs );
 ```
 ## Samples
 
-* [Agent Executor](agents-jdk8/src/main/java/dev/langchain4j/agentexecutor)
-* [Image To PlantUML Diagram](agents-jdk8/src/main/java/dev/langchain4j/image_to_diagram)
+* [Agent Executor](agents-jdk8/README.md)
+* [Image To PlantUML Diagram](agents-jdk8/README.md)
 
 # References
 
