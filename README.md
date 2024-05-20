@@ -132,9 +132,8 @@ return  app.stream( inputs );
 
 ```
 ## Samples
-
-* [Agent Executor](agents-jdk8/README.md)
-* [Image To PlantUML Diagram](agents-jdk8/README.md)
+* [Agent Executor](agents-jdk8/README.md#agent-executor)
+* [Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)
 
 # References
 
