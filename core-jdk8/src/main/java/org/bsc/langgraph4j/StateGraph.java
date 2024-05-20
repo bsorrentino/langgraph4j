@@ -15,7 +15,7 @@ import java.util.stream.StreamSupport;
 import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-public class GraphState<State extends AgentState> {
+public class StateGraph<State extends AgentState> {
     enum Errors {
         invalidNodeIdentifier( "END is not a valid node id!"),
         invalidEdgeIdentifier( "END is not a valid edge sourceId!"),
@@ -58,121 +58,26 @@ public class GraphState<State extends AgentState> {
 
     }
 
-    public class Runnable {
-
-
-        final Map<String, AsyncNodeAction<State>> nodes = new HashMap<>();
-        final Map<String, EdgeValue<State>> edges = new HashMap<>();
-
-        private final int maxIterations = 25;
-
-        Runnable() {
-
-            GraphState.this.nodes.forEach( n ->
-                nodes.put(n.id(), n.action())
-            );
-
-            GraphState.this.edges.forEach( e ->
-                edges.put(e.sourceId(), e.target())
-            );
-        }
-
-
-        private String nextNodeId( String nodeId , State state ) throws Exception {
-
-            var route = edges.get(nodeId);
-            if( route == null ) {
-                throw RunnableErrors.missingEdge.exception(nodeId);
-            }
-            if( route.id() != null ) {
-                return route.id();
-            }
-            if( route.value() != null ) {
-                var condition = route.value().action();
-
-                var newRoute = condition.apply(state).get();
-
-                var result = route.value().mappings().get(newRoute);
-                if( result == null ) {
-                    throw RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
-                }
-                return result;
-            }
-
-            throw RunnableErrors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
-
-        }
-
-
-        public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
-
-           return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
-
-                var currentState = stateFactory.apply(inputs);
-                var currentNodeId = entryPoint;
-                Map<String, Object> partialState;
-
-                try  {
-                    for( int i = 0; i < maxIterations &&  !Objects.equals(currentNodeId, END); ++i ) {
-                        var action = nodes.get(currentNodeId);
-                        if (action == null) {
-                            throw RunnableErrors.missingNode.exception(currentNodeId);
-                        }
-
-                        partialState = action.apply(currentState).get();
-
-                        currentState = currentState.mergeWith(partialState, stateFactory);
-
-                        var data = new NodeOutput<>(currentNodeId, currentState);
-
-                        queue.add( AsyncGenerator.Data.of( completedFuture(data) ));
-
-                        if (Objects.equals(currentNodeId, finishPoint)) {
-                            break;
-                        }
-
-                        currentNodeId = nextNodeId(currentNodeId, currentState);
-
-                    }
-
-                } catch (Exception e) {
-                    throw new RuntimeException( e );
-                }
-
-            });
-
-
-        }
-
-        public Optional<State> invoke( Map<String,Object> inputs ) throws Exception {
-
-            var sourceIterator = stream(inputs).iterator();
-
-            var result = StreamSupport.stream(
-                    Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
-                    false);
-
-            return  result.reduce((a, b) -> b).map( NodeOutput::state);
-        }
-    }
     public static String END = "__END__";
 
-    Set<Node<State>> nodes = new HashSet<>();
-    Set<Edge<State>> edges = new HashSet<>();
+    Set<Node<State>> nodes = new LinkedHashSet<>();
+    Set<Edge<State>> edges = new LinkedHashSet<>();
 
-    String entryPoint;
-    String finishPoint;
+    private String entryPoint;
+    private String finishPoint;
 
-    AgentStateFactory<State> stateFactory;
+    private final AgentStateFactory<State> stateFactory;
 
-    public GraphState( AgentStateFactory<State> stateFactory ) {
+    public StateGraph(AgentStateFactory<State> stateFactory ) {
         this.stateFactory = stateFactory;
     }
 
+    public AgentStateFactory<State> getStateFactory() { return stateFactory; }
+    public String getEntryPoint() { return entryPoint; }
+    public String getFinishPoint() { return finishPoint; }
     public void setEntryPoint(String entryPoint) {
         this.entryPoint = entryPoint;
     }
-
     public void setFinishPoint(String finishPoint) {
         this.finishPoint = finishPoint;
     }
@@ -223,7 +128,7 @@ public class GraphState<State extends AgentState> {
         return new Node<>(id, null);
     }
 
-    public Runnable compile() throws GraphStateException {
+    public CompiledGraph<State> compile() throws GraphStateException {
         if( entryPoint == null ) {
             throw Errors.missingEntryPoint.exception();
         }
@@ -262,6 +167,6 @@ public class GraphState<State extends AgentState> {
 
         }
 
-        return new Runnable();
+        return new CompiledGraph<>(this);
     }
 }

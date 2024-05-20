@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
-import org.bsc.langgraph4j.GraphState;
+import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
 
 import java.net.URI;
@@ -169,7 +169,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .maxTokens(2000)
                 .build();
 
-        var workflow = new GraphState<>(State::new);
+        var workflow = new StateGraph<>(State::new);
 
         workflow.addNode("agent_describer", node_async( state ->
                 describeDiagramImage( llmVision, imageUrlOrData, state )) );
@@ -184,21 +184,12 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                     "generic", "agent_generic_plantuml" )
         );
 
-        //workflow.addNode( "agent_review", this::reviewResult );
         workflow.addNode( "evaluate_result", this::evaluateResult);
         workflow.addEdge("agent_sequence_plantuml", "evaluate_result");
         workflow.addEdge("agent_generic_plantuml", "evaluate_result");
-        workflow.addEdge( "agent_review", "evaluate_result" );
-        /*
-        workflow.addConditionalEdges(
-                "evaluate_result",
-                edge_async(this::routeEvaluationResult),
-                mapOf(  "OK", END,
-                        "ERROR", "agent_review",
-                        "UNKNOWN", END )
-        );
-        */
         workflow.setEntryPoint("agent_describer");
+        workflow.setFinishPoint("evaluate_result");
+
 
         var app = workflow.compile();
 

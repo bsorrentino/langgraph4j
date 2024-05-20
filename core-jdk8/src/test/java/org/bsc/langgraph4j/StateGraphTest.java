@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.bsc.langgraph4j.GraphState.END;
+import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for simple App.
  */
-public class LangGraphTest
+public class StateGraphTest
 {
     public static <T> List<Map.Entry<String,T>> sortMap(Map<String,T> map ) {
         return map.entrySet().stream()
@@ -27,7 +27,7 @@ public class LangGraphTest
     @Test
     void testValidation() throws Exception {
 
-        var workflow = new GraphState<>(AgentState::new);
+        var workflow = new StateGraph<>(AgentState::new);
         var exception = assertThrows(GraphStateException.class, workflow::compile);
         System.out.println(exception.getMessage());
         assertEquals( "missing Entry Point", exception.getMessage());
@@ -81,7 +81,7 @@ public class LangGraphTest
     @Test
     public void testRunningOneNode() throws Exception {
 
-        var workflow = new GraphState<>(AgentState::new);
+        var workflow = new StateGraph<>(AgentState::new);
         workflow.setEntryPoint("agent_1");
 
         workflow.addNode("agent_1", node_async( state -> {
@@ -103,4 +103,6 @@ public class LangGraphTest
         //assertDictionaryOfAnyEqual( expected, result.data )
 
     }
+
+
 }

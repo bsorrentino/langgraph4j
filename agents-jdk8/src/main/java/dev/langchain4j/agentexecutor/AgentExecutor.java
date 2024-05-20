@@ -5,7 +5,7 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
-import org.bsc.langgraph4j.GraphState;
+import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppendableValue;
@@ -13,8 +13,7 @@ import org.bsc.langgraph4j.state.AppendableValue;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.unmodifiableMap;
-import static org.bsc.langgraph4j.GraphState.END;
+import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
@@ -108,7 +107,7 @@ public class AgentExecutor {
                                 .tools( toolSpecifications )
                                 .build();
 
-        var workflow = new GraphState<>(State::new);
+        var workflow = new StateGraph<>(State::new);
 
         workflow.setEntryPoint("agent");
 
