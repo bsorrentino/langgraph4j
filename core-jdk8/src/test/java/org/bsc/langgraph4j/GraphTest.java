@@ -41,8 +41,17 @@ public class GraphTest {
         var result = app.getGraph();
         assertEquals( DrawableGraph.PLANTUML, result );
 
-        assertEquals( "@startuml\n" +
-                "circle start\n" +
+        assertEquals( "@startuml unnamed.puml\n" +
+                "skinparam usecaseFontSize 14\n" +
+                "skinparam usecaseStereotypeFontSize 12\n" +
+                "skinparam hexagonFontSize 14\n" +
+                "skinparam hexagonStereotypeFontSize 12\n" +
+                "title \"Graph Diagram\"\n" +
+                "footer\n" +
+                "\n" +
+                "powered by langgraph4j\n" +
+                "end footer\n" +
+                "circle start<<input>>\n" +
                 "circle stop\n" +
                 "usecase \"agent_3\"<<Node>>\n" +
                 "usecase \"agent_1\"<<Node>>\n" +
@@ -78,12 +87,21 @@ public class GraphTest {
         var result = app.getGraph();
         assertEquals( DrawableGraph.PLANTUML, result );
 
-        assertEquals( "@startuml\n" +
-                "circle start\n" +
+        assertEquals( "@startuml unnamed.puml\n" +
+                "skinparam usecaseFontSize 14\n" +
+                "skinparam usecaseStereotypeFontSize 12\n" +
+                "skinparam hexagonFontSize 14\n" +
+                "skinparam hexagonStereotypeFontSize 12\n" +
+                "title \"Graph Diagram\"\n" +
+                "footer\n" +
+                "\n" +
+                "powered by langgraph4j\n" +
+                "end footer\n" +
+                "circle start<<input>>\n" +
                 "circle stop\n" +
                 "usecase \"evaluate_result\"<<Node>>\n" +
                 "usecase \"agent_review\"<<Node>>\n" +
-                "card \"check state\" as condition1<<Condition>>\n" +
+                "hexagon \"check state\" as condition1<<Condition>>\n" +
                 "start -down-> \"evaluate_result\"\n" +
                 "\"agent_review\" -down-> \"evaluate_result\"\n" +
                 "\"evaluate_result\" -down-> condition1\n" +
@@ -118,12 +136,21 @@ public class GraphTest {
         var result = app.getGraph();
         assertEquals( DrawableGraph.PLANTUML, result );
 
-        assertEquals( "@startuml\n" +
-                "circle start\n" +
+        assertEquals( "@startuml unnamed.puml\n" +
+                "skinparam usecaseFontSize 14\n" +
+                "skinparam usecaseStereotypeFontSize 12\n" +
+                "skinparam hexagonFontSize 14\n" +
+                "skinparam hexagonStereotypeFontSize 12\n" +
+                "title \"Graph Diagram\"\n" +
+                "footer\n" +
+                "\n" +
+                "powered by langgraph4j\n" +
+                "end footer\n" +
+                "circle start<<input>>\n" +
                 "circle stop\n" +
                 "usecase \"agent\"<<Node>>\n" +
                 "usecase \"action\"<<Node>>\n" +
-                "card \"check state\" as condition1<<Condition>>\n" +
+                "hexagon \"check state\" as condition1<<Condition>>\n" +
                 "start -down-> \"agent\"\n" +
                 "\"agent\" -down-> condition1\n" +
                 "condition1 --> \"action\": \"continue\"\n" +
@@ -158,14 +185,23 @@ public class GraphTest {
         var result = app.getGraph();
         assertEquals( DrawableGraph.PLANTUML, result );
 
-        assertEquals( "@startuml\n" +
-                "circle start\n" +
+        assertEquals( "@startuml unnamed.puml\n" +
+                "skinparam usecaseFontSize 14\n" +
+                "skinparam usecaseStereotypeFontSize 12\n" +
+                "skinparam hexagonFontSize 14\n" +
+                "skinparam hexagonStereotypeFontSize 12\n" +
+                "title \"Graph Diagram\"\n" +
+                "footer\n" +
+                "\n" +
+                "powered by langgraph4j\n" +
+                "end footer\n" +
+                "circle start<<input>>\n" +
                 "circle stop\n" +
                 "usecase \"agent_describer\"<<Node>>\n" +
                 "usecase \"agent_sequence_plantuml\"<<Node>>\n" +
                 "usecase \"agent_generic_plantuml\"<<Node>>\n" +
                 "usecase \"evaluate_result\"<<Node>>\n" +
-                "card \"check state\" as condition1<<Condition>>\n" +
+                "hexagon \"check state\" as condition1<<Condition>>\n" +
                 "start -down-> \"agent_describer\"\n" +
                 "\"agent_describer\" -down-> condition1\n" +
                 "condition1 --> \"agent_sequence_plantuml\": \"sequence\"\n" +
