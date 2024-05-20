@@ -1,6 +1,16 @@
+
 # LangGraph for Java
-🚀 LangGraph for Java. A library for building stateful, multi-actor applications with LLMs, built for work with [langchain4j]
+
+🦜🕸️LangGraph for Java. A library for building stateful, multi-actor applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
+
+
+## News
+
+| Date | Release | info
+| --- | --- | ---
+| May 20, 2024 | `1.0-SNAPSHOT` | Add "[Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)" sample
+| May 18, 2024 | `1.0-SNAPSHOT` | Add `getGraph()` method to `CompiledGraph` to return a [PlantUML] representation of your Graph
 
 
 ## Quick Start 
@@ -33,13 +43,13 @@ Whether to set or add is denoted by initialize the property with a `AppendableVa
 ```java
 public class AgentState {
 
-   public AgentState( Map<String,Object> initData );
+   public AgentState( Map<String,Object> initData ) { ... };
    
-   public final java.util.Map<String,Object> data();
+   public final java.util.Map<String,Object> data() { ... };
 
-   public final <T> Optional<T> value(String key);
+   public final <T> Optional<T> value(String key) { ... };
 
-   public final <T> AppendableValue<T> appendableValue(String key );
+   public final <T> AppendableValue<T> appendableValue(String key ) { ... };
 
 }
 ```
@@ -146,3 +156,5 @@ return  app.stream( inputs );
 [langgraph]: https://github.com/langchain-ai/langgraph
 [langchain.agents]: https://python.langchain.com/docs/modules/agents/
 [AgentExecutor]: https://github.com/langchain-ai/langchain/blob/master/libs/langchain/langchain/agents/agent.py
+[PlantUML]: https://plantuml.com
+
