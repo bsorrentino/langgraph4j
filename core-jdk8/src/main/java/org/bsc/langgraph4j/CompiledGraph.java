@@ -122,10 +122,18 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     public DrawableGraph getGraph() {
-        StringBuilder sb = new StringBuilder();
-        sb.append( "@startuml\n" );
-        sb.append("circle start\n");
-        sb.append("circle stop\n");
+        StringBuilder sb = new StringBuilder()
+        .append( "@startuml unnamed.puml\n" )
+        .append("skinparam usecaseFontSize 14\n")
+        .append("skinparam usecaseStereotypeFontSize 12\n")
+        .append("skinparam hexagonFontSize 14\n" )
+        .append("skinparam hexagonStereotypeFontSize 12\n")
+        .append("title \"Graph Diagram\"\n" )
+        .append("footer\n\n")
+        .append("powered by langgraph4j\n")
+        .append("end footer\n")
+        .append("circle start<<input>>\n")
+        .append("circle stop\n");
 
         nodes.keySet()
                 .forEach( s -> sb.append( format( "usecase \"%s\"<<Node>>\n", s ) ) );
@@ -135,7 +143,7 @@ public class CompiledGraph<State extends AgentState> {
         edges.forEach( (k, v) -> {
                     if( v.value() != null ) {
                         conditionalEdgeCount[0] += 1;
-                        sb.append(format("card \"check state\" as condition%d<<Condition>>\n", conditionalEdgeCount[0]));
+                        sb.append(format("hexagon \"check state\" as condition%d<<Condition>>\n", conditionalEdgeCount[0]));
                     }
                 });
 
