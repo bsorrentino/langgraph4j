@@ -141,7 +141,9 @@ var app = workflow.compile();
 return  app.stream( inputs );
 
 ```
-## Samples
+
+# Samples
+
 * [Agent Executor](agents-jdk8/README.md#agent-executor)
 * [Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)
 
