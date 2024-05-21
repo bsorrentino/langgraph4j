@@ -148,7 +148,9 @@ return  app.stream( inputs );
 # References
 
 * [LangGraph - LangChain Blog][langgraph.blog]
+* [AI Agent in Java with LangGraph4j - Bartolomeo Blog][article01]
 
+[article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
 [langgraph.blog]: https://blog.langchain.dev/langgraph/
 [langchain4j]: https://github.com/langchain4j/langchain4j
 [langchain.ai]: https://github.com/langchain-ai
