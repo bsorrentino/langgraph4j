@@ -1,7 +1,7 @@
 
 # LangGraph for Java
 
-🦜🕸️LangGraph for Java. A library for building stateful, multi-actor applications with LLMs, built for work with [langchain4j]
+🦜🕸️LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
 
 

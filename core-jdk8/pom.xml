@@ -11,6 +11,8 @@
   <artifactId>langgraph4j-jdk8</artifactId>
   <packaging>jar</packaging>
   <name>langgraph4j::core::jdk8</name>
+  <description>A library for building stateful, multi-agents applications with LLMs</description>
+
 
   <properties>
   </properties>
@@ -42,26 +44,6 @@
   </dependencies>
 
   <build>
-    <plugins>
-      <!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default-package-jdk8</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <classifier>jdk8</classifier>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      -->
-    </plugins>
   </build>
 
 </project>

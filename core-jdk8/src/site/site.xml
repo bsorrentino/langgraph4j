@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 https://maven.apache.org/xsd/decoration-1.8.0.xsd"
+         name="Maven">
+
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>2.0.0-M8</version>
+    </skin>
+    <custom>
+        <fluidoSkin>
+            <sideBarEnabled>true</sideBarEnabled>
+        </fluidoSkin>
+    </custom>
+    <body>
+        <menu name="Overview">
+            <item name="Summary" href="summary.html"/>
+            <item name="Dependencies" href="dependencies.html"/>
+            <!--
+            <item name="Usage" href="usage.html"/>
+            -->
+            <item name="javadoc" href="apidocs/index.html"/>
+
+        </menu>
+    </body>
+</project>
