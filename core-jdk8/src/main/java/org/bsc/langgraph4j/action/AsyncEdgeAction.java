@@ -4,11 +4,28 @@ import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-
+/**
+ * Represents an asynchronous edge action that operates on an agent state and returns a CompletableFuture.
+ *
+ * @param <S> the type of the agent state
+ */
 public interface AsyncEdgeAction<S extends AgentState> extends Function<S, CompletableFuture<String>> {
 
+    /**
+     * Applies this action to the given agent state.
+     *
+     * @param t the agent state
+     * @return a CompletableFuture representing the result of the action
+     */
     CompletableFuture<String> apply(S t);
 
+    /**
+     * Creates an asynchronous edge action from a synchronous edge action.
+     *
+     * @param syncAction the synchronous edge action
+     * @param <S> the type of the agent state
+     * @return an asynchronous edge action
+     */
     static <S extends AgentState> AsyncEdgeAction<S> edge_async(EdgeAction<S> syncAction ) {
         return t -> {
             CompletableFuture<String> result = new CompletableFuture<>();
@@ -21,3 +38,4 @@ public interface AsyncEdgeAction<S extends AgentState> extends Function<S, Compl
         };
     }
 }
+

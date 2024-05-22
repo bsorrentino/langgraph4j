@@ -8,3 +8,4 @@ public interface NodeAction <T extends AgentState> {
     Map<String, Object> apply(T t) throws Exception;
 
 }
+

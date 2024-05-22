@@ -22,6 +22,11 @@ public class CompiledGraph<State extends AgentState> {
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
     private int maxIterations = 25;
 
+    /**
+     * Constructs a CompiledGraph with the given StateGraph.
+     *
+     * @param stateGraph the StateGraph to be used in this CompiledGraph
+     */
     protected CompiledGraph(StateGraph<State> stateGraph) {
         this.stateGraph = stateGraph;
         stateGraph.nodes.forEach(n ->
@@ -33,13 +38,28 @@ public class CompiledGraph<State extends AgentState> {
         );
     }
 
+    /**
+     * Sets the maximum number of iterations for the graph execution.
+     *
+     * @param maxIterations the maximum number of iterations
+     * @throws IllegalArgumentException if maxIterations is less than or equal to 0
+     */
     void setMaxIterations(int maxIterations) {
         if( maxIterations <= 0 ) {
             throw new IllegalArgumentException("maxIterations must be > 0!");
         }
         this.maxIterations = maxIterations;
     }
-    private String nextNodeId( String nodeId , State state ) throws Exception {
+
+    /**
+     * Determines the next node ID based on the current node ID and state.
+     *
+     * @param nodeId the current node ID
+     * @param state the current state
+     * @return the next node ID
+     * @throws Exception if there is an error determining the next node ID
+     */
+    private String nextNodeId(String nodeId, State state) throws Exception {
 
         var route = edges.get(nodeId);
         if( route == null ) {
@@ -64,7 +84,13 @@ public class CompiledGraph<State extends AgentState> {
 
     }
 
-
+    /**
+     * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
+     *
+     * @param inputs the input map
+     * @return an AsyncGenerator stream of NodeOutput
+     * @throws Exception if there is an error creating the stream
+     */
     public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
 
         return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
@@ -104,6 +130,13 @@ public class CompiledGraph<State extends AgentState> {
 
     }
 
+    /**
+     * Invokes the graph execution with the provided inputs and returns the final state.
+     *
+     * @param inputs the input map
+     * @return an Optional containing the final state if present, otherwise an empty Optional
+     * @throws Exception if there is an error during invocation
+     */
     public Optional<State> invoke(Map<String,Object> inputs ) throws Exception {
 
         var sourceIterator = stream(inputs).iterator();
@@ -115,11 +148,20 @@ public class CompiledGraph<State extends AgentState> {
         return  result.reduce((a, b) -> b).map( NodeOutput::state);
     }
 
-    private void processNodeForGraph( String node ) {
-
-
+    /**
+     * Processes a node for graph representation.
+     *
+     * @param node the node to be processed
+     */
+    private void processNodeForGraph(String node) {
+        // Implementation to be added
     }
 
+    /**
+     * Generates a drawable graph representation of the state graph.
+     *
+     * @return a DrawableGraph representing the state graph
+     */
     public DrawableGraph getGraph() {
         StringBuilder sb = new StringBuilder()
         .append( "@startuml unnamed.puml\n" )

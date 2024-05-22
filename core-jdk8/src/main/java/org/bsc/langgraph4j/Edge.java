@@ -7,12 +7,31 @@ import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Objects;
 
+/**
+ * Represents an edge in a graph with a source ID and a target value.
+ *
+ * @param <State> the type of the state associated with the edge
+ */
 @Value
 @Accessors(fluent = true)
 class Edge<State extends AgentState> {
 
+    /**
+     * The ID of the source node.
+     */
     String sourceId;
+
+    /**
+     * The target value associated with the edge.
+     */
     EdgeValue<State> target;
+
+    /**
+     * Checks if this edge is equal to another object.
+     *
+     * @param o the object to compare with
+     * @return true if this edge is equal to the specified object, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -21,6 +40,11 @@ class Edge<State extends AgentState> {
         return Objects.equals(sourceId, node.sourceId);
     }
 
+    /**
+     * Returns the hash code value for this edge.
+     *
+     * @return the hash code value for this edge
+     */
     @Override
     public int hashCode() {
         return Objects.hash(sourceId);
