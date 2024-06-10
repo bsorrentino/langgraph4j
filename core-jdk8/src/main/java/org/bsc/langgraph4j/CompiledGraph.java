@@ -149,20 +149,13 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     /**
-     * Processes a node for graph representation.
-     *
-     * @param node the node to be processed
-     */
-    private void processNodeForGraph(String node) {
-        // Implementation to be added
-    }
-
-    /**
      * Generates a drawable graph representation of the state graph.
      *
-     * @return a DrawableGraph representing the state graph
+     * @param type the type of graph representation to generate
+     * @return a diagram code of the state graph
      */
-    public DrawableGraph getGraph() {
+    public GraphRepresentation getGraph( GraphRepresentation.Type type ) {
+
         StringBuilder sb = new StringBuilder()
         .append( "@startuml unnamed.puml\n" )
         .append("skinparam usecaseFontSize 14\n")
@@ -217,6 +210,6 @@ public class CompiledGraph<State extends AgentState> {
         }
         sb.append( "@enduml\n" );
 
-        return DrawableGraph.PLANTUML.withContent( sb.toString() );
+        return new GraphRepresentation( type, sb.toString() );
     }
 }
