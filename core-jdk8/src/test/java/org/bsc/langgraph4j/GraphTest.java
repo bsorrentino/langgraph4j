@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.bsc.langgraph4j.StateGraph.END;
-import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
-import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,8 +36,8 @@ public class GraphTest {
 
         var app = workflow.compile();
 
-        var result = app.getGraph();
-        assertEquals( DrawableGraph.PLANTUML, result );
+        var result = app.getGraph(GraphRepresentation.Type.PLANTUML);
+        assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
                 "skinparam usecaseFontSize 14\n" +
@@ -84,8 +82,8 @@ public class GraphTest {
 
         var app = workflow.compile();
 
-        var result = app.getGraph();
-        assertEquals( DrawableGraph.PLANTUML, result );
+        var result = app.getGraph(GraphRepresentation.Type.PLANTUML);
+        assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
                 "skinparam usecaseFontSize 14\n" +
@@ -133,8 +131,8 @@ public class GraphTest {
 
         var app = workflow.compile();
 
-        var result = app.getGraph();
-        assertEquals( DrawableGraph.PLANTUML, result );
+        var result = app.getGraph(GraphRepresentation.Type.PLANTUML);
+        assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
                 "skinparam usecaseFontSize 14\n" +
@@ -182,8 +180,8 @@ public class GraphTest {
 
         var app = workflow.compile();
 
-        var result = app.getGraph();
-        assertEquals( DrawableGraph.PLANTUML, result );
+        var result = app.getGraph( GraphRepresentation.Type.PLANTUML );
+        assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
                 "skinparam usecaseFontSize 14\n" +
