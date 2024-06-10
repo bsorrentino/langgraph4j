@@ -9,6 +9,7 @@
 
 | Date | Release | info
 | --- | --- | ---
+| Jun 10, 2024 | `1.0-SNAPSHOT` | refactoring how generate graph representation (plantuml)
 | May 20, 2024 | `1.0-SNAPSHOT` | Add "[Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)" sample
 | May 18, 2024 | `1.0-SNAPSHOT` | Add `getGraph()` method to `CompiledGraph` to return a [PlantUML] representation of your Graph
 
