@@ -3,11 +3,14 @@ package org.bsc.langgraph4j;
 import lombok.Value;
 
 /**
- * Enum representing a drawable graph with different types of content.
+ * The graph representation in diagram-as-a-code format.
  */
 @Value
 public class GraphRepresentation {
 
+    /**
+     * The supported types.
+     */
     public enum Type {
         /**
          * A drawable graph using PlantUML syntax.
