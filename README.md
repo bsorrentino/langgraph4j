@@ -152,6 +152,7 @@ return  app.stream( inputs );
 
 * [LangGraph - LangChain Blog][langgraph.blog]
 * [AI Agent in Java with LangGraph4j - Bartolomeo Blog][article01]
+* [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 
 [article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
 [langgraph.blog]: https://blog.langchain.dev/langgraph/
@@ -162,4 +163,4 @@ return  app.stream( inputs );
 [langchain.agents]: https://python.langchain.com/docs/modules/agents/
 [AgentExecutor]: https://github.com/langchain-ai/langchain/blob/master/libs/langchain/langchain/agents/agent.py
 [PlantUML]: https://plantuml.com
-
+[java-async-generator]: https://github.com/bsorrentino/java-async-generator
