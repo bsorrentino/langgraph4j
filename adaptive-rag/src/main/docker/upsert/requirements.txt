@@ -1,0 +1,10 @@
+langchain_community
+langchain-openai
+tiktoken
+langchain
+chromadb
+beautifulsoup4
+#langgraph
+#tavily-python
+#langchain-cohere
+#langchainhub

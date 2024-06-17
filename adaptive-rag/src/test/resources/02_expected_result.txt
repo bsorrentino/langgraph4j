@@ -1,0 +1,7 @@
+@startuml
+actor Alice
+actor Bob
+actor Jack
+actor MyFriend
+Bob --> Alice : hello
+@enduml
