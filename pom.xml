@@ -31,6 +31,7 @@
   <modules>
     <module>core-jdk8</module>
     <module>agents-jdk8</module>
+    <module>adaptive-rag</module>
   </modules>
 
   <dependencyManagement>
