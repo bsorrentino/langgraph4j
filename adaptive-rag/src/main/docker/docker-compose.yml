@@ -16,4 +16,4 @@ services:
     depends_on:
       - chroma
     environment:
-      - OPENAI_API_KEY=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
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
