@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.time.Duration;
 import java.util.logging.LogManager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class RouteTest {
 
     @BeforeEach
@@ -40,9 +42,8 @@ public class RouteTest {
 
         String text = "What are the stock options?";
 
-
         Router.DataSource ds = extractor.route(text);
 
-        System.out.println( ds.datasource ); // Person { firstName = "John", las
+        assertEquals( Router.Type.websearch, ds.datasource );
     }
 }
