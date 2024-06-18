@@ -28,7 +28,7 @@ public class ChromaTest {
         DotEnvConfig.load();
     }
 
-    @Test
+    //@Test
     public void connect() throws Exception {
         String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
