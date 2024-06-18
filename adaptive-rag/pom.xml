@@ -44,11 +44,10 @@
             <artifactId>langchain4j-chroma</artifactId>
             <version>${langchai4j.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>net.sourceforge.plantuml</groupId>
-            <artifactId>plantuml-mit</artifactId>
-            <version>1.2024.4</version>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-web-search-engine-tavily</artifactId>
+            <version>${langchai4j.version}</version>
         </dependency>
 
         <dependency>
