@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.time.Duration;
 import java.util.List;
 import java.util.logging.LogManager;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -87,7 +88,9 @@ public class AdaptiveRagTest {
         WebSearchTool webSearchTool = WebSearchTool.of(tavilyApiKey);
         List<Content> webSearchResults = webSearchTool.apply("agent memory");
 
-        System.out.println( webSearchResults );
+        String webSearchResultsText = webSearchResults.stream().map( content -> content.textSegment().text() )
+                .collect(Collectors.joining("\n"));
+        System.out.println( webSearchResultsText );
 
     }
 

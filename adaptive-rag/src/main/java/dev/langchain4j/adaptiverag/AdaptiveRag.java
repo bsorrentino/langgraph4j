@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 public class AdaptiveRag {
@@ -58,14 +59,16 @@ public class AdaptiveRag {
     }
 
     private final String openApiKey;
+    private final String tavilyApiKey;
     private final ChromaEmbeddingStore chroma = new ChromaEmbeddingStore(
             "http://localhost:8000",
             "rag-chroma",
             Duration.ofMinutes(2) );
     private final OpenAiEmbeddingModel embeddingModel;
 
-    public AdaptiveRag( String openApiKey ) {
+    public AdaptiveRag( String openApiKey, String tavilyApiKey ) {
         this.openApiKey = openApiKey;
+        this.tavilyApiKey = tavilyApiKey;
 
         this.embeddingModel = OpenAiEmbeddingModel.builder()
                 .apiKey(openApiKey)
@@ -190,6 +193,12 @@ public class AdaptiveRag {
         String question = state.question()
                 .orElseThrow( () -> new IllegalStateException( "question is null!" ) );
 
-        return mapOf();
+        var result = WebSearchTool.of( tavilyApiKey ).apply(question);
+
+        var webResult = result.stream()
+                            .map( content -> content.textSegment().text() )
+                            .collect(Collectors.joining("\n"));
+
+        return mapOf( "documents", listOf( webResult ) );
     }
 }
