@@ -10,6 +10,7 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import lombok.var;
+import org.bsc.langgraph4j.GraphRepresentation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -136,4 +137,15 @@ public class AdaptiveRagTest {
         System.out.println( result );
     }
 
+    @Test
+    public void getGraphTest() throws Exception {
+
+        AdaptiveRag adaptiveRag = new AdaptiveRag(getOpenAiKey(), getTavilyApiKey());
+
+        var graph = adaptiveRag.buildGraph();
+
+        var plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML );
+
+        System.out.println( plantUml.getContent() );
+    }
 }
