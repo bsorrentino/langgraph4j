@@ -2,7 +2,10 @@ package dev.langchain4j.adaptiverag;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.bsc.langgraph4j.CompiledGraph;
+import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.List;
@@ -12,9 +15,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
+import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
+@Slf4j( topic="AdaptiveRag")
 public class AdaptiveRag {
 
     /**
@@ -34,9 +41,8 @@ public class AdaptiveRag {
             Optional<String> result = value("question");
             return result.orElseThrow( () -> new IllegalStateException( "question is not set!" ) );
         }
-        public String generation() {
-            Optional<String> result = value("generation");
-            return result.orElseThrow( () -> new IllegalStateException( "generation is not set!" ) );
+        public Optional<String> generation() {
+            return value("generation");
 
         }
         public List<String> documents() {
@@ -62,7 +68,8 @@ public class AdaptiveRag {
      * @param state The current graph state
      * @return New key added to state, documents, that contains retrieved documents
      */
-    public Map<String,Object> retrieve( State state ) {
+    private Map<String,Object> retrieve( State state ) {
+        log.debug("---RETRIEVE---");
 
         String question = state.question();
 
@@ -81,7 +88,9 @@ public class AdaptiveRag {
      * @param state The current graph state
      * @return New key added to state, generation, that contains LLM generation
      */
-    public Map<String,Object> generate( State state ) {
+    private Map<String,Object> generate( State state ) {
+        log.debug("---GENERATE---");
+
         String question = state.question();
         List<String> documents = state.documents();
 
@@ -95,7 +104,8 @@ public class AdaptiveRag {
      * @param state  The current graph state
      * @return Updates documents key with only filtered relevant documents
      */
-    public Map<String,Object> gradeDocuments( State state ) {
+    private Map<String,Object> gradeDocuments( State state ) {
+        log.debug("---CHECK DOCUMENT RELEVANCE TO QUESTION---");
 
         String question = state.question();
 
@@ -106,7 +116,14 @@ public class AdaptiveRag {
         List<String> filteredDocs =  documents.stream()
                 .filter( d -> {
                     var score = grader.apply( RetrievalGrader.Arguments.of(question, d ));
-                    return score.binaryScore.equals("yes");
+                    boolean relevant = score.binaryScore.equals("yes");
+                    if( relevant ) {
+                        log.debug("---GRADE: DOCUMENT RELEVANT---");
+                    }
+                    else {
+                        log.debug("---GRADE: DOCUMENT NOT RELEVANT---");
+                    }
+                    return relevant;
                 })
                 .collect(Collectors.toList());
 
@@ -118,7 +135,9 @@ public class AdaptiveRag {
      * @param state  The current graph state
      * @return Updates question key with a re-phrased question
      */
-    public Map<String,Object> transformQuery( State state ) {
+    private Map<String,Object> transformQuery( State state ) {
+        log.debug("---TRANSFORM QUERY---");
+
         String question = state.question();
 
         String betterQuestion = QuestionRewriter.of( openApiKey ).apply( question );
@@ -131,7 +150,9 @@ public class AdaptiveRag {
      * @param state  The current graph state
      * @return Updates documents key with appended web results
      */
-    public Map<String,Object> webSearch( State state ) {
+    private Map<String,Object> webSearch( State state ) {
+        log.debug("---WEB SEARCH---");
+
         String question = state.question();
 
         var result = WebSearchTool.of( tavilyApiKey ).apply(question);
@@ -148,11 +169,18 @@ public class AdaptiveRag {
      * @param state The current graph state
      * @return Next node to call
      */
-    public String routeQuestion( State state  ) {
+    private String routeQuestion( State state  ) {
+        log.debug("---ROUTE QUESTION---");
+
         String question = state.question();
 
         var source = QuestionRouter.of( openApiKey ).apply( question );
-
+        if( source == QuestionRouter.Type.web_search ) {
+            log.debug("---ROUTE QUESTION TO WEB SEARCH---");
+        }
+        else {
+            log.debug("---ROUTE QUESTION TO RAG---");
+        }
         return source.name();
     }
 
@@ -161,12 +189,15 @@ public class AdaptiveRag {
      * @param state The current graph state
      * @return Binary decision for next node to call
      */
-    public String decideToGenerate( State state  ) {
+    private String decideToGenerate( State state  ) {
+        log.debug("---ASSESS GRADED DOCUMENTS---");
         List<String> documents = state.documents();
 
         if(documents.isEmpty()) {
+            log.debug("---DECISION: ALL DOCUMENTS ARE NOT RELEVANT TO QUESTION, TRANSFORM QUERY---");
             return "transform_query";
         }
+        log.debug( "---DECISION: GENERATE---" );
         return "generate";
     }
 
@@ -175,25 +206,73 @@ public class AdaptiveRag {
      * @param state The current graph state
      * @return Decision for next node to call
      */
-    public String gradeGeneration_v_DocumentsAndQuestion( State state ) {
+    private String gradeGeneration_v_documentsAndQuestion( State state ) {
+        log.debug("---CHECK HALLUCINATIONS---");
+
         String question = state.question();
         List<String> documents = state.documents();
-        String generation = state.generation();
+        String generation = state.generation()
+                .orElseThrow( () -> new IllegalStateException( "generation is not set!" ) );
+
 
         HallucinationGrader.Score score = HallucinationGrader.of( openApiKey )
                                             .apply( HallucinationGrader.Arguments.of(documents, generation));
 
         if(Objects.equals(score.binaryScore, "yes")) {
-
+            log.debug( "---DECISION: GENERATION IS GROUNDED IN DOCUMENTS---" );
+            log.debug("---GRADE GENERATION vs QUESTION---");
             AnswerGrader.Score score2 = AnswerGrader.of( openApiKey )
                                             .apply( AnswerGrader.Arguments.of(question, generation) );
             if( Objects.equals( score2.binaryScore, "yes") ) {
+                log.debug( "---DECISION: GENERATION ADDRESSES QUESTION---" );
                 return "useful";
             }
 
+            log.debug("---DECISION: GENERATION DOES NOT ADDRESS QUESTION---");
             return "not useful";
         }
 
+        log.debug( "---DECISION: GENERATION IS NOT GROUNDED IN DOCUMENTS, RE-TRY---" );
         return "not supported";
+    }
+
+    public CompiledGraph<State> buildGraph() throws Exception {
+        var workflow = new StateGraph<>(State::new);
+
+        // Define the nodes
+        workflow.addNode("web_search", node_async(this::webSearch) );  // web search
+        workflow.addNode("retrieve", node_async(this::retrieve) );  // retrieve
+        workflow.addNode("grade_documents",  node_async(this::gradeDocuments) );  // grade documents
+        workflow.addNode("generate", node_async(this::generate) );  // generatae
+        workflow.addNode("transform_query", node_async(this::transformQuery));  // transform_query
+
+        // Build graph
+        workflow.setConditionalEntryPoint(
+                edge_async(this::routeQuestion),
+                mapOf(
+                    "web_search", "web_search",
+                    "vectorstore", "retrieve"
+                ));
+
+        workflow.addEdge("web_search", "generate");
+        workflow.addEdge("retrieve", "grade_documents");
+        workflow.addConditionalEdges(
+                "grade_documents",
+                edge_async(this::decideToGenerate),
+                mapOf(
+                    "transform_query","transform_query",
+                    "generate", "generate"
+                ));
+        workflow.addEdge("transform_query", "retrieve");
+        workflow.addConditionalEdges(
+                "generate",
+                edge_async(this::gradeGeneration_v_documentsAndQuestion),
+                mapOf(
+                        "not supported", "generate",
+                        "useful", END,
+                        "not useful", "transform_query"
+                ));
+
+        return workflow.compile();
     }
 }

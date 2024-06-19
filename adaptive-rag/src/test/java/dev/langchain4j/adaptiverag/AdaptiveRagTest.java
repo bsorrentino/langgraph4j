@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
+import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -133,5 +134,25 @@ public class AdaptiveRagTest {
         String result = qr.apply( question, docs );
 
         System.out.println( result );
+    }
+
+    @Test
+    public void execute() throws Exception {
+        AdaptiveRag adaptiveRagTest = new AdaptiveRag(getOpenAiKey(), getTavilyApiKey());
+
+        var graph = adaptiveRagTest.buildGraph();
+
+        var result = graph.stream( mapOf( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
+
+        String generation = "";
+        for( var r : result ) {
+            System.out.printf( "Node: '%s':\n", r.node() );
+
+            generation = r.state().generation().orElse( "")
+            ;
+        }
+
+        System.out.println( generation );
+
     }
 }

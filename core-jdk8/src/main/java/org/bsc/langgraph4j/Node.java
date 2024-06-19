@@ -16,6 +16,7 @@ import java.util.Objects;
 @Accessors(fluent = true)
 class Node<State extends AgentState> {
 
+    
     /**
      * The unique identifier for the node.
      */
