@@ -12,7 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <langchai4j.version>0.30.0</langchai4j.version>
+    <langchai4j.version>0.31.0</langchai4j.version>
   </properties>
 
   <distributionManagement>
@@ -31,6 +31,7 @@
   <modules>
     <module>core-jdk8</module>
     <module>agents-jdk8</module>
+    <module>adaptive-rag</module>
   </modules>
 
   <dependencyManagement>

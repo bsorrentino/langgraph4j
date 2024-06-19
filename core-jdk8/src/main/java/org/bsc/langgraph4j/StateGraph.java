@@ -85,7 +85,7 @@ public class StateGraph<State extends AgentState> {
     Set<Node<State>> nodes = new LinkedHashSet<>();
     Set<Edge<State>> edges = new LinkedHashSet<>();
 
-    private String entryPoint;
+    private EdgeValue<State> entryPoint;
     private String finishPoint;
 
     private final AgentStateFactory<State> stateFactory;
@@ -103,7 +103,7 @@ public class StateGraph<State extends AgentState> {
         return stateFactory;
     }
 
-    public String getEntryPoint() {
+    public EdgeValue<State> getEntryPoint() {
         return entryPoint;
     }
 
@@ -112,7 +112,14 @@ public class StateGraph<State extends AgentState> {
     }
 
     public void setEntryPoint(String entryPoint) {
-        this.entryPoint = entryPoint;
+        this.entryPoint = new EdgeValue<>(entryPoint, null);
+    }
+    public void setConditionalEntryPoint(AsyncEdgeAction<State> condition, Map<String, String> mappings) throws GraphStateException {
+        if (mappings == null || mappings.isEmpty()) {
+            throw Errors.edgeMappingIsEmpty.exception("entry point");
+        }
+        this.entryPoint = new EdgeValue<>(null, new EdgeCondition<>(condition, mappings));
+
     }
 
     public void setFinishPoint(String finishPoint) {
@@ -204,13 +211,13 @@ public class StateGraph<State extends AgentState> {
             throw Errors.missingEntryPoint.exception();
         }
 
-        if (!nodes.contains(makeFakeNode(entryPoint))) {
-            throw Errors.entryPointNotExist.exception(entryPoint);
+        if( entryPoint.id()!=null && !nodes.contains(makeFakeNode(entryPoint.id()))) {
+            throw Errors.entryPointNotExist.exception(entryPoint.id());
         }
 
         if (finishPoint != null) {
-            if (!nodes.contains(makeFakeNode(entryPoint))) {
-                throw Errors.finishPointNotExist.exception(entryPoint);
+            if (!nodes.contains(makeFakeNode(finishPoint))) {
+                throw Errors.finishPointNotExist.exception(finishPoint);
             }
         }
 
