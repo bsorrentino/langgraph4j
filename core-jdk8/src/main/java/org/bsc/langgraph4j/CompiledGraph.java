@@ -187,9 +187,15 @@ public class CompiledGraph<State extends AgentState> {
                     }
                 });
 
+
         var entryPoint = stateGraph.getEntryPoint();
         if( entryPoint.id() != null  ) {
             sb.append( format("start -down-> \"%s\"\n", entryPoint.id() ));
+        }
+        else if( entryPoint.value() != null ) {
+            String conditionName = "startcondition";
+            sb.append(format("hexagon \"check state\" as %s<<Condition>>\n", conditionName));
+            sb.append( plantUML_EdgeCondition(entryPoint.value(), "start", conditionName) );
         }
 
         conditionalEdgeCount[0] = 0; // reset
@@ -201,17 +207,9 @@ public class CompiledGraph<State extends AgentState> {
                     }
                     else if( v.value() != null ) {
                         conditionalEdgeCount[0] += 1;
-                        sb.append(format("\"%s\" -down-> condition%d\n", k, conditionalEdgeCount[0]));
+                        String conditionName = format("condition%d", conditionalEdgeCount[0]);
+                        sb.append( plantUML_EdgeCondition(v.value(), k, conditionName ));
 
-                        var mappings = v.value().mappings();
-                        mappings.forEach( (cond, to) -> {
-                            if( to.equals(StateGraph.END) ) {
-                                sb.append( format( "condition%d --> stop: \"%s\"\n", conditionalEdgeCount[0], cond ) );
-                            }
-                            else {
-                                sb.append( format( "condition%d --> \"%s\": \"%s\"\n", conditionalEdgeCount[0], to, cond ) );
-                            }
-                        });
                     }
                 });
         if( stateGraph.getFinishPoint() != null ) {
@@ -220,5 +218,20 @@ public class CompiledGraph<State extends AgentState> {
         sb.append( "@enduml\n" );
 
         return new GraphRepresentation( type, sb.toString() );
+    }
+
+    private String plantUML_EdgeCondition( EdgeCondition<State> condition, String key, String conditionName ) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(format("\"%s\" -down-> %s\n", key, conditionName));
+        condition.mappings().forEach( (cond, to) -> {
+                if( to.equals(StateGraph.END) ) {
+                    sb.append( format( "%s --> stop: \"%s\"\n", conditionName, cond ) );
+                }
+                else {
+                    sb.append( format( "%s --> \"%s\": \"%s\"\n", conditionName, to, cond ) );
+                }
+            });
+
+        return sb.toString();
     }
 }
