@@ -8,10 +8,12 @@ import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.state.AgentState;
 
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -57,6 +59,8 @@ public class AdaptiveRag {
     private final ChromaStore chroma;
 
     public AdaptiveRag( String openApiKey, String tavilyApiKey ) {
+        Objects.requireNonNull(openApiKey, "no OPENAI APIKEY provided!");
+        Objects.requireNonNull(tavilyApiKey, "no TAVILY APIKEY provided!");
         this.openApiKey = openApiKey;
         this.tavilyApiKey = tavilyApiKey;
         this.chroma = ChromaStore.of(openApiKey);
@@ -275,4 +279,29 @@ public class AdaptiveRag {
 
         return workflow.compile();
     }
+
+    public static void main( String[] args ) throws Exception {
+        try(FileInputStream configFile = new FileInputStream("logging.properties")) {
+            LogManager.getLogManager().readConfiguration(configFile);
+        };
+
+        AdaptiveRag adaptiveRagTest = new AdaptiveRag( System.getenv("OPENAI_API_KEY"), System.getenv("TAVILY_API_KEY"));
+
+        var graph = adaptiveRagTest.buildGraph();
+
+        var result = graph.stream( mapOf( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
+
+        String generation = "";
+        for( var r : result ) {
+            System.out.printf( "Node: '%s':\n", r.node() );
+
+            generation = r.state().generation().orElse( "")
+            ;
+        }
+
+        System.out.println( generation );
+
+    }
+
 }
+

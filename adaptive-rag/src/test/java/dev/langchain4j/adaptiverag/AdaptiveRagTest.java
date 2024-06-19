@@ -136,23 +136,4 @@ public class AdaptiveRagTest {
         System.out.println( result );
     }
 
-    @Test
-    public void execute() throws Exception {
-        AdaptiveRag adaptiveRagTest = new AdaptiveRag(getOpenAiKey(), getTavilyApiKey());
-
-        var graph = adaptiveRagTest.buildGraph();
-
-        var result = graph.stream( mapOf( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
-
-        String generation = "";
-        for( var r : result ) {
-            System.out.printf( "Node: '%s':\n", r.node() );
-
-            generation = r.state().generation().orElse( "")
-            ;
-        }
-
-        System.out.println( generation );
-
-    }
 }

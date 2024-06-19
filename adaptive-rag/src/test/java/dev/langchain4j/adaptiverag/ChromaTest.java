@@ -8,7 +8,6 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 
 import java.io.FileInputStream;
