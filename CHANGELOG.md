@@ -2,6 +2,55 @@
 
 Changelog of langgraph4j.
 
+## v1.0-20240619 (2024-06-19)
+
+### Features
+
+-  update example ([dd746](https://github.com/bsorrentino/langgraph4j/commit/dd746afb3534e99) bsorrentino)  
+-  add maven exec plugin to run example ([19b55](https://github.com/bsorrentino/langgraph4j/commit/19b55d7dc37e9bd) bsorrentino)  
+-  complete AdaptiveRag implementation ([e3d62](https://github.com/bsorrentino/langgraph4j/commit/e3d62406268951f) bsorrentino)  
+-  complete nodes and edges ([7ab12](https://github.com/bsorrentino/langgraph4j/commit/7ab1205eb8a66f2) bsorrentino)  
+-  add webSearch method ([38347](https://github.com/bsorrentino/langgraph4j/commit/383476f5a230fd8) bsorrentino)  
+-  start adaptive rag implementation ([16a0a](https://github.com/bsorrentino/langgraph4j/commit/16a0aefe2155ce0) bsorrentino)  
+-  add tavily dependency ([7af44](https://github.com/bsorrentino/langgraph4j/commit/7af44a68b18bac7) bsorrentino)  
+-  add question rewriter function object ([ba466](https://github.com/bsorrentino/langgraph4j/commit/ba4664a974fa9a5) bsorrentino)  
+-  add retrieval grader function object ([36674](https://github.com/bsorrentino/langgraph4j/commit/36674feafc7ceb7) bsorrentino)  
+-  add tavily integration ([a79e5](https://github.com/bsorrentino/langgraph4j/commit/a79e5e5434ae45b) bsorrentino)  
+-  **adaptiverag**  start implementin adaptive rag ([538c5](https://github.com/bsorrentino/langgraph4j/commit/538c5d72644ee6f) bsorrentino)  
+
+### Bug Fixes
+
+-  remove api key ref ([6753a](https://github.com/bsorrentino/langgraph4j/commit/6753a9a63c5bad4) bsorrentino)  
+
+### Other changes
+
+**Merge branch 'release/1.0-20240619'**
+
+
+[3ab66](https://github.com/bsorrentino/langgraph4j/commit/3ab662552ea67d2) bsorrentino *2024-06-19 18:48:48*
+
+**Merge branch 'feature/_#6_AdaptiveRAG' into develop**
+
+
+[86ce4](https://github.com/bsorrentino/langgraph4j/commit/86ce4e3cc648d57) bsorrentino *2024-06-19 18:40:25*
+
+**Merge branch 'main' into develop**
+
+
+[6e8b7](https://github.com/bsorrentino/langgraph4j/commit/6e8b70e0acd72c8) bsorrentino *2024-06-10 13:19:24*
+
+**Merge branch 'hotfix/docs'**
+
+
+[a9b22](https://github.com/bsorrentino/langgraph4j/commit/a9b22656c3a487a) bsorrentino *2024-06-10 13:19:22*
+
+**Merge tag 'v1.0-20240610' into develop**
+
+* new development release 
+
+[da395](https://github.com/bsorrentino/langgraph4j/commit/da3958cb88809db) bsorrentino *2024-06-10 11:34:26*
+
+
 ## v1.0-20240610 (2024-06-10)
 
 ### Other changes
