@@ -51,6 +51,26 @@ public class CompiledGraph<State extends AgentState> {
         this.maxIterations = maxIterations;
     }
 
+    private String nextNodeId( EdgeValue<State> route , State state, String nodeId ) throws Exception {
+
+        if( route == null ) {
+            throw StateGraph.RunnableErrors.missingEdge.exception(nodeId);
+        }
+        if( route.id() != null ) {
+            return route.id();
+        }
+        if( route.value() != null ) {
+            var condition = route.value().action();
+            var newRoute = condition.apply(state).get();
+            var result = route.value().mappings().get(newRoute);
+            if( result == null ) {
+                throw StateGraph.RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
+            }
+            return result;
+        }
+        throw StateGraph.RunnableErrors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
+    }
+
     /**
      * Determines the next node ID based on the current node ID and state.
      *
@@ -60,28 +80,12 @@ public class CompiledGraph<State extends AgentState> {
      * @throws Exception if there is an error determining the next node ID
      */
     private String nextNodeId(String nodeId, State state) throws Exception {
+        return nextNodeId(edges.get(nodeId), state, nodeId);
 
-        var route = edges.get(nodeId);
-        if( route == null ) {
-            throw StateGraph.RunnableErrors.missingEdge.exception(nodeId);
-        }
-        if( route.id() != null ) {
-            return route.id();
-        }
-        if( route.value() != null ) {
-            var condition = route.value().action();
+    }
 
-            var newRoute = condition.apply(state).get();
-
-            var result = route.value().mappings().get(newRoute);
-            if( result == null ) {
-                throw StateGraph.RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
-            }
-            return result;
-        }
-
-        throw StateGraph.RunnableErrors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
-
+    private String getEntryPoint( State state ) throws Exception {
+        return nextNodeId(stateGraph.getEntryPoint(), state, "entryPoint");
     }
 
     /**
@@ -95,11 +99,13 @@ public class CompiledGraph<State extends AgentState> {
 
         return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
 
-            var currentState = stateGraph.getStateFactory().apply(inputs);
-            var currentNodeId = stateGraph.getEntryPoint();
-            Map<String, Object> partialState;
-
             try  {
+                var currentState = stateGraph.getStateFactory().apply(inputs);
+
+                var currentNodeId = this.getEntryPoint( currentState );
+
+                Map<String, Object> partialState;
+
                 for(int i = 0; i < maxIterations &&  !Objects.equals(currentNodeId, StateGraph.END); ++i ) {
                     var action = nodes.get(currentNodeId);
                     if (action == null) {
@@ -181,7 +187,10 @@ public class CompiledGraph<State extends AgentState> {
                     }
                 });
 
-        sb.append( format("start -down-> \"%s\"\n", stateGraph.getEntryPoint() ));
+        var entryPoint = stateGraph.getEntryPoint();
+        if( entryPoint.id() != null  ) {
+            sb.append( format("start -down-> \"%s\"\n", entryPoint.id() ));
+        }
 
         conditionalEdgeCount[0] = 0; // reset
 
