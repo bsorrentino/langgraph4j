@@ -9,9 +9,10 @@
 
 ## News
 
-| Date | Release | info
-| --- | --- | ---
-| Jun 10, 2024 | `1.0-SNAPSHOT` | refactoring how generate graph representation (plantuml)
+| Date         | Release | info
+|--------------| --- | ---
+| Jun 19, 2024 | `1.0-SNAPSHOT` | Add [adaptive rag](adaptice-rag/README.md) sample
+| Jun 10, 2024 | `1.0-SNAPSHOT` | Refactoring how generate graph representation (plantuml)
 | May 20, 2024 | `1.0-SNAPSHOT` | Add "[Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)" sample
 | May 18, 2024 | `1.0-SNAPSHOT` | Add `getGraph()` method to `CompiledGraph` to return a [PlantUML] representation of your Graph
 
@@ -149,7 +150,7 @@ return  app.stream( inputs );
 
 * [Agent Executor](agents-jdk8/README.md#agent-executor)
 * [Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)
-
+* [adaptive rag](adaptice-rag/README.md)
 # References
 
 * [LangGraph - LangChain Blog][langgraph.blog]
