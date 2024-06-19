@@ -14,36 +14,34 @@ import java.time.Duration;
 import java.util.function.Function;
 
 @Value(staticConstructor="of")
-public class RetrievalGrader implements Function<RetrievalGrader.Arguments, RetrievalGrader.Score> {
-
+public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrader.Score> {
+    /**
+     * Binary score to assess answer addresses question.
+     */
     public static class Score {
 
-        @Description("Documents are relevant to the question, 'yes' or 'no'")
+        @Description("Answer addresses the question, 'yes' or 'no'")
         public String binaryScore;
     }
 
-    @StructuredPrompt("Retrieved document: \n\n {{document}} \n\n User question: {{question}}")
-    @Value(staticConstructor = "of")
+    @StructuredPrompt("User question: \\n\\n {question} \\n\\n LLM generation: {generation}")
+    @Value(staticConstructor="of")
     public static class Arguments {
         String question;
-        String document;
+        String generation;
     }
 
     interface Service {
 
-        @SystemMessage("You are a grader assessing relevance of a retrieved document to a user question. \n" +
-                "    If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n" +
-                "    It does not need to be a stringent test. The goal is to filter out erroneous retrievals. \n" +
-                "    Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question.")
-        Score invoke(String question);
+        @SystemMessage("You are a grader assessing whether an answer addresses / resolves a question \\n \n" +
+                "     Give a binary score 'yes' or 'no'. Yes' means that the answer resolves the question.")
+        Score invoke(String userMessage);
     }
 
     String openApiKey;
 
-
     @Override
-    public Score apply(Arguments args ) {
-
+    public Score apply(Arguments args) {
         ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-3.5-turbo-0125" )
@@ -61,7 +59,6 @@ public class RetrievalGrader implements Function<RetrievalGrader.Arguments, Retr
         Prompt prompt = StructuredPromptProcessor.toPrompt(args);
 
         return service.invoke(prompt.text());
-
     }
 
 }

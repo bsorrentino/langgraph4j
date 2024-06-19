@@ -1,29 +1,13 @@
 package dev.langchain4j.adaptiverag;
 
-import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.input.Prompt;
-import dev.langchain4j.model.input.structured.StructuredPrompt;
-import dev.langchain4j.model.input.structured.StructuredPromptProcessor;
-import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import dev.langchain4j.service.AiServices;
-import dev.langchain4j.service.UserMessage;
-import dev.langchain4j.service.V;
-import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
-import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
-import lombok.Value;
 import lombok.var;
 import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppendableValue;
-import org.bsc.langgraph4j.utils.CollectionsUtils;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,60 +30,43 @@ public class AdaptiveRag {
             super(initData);
         }
 
-        public Optional<String> question() {
-            return value("question");
+        public String question() {
+            Optional<String> result = value("question");
+            return result.orElseThrow( () -> new IllegalStateException( "question is not set!" ) );
         }
-        public Optional<String> generation() {
-            return value("generation");
+        public String generation() {
+            Optional<String> result = value("generation");
+            return result.orElseThrow( () -> new IllegalStateException( "generation is not set!" ) );
+
         }
         public List<String> documents() {
-            return (List<String>) value("documents").orElse(emptyList());
+            Optional<List<String>> result =  value("documents");
+            return result.orElse(emptyList());
         }
 
     }
 
     private final String openApiKey;
     private final String tavilyApiKey;
-    private final ChromaEmbeddingStore chroma = new ChromaEmbeddingStore(
-            "http://localhost:8000",
-            "rag-chroma",
-            Duration.ofMinutes(2) );
-    private final OpenAiEmbeddingModel embeddingModel;
+    private final ChromaStore chroma;
 
     public AdaptiveRag( String openApiKey, String tavilyApiKey ) {
         this.openApiKey = openApiKey;
         this.tavilyApiKey = tavilyApiKey;
-
-        this.embeddingModel = OpenAiEmbeddingModel.builder()
-                .apiKey(openApiKey)
-                .build();
-
-    }
-
-    private EmbeddingSearchResult<TextSegment> retrieverSearch( String question ) {
-
-        Embedding queryEmbedding = embeddingModel.embed(question).content();
-
-        EmbeddingSearchRequest query = EmbeddingSearchRequest.builder()
-                .queryEmbedding( queryEmbedding )
-                .maxResults( 1 )
-                .minScore( 0.0 )
-                .build();
-        return chroma.search( query );
+        this.chroma = ChromaStore.of(openApiKey);
 
     }
 
     /**
-     * Retrieve documents
-     * @param state
-     * @return
+     * Node: Retrieve documents
+     * @param state The current graph state
+     * @return New key added to state, documents, that contains retrieved documents
      */
     public Map<String,Object> retrieve( State state ) {
 
-        String question = state.question()
-                .orElseThrow( () -> new IllegalStateException( "question is null!" ) );
+        String question = state.question();
 
-        EmbeddingSearchResult<TextSegment> relevant = retrieverSearch( question );
+        EmbeddingSearchResult<TextSegment> relevant = this.chroma.search( question );
 
         List<String> documents = relevant.matches().stream()
                 .map( m -> m.embedded().text() )
@@ -108,60 +75,37 @@ public class AdaptiveRag {
         return mapOf( "documents", documents , "question", question );
     }
 
-    public interface RagService {
-
-        @UserMessage("You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\n" +
-                "Question: {{question}} \n" +
-                "Context: {{context}} \n" +
-                "Answer:")
-        String invoke(@V("question") String question, @V("context") List<String> context );
-    }
-
     /**
-     * Generate answer
+     * Node: Generate answer
      *
-     * @param state
-     * @return
+     * @param state The current graph state
+     * @return New key added to state, generation, that contains LLM generation
      */
     public Map<String,Object> generate( State state ) {
-        String question = state.question()
-                .orElseThrow( () -> new IllegalStateException( "question is null!" ) );
+        String question = state.question();
         List<String> documents = state.documents();
 
-        ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
-                .apiKey( openApiKey )
-                .modelName( "gpt-3.5-turbo" )
-                .timeout(Duration.ofMinutes(2))
-                .logRequests(true)
-                .logResponses(true)
-                .maxRetries(2)
-                .temperature(0.0)
-                .maxTokens(2000)
-                .build();
-
-        RagService service = AiServices.create(RagService.class, chatLanguageModel);
-
-        String generation = service.invoke( question, documents ); // service
+        String generation = Generation.of(openApiKey).apply(question, documents); // service
 
         return mapOf("generation", generation);
     }
 
     /**
-     * Determines whether the retrieved documents are relevant to the question.
-     * @param state
-     * @return
+     * Node: Determines whether the retrieved documents are relevant to the question.
+     * @param state  The current graph state
+     * @return Updates documents key with only filtered relevant documents
      */
     public Map<String,Object> gradeDocuments( State state ) {
 
-        String question = state.question()
-                .orElseThrow( () -> new IllegalStateException( "question is null!" ) );
+        String question = state.question();
+
         List<String> documents = state.documents();
 
         final RetrievalGrader grader = RetrievalGrader.of( openApiKey );
 
         List<String> filteredDocs =  documents.stream()
                 .filter( d -> {
-                    var score = grader.apply( new RetrievalGrader.Arguments(question, d ));
+                    var score = grader.apply( RetrievalGrader.Arguments.of(question, d ));
                     return score.binaryScore.equals("yes");
                 })
                 .collect(Collectors.toList());
@@ -170,14 +114,12 @@ public class AdaptiveRag {
     }
 
     /**
-     * Transform the query to produce a better question.
-     * @param state
-     * @return
+     * Node: Transform the query to produce a better question.
+     * @param state  The current graph state
+     * @return Updates question key with a re-phrased question
      */
     public Map<String,Object> transformQuery( State state ) {
-        String question = state.question()
-                .orElseThrow( () -> new IllegalStateException( "question is null!" ) );
-        List<String> documents = state.documents();
+        String question = state.question();
 
         String betterQuestion = QuestionRewriter.of( openApiKey ).apply( question );
 
@@ -185,13 +127,12 @@ public class AdaptiveRag {
     }
 
     /**
-     * Web search based on the re-phrased question.
-     * @param state
-     * @return
+     * Node: Web search based on the re-phrased question.
+     * @param state  The current graph state
+     * @return Updates documents key with appended web results
      */
     public Map<String,Object> webSearch( State state ) {
-        String question = state.question()
-                .orElseThrow( () -> new IllegalStateException( "question is null!" ) );
+        String question = state.question();
 
         var result = WebSearchTool.of( tavilyApiKey ).apply(question);
 
@@ -200,5 +141,59 @@ public class AdaptiveRag {
                             .collect(Collectors.joining("\n"));
 
         return mapOf( "documents", listOf( webResult ) );
+    }
+
+    /**
+     * Edge: Route question to web search or RAG.
+     * @param state The current graph state
+     * @return Next node to call
+     */
+    public String routeQuestion( State state  ) {
+        String question = state.question();
+
+        var source = QuestionRouter.of( openApiKey ).apply( question );
+
+        return source.name();
+    }
+
+    /**
+     * Edge: Determines whether to generate an answer, or re-generate a question.
+     * @param state The current graph state
+     * @return Binary decision for next node to call
+     */
+    public String decideToGenerate( State state  ) {
+        List<String> documents = state.documents();
+
+        if(documents.isEmpty()) {
+            return "transform_query";
+        }
+        return "generate";
+    }
+
+    /**
+     * Edge: Determines whether the generation is grounded in the document and answers question.
+     * @param state The current graph state
+     * @return Decision for next node to call
+     */
+    public String gradeGeneration_v_DocumentsAndQuestion( State state ) {
+        String question = state.question();
+        List<String> documents = state.documents();
+        String generation = state.generation();
+
+        HallucinationGrader.Score score = HallucinationGrader.of( openApiKey )
+                                            .apply( HallucinationGrader.Arguments.of(documents, generation));
+
+        if(Objects.equals(score.binaryScore, "yes")) {
+
+            AnswerGrader.Score score2 = AnswerGrader.of( openApiKey )
+                                            .apply( AnswerGrader.Arguments.of(question, generation) );
+            if( Objects.equals( score2.binaryScore, "yes") ) {
+                return "useful";
+            }
+
+            return "not useful";
+        }
+
+        return "not supported";
     }
 }

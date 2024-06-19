@@ -9,6 +9,7 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
+import lombok.var;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AdaptiveRagTest {
 
@@ -28,16 +30,22 @@ public class AdaptiveRagTest {
         LogManager.getLogManager().readConfiguration(configFile);
 
         DotEnvConfig.load();
+    }
 
+    String getOpenAiKey() {
+        return DotEnvConfig.valueOf("OPENAI_API_KEY")
+                .orElseThrow( () -> new IllegalArgumentException("no OPENAI APIKEY provided!"));
+    }
 
+    String getTavilyApiKey() {
+        return DotEnvConfig.valueOf("TAVILY_API_KEY")
+                .orElseThrow( () -> new IllegalArgumentException("no TAVILY APIKEY provided!"));
     }
 
     @Test
     public void QuestionRewriterTest() {
-        String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
 
-        String result = QuestionRewriter.of(openApiKey).apply("agent memory");
+        String result = QuestionRewriter.of(getOpenAiKey()).apply("agent memory");
         assertEquals("What is the role of memory in an agent's functioning?", result);
     }
 
@@ -71,8 +79,8 @@ public class AdaptiveRagTest {
 
         assertEquals( 1, matches.size() );
 
-        RetrievalGrader.DocumentScore answer =
-                grader.apply( new RetrievalGrader.Arguments(question, matches.get(0).embedded().text()));
+        RetrievalGrader.Score answer =
+                grader.apply( RetrievalGrader.Arguments.of(question, matches.get(0).embedded().text()));
 
         assertEquals( "no", answer.binaryScore);
 
@@ -82,16 +90,48 @@ public class AdaptiveRagTest {
     @Test
     public void WebSearchTest() {
 
-        String tavilyApiKey = DotEnvConfig.valueOf("TAVILY_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
-
-        WebSearchTool webSearchTool = WebSearchTool.of(tavilyApiKey);
+        WebSearchTool webSearchTool = WebSearchTool.of(getTavilyApiKey());
         List<Content> webSearchResults = webSearchTool.apply("agent memory");
 
         String webSearchResultsText = webSearchResults.stream().map( content -> content.textSegment().text() )
                 .collect(Collectors.joining("\n"));
+
+        assertNotNull( webSearchResultsText );
+
         System.out.println( webSearchResultsText );
 
     }
 
+    @Test
+    public void questionRouterTest() {
+
+        QuestionRouter qr = QuestionRouter.of(getOpenAiKey());
+
+        QuestionRouter.Type result = qr.apply( "What are the stock options?");
+
+        assertEquals( QuestionRouter.Type.web_search, result );
+
+        result = qr.apply( "agent memory?");
+
+        assertEquals( QuestionRouter.Type.vectorstore, result );
+    }
+
+
+    @Test
+    public void generationTest() {
+
+        ChromaStore retriever = ChromaStore.of(getOpenAiKey());
+
+        String question = "agent memory";
+        var relevantDocs = retriever.search(question);
+
+        List<String> docs = relevantDocs.matches().stream()
+                                .map( m -> m.embedded().text() )
+                                .collect(Collectors.toList());
+        Generation qr = Generation.of(getOpenAiKey());
+
+        String result = qr.apply( question, docs );
+
+        System.out.println( result );
+    }
 }
