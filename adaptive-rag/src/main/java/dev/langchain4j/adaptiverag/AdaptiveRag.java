@@ -5,6 +5,7 @@ import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.langgraph4j.CompiledGraph;
+import org.bsc.langgraph4j.GraphRepresentation;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.state.AgentState;
 
@@ -290,6 +291,7 @@ public class AdaptiveRag {
         var graph = adaptiveRagTest.buildGraph();
 
         var result = graph.stream( mapOf( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
+        // var result = graph.stream( mapOf( "question", "What kind the agent memory do iu know?" ) );
 
         String generation = "";
         for( var r : result ) {
@@ -300,6 +302,10 @@ public class AdaptiveRag {
         }
 
         System.out.println( generation );
+
+        // generate plantuml script
+        // var plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML );
+        // System.out.println( plantUml );
 
     }
 
