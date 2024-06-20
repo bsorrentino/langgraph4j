@@ -10,11 +10,11 @@ Java implementation of [Adaptive Rag]
 
 ### Populate Chroma Vector store using Docker
 
-1. go to `adaptive-rag`/`src`/`main`/`docker` 
+1. go to project root (i.e. _cloned project root_)
 2. set environment variable `OPENAI_API_KEY`
 3. run
    ```
-   docker compose up upsert 
+   mvn -pl adaptive-rag exec:exec@upsert
    ```
 
 ### Run example
@@ -24,7 +24,7 @@ Java implementation of [Adaptive Rag]
 3. set environment variable `TAVILY_API_KEY`
 4. run
    ```
-   mvn -pl adaptive-rag exec:exec
+   mvn -pl adaptive-rag exec:exec@app
    ```
 
 The main is [here](src/main/java/dev/langchain4j/adaptiverag/AdaptiveRag.java)
