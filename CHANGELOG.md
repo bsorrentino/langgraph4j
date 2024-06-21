@@ -2,6 +2,32 @@
 
 Changelog of langgraph4j.
 
+## v1.0-20240621 (2024-06-21)
+
+### Features
+
+-  **core**  add support of Mermaid diagram-as-node syntax generation ([a0fd5](https://github.com/bsorrentino/langgraph4j/commit/a0fd5a95a4d0493) bsorrentino)  
+-  **core**  add support for contidional entrypoint in getGraph() method ([1a81f](https://github.com/bsorrentino/langgraph4j/commit/1a81fe399211a62) bsorrentino)  
+
+### Other changes
+
+**Merge branch 'release/1.0-20240621'**
+
+
+[a4301](https://github.com/bsorrentino/langgraph4j/commit/a4301d7ece8b1ef) bsorrentino *2024-06-21 16:44:24*
+
+**Merge branch 'feature/#5_marmaid' into develop**
+
+
+[f421e](https://github.com/bsorrentino/langgraph4j/commit/f421ee0cf1a57cf) bsorrentino *2024-06-21 15:05:53*
+
+**Merge tag 'v1.0-20240619' into develop**
+
+* new dev release 
+
+[9bc96](https://github.com/bsorrentino/langgraph4j/commit/9bc96fef08f5825) bsorrentino *2024-06-19 18:48:59*
+
+
 ## v1.0-20240619 (2024-06-19)
 
 ### Features
