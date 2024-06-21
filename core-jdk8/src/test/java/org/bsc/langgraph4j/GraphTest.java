@@ -102,10 +102,10 @@ public class GraphTest {
                 "hexagon \"check state\" as condition1<<Condition>>\n" +
                 "start -down-> \"evaluate_result\"\n" +
                 "\"agent_review\" -down-> \"evaluate_result\"\n" +
-                "\"evaluate_result\" -down-> condition1\n" +
-                "condition1 --> \"agent_review\": \"ERROR\"\n" +
-                "condition1 --> stop: \"UNKNOWN\"\n" +
-                "condition1 --> stop: \"OK\"\n" +
+                "\"evaluate_result\" -down-> \"condition1\"\n" +
+                "\"condition1\" --> \"agent_review\": \"ERROR\"\n" +
+                "\"condition1\" -down-> stop: \"UNKNOWN\"\n" +
+                "\"condition1\" -down-> stop: \"OK\"\n" +
                 "@enduml\n", result.getContent() );
 
         System.out.println( result.getContent() );
@@ -150,9 +150,9 @@ public class GraphTest {
                 "usecase \"action\"<<Node>>\n" +
                 "hexagon \"check state\" as condition1<<Condition>>\n" +
                 "start -down-> \"agent\"\n" +
-                "\"agent\" -down-> condition1\n" +
-                "condition1 --> \"action\": \"continue\"\n" +
-                "condition1 --> stop: \"end\"\n" +
+                "\"agent\" -down-> \"condition1\"\n" +
+                "\"condition1\" --> \"action\": \"continue\"\n" +
+                "\"condition1\" -down-> stop: \"end\"\n" +
                 "\"action\" -down-> \"agent\"\n" +
                 "@enduml\n", result.getContent() );
 
@@ -201,9 +201,9 @@ public class GraphTest {
                 "usecase \"evaluate_result\"<<Node>>\n" +
                 "hexagon \"check state\" as condition1<<Condition>>\n" +
                 "start -down-> \"agent_describer\"\n" +
-                "\"agent_describer\" -down-> condition1\n" +
-                "condition1 --> \"agent_sequence_plantuml\": \"sequence\"\n" +
-                "condition1 --> \"agent_generic_plantuml\": \"generic\"\n" +
+                "\"agent_describer\" -down-> \"condition1\"\n" +
+                "\"condition1\" --> \"agent_sequence_plantuml\": \"sequence\"\n" +
+                "\"condition1\" --> \"agent_generic_plantuml\": \"generic\"\n" +
                 "\"agent_sequence_plantuml\" -down-> \"evaluate_result\"\n" +
                 "\"agent_generic_plantuml\" -down-> \"evaluate_result\"\n" +
                 "\"evaluate_result\" -down-> stop\n" +
