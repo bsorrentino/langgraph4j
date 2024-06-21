@@ -5,41 +5,9 @@ import org.bsc.langgraph4j.DiagramGenerator;
 import static java.lang.String.format;
 
 /**
- * ---
- * title: Graph Diagram
- * ---
- * flowchart TD
- *
- *     start((start))
- *     stop((stop))
- *
- *     web_search("web_search")
- *     retrieve("retrieve")
- *     grade_documents("grade_documents")
- *     generate("generate")
- *     transform_query("transform_query")
- *
- *     condition1{"check state"}
- *     condition2{"check state"}
- *     startcondition{"check state"}
- *
- *     start --> startcondition
- *     startcondition -->|web search| web_search
- *     startcondition --> |vectorstore|retrieve
- *
- *     web_search --> generate
- *     retrieve --> grade_documents
- *
- *     grade_documents --> condition1
- *     condition1 --> transform_query
- *     condition1 --> generate
- *
- *     transform_query --> retrieve
- *     generate --> condition2
- *
- *     condition2 --> generate
- *     condition2 --> transform_query
- *     condition2 --> stop
+ * This class represents a MermaidGenerator that extends DiagramGenerator. It generates a flowchart using Mermaid syntax.
+ * The flowchart includes various nodes such as start, stop, web_search, retrieve, grade_documents, generate, transform_query,
+ * and different conditional states.
  */
 public class MermaidGenerator extends DiagramGenerator {
 
