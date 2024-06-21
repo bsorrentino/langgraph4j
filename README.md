@@ -148,9 +148,9 @@ return  app.stream( inputs );
 
 # Samples
 
-* [Agent Executor](agents-jdk8/README.md#agent-executor)
-* [Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)
-* [adaptive rag](adaptice-rag/README.md)
+* [Agent Executor](agent-executor/README.md)
+* [Image To PlantUML Diagram](image-to-diagram/README.md)
+* [adaptive rag](adaptive-rag/README.md)
 # References
 
 * [LangGraph - LangChain Blog][langgraph.blog]
