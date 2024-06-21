@@ -1,10 +1,12 @@
 package org.bsc.langgraph4j;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.diagram.PlantUMLGenerator;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.*;
@@ -18,8 +20,11 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 public class CompiledGraph<State extends AgentState> {
 
     final StateGraph<State> stateGraph;
+    @Getter
     final Map<String, AsyncNodeAction<State>> nodes = new LinkedHashMap<>();
+    @Getter
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
+
     private int maxIterations = 25;
 
     /**
@@ -38,6 +43,13 @@ public class CompiledGraph<State extends AgentState> {
         );
     }
 
+    public EdgeValue<State> getEntryPoint() {
+        return stateGraph.getEntryPoint();
+    }
+
+    public String getFinishPoint() {
+        return stateGraph.getFinishPoint();
+    }
     /**
      * Sets the maximum number of iterations for the graph execution.
      *
@@ -158,80 +170,24 @@ public class CompiledGraph<State extends AgentState> {
      * Generates a drawable graph representation of the state graph.
      *
      * @param type the type of graph representation to generate
+     * @param title the title of the graph
+     * @return a diagram code of the state graph
+     */
+    public GraphRepresentation getGraph( GraphRepresentation.Type type, String title ) {
+
+        String content = type.generator.generate( this,title);
+
+        return new GraphRepresentation( type, content );
+    }
+
+    /**
+     * Generates a drawable graph representation of the state graph with default title.
+     *
+     * @param type the type of graph representation to generate
      * @return a diagram code of the state graph
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type ) {
-
-        StringBuilder sb = new StringBuilder()
-        .append( "@startuml unnamed.puml\n" )
-        .append("skinparam usecaseFontSize 14\n")
-        .append("skinparam usecaseStereotypeFontSize 12\n")
-        .append("skinparam hexagonFontSize 14\n" )
-        .append("skinparam hexagonStereotypeFontSize 12\n")
-        .append("title \"Graph Diagram\"\n" )
-        .append("footer\n\n")
-        .append("powered by langgraph4j\n")
-        .append("end footer\n")
-        .append("circle start<<input>>\n")
-        .append("circle stop\n");
-
-        nodes.keySet()
-                .forEach( s -> sb.append( format( "usecase \"%s\"<<Node>>\n", s ) ) );
-
-        final int[] conditionalEdgeCount = { 0 };
-
-        edges.forEach( (k, v) -> {
-                    if( v.value() != null ) {
-                        conditionalEdgeCount[0] += 1;
-                        sb.append(format("hexagon \"check state\" as condition%d<<Condition>>\n", conditionalEdgeCount[0]));
-                    }
-                });
-
-
-        var entryPoint = stateGraph.getEntryPoint();
-        if( entryPoint.id() != null  ) {
-            sb.append( format("start -down-> \"%s\"\n", entryPoint.id() ));
-        }
-        else if( entryPoint.value() != null ) {
-            String conditionName = "startcondition";
-            sb.append(format("hexagon \"check state\" as %s<<Condition>>\n", conditionName));
-            sb.append( plantUML_EdgeCondition(entryPoint.value(), "start", conditionName) );
-        }
-
-        conditionalEdgeCount[0] = 0; // reset
-
-        edges.forEach( (k,v) -> {
-                    if( v.id() != null ) {
-                        sb.append( format( "\"%s\" -down-> \"%s\"\n", k,  v.id() ) );
-                        return;
-                    }
-                    else if( v.value() != null ) {
-                        conditionalEdgeCount[0] += 1;
-                        String conditionName = format("condition%d", conditionalEdgeCount[0]);
-                        sb.append( plantUML_EdgeCondition(v.value(), k, conditionName ));
-
-                    }
-                });
-        if( stateGraph.getFinishPoint() != null ) {
-            sb.append( format( "\"%s\" -down-> stop\n", stateGraph.getFinishPoint() ) );
-        }
-        sb.append( "@enduml\n" );
-
-        return new GraphRepresentation( type, sb.toString() );
+        return getGraph(type, "Graph Diagram");
     }
 
-    private String plantUML_EdgeCondition( EdgeCondition<State> condition, String key, String conditionName ) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(format("\"%s\" -down-> %s\n", key, conditionName));
-        condition.mappings().forEach( (cond, to) -> {
-                if( to.equals(StateGraph.END) ) {
-                    sb.append( format( "%s --> stop: \"%s\"\n", conditionName, cond ) );
-                }
-                else {
-                    sb.append( format( "%s --> \"%s\": \"%s\"\n", conditionName, to, cond ) );
-                }
-            });
-
-        return sb.toString();
-    }
 }
