@@ -151,7 +151,7 @@ return  app.stream( inputs );
 
 * [Agent Executor](agent-executor/README.md)
 * [Image To PlantUML Diagram](image-to-diagram/README.md)
-* [adaptive rag](adaptive-rag/README.md)
+* [Adaptive RAG](adaptive-rag/README.md)
 # References
 
 * [LangGraph - LangChain Blog][langgraph.blog]
