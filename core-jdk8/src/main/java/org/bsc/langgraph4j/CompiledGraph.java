@@ -170,15 +170,24 @@ public class CompiledGraph<State extends AgentState> {
      * Generates a drawable graph representation of the state graph.
      *
      * @param type the type of graph representation to generate
+     * @param title the title of the graph
+     * @return a diagram code of the state graph
+     */
+    public GraphRepresentation getGraph( GraphRepresentation.Type type, String title ) {
+
+        String content = type.generator.generate( this,title);
+
+        return new GraphRepresentation( type, content );
+    }
+
+    /**
+     * Generates a drawable graph representation of the state graph with default title.
+     *
+     * @param type the type of graph representation to generate
      * @return a diagram code of the state graph
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type ) {
-
-        DiagramGenerator generator  = new PlantUMLGenerator();
-
-        String content = generator.generate( this,"Graph Diagram");
-
-        return new GraphRepresentation( type, content );
+        return getGraph(type, "Graph Diagram");
     }
 
 }

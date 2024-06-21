@@ -209,6 +209,25 @@ public class GraphTest {
                 "\"evaluate_result\" -down-> stop\n" +
                 "@enduml\n", result.getContent() );
 
-        System.out.println( result.getContent() );
+        result = app.getGraph( GraphRepresentation.Type.MERMAID );
+        assertEquals( GraphRepresentation.Type.MERMAID, result.getType() );
+        assertEquals( "---\n" +
+                        "title: Graph Diagram\n" +
+                        "---\n" +
+                        "flowchart TD\n" +
+                        "\tstart((start))\n" +
+                        "\tstop((stop))\n" +
+                        "\tagent_describer(\"agent_describer\")\n" +
+                        "\tagent_sequence_plantuml(\"agent_sequence_plantuml\")\n" +
+                        "\tagent_generic_plantuml(\"agent_generic_plantuml\")\n" +
+                        "\tevaluate_result(\"evaluate_result\")\n" +
+                        "\tcondition1{\"check state\"}\n" +
+                        "\tstart --> agent_describer\n" +
+                        "\tagent_describer --> condition1\n" +
+                        "\tcondition1 -->|sequence| agent_sequence_plantuml\n" +
+                        "\tcondition1 -->|generic| agent_generic_plantuml\n" +
+                        "\tagent_sequence_plantuml --> evaluate_result\n" +
+                        "\tagent_generic_plantuml --> evaluate_result\n" +
+                        "\tevaluate_result --> stop\n", result.getContent() );
     }
 }
