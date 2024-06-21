@@ -144,8 +144,12 @@ public class AdaptiveRagTest {
 
         var graph = adaptiveRag.buildGraph();
 
-        var plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML );
+        var plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML, "Adaptive RAG" );
 
         System.out.println( plantUml.getContent() );
+
+        var mermaid = graph.getGraph( GraphRepresentation.Type.MERMAID, "Adaptive RAG" );
+
+        System.out.println( mermaid.getContent() );
     }
 }

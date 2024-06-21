@@ -30,7 +30,8 @@
 
   <modules>
     <module>core-jdk8</module>
-    <module>agents-jdk8</module>
+    <module>agent-executor</module>
+    <module>image-to-diagram</module>
     <module>adaptive-rag</module>
   </modules>
 

@@ -2,6 +2,7 @@ package dev.langchain4j.adaptiverag;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.langgraph4j.CompiledGraph;
@@ -57,15 +58,20 @@ public class AdaptiveRag {
 
     private final String openApiKey;
     private final String tavilyApiKey;
-    private final ChromaStore chroma;
+    @Getter(lazy = true)
+    private final ChromaStore chroma = openChroma();
 
     public AdaptiveRag( String openApiKey, String tavilyApiKey ) {
         Objects.requireNonNull(openApiKey, "no OPENAI APIKEY provided!");
         Objects.requireNonNull(tavilyApiKey, "no TAVILY APIKEY provided!");
         this.openApiKey = openApiKey;
         this.tavilyApiKey = tavilyApiKey;
-        this.chroma = ChromaStore.of(openApiKey);
+        //this.chroma = ChromaStore.of(openApiKey);
 
+    }
+
+    private ChromaStore openChroma() {
+        return ChromaStore.of(openApiKey);
     }
 
     /**
@@ -78,7 +84,7 @@ public class AdaptiveRag {
 
         String question = state.question();
 
-        EmbeddingSearchResult<TextSegment> relevant = this.chroma.search( question );
+        EmbeddingSearchResult<TextSegment> relevant = this.getChroma().search( question );
 
         List<String> documents = relevant.matches().stream()
                 .map( m -> m.embedded().text() )

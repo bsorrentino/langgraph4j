@@ -11,6 +11,7 @@
 
 | Date         | Release | info
 |--------------| --- | ---
+| Jun 21, 2024 | `1.0-SNAPSHOT` | Add support of [Mermaid] diagram generation - [issue #5](https://github.com/bsorrentino/langgraph4j/issues/5)
 | Jun 19, 2024 | `1.0-SNAPSHOT` | Add [adaptive rag](adaptice-rag/README.md) sample
 | Jun 10, 2024 | `1.0-SNAPSHOT` | Refactoring how generate graph representation (plantuml)
 | May 20, 2024 | `1.0-SNAPSHOT` | Add "[Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)" sample
@@ -148,9 +149,9 @@ return  app.stream( inputs );
 
 # Samples
 
-* [Agent Executor](agents-jdk8/README.md#agent-executor)
-* [Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)
-* [adaptive rag](adaptice-rag/README.md)
+* [Agent Executor](agent-executor/README.md)
+* [Image To PlantUML Diagram](image-to-diagram/README.md)
+* [adaptive rag](adaptive-rag/README.md)
 # References
 
 * [LangGraph - LangChain Blog][langgraph.blog]
@@ -167,6 +168,7 @@ return  app.stream( inputs );
 [AgentExecutor]: https://github.com/langchain-ai/langchain/blob/master/libs/langchain/langchain/agents/agent.py
 [PlantUML]: https://plantuml.com
 [java-async-generator]: https://github.com/bsorrentino/java-async-generator
+[Mermaid]: https://mermaid.js.org
 
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/langgraph4j-jdk8/1.0-SNAPSHOT
