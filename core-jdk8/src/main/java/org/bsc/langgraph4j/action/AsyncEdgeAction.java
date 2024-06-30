@@ -5,8 +5,8 @@ import org.bsc.langgraph4j.state.AgentState;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 /**
- * Represents an asynchronous edge action that operates on an agent state and returns a CompletableFuture.
- *
+ * Represents an asynchronous edge action that operates on an agent state and returns a new route.
+ * 
  * @param <S> the type of the agent state
  */
 public interface AsyncEdgeAction<S extends AgentState> extends Function<S, CompletableFuture<String>> {

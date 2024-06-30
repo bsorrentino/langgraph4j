@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
- * Represents an asynchronous node action that operates on an agent state and returns a CompletableFuture.
+ * Represents an asynchronous node action that operates on an agent state and returns state update.
  *
  * @param <S> the type of the agent state
  */
