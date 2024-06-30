@@ -61,10 +61,30 @@ public class AgentState {
 
 ### Define the nodes
 
-We now need to define a few different nodes in our graph. In `langgraph`, a node is a function that accept an `AgentState` as argument. There are two main nodes we need for this:
+We now need to define a few different nodes in our graph. In `langgraph`, a node is an async/sync function that accept an `AgentState` as argument and returns a (partial) state update. There are two main nodes we need for this:
 
 1. **The agent**: responsible for deciding what (if any) actions to take.
 1. **A function to invoke tools**: if the agent decides to take an action, this node will then execute that action.
+
+```java
+
+/**
+ * Represents an asynchronous node action that operates on an agent state and returns state update.
+ *
+ * @param <S> the type of the agent state
+ */
+@FunctionalInterface
+public interface AsyncNodeAction<S extends AgentState> extends Function<S, CompletableFuture<Map<String, Object>>> {
+
+    CompletableFuture<Map<String, Object>> apply(S t);
+
+    /**
+     * Creates an asynchronous node action from a synchronous node action.
+     */
+    static <S extends AgentState> AsyncNodeAction<S> node_async(NodeAction<S> syncAction) { ... }
+}
+
+```
 
 ### Define Edges
 
@@ -74,6 +94,24 @@ We will also need to define some edges. Some of these edges may be conditional. 
     * If the agent said to take an action, then the function to invoke tools should be called
     * If the agent said that it was finished, then it should finish
 1. **Normal Edge**: after the tools are invoked, it should always go back to the agent to decide what to do next
+
+```java
+
+/**
+ * Represents an asynchronous edge action that operates on an agent state and returns a new route.
+ *
+ * @param <S> the type of the agent state
+ */
+public interface AsyncEdgeAction<S extends AgentState> extends Function<S, CompletableFuture<String>> {
+
+    CompletableFuture<String> apply(S t);
+
+    /**
+     * Creates an asynchronous edge action from a synchronous edge action.
+     */
+    static <S extends AgentState> AsyncEdgeAction<S> edge_async(EdgeAction<S> syncAction ) { ... }
+}
+```
 
 ### Define the graph
 
