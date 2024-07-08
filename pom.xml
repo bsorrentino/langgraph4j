@@ -33,6 +33,7 @@
     <module>agent-executor</module>
     <module>image-to-diagram</module>
     <module>adaptive-rag</module>
+    <module>jetty</module>
   </modules>
 
   <dependencyManagement>
