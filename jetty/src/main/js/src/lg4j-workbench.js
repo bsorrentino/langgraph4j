@@ -2,7 +2,7 @@ import './app.css';
 
 import { html, css, LitElement } from 'lit';
 
-export class MyElement extends LitElement {
+export class LG4JWorkbenchElement extends LitElement {
 
   static styles = css`
     .item-a {
@@ -41,4 +41,4 @@ export class MyElement extends LitElement {
   }
 }
 
-window.customElements.define('my-element', MyElement);
+window.customElements.define('lg4j-workbench', LG4JWorkbenchElement);

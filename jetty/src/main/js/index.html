@@ -5,14 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + Lit App</title>
-    <script type="module" src="/src/my-element.js"></script>
-    <script type="module" src="/src/my-input.js"></script>
+    <script type="module" src="/src/lg4j-workbench.js"></script>
+    <script type="module" src="/src/lg4j-executor.js"></script>
+    <script type="module" src="/src/lg4j-graph.js"></script>
+    <script type="module" src="/src/lg4j-output.js"></script>
   </head>
   <body>
-    <my-element >
-      <p slot="left">PANEL1</p>
-      <p slot="right">PANEL2</p>
-      <div slot="bottom"><my-input></my-input></div>
-    </my-element>
+    <lg4j-workbench>
+      <lg4j-graph slot="left">
+        graph TD;
+        A-->B;
+        A-->C;
+        B-->D;
+        C-->D;
+      </lg4j-graph>
+      <lg4j-output slot="right"></lg4j-output>
+      <lg4j-executor id="executor" slot="bottom" url="http://localhost:8080/stream"></lg4j-executor>
+    </lg4j-workbench>
   </body>
 </html>
