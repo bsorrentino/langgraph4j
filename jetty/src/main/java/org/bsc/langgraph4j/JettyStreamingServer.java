@@ -71,4 +71,14 @@ public class JettyStreamingServer {
             }).start();
         }
     }
+
+    /**
+     * return the graph representation in mermaid format
+     */
+    public static class GraphServlet extends HttpServlet {
+        @Override
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        }
+    }
+
 }
