@@ -1,0 +1,33 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+bun.lockb
+.parcel-cache/7f973df67467291d-AssetGraph-0
+.parcel-cache/6054c31dbe703fb9-BundleGraph-0
+.parcel-cache/a8a28560cabca33b-AssetGraph-0
+.parcel-cache/data.mdb
+.parcel-cache/lock.mdb
+.parcel-cache/requestGraph-8b272c8491111040-0
+.parcel-cache/requestGraph-nodes-0-8b272c8491111040-0
+.parcel-cache/snapshot-8b272c8491111040.txt

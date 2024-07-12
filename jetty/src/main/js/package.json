@@ -1,0 +1,21 @@
+{
+  "name": "lit-vite",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "lit": "^3.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "autoprefixer": "^10.4.2",
+    "daisyui": "^4.12.2",
+    "parcel": "^2.12.0",
+    "postcss": "^8.4.7",
+    "tailwindcss": "^3.0.23",
+    "typescript": "^5.4.5"
+  }
+}

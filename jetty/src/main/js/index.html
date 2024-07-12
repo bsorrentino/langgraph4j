@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + Lit App</title>
+    <script type="module" src="/src/my-element.js"></script>
+    <script type="module" src="/src/my-input.js"></script>
+  </head>
+  <body>
+    <my-element >
+      <p slot="left">PANEL1</p>
+      <p slot="right">PANEL2</p>
+      <div slot="bottom"><my-input></my-input></div>
+    </my-element>
+  </body>
+</html>
