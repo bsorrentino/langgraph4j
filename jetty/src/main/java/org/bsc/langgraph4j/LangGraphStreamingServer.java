@@ -25,15 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
-public class Langgraph4jStreamingServer {
+public interface LangGraphStreamingServer {
 
+    CompletableFuture<Void> start() throws Exception;
 
-    public static void main(String[] args) throws Exception {
-
-    }
-
-    public static <State extends AgentState> void start(CompiledGraph<State> compiledGraph) throws Exception {
+    public static <State extends AgentState> LangGraphStreamingServer of(CompiledGraph<State> compiledGraph) throws Exception {
 
         Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
@@ -48,17 +46,28 @@ public class Langgraph4jStreamingServer {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         // Add the streaming servlet
-        context.addServlet(new ServletHolder(new StreamingServlet(compiledGraph)), "/stream");
+        context.addServlet(new ServletHolder(new StreamingServlet<State>(compiledGraph)), "/stream");
+        context.addServlet(new ServletHolder(new GraphServlet<State>(compiledGraph)), "/graph");
 
         Handler.Sequence handlerList = new Handler.Sequence(resourceHandler, context );
 
         server.setHandler(handlerList);
 
-        server.start();
-        server.join();
+        return new LangGraphStreamingServer() {
+            @Override
+            public CompletableFuture<Void> start() throws Exception {
+                return CompletableFuture.runAsync( () -> {
+                    try {
+                        server.start();
+                    } catch( Exception e ) {
+                        throw new RuntimeException(e);
+                    }
+                }, Runnable::run);
+            }
+        };
     }
 
-    public static class StreamingServlet<State extends AgentState> extends HttpServlet {
+    class StreamingServlet<State extends AgentState> extends HttpServlet {
         final CompiledGraph<State> compiledGraph;
         final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -66,21 +75,7 @@ public class Langgraph4jStreamingServer {
             Objects.requireNonNull(compiledGraph, "compiledGraph cannot be null");
             this.compiledGraph = compiledGraph;
         }
-
-        private AsyncGenerator<String> streamTest() {
-
-            List<String> chunks = Arrays.asList(
-                    "a", "b", "c", "d", "e",
-                    "f", "g", "h", "i", "j",
-                    "k", "l", "m", "n", "o",
-                    "p", "q", "r", "s", "t",
-                    "u", "v", "w", "x", "y", "z");
-
-            return AsyncGenerator.map( chunks,
-                    s -> CompletableFuture.completedFuture( "chunk " + s) );
-
-        }
-
+        
         @Override
         protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
             response.setHeader("Accept", "application/json");
@@ -99,7 +94,13 @@ public class Langgraph4jStreamingServer {
                     .forEachAsync( s -> {
                         writer.println(s.node());
                         writer.flush();
-                }).thenAccept( v -> {
+
+                        try {
+                            TimeUnit.SECONDS.sleep(1);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }).thenAccept( v -> {
                     writer.close();
                 });
 
@@ -112,7 +113,7 @@ public class Langgraph4jStreamingServer {
     /**
      * return the graph representation in mermaid format
      */
-    public static class GraphServlet<State extends AgentState> extends HttpServlet {
+   class GraphServlet<State extends AgentState> extends HttpServlet {
 
         final CompiledGraph<State> compiledGraph;
 
@@ -131,7 +132,7 @@ public class Langgraph4jStreamingServer {
             // Start asynchronous processing
             request.startAsync();
             final PrintWriter writer = response.getWriter();
-            writer.println(result);
+            writer.println(result.getContent());
             writer.close();
         }
     }

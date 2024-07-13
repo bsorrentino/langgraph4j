@@ -12,13 +12,14 @@
     <artifactId>jetty</artifactId>
 
     <packaging>war</packaging>
-    <name>Servlet 3 Webapp with Jetty Plugin</name>
+    <name>langgraph4j::jetty::server</name>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>12.0.11</jetty.version>
+        <jackson.version>2.17.2</jackson.version>
     </properties>
 
     <dependencyManagement>
@@ -27,7 +28,12 @@
     </dependencyManagement>
 
     <dependencies>
-
+        <dependency>
+            <groupId>org.bsc.langgraph4j</groupId>
+            <artifactId>langgraph4j-jdk8</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
 <!--
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -36,6 +42,11 @@
             <scope>provided</scope>
         </dependency>
 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -43,7 +54,6 @@
             <version>${jetty.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.eclipse.jetty.ee10/jetty-ee10-servlet -->
         <dependency>
             <groupId>org.eclipse.jetty.ee10</groupId>
             <artifactId>jetty-ee10-servlet</artifactId>
@@ -55,6 +65,8 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+
+
     </dependencies>
 
     <build>
@@ -67,8 +79,16 @@
                     <execution><goals><goal>java</goal></goals></execution>
                 </executions>
                 <configuration>
-                    <mainClass>org.bsc.langgraph4j.JettyStreamingServer</mainClass>
+                    <classpathScope>test</classpathScope>
+                    <mainClass>org.bsc.langgraph4j.LangGraphStreamingServerTest</mainClass>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.bsc.langgraph4j</groupId>
+                        <artifactId>langgraph4j-jdk8</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
