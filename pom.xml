@@ -28,6 +28,7 @@
     </snapshotRepository>
   </distributionManagement>
 
+<!--
   <modules>
     <module>core-jdk8</module>
     <module>agent-executor</module>
@@ -35,6 +36,7 @@
     <module>adaptive-rag</module>
     <module>jetty</module>
   </modules>
+-->
 
   <dependencyManagement>
     <dependencies>
@@ -124,4 +126,34 @@
 
   </build>
 
+
+  <profiles>
+    <profile>
+      <id>jdk-8</id>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+      <modules>
+        <module>core-jdk8</module>
+        <module>agent-executor</module>
+        <module>image-to-diagram</module>
+        <module>adaptive-rag</module>
+      </modules>
+      <build>
+
+      </build>
+    </profile>
+    <profile>
+      <id>jdk-17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <modules>
+        <module>jetty</module>
+      </modules>
+      <build>
+        <!-- Define configuration for JDK >= 11 -->
+      </build>
+    </profile>
+  </profiles>
 </project>
