@@ -2547,6 +2547,11 @@ details.collapse summary::-webkit-details-marker {
   border-style: dashed;
 }
 
+.border-base-300 {
+  --tw-border-opacity: 1;
+  border-color: var(--fallback-b3, oklch(var(--b3) / var(--tw-border-opacity)));
+}
+
 .border-gray-200 {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
@@ -2565,6 +2570,15 @@ details.collapse summary::-webkit-details-marker {
 .border-red-500 {
   --tw-border-opacity: 1;
   border-color: rgb(239 68 68 / var(--tw-border-opacity));
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.font-medium {
+  font-weight: 500;
 }
 
 .underline {
@@ -2606,6 +2620,28 @@ details.collapse summary::-webkit-details-marker {
 
 .ease-out {
   transition-timing-function: cubic-bezier(0, 0, .2, 1);
+}
+
+@media (hover: hover) {
+  .table .hover\\:hover:hovertr:hover {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b2, oklch(var(--b2) / var(--tw-bg-opacity)));
+  }
+
+  .table .hover\\:hover:hovertr:nth-child(2n):hover {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b2, oklch(var(--b2) / var(--tw-bg-opacity)));
+  }
+
+  .table-zebra .hover\\:hover:hovertr:hover {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b3, oklch(var(--b3) / var(--tw-bg-opacity)));
+  }
+
+  .table-zebra .hover\\:hover:hovertr:nth-child(2n):hover {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b3, oklch(var(--b3) / var(--tw-bg-opacity)));
+  }
 }
 /*# sourceMappingURL=index.c41b5a0e.css.map */
  

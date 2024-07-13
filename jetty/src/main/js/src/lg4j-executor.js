@@ -7,11 +7,10 @@ import { html, css, LitElement } from 'lit';
  * 
  * @async
  * @generator
- * @param {Function} fetchcall - A function that returns a Promise resolving to a Response object.
+ * @param Response - Response object to stream.
  * @yields {Promise<string>} The decoded text chunk from the response stream.
  */
-async function* streamingFetch(fetchcall) {
-  const response = await fetchcall();
+async function* streamingResponse(response) {
   // Attach Reader
   const reader = response.body.getReader();
   while (true) {
@@ -54,7 +53,8 @@ export class LG4JExecutorElement extends LitElement {
    */
   static properties = {
     placeholder: {},
-    url: {}
+    url: {},
+    test: { type: Boolean }
   }
 
   /**
@@ -65,6 +65,7 @@ export class LG4JExecutorElement extends LitElement {
   constructor() {
     super();
     this.placeholder = "prompt";
+    this.test = false
   }
 
   /**
@@ -73,8 +74,20 @@ export class LG4JExecutorElement extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
+    if( this.test ) {
+      setTimeout( () => 
+        this.dispatchEvent( new CustomEvent( 'graph', { 
+          detail: `
+          flowchart TD
+          Start --> Stop
+          `,
+          bubbles: true,
+          composed: true,
+          cancelable: true
+        })), 1000 );
+      }
+  
   }
-
 
   /**
    * Renders the HTML template for the component.
@@ -84,24 +97,53 @@ export class LG4JExecutorElement extends LitElement {
   render() {
     return html`
         <div class="container">
-          <textarea class="textarea textarea-bordered" placeholder="${this.placeholder}"></textarea>
+          <textarea id="prompt" class="textarea textarea-bordered" placeholder="${this.placeholder}"></textarea>
           <button @click="${this.#submit}" class="btn btn-primary">Submit</button>
         </div>
     `;
   }
 
+  get #prompt() {
+    // console.debug(  ' --> ' + this.shadowRoot.getElementById('prompt') )
+    return this.shadowRoot.getElementById('prompt').value
+  }
+
   async #submit() {
+    // console.debug( 'test', this.test )
+    if(this.test ) {
+      this.dispatchEvent( new CustomEvent( 'result', { 
+        detail: `TEST: ${this.#prompt}`,
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      } ) );
+      return
+    }
 
-    // this.dispatchEvent( new CustomEvent( 'result', { 
-    //   detail: "TEST",
-    //   bubbles: true,
-    //   composed: true,
-    //   cancelable: true
-    // } ) );
+    const data = { 'prompt': this.#prompt }
 
+    
+    const execResponse = await fetch(`${this.url}/stream`, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
 
-    for await (let chunk of streamingFetch(() => fetch(`${this.url}`))) {
-      console.log(chunk)
+    const graphResponse = await fetch( `${this.url}/graph` )
+
+    const graphText = await graphResponse.text()
+
+    this.dispatchEvent( new CustomEvent( 'graph', { 
+      detail: graphText,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+
+    for await (let chunk of streamingResponse( execResponse )  ) {
+      console.debug( chunk )
 
       this.dispatchEvent( new CustomEvent( 'result', { 
         detail: chunk,
