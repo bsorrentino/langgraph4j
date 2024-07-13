@@ -1,4 +1,4 @@
-var o=globalThis,t={},r={},a=o.parcelRequire3bab;null==a&&((a=function(o){if(o in t)return t[o].exports;if(o in r){var a=r[o];delete r[o];var e={id:o,exports:{}};return t[o]=e,a.call(e.exports,e,e.exports),e.exports}var l=Error("Cannot find module '"+o+"'");throw l.code="MODULE_NOT_FOUND",l}).register=function(o,t){r[o]=t},o.parcelRequire3bab=a),(0,a.register)("hNeh9",function(o,t){Object.defineProperty(o.exports,"default",{get:()=>e,set:void 0,enumerable:!0,configurable:!0});var r=a("800sp"),e=(0,r.css)` 
+var t=globalThis,o={},r={},a=t.parcelRequire3bab;null==a&&((a=function(t){if(t in o)return o[t].exports;if(t in r){var a=r[t];delete r[t];var e={id:t,exports:{}};return o[t]=e,a.call(e.exports,e,e.exports),e.exports}var l=Error("Cannot find module '"+t+"'");throw l.code="MODULE_NOT_FOUND",l}).register=function(t,o){r[t]=o},t.parcelRequire3bab=a),(0,a.register)("hNeh9",function(t,o){Object.defineProperty(t.exports,"default",{get:()=>e,set:void 0,enumerable:!0,configurable:!0});var r=a("800sp"),e=(0,r.css)` 
 *, :before, :after {
   box-sizing: border-box;
   border: 0 solid #e5e7eb;
@@ -2545,6 +2545,11 @@ details.collapse summary::-webkit-details-marker {
   border-style: dashed;
 }
 
+.border-base-300 {
+  --tw-border-opacity: 1;
+  border-color: var(--fallback-b3, oklch(var(--b3) / var(--tw-border-opacity)));
+}
+
 .border-gray-200 {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
@@ -2563,6 +2568,15 @@ details.collapse summary::-webkit-details-marker {
 .border-red-500 {
   --tw-border-opacity: 1;
   border-color: rgb(239 68 68 / var(--tw-border-opacity));
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.font-medium {
+  font-weight: 500;
 }
 
 .underline {
@@ -2605,17 +2619,42 @@ details.collapse summary::-webkit-details-marker {
 .ease-out {
   transition-timing-function: cubic-bezier(0, 0, .2, 1);
 }
+
+@media (hover: hover) {
+  .table .hover\\:hover:hovertr:hover {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b2, oklch(var(--b2) / var(--tw-bg-opacity)));
+  }
+
+  .table .hover\\:hover:hovertr:nth-child(2n):hover {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b2, oklch(var(--b2) / var(--tw-bg-opacity)));
+  }
+
+  .table-zebra .hover\\:hover:hovertr:hover {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b3, oklch(var(--b3) / var(--tw-bg-opacity)));
+  }
+
+  .table-zebra .hover\\:hover:hovertr:nth-child(2n):hover {
+    --tw-bg-opacity: 1;
+    background-color: var(--fallback-b3, oklch(var(--b3) / var(--tw-bg-opacity)));
+  }
+}
 /*# sourceMappingURL=index.c41b5a0e.css.map */
  
-`});var e=a("hNeh9"),l=a("800sp");async function*i(o){let t=(await o()).body.getReader();for(;;){let{done:o,value:r}=await t.read();if(o)break;yield new TextDecoder().decode(r)}}class n extends l.LitElement{static styles=[e.default,(0,l.css)`
+`});var e=a("hNeh9"),l=a("800sp");async function*i(t){let o=t.body.getReader();for(;;){let{done:t,value:r}=await o.read();if(t)break;yield new TextDecoder().decode(r)}}class n extends l.LitElement{static styles=[e.default,(0,l.css)`
     .container {
       display: flex;
       flex-direction: row;
     }
-  `];static properties={placeholder:{},url:{}};constructor(){super(),this.placeholder="prompt"}connectedCallback(){super.connectedCallback()}render(){return(0,l.html)`
+  `];static properties={placeholder:{},url:{},test:{type:Boolean}};constructor(){super(),this.placeholder="prompt",this.test=!1}connectedCallback(){super.connectedCallback(),this.test&&setTimeout(()=>this.dispatchEvent(new CustomEvent("graph",{detail:`
+          flowchart TD
+          Start --> Stop
+          `,bubbles:!0,composed:!0,cancelable:!0})),1e3)}render(){return(0,l.html)`
         <div class="container">
-          <textarea class="textarea textarea-bordered" placeholder="${this.placeholder}"></textarea>
-          <button @click="${this.#o}" class="btn btn-primary">Submit</button>
+          <textarea id="prompt" class="textarea textarea-bordered" placeholder="${this.placeholder}"></textarea>
+          <button @click="${this.#t}" class="btn btn-primary">Submit</button>
         </div>
-    `}async #o(){for await(let o of i(()=>fetch(`${this.url}`)))console.log(o),this.dispatchEvent(new CustomEvent("result",{detail:o,bubbles:!0,composed:!0,cancelable:!0}))}}window.customElements.define("lg4j-executor",n);
-//# sourceMappingURL=index.3c8a4340.js.map
+    `}get #o(){return this.shadowRoot.getElementById("prompt").value}async #t(){if(this.test){this.dispatchEvent(new CustomEvent("result",{detail:`TEST: ${this.#o}`,bubbles:!0,composed:!0,cancelable:!0}));return}let t={prompt:this.#o},o=await fetch(`${this.url}/stream`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)}),r=await fetch(`${this.url}/graph`),a=await r.text();for await(let t of(this.dispatchEvent(new CustomEvent("graph",{detail:a,bubbles:!0,composed:!0,cancelable:!0})),i(o)))console.debug(t),this.dispatchEvent(new CustomEvent("result",{detail:t,bubbles:!0,composed:!0,cancelable:!0}))}}window.customElements.define("lg4j-executor",n);
+//# sourceMappingURL=index.e1f3632c.js.map
