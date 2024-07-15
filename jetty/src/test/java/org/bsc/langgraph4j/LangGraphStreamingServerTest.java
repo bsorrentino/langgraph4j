@@ -53,7 +53,9 @@ public class LangGraphStreamingServerTest {
 
         CompiledGraph<AgentState> app = workflow.compile();
 
-        LangGraphStreamingServer server = LangGraphStreamingServer.of(app);
+        LangGraphStreamingServer server = LangGraphStreamingServer.builder()
+                                                                    .port(8080)
+                                                                    .build(app);
 
         server.start().join();
 
