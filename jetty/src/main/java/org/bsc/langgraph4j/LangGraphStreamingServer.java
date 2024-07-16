@@ -15,9 +15,12 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -26,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 
 public interface LangGraphStreamingServer {
+
+    Logger log = LoggerFactory.getLogger(LangGraphStreamingServer.class);
 
     CompletableFuture<Void> start() throws Exception;
 
@@ -51,8 +56,11 @@ public interface LangGraphStreamingServer {
             return this;
         }
 
-        public <State extends AgentState> LangGraphStreamingServer build(CompiledGraph<State> compiledGraph) {
+        public <State extends AgentState> LangGraphStreamingServer build(CompiledGraph<State> compiledGraph) throws Exception {
+
             Server server = new Server();
+
+
             ServerConnector connector = new ServerConnector(server);
             connector.setPort(port);
             server.addConnector(connector);
@@ -61,7 +69,8 @@ public interface LangGraphStreamingServer {
 
 //            Path publicResourcesPath = Paths.get("jetty", "src", "main", "webapp");
 //            Resource baseResource = ResourceFactory.of(resourceHandler).newResource(publicResourcesPath));
-            Resource baseResource = ResourceFactory.of(resourceHandler).newClassLoaderResource("webapp");
+            // Resource baseResource = ResourceFactory.of(resourceHandler).newClassLoaderResource(".");
+            Resource baseResource = ResourceFactory.of(resourceHandler).newResource(".");
             resourceHandler.setBaseResource(baseResource);
 
             resourceHandler.setDirAllowed(true);
@@ -121,17 +130,27 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
         try {
             compiledGraph.stream(dataMap)
                     .forEachAsync(s -> {
-                        writer.println(s.node());
-                        writer.flush();
-
                         try {
+
+                            writer.print("{");
+                            writer.printf( "\"node\": \"%s\"", s.node() );
+                            try {
+                                var stateAsString = objectMapper.writeValueAsString(s.state().data());
+                                writer.printf( ",\"state\": %s" , stateAsString );
+                            }
+                            catch( IOException e ) {
+                                LangGraphStreamingServer.log.info("error serializing state", e);
+                                writer.printf( ",\"state\": {}" );
+                            }
+                            writer.print("}");
+                            writer.flush();
                             TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException  e) {
                             throw new RuntimeException(e);
                         }
-                    }).thenAccept(v -> {
-                        writer.close();
-                    });
+
+                    })
+                    .thenAccept(v -> writer.close() );
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -144,6 +163,7 @@ record ArgumentMetadata (
     boolean required
 ) {}
 
+
 /**
  * return the graph representation in mermaid format
  */
@@ -151,6 +171,12 @@ class GraphInitServlet<State extends AgentState> extends HttpServlet {
 
     final CompiledGraph<State> compiledGraph;
     final Map<String, ArgumentMetadata> inputArgs;
+    final ObjectMapper objectMapper = new ObjectMapper();
+
+    record Result (
+        String graph,
+        Map<String, ArgumentMetadata> args
+    ) {}
 
     public GraphInitServlet(CompiledGraph<State> compiledGraph, Map<String, ArgumentMetadata> inputArgs) {
         Objects.requireNonNull(compiledGraph, "compiledGraph cannot be null");
@@ -160,15 +186,16 @@ class GraphInitServlet<State extends AgentState> extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/plain");
+        response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        GraphRepresentation result = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID);
+        GraphRepresentation graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID);
 
+        final Result result = new Result(graph.getContent(), inputArgs);
+        String resultJson = objectMapper.writeValueAsString(result);
         // Start asynchronous processing
-        request.startAsync();
         final PrintWriter writer = response.getWriter();
-        writer.println(result.getContent());
+        writer.println(resultJson);
         writer.close();
     }
 }

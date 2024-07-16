@@ -30,7 +30,6 @@ public class LangGraphStreamingServerTest {
 
             System.out.print( "agent_2: ");
             System.out.println( state );
-
             return mapOf("prop2", "test");
         }));
 
@@ -55,6 +54,7 @@ public class LangGraphStreamingServerTest {
 
         LangGraphStreamingServer server = LangGraphStreamingServer.builder()
                                                                     .port(8080)
+                                                                    .addInputStringArg("input")
                                                                     .build(app);
 
         server.start().join();
