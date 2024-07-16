@@ -69,14 +69,13 @@ public interface LangGraphStreamingServer {
 
 //            Path publicResourcesPath = Paths.get("jetty", "src", "main", "webapp");
 //            Resource baseResource = ResourceFactory.of(resourceHandler).newResource(publicResourcesPath));
-            // Resource baseResource = ResourceFactory.of(resourceHandler).newClassLoaderResource(".");
-            Resource baseResource = ResourceFactory.of(resourceHandler).newResource(".");
+            Resource baseResource = ResourceFactory.of(resourceHandler).newClassLoaderResource("webapp");
             resourceHandler.setBaseResource(baseResource);
 
             resourceHandler.setDirAllowed(true);
 
             ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-            context.setContextPath("/");
+            // context.setContextPath("/");
             // Add the streaming servlet
             context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(compiledGraph)), "/stream");
             context.addServlet(new ServletHolder(new GraphInitServlet<State>(compiledGraph, inputArgs)), "/init");

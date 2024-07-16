@@ -11,7 +11,7 @@
 
     <artifactId>jetty</artifactId>
 
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>langgraph4j::jetty::server</name>
 
     <properties>
