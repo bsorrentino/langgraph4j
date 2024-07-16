@@ -3,6 +3,14 @@ import TWStyles from './twlit';
 import { html, css, LitElement } from 'lit';
 
 /**
+ * Asynchronously waits for a specified number of milliseconds.
+ * 
+ * @param {number} ms - The number of milliseconds to wait.
+ * @returns {Promise<void>} A promise that resolves after the specified delay.
+ */
+const delay = async (ms) => (new Promise(resolve => setTimeout(resolve, ms)));
+
+/**
  * Asynchronously fetches data from a given fetch call and yields the data in chunks.
  * 
  * @async
@@ -75,35 +83,14 @@ export class LG4JExecutorElement extends LitElement {
     super.connectedCallback();
 
     if(this.test ) {
-
-      setTimeout( () => {
-        
-          this.dispatchEvent( new CustomEvent( 'graph', { 
-            detail: `
-            flowchart TD
-            Start --> Stop
-            `,
-            bubbles: true,
-            composed: true,
-            cancelable: true
-          }));
-
-          this.formMetaData = { 
-            input: { type: 'string', required: true }
-          }
-          
-          this.requestUpdate()
-
-      }, 1000 );
-      
+      this.#init_test();
+      return
     }
-    else {
 
-      this.#init()
-
-    }
+    this.#init()
 
   }
+
 
   async #init() {
 
@@ -124,6 +111,29 @@ export class LG4JExecutorElement extends LitElement {
     this.requestUpdate()
   }
 
+  async #init_test() {
+        
+    await delay( 1000 );
+    this.dispatchEvent( new CustomEvent( 'graph', { 
+      detail: `
+      flowchart TD
+        Start --> node1:::node1
+        node1:::node1 --> node2:::node2
+        node2:::node2 --> Stop
+      `,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+
+    this.formMetaData = { 
+      input: { type: 'string', required: true }
+    }
+    
+    this.requestUpdate()
+
+  }
+
   /**
    * Renders the HTML template for the component.
    * 
@@ -141,22 +151,11 @@ export class LG4JExecutorElement extends LitElement {
     `;
   }
 
+
   async #submit() {
-    // console.debug( 'test', this.test )
     
     if(this.test ) {
-
-      setTimeout( () => {
-
-          this.dispatchEvent( new CustomEvent( 'result', { 
-            detail: { node: 'node1', state: { property1: "value1", property2: "value2" }},
-            bubbles: true,
-            composed: true,
-            cancelable: true
-          } ) );
-
-        }, 1000 );
-      
+      await this.#submit_test();
       return
     }
     
@@ -186,6 +185,23 @@ export class LG4JExecutorElement extends LitElement {
     }
   }
   
+  async #submit_test() {
+
+    const send = async ( nodeId ) => {
+      await delay( 1000 );
+      this.dispatchEvent( new CustomEvent( 'result', { 
+        detail: { node: nodeId, state: { property1: "value1", property2: "value2" }},
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      }));
+    }
+
+    await send( 'node1' );
+    await send( 'node2');
+
+  }
+
 }
 
 

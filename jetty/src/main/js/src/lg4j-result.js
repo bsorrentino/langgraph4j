@@ -69,10 +69,19 @@ export class LG4JResultElement extends LitElement {
    */
   #onResult = (e) => {
 
+    const { detail: result } = e 
     console.debug( "onResult", e )
     
     // TODO: validate e.detail
-    this.results.push( e.detail )
+    this.results.push( result )
+
+    this.dispatchEvent( new CustomEvent( 'graph-active', { 
+      detail: result.node,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+    
     this.requestUpdate()
     
   }

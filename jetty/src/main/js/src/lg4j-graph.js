@@ -26,6 +26,7 @@ export class LG4jMermaid extends LitElement {
     });
 
     this._content = null
+    this._activeClass = null
   }
 
   #mermaidTask = new Task(this, {
@@ -52,11 +53,33 @@ export class LG4jMermaid extends LitElement {
    * @private
    */
   get #textContent() {
-    return this._content ?? this.#textNodes.map(node => node.textContent?.trim()).join('');
+    if( this._content ) {
+
+      if( this._activeClass ) {
+        return `
+        ${this._content}
+        classDef ${this._activeClass} fill:#f96
+        `
+      }
+      
+      return this._content
+    }
+
+    return this.#textNodes.map(node => node.textContent?.trim()).join('');
   }
 
   #onContent(e) {
-    this._content = e.detail
+    const { detail: newContent } = e
+
+    this._content = newContent
+    this.requestUpdate()
+  }
+
+  #onActive(e) {
+
+    const { detail: activeClass } = e
+    
+    this._activeClass = activeClass;
     this.requestUpdate()
   }
 
@@ -64,6 +87,7 @@ export class LG4jMermaid extends LitElement {
     super.connectedCallback()
     
     this.addEventListener('graph', this.#onContent)
+    this.addEventListener('graph-active', this.#onActive)
     // this.__observer = new MutationObserver(() => {
     //   this.__observeTextNodes();
     //   this.__renderGraph();
@@ -77,6 +101,7 @@ export class LG4jMermaid extends LitElement {
     super.disconnectedCallback()
 
     this.removeEventListener('graph', this.#onContent)
+    this.removeEventListener('graph-active', this.#onActive)
     //   this.__cleanTextNodeObservers();
 
     //   if (this.__observer) {

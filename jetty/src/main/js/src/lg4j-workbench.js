@@ -38,11 +38,13 @@ export class LG4JWorkbenchElement extends LitElement {
     
     const { type, detail } = e
     
-    console.log( 'routeEvent', type )
+    const slot = type.split('-')[0]
 
-    const elem = this.querySelector(`[slot="${type}"]`)
+    console.debug( 'routeEvent', type, slot )
+    
+    const elem = this.querySelector(`[slot="${slot}"]`)
     if( !elem ) {
-      console.error( `slot "${type}" not found!` )
+      console.error( `slot "${slot}" not found!` )
       return
     }
     elem.dispatchEvent( new CustomEvent( type, { detail } ) )
@@ -53,6 +55,7 @@ export class LG4JWorkbenchElement extends LitElement {
 
     this.addEventListener( "result", this.#routeEvent );
     this.addEventListener( "graph", this.#routeEvent );
+    this.addEventListener( "graph-active", this.#routeEvent );
   }
 
   disconnectedCallback() {
@@ -60,6 +63,7 @@ export class LG4JWorkbenchElement extends LitElement {
 
     this.removeEventListener( "result", this.#routeEvent );
     this.removeEventListener( "graph", this.#routeEvent );
+    this.removeEventListener( "graph-active", this.#routeEvent );
   }
 
   // firstUpdated() {
