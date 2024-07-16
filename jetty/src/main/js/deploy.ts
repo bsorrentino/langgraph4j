@@ -2,6 +2,6 @@
 import { $ } from "bun";
 
 $.nothrow();
-await $`build.ts`
+await $`bun build.ts`
 await $`rm ../webapp/*`
 await $`cp dist/* ../webapp`

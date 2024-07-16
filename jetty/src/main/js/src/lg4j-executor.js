@@ -41,7 +41,8 @@ export class LG4JExecutorElement extends LitElement {
   static styles = [TWStyles, css`
     .container {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
+      row-gap: 10px;
     }
   `];
 
@@ -52,7 +53,6 @@ export class LG4JExecutorElement extends LitElement {
    * @type {Object}
    */
   static properties = {
-    placeholder: {},
     url: {},
     test: { type: Boolean }
   }
@@ -64,8 +64,8 @@ export class LG4JExecutorElement extends LitElement {
    */
   constructor() {
     super();
-    this.placeholder = "prompt";
     this.test = false
+    this.formMetaData = {}
   }
 
   /**
@@ -74,19 +74,54 @@ export class LG4JExecutorElement extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    if( this.test ) {
-      setTimeout( () => 
-        this.dispatchEvent( new CustomEvent( 'graph', { 
-          detail: `
-          flowchart TD
-          Start --> Stop
-          `,
-          bubbles: true,
-          composed: true,
-          cancelable: true
-        })), 1000 );
-      }
-  
+    if(this.test ) {
+
+      setTimeout( () => {
+        
+          this.dispatchEvent( new CustomEvent( 'graph', { 
+            detail: `
+            flowchart TD
+            Start --> Stop
+            `,
+            bubbles: true,
+            composed: true,
+            cancelable: true
+          }));
+
+          this.formMetaData = { 
+            input: { type: 'string', required: true }
+          }
+          
+          this.requestUpdate()
+
+      }, 1000 );
+      
+    }
+    else {
+
+      this.#init()
+
+    }
+
+  }
+
+  async #init() {
+
+    const initResponse = await fetch( `${this.url}/init` )
+
+    const initData = await initResponse.json()
+    
+    console.debug( initData );
+
+    this.dispatchEvent( new CustomEvent( 'graph', { 
+      detail: initData.graph,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+
+    this.formMetaData = initData.args
+    this.requestUpdate()
   }
 
   /**
@@ -95,34 +130,41 @@ export class LG4JExecutorElement extends LitElement {
    * @returns {TemplateResult} The rendered HTML template.
    */
   render() {
+    console.debug( 'render', this.formMetaData )
     return html`
         <div class="container">
-          <textarea id="prompt" class="textarea textarea-bordered" placeholder="${this.placeholder}"></textarea>
+          ${ Object.entries(this.formMetaData).map( ([key,value]) => 
+             html`<textarea id="${key}" class="textarea textarea-primary" placeholder="${key}"></textarea>`
+          )}
           <button @click="${this.#submit}" class="btn btn-primary">Submit</button>
         </div>
     `;
   }
 
-  get #prompt() {
-    // console.debug(  ' --> ' + this.shadowRoot.getElementById('prompt') )
-    return this.shadowRoot.getElementById('prompt').value
-  }
-
   async #submit() {
     // console.debug( 'test', this.test )
+    
     if(this.test ) {
-      this.dispatchEvent( new CustomEvent( 'result', { 
-        detail: `TEST: ${this.#prompt}`,
-        bubbles: true,
-        composed: true,
-        cancelable: true
-      } ) );
+
+      setTimeout( () => {
+
+          this.dispatchEvent( new CustomEvent( 'result', { 
+            detail: { node: 'node1', state: { property1: "value1", property2: "value2" }},
+            bubbles: true,
+            composed: true,
+            cancelable: true
+          } ) );
+
+        }, 1000 );
+      
       return
     }
-
-    const data = { 'prompt': this.#prompt }
-
     
+    const data = Object.keys(this.formMetaData).reduce( (acc, key) => {
+      acc[key] = this.shadowRoot.getElementById(key).value
+      return acc
+    }, {});
+
     const execResponse = await fetch(`${this.url}/stream`, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         headers: {
@@ -131,22 +173,11 @@ export class LG4JExecutorElement extends LitElement {
         body: JSON.stringify(data)
     });
 
-    const graphResponse = await fetch( `${this.url}/graph` )
-
-    const graphText = await graphResponse.text()
-
-    this.dispatchEvent( new CustomEvent( 'graph', { 
-      detail: graphText,
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    }));
-
     for await (let chunk of streamingResponse( execResponse )  ) {
       console.debug( chunk )
 
       this.dispatchEvent( new CustomEvent( 'result', { 
-        detail: chunk,
+        detail: JSON.parse(chunk),
         bubbles: true,
         composed: true,
         cancelable: true

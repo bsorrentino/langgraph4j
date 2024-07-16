@@ -1,27 +1,29 @@
-import './app.css';
+import TWStyles from './twlit';
 
 import { html, css, LitElement } from 'lit';
 
 export class LG4JWorkbenchElement extends LitElement {
 
-  static styles = css`
-    .item-a {
+  static styles = [css`
+    .item-graph {
       grid-area: left;
-      background-color: red;
+      
+      // background-color: red;
     }
-    .item-b {
+    .item-result {
       grid-area: right;
-      background-color: blue;
+      // background-color: blue;
     }
-    .item-c {
+    .item-executor {
       grid-area: bottom;
       //background-color: yellow;
     }
-    .container {
+    .item-container {
       height: 100vh;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr;
       grid-template-rows: 25% 25%  25%  25% ;
+      row-gap: 15px;
 
       grid-template-areas: 
         "left left right right"
@@ -29,7 +31,8 @@ export class LG4JWorkbenchElement extends LitElement {
         "left left right right"
         "bottom bottom right right";
     }
-  `;
+  `, TWStyles];
+  ;
 
   #routeEvent( e ) {
     
@@ -64,10 +67,10 @@ export class LG4JWorkbenchElement extends LitElement {
   
   render() {
     return html`
-<div class="container">
-  <div class="item-a" id="panel1"><slot name="graph">LEFT</slot></div>
-  <div class="item-b" id="panel3"><slot name="result">RIGHT</slot></div>
-  <div class="item-c border border-gray-200" id="panel2"><slot name="executor">BOTTOM</slot></div>
+<div class="item-container">
+  <div class="item-graph border border-gray-300 p-5 flex items-center justify-center" id="panel1"><slot name="graph">LEFT</slot></div>
+  <div class="item-result" id="panel3"><slot name="result">RIGHT</slot></div>
+  <div class="item-executor" id="panel2"><slot name="executor">BOTTOM</slot></div>
 </div>
     `;
   }

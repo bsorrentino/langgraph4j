@@ -5,7 +5,10 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 const mermaidAPI = mermaid.mermaidAPI;
 
 
-const renderSVG = (diagram) => html`<div>${unsafeSVG(diagram.svg)}</div>`;
+const renderSVG = (diagram) => html`
+  <div>
+  ${unsafeSVG(diagram.svg)}
+  </div>`;
 
 /**
  * WcMermaid
@@ -28,7 +31,7 @@ export class LG4jMermaid extends LitElement {
   #mermaidTask = new Task(this, {
     task: async ([textContent], { signal }) => {
       return await mermaidAPI.render(
-        'graph',
+        `graph-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
         textContent);
 
     },

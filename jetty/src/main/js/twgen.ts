@@ -51,10 +51,14 @@ async function start() {
   const input = await findFirstCssFile('dist');
 
   processCss(input)
-  const watcher = fs.watch(input, {})
+  const watcher = fs.watch('./dist', {})
 
   for await (const event of watcher) {
-    processCss(input)
+    console.log( event.filename, event.eventType  )
+    
+    if( event.filename === path.basename(input) ) { 
+      processCss(input)
+    }
   }
 }
 

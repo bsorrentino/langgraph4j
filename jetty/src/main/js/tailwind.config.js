@@ -1,5 +1,5 @@
 module.exports = {
-  content: ['./src/**/*.{vue,js,ts}'],
+  content: ['./src/**/*.{html,js,ts,jsx,tsx}'],
   plugins: [require('daisyui')],
     // daisyUI config (optional - here are the default values)
   daisyui: {

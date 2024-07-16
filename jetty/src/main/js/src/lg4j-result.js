@@ -2,15 +2,16 @@ import TWStyles from './twlit';
 
 import { html, css, LitElement } from 'lit';
 
+/**
+ * @typedef {Object} ResultData
+ * @property {string} node - The node identifier.
+ * @property {Record<string, any>} state - The state associated with the node.
+ */
+
 
 export class LG4JResultElement extends LitElement {
 
-  static styles = [TWStyles, css`
-    .container {
-      display: flex;
-      flex-direction: row;
-    }
-    `]
+  static styles = [TWStyles, css``]
 
   static properties = {
   }
@@ -32,30 +33,56 @@ export class LG4JResultElement extends LitElement {
     this.removeEventListener( 'result',  this.#onResult )
   }
 
-  #renderResult(result) {
+  
+  /**
+   * Renders a result.
+   * @param {ResultData} result - The result data to render.
+   * @returns {import('lit').TemplateResult} The template for the result.
+   */
+  #renderResult(result, index) {
     return html`
-    <div class="collapse collapse-arrow join-item border-base-300 border">
-      <input type="radio" name="my-accordion-4" checked="checked" />
-      <div class="collapse-title text-xl font-medium">Click to open this one and close others</div>
+    <div class="collapse collapse-arrow bg-base-200">
+      <input type="radio" name="item-1" checked="checked" />
+      <div class="collapse-title text-xm font-medium">${result.node}</div>
       <div class="collapse-content">
-        <p>${result}</p>
+        <table class="table">
+          <tbody>
+            ${Object.entries(result.state).map(([key, value]) => html`
+              <tr>
+                <td width="30%">${key}</td>
+                <td width="70%">${value}</td>
+              </tr>
+            `)}
+          </tbody>
+        </table>
       </div>
     </div>
     `
   }
 
-  #onResult = ( e ) => {
+  
+  /**
+   * Event handler for the 'result' event.
+   * 
+   * @param {CustomEvent} e - The event object containing the result data.
+   * @private
+   */
+  #onResult = (e) => {
 
     console.debug( "onResult", e )
     
+    // TODO: validate e.detail
     this.results.push( e.detail )
     this.requestUpdate()
     
   }
+
+
   render() {
+  
     return html`
-      <div class="join join-vertical w-full">
-      ${this.results.map(result => this.#renderResult(result))}
+      <div class="flex flex-col gap-y-1.5 mx-2 mt-2">
+      ${this.results.map( (result, index) => this.#renderResult(result, index))}
       </div>
     `;
   }
