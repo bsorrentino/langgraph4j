@@ -76,7 +76,7 @@ export class LG4jMermaid extends LitElement {
   }
 
   #onActive(e) {
-
+    
     const { detail: activeClass } = e
     
     this._activeClass = activeClass;

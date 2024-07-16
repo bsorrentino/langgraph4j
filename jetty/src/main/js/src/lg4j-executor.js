@@ -117,9 +117,14 @@ export class LG4JExecutorElement extends LitElement {
     this.dispatchEvent( new CustomEvent( 'graph', { 
       detail: `
       flowchart TD
-        Start --> node1:::node1
+        start((start))
+	      stop((stop))
+        node1("node1")
+        node2("node2")
+
+        start:::start --> node1:::node1
         node1:::node1 --> node2:::node2
-        node2:::node2 --> Stop
+        node2:::node2 --> stop:::stop
       `,
       bubbles: true,
       composed: true,

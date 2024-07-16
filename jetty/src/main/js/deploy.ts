@@ -4,4 +4,4 @@ import { $ } from "bun";
 $.nothrow();
 await $`bun build.ts`
 await $`rm ../webapp/*`
-await $`cp dist/* ../webapp`
+await $`cp dist/* ../resources/webapp`
