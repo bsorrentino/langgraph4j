@@ -50,7 +50,7 @@ export class LG4JResultElement extends LitElement {
             ${Object.entries(result.state).map(([key, value]) => html`
               <tr>
                 <td width="30%">${key}</td>
-                <td width="70%">${value}</td>
+                <td width="70%">${JSON.stringify(value,4)}</td>
               </tr>
             `)}
           </tbody>
