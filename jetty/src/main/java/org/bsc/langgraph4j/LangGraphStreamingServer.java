@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,6 +27,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 
+/**
+ * LangGraphStreamingServer is an interface that represents a server that supports streaming
+ * of LangGraph.
+ * Implementations of this interface can be used to create a web server
+ * that exposes an API for interacting with compiled language graphs.
+ *
+ */
 public interface LangGraphStreamingServer {
 
     Logger log = LoggerFactory.getLogger(LangGraphStreamingServer.class);
@@ -41,12 +47,17 @@ public interface LangGraphStreamingServer {
     class Builder {
         private int port = 8080;
         private Map<String,ArgumentMetadata> inputArgs = new HashMap<>();
+        private String title = null;
 
         public Builder port(int port) {
             this.port = port;
             return this;
         }
 
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
         public Builder addInputStringArg(String name, boolean required) {
             inputArgs.put(name, new ArgumentMetadata("string", required) );
             return this;
@@ -78,7 +89,9 @@ public interface LangGraphStreamingServer {
             // context.setContextPath("/");
             // Add the streaming servlet
             context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(compiledGraph)), "/stream");
-            context.addServlet(new ServletHolder(new GraphInitServlet<State>(compiledGraph, inputArgs)), "/init");
+
+            InitData initData = new InitData( title, inputArgs );
+            context.addServlet(new ServletHolder(new GraphInitServlet<State>(compiledGraph, initData)), "/init");
 
             Handler.Sequence handlerList = new Handler.Sequence(resourceHandler, context);
 
@@ -158,10 +171,12 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
 }
 
 record ArgumentMetadata (
-    String type,
-    boolean required
-) {}
+        String type,
+        boolean required ) {}
 
+record InitData(
+        String title,
+        Map<String, ArgumentMetadata> args ) {}
 
 /**
  * return the graph representation in mermaid format
@@ -169,18 +184,24 @@ record ArgumentMetadata (
 class GraphInitServlet<State extends AgentState> extends HttpServlet {
 
     final CompiledGraph<State> compiledGraph;
-    final Map<String, ArgumentMetadata> inputArgs;
     final ObjectMapper objectMapper = new ObjectMapper();
+    final InitData initData;
 
     record Result (
         String graph,
+        String title,
         Map<String, ArgumentMetadata> args
-    ) {}
+    ) {
 
-    public GraphInitServlet(CompiledGraph<State> compiledGraph, Map<String, ArgumentMetadata> inputArgs) {
+        public Result(GraphRepresentation graph, InitData initData ) {
+            this( graph.getContent(), initData.title(), initData.args() ); // graph.getContent();
+        }
+    }
+
+    public GraphInitServlet(CompiledGraph<State> compiledGraph, InitData initData) {
         Objects.requireNonNull(compiledGraph, "compiledGraph cannot be null");
         this.compiledGraph = compiledGraph;
-        this.inputArgs = inputArgs;
+        this.initData = initData;
     }
 
     @Override
@@ -190,7 +211,7 @@ class GraphInitServlet<State extends AgentState> extends HttpServlet {
 
         GraphRepresentation graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID);
 
-        final Result result = new Result(graph.getContent(), inputArgs);
+        final Result result = new Result(graph, initData);
         String resultJson = objectMapper.writeValueAsString(result);
         // Start asynchronous processing
         final PrintWriter writer = response.getWriter();

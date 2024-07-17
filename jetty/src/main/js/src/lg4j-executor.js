@@ -98,10 +98,10 @@ export class LG4JExecutorElement extends LitElement {
 
     const initData = await initResponse.json()
     
-    console.debug( initData );
+    console.debug( 'initData', initData );
 
-    this.dispatchEvent( new CustomEvent( 'graph', { 
-      detail: initData.graph,
+    this.dispatchEvent( new CustomEvent( 'init', { 
+      detail: initData,
       bubbles: true,
       composed: true,
       cancelable: true
@@ -114,18 +114,21 @@ export class LG4JExecutorElement extends LitElement {
   async #init_test() {
         
     await delay( 1000 );
-    this.dispatchEvent( new CustomEvent( 'graph', { 
-      detail: `
-      flowchart TD
-        start((start))
-	      stop((stop))
-        node1("node1")
-        node2("node2")
+    this.dispatchEvent( new CustomEvent( 'init', { 
+      detail: { 
+        title: 'LangGraph4j : TEST',
+        graph:`
+flowchart TD
+  start((start))
+  stop((stop))
+  node1("node1")
+  node2("node2")
 
-        start:::start --> node1:::node1
-        node1:::node1 --> node2:::node2
-        node2:::node2 --> stop:::stop
-      `,
+  start:::start --> node1:::node1
+  node1:::node1 --> node2:::node2
+  node2:::node2 --> stop:::stop
+      `
+      },
       bubbles: true,
       composed: true,
       cancelable: true
@@ -202,8 +205,10 @@ export class LG4JExecutorElement extends LitElement {
       }));
     }
 
+    await send( 'start' );
     await send( 'node1' );
     await send( 'node2');
+    await send( 'stop' );
 
   }
 

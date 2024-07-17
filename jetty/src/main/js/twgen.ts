@@ -44,13 +44,16 @@ export default TWStyles;
 
 }
 
-async function start() {
+async function start( watch = true ) {
 
   console.log(`Writing to ${output}`);
 
   const input = await findFirstCssFile('dist');
 
   processCss(input)
+
+  if( !watch ) return
+
   const watcher = fs.watch('./dist', {})
 
   for await (const event of watcher) {
@@ -62,5 +65,12 @@ async function start() {
   }
 }
 
+const args = process.argv.slice(2);
 
-start()
+if( args.length > 0 && args[0] === "--no-watch") {
+  start( false )
+}
+else {
+  start()
+
+}
