@@ -18,7 +18,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 /**
  * Represents a compiled graph of nodes and edges.
  * This class manage the StateGraph execution
- * 
+ *
  * @param <State> the type of the state associated with the graph
  */
 @Slf4j
