@@ -41,6 +41,7 @@ public class LangGraphStreamingServerTest {
             @Override
             public String apply(AgentState state) {
                 if( ++steps == 2 ) {
+                    steps = 0;
                     return "end";
                 }
                 return "a2";
@@ -54,6 +55,7 @@ public class LangGraphStreamingServerTest {
 
         LangGraphStreamingServer server = LangGraphStreamingServer.builder()
                                                                     .port(8080)
+                                                                    .title("LANGGRAPH4j - TEST")
                                                                     .addInputStringArg("input")
                                                                     .build(app);
 
