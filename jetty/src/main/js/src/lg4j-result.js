@@ -1,6 +1,7 @@
 import TWStyles from './twlit';
 
 import { html, css, LitElement } from 'lit';
+import '@alenaksu/json-viewer';
 
 /**
  * @typedef {Object} ResultData
@@ -11,7 +12,10 @@ import { html, css, LitElement } from 'lit';
 
 export class LG4JResultElement extends LitElement {
 
-  static styles = [TWStyles, css``]
+  static styles = [TWStyles, css`
+  json-viewer {
+    --font-size: .8rem;
+  }`]
 
   static properties = {
   }
@@ -43,18 +47,18 @@ export class LG4JResultElement extends LitElement {
     return html`
     <div class="collapse collapse-arrow bg-base-200">
       <input type="radio" name="item-1" checked="checked" />
-      <div class="collapse-title text-xm font-medium">${result.node}</div>
+      <div class="collapse-title text-xl font-bold">${result.node}</div>
       <div class="collapse-content">
-        <table class="table">
-          <tbody>
-            ${Object.entries(result.state).map(([key, value]) => html`
-              <tr>
-                <td width="30%">${key}</td>
-                <td width="70%">${JSON.stringify(value,4)}</td>
-              </tr>
-            `)}
-          </tbody>
-        </table>
+      ${Object.entries(result.state).map(([key, value]) => html`
+          <div>
+              <h4 class="italic">${key}</h4>
+              <p class="my-3">
+                <json-viewer id="json${index}">
+                ${JSON.stringify(value)}
+                </json-viewer>
+              </p>
+            </div>
+        `)}
       </div>
     </div>
     `
@@ -73,7 +77,7 @@ export class LG4JResultElement extends LitElement {
     console.debug( "onResult", e )
     
     // TODO: validate e.detail
-    this.results.push( result )
+    const index = this.results.push( result )
 
     this.dispatchEvent( new CustomEvent( 'graph-active', { 
       detail: result.node,
@@ -84,6 +88,14 @@ export class LG4JResultElement extends LitElement {
     
     this.requestUpdate()
     
+    this.updateComplete.then(() => {
+      const id = `#json${index-1}`
+      const elems = this.shadowRoot.querySelectorAll(id);
+      console.debug( id, elems );
+      for (const elem of elems) {
+        elem.expandAll()
+      }
+    });
   }
 
 

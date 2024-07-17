@@ -198,7 +198,12 @@ flowchart TD
     const send = async ( nodeId ) => {
       await delay( 1000 );
       this.dispatchEvent( new CustomEvent( 'result', { 
-        detail: { node: nodeId, state: { property1: "value1", property2: "value2" }},
+        detail: { 
+          node: nodeId, 
+          state: { 
+            input: "this is input",
+            property1: { value: "value1", valid: true } , 
+            property2: { value: "value2", children: { elements: [1,2,3]} } }},
         bubbles: true,
         composed: true,
         cancelable: true

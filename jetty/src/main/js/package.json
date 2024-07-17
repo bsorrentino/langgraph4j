@@ -10,6 +10,7 @@
     "twget": "bun twgen.ts"
   },
   "dependencies": {
+    "@alenaksu/json-viewer": "^2.0.1",
     "@lit/task": "^1.0.1",
     "@types/bun": "^1.1.6",
     "lit": "^3.1.4",
