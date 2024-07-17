@@ -40,8 +40,8 @@ public class LangGraphStreamingServerTest {
             int steps= 0;
             @Override
             public String apply(AgentState state) {
-                if( ++steps == 5 ) {
-                    return END;
+                if( ++steps == 2 ) {
+                    return "end";
                 }
                 return "a2";
             }
