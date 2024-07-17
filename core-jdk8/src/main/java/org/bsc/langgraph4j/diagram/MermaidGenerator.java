@@ -23,7 +23,7 @@ public class MermaidGenerator extends DiagramGenerator {
 
     @Override
     protected void appendFooter(StringBuilder sb) {
-
+        // do nothing
     }
 
    @Override
@@ -58,11 +58,11 @@ public class MermaidGenerator extends DiagramGenerator {
 
     @Override
     protected void call(StringBuilder sb, String from, String to) {
-        sb.append( format("\t%s --> %s\n", from, to) );
+        sb.append( format("\t%1$s:::%1$s --> %2$s:::%2$s\n", from, to) );
     }
 
     @Override
     protected void call(StringBuilder sb, String from, String to, String description) {
-        sb.append(format("\t%s -->|%s| %s\n", from, description, to));
+        sb.append(format("\t%1$s:::%1$s -->|%2$s| %3$s:::%3$s\n", from, description, to));
     }
 }

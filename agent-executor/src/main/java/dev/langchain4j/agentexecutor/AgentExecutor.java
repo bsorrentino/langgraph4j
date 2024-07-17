@@ -5,6 +5,7 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
+import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.state.AgentState;
@@ -93,8 +94,7 @@ public class AgentExecutor {
         return "continue";
     }
 
-    public AsyncGenerator<NodeOutput<State>> execute(ChatLanguageModel chatLanguageModel, Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
-
+    public CompiledGraph<State> compile(ChatLanguageModel chatLanguageModel, List<Object> objectsWithTools) throws Exception {
         var toolInfoList = ToolInfo.fromList( objectsWithTools );
 
         final List<ToolSpecification> toolSpecifications = toolInfoList.stream()
@@ -102,20 +102,20 @@ public class AgentExecutor {
                 .collect(Collectors.toList());
 
         var agentRunnable = Agent.builder()
-                                .chatLanguageModel(chatLanguageModel)
-                                .tools( toolSpecifications )
-                                .build();
+                .chatLanguageModel(chatLanguageModel)
+                .tools( toolSpecifications )
+                .build();
 
         var workflow = new StateGraph<>(State::new);
 
         workflow.setEntryPoint("agent");
 
         workflow.addNode( "agent", node_async( state ->
-            runAgent(agentRunnable, state))
+                runAgent(agentRunnable, state))
         );
 
         workflow.addNode( "action", node_async( state ->
-            executeTools(toolInfoList, state))
+                executeTools(toolInfoList, state))
         );
 
         workflow.addConditionalEdges(
@@ -126,7 +126,13 @@ public class AgentExecutor {
 
         workflow.addEdge("action", "agent");
 
-        var app = workflow.compile();
+        return workflow.compile();
+
+    }
+
+    public AsyncGenerator<NodeOutput<State>> execute(ChatLanguageModel chatLanguageModel, Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
+
+        var app = compile(chatLanguageModel, objectsWithTools);
 
         return  app.stream( inputs );
     }
