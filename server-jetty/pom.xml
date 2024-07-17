@@ -9,10 +9,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jetty</artifactId>
+    <artifactId>langgraph4j-server-jetty</artifactId>
 
     <packaging>jar</packaging>
-    <name>langgraph4j::jetty::server</name>
+    <name>langgraph4j::server::jetty</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

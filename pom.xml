@@ -149,7 +149,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
-        <module>jetty</module>
+        <module>server-jetty</module>
       </modules>
       <build>
         <!-- Define configuration for JDK >= 11 -->
