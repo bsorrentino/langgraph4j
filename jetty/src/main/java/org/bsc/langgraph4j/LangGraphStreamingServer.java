@@ -48,12 +48,17 @@ public interface LangGraphStreamingServer {
         private int port = 8080;
         private Map<String,ArgumentMetadata> inputArgs = new HashMap<>();
         private String title = null;
+        private ObjectMapper objectMapper;
 
         public Builder port(int port) {
             this.port = port;
             return this;
         }
 
+        public Builder objectMapper(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+            return this;
+        }
         public Builder title(String title) {
             this.title = title;
             return this;
@@ -71,7 +76,6 @@ public interface LangGraphStreamingServer {
 
             Server server = new Server();
 
-
             ServerConnector connector = new ServerConnector(server);
             connector.setPort(port);
             server.addConnector(connector);
@@ -86,9 +90,13 @@ public interface LangGraphStreamingServer {
             resourceHandler.setDirAllowed(true);
 
             ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+
+            if( objectMapper == null ) {
+                objectMapper = new ObjectMapper();
+            }
             // context.setContextPath("/");
             // Add the streaming servlet
-            context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(compiledGraph)), "/stream");
+            context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(compiledGraph, objectMapper)), "/stream");
 
             InitData initData = new InitData( title, inputArgs );
             context.addServlet(new ServletHolder(new GraphInitServlet<State>(compiledGraph, initData)), "/init");
@@ -118,11 +126,12 @@ public interface LangGraphStreamingServer {
 
 class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
     final CompiledGraph<State> compiledGraph;
-    final ObjectMapper objectMapper = new ObjectMapper();
+    final ObjectMapper objectMapper;
 
-    public GraphExecutionServlet(CompiledGraph<State> compiledGraph) {
+    public GraphExecutionServlet(CompiledGraph<State> compiledGraph, ObjectMapper objectMapper) {
         Objects.requireNonNull(compiledGraph, "compiledGraph cannot be null");
         this.compiledGraph = compiledGraph;
+        this.objectMapper = objectMapper;
     }
 
     @Override
