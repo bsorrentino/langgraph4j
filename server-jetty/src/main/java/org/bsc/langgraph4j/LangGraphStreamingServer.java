@@ -32,8 +32,7 @@ import java.util.concurrent.TimeUnit;
  * of LangGraph.
  * Implementations of this interface can be used to create a web server
  * that exposes an API for interacting with compiled language graphs.
- *
- */
+     */
 public interface LangGraphStreamingServer {
 
     Logger log = LoggerFactory.getLogger(LangGraphStreamingServer.class);
@@ -46,7 +45,7 @@ public interface LangGraphStreamingServer {
 
     class Builder {
         private int port = 8080;
-        private Map<String,ArgumentMetadata> inputArgs = new HashMap<>();
+        private Map<String, ArgumentMetadata> inputArgs = new HashMap<>();
         private String title = null;
         private ObjectMapper objectMapper;
 
@@ -59,16 +58,19 @@ public interface LangGraphStreamingServer {
             this.objectMapper = objectMapper;
             return this;
         }
+
         public Builder title(String title) {
             this.title = title;
             return this;
         }
+
         public Builder addInputStringArg(String name, boolean required) {
-            inputArgs.put(name, new ArgumentMetadata("string", required) );
+            inputArgs.put(name, new ArgumentMetadata("string", required));
             return this;
         }
+
         public Builder addInputStringArg(String name) {
-            inputArgs.put(name, new ArgumentMetadata("string", true) );
+            inputArgs.put(name, new ArgumentMetadata("string", true));
             return this;
         }
 
@@ -91,14 +93,14 @@ public interface LangGraphStreamingServer {
 
             ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-            if( objectMapper == null ) {
+            if (objectMapper == null) {
                 objectMapper = new ObjectMapper();
             }
             // context.setContextPath("/");
             // Add the streaming servlet
             context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(compiledGraph, objectMapper)), "/stream");
 
-            InitData initData = new InitData( title, inputArgs );
+            InitData initData = new InitData(title, inputArgs);
             context.addServlet(new ServletHolder(new GraphInitServlet<State>(compiledGraph, initData)), "/init");
 
             Handler.Sequence handlerList = new Handler.Sequence(resourceHandler, context);
@@ -146,7 +148,7 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
         });
 
         // Start asynchronous processing
-        request.startAsync();
+        var asyncContext = request.startAsync();
 
         try {
             compiledGraph.stream(dataMap)
@@ -154,24 +156,25 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
                         try {
 
                             writer.print("{");
-                            writer.printf( "\"node\": \"%s\"", s.node() );
+                            writer.printf("\"node\": \"%s\"", s.node());
                             try {
                                 var stateAsString = objectMapper.writeValueAsString(s.state().data());
-                                writer.printf( ",\"state\": %s" , stateAsString );
-                            }
-                            catch( IOException e ) {
+                                writer.printf(",\"state\": %s", stateAsString);
+                            } catch (IOException e) {
                                 LangGraphStreamingServer.log.info("error serializing state", e);
-                                writer.printf( ",\"state\": {}" );
+                                writer.printf(",\"state\": {}");
                             }
                             writer.print("}");
                             writer.flush();
                             TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException  e) {
+                        } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
 
                     })
-                    .thenAccept(v -> writer.close() );
+                    .thenAccept(v -> writer.close())
+                    .thenAccept(v -> asyncContext.complete())
+            ;
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -179,13 +182,15 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
     }
 }
 
-record ArgumentMetadata (
+record ArgumentMetadata(
         String type,
-        boolean required ) {}
+        boolean required) {
+}
 
 record InitData(
         String title,
-        Map<String, ArgumentMetadata> args ) {}
+        Map<String, ArgumentMetadata> args) {
+}
 
 /**
  * return the graph representation in mermaid format
@@ -196,14 +201,14 @@ class GraphInitServlet<State extends AgentState> extends HttpServlet {
     final ObjectMapper objectMapper = new ObjectMapper();
     final InitData initData;
 
-    record Result (
-        String graph,
-        String title,
-        Map<String, ArgumentMetadata> args
+    record Result(
+            String graph,
+            String title,
+            Map<String, ArgumentMetadata> args
     ) {
 
-        public Result(GraphRepresentation graph, InitData initData ) {
-            this( graph.getContent(), initData.title(), initData.args() ); // graph.getContent();
+        public Result(GraphRepresentation graph, InitData initData) {
+            this(graph.getContent(), initData.title(), initData.args()); // graph.getContent();
         }
     }
 
