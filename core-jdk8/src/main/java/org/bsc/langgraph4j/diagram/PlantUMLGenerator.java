@@ -59,5 +59,10 @@ public class PlantUMLGenerator extends DiagramGenerator {
         sb.append( format("hexagon \"check state\" as condition%d<<Condition>>\n", ordinal ) );
     }
 
+    @Override
+    protected StringBuilder commentLine(StringBuilder sb, boolean yesOrNo) {
+        return (yesOrNo) ? sb.append( "'" ) : sb;
+    }
+
 
 }

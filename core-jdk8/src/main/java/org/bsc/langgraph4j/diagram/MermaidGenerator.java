@@ -41,7 +41,12 @@ public class MermaidGenerator extends DiagramGenerator {
         sb.append( format("\tcondition%d{\"check state\"}\n", ordinal) );
    }
 
-   @Override
+    @Override
+    protected StringBuilder commentLine(StringBuilder sb, boolean yesOrNo) {
+        return (yesOrNo) ? sb.append( "\t%%" ) : sb;
+    }
+
+    @Override
     protected void start(StringBuilder sb, String entryPoint) {
         call( sb, "start", entryPoint );
     }

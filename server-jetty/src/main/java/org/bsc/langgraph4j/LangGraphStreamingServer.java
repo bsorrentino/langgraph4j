@@ -223,7 +223,7 @@ class GraphInitServlet<State extends AgentState> extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        GraphRepresentation graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID);
+        GraphRepresentation graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID, initData.title(), false);
 
         final Result result = new Result(graph, initData);
         String resultJson = objectMapper.writeValueAsString(result);
