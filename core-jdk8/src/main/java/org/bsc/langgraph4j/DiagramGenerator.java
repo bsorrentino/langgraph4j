@@ -18,8 +18,9 @@ public abstract class DiagramGenerator {
     protected abstract void declareConditionalStart( StringBuilder sb, String name ) ;
     protected abstract void declareNode( StringBuilder sb, String name ) ;
     protected abstract void declareConditionalEdge( StringBuilder sb, int ordinal ) ;
+    protected abstract StringBuilder commentLine( StringBuilder sb, boolean yesOrNo );
 
-    public final <State extends AgentState> String generate( CompiledGraph<State> compiledGraph,String title ) {
+    public final <State extends AgentState> String generate( CompiledGraph<State> compiledGraph, String title, boolean printConditionalEdge ) {
         StringBuilder sb = new StringBuilder();
 
         appendHeader( sb, title );
@@ -32,7 +33,7 @@ public abstract class DiagramGenerator {
         compiledGraph.getEdges().forEach( (k, v) -> {
             if( v.value() != null ) {
                 conditionalEdgeCount[0] += 1;
-                declareConditionalEdge( sb, conditionalEdgeCount[0] );
+                declareConditionalEdge( commentLine(sb, !printConditionalEdge), conditionalEdgeCount[0] );
             }
         });
 
@@ -44,7 +45,7 @@ public abstract class DiagramGenerator {
         else if( entryPoint.value() != null ) {
             String conditionName = "startcondition";
             declareConditionalStart( sb, conditionName );
-            edgeCondition( sb, entryPoint.value(), "start", conditionName) ;
+            edgeCondition( sb, entryPoint.value(), "start", conditionName, printConditionalEdge) ;
         }
 
         conditionalEdgeCount[0] = 0; // reset
@@ -52,12 +53,12 @@ public abstract class DiagramGenerator {
         compiledGraph.getEdges().forEach( (k,v) -> {
             if( v.id() != null ) {
                 call( sb, k,  v.id() );
-                return;
             }
             else if( v.value() != null ) {
                 conditionalEdgeCount[0] += 1;
                 String conditionName = format("condition%d", conditionalEdgeCount[0]);
-                edgeCondition( sb, v.value(), k, conditionName );
+
+                edgeCondition( sb, v.value(), k, conditionName, printConditionalEdge );
 
             }
         });
@@ -69,15 +70,23 @@ public abstract class DiagramGenerator {
         return sb.toString();
 
     }
-    private <State extends AgentState> void edgeCondition(StringBuilder sb, EdgeCondition<State> condition, String key, String conditionName ) {
-        call( sb,  key, conditionName);
+    private <State extends AgentState> void edgeCondition(StringBuilder sb,
+                                                          EdgeCondition<State> condition,
+                                                          String k,
+                                                          String conditionName,
+                                                          boolean printConditionalEdge) {
+        call( commentLine(sb, !printConditionalEdge),  k, conditionName);
 
         condition.mappings().forEach( (cond, to) -> {
             if( to.equals(StateGraph.END) ) {
-                finish( sb, conditionName, cond );
+
+                finish( commentLine(sb, !printConditionalEdge), conditionName, cond );
+                finish( commentLine(sb, printConditionalEdge), k, cond );
+
             }
             else {
-                call( sb, conditionName, to, cond );
+                call( commentLine(sb, !printConditionalEdge), conditionName, to, cond );
+                call( commentLine(sb, printConditionalEdge), k, to, cond );
             }
         });
     }

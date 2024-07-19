@@ -11,6 +11,7 @@
 
 | Date         | Release | info
 |--------------| --- | ---
+| Jul 19, 2024 | `1.0-SNAPSHOT` | Add support of an embed **Playground Webapp** able to run Langgrap4j flow - [issue #9](https://github.com/bsorrentino/langgraph4j/issues/9)
 | Jun 21, 2024 | `1.0-SNAPSHOT` | Add support of [Mermaid] diagram generation - [issue #5](https://github.com/bsorrentino/langgraph4j/issues/5)
 | Jun 19, 2024 | `1.0-SNAPSHOT` | Add [adaptive rag](adaptice-rag/README.md) sample
 | Jun 10, 2024 | `1.0-SNAPSHOT` | Refactoring how generate graph representation (plantuml)
@@ -26,7 +27,6 @@
 
 **Maven**
 
-**JDK8 compliant**
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
@@ -34,10 +34,6 @@
     <version>1.0-SNAPSHOT</version>
 <dependency>
 ```
-
-**JDK17 compliant**
-> _work in progress_
-
 
 ### Define the agent state
 
@@ -190,6 +186,47 @@ return  app.stream( inputs );
 * [Agent Executor](agent-executor/README.md)
 * [Image To PlantUML Diagram](image-to-diagram/README.md)
 * [Adaptive RAG](adaptive-rag/README.md)
+
+# Playground Webapp 
+
+It is available an **embed playground webapp** able to run a Langgraph4j workflow in visual way. 
+
+## Maven
+
+```xml
+<dependency>
+    <groupId>org.bsc.langgraph4j</groupId>
+    <artifactId>langgraph4j-server-jetty</artifactId>
+    <version>1.0-SNAPSHOT</version>
+<dependency>
+```
+
+## Sample
+
+### Code
+```java
+StateGraph<AgentState> workflow = new StateGraph<>( AgentState::new );
+
+// define your workflow   
+
+...
+
+// compile workflow
+CompiledGraph<AgentState> app = workflow.compile();
+
+// connect playgroud webapp to workflow
+var server = LangGraphStreamingServer.builder()
+                                      .port(8080)
+                                      .title("LANGGRAPH4j - TEST")
+                                      .addInputStringArg("input")
+                                      .build(app);
+// start playground
+server.start().join();
+
+```
+### Demo
+![result](assets/playground-demo.gif)
+
 # References
 
 * [LangGraph - LangChain Blog][langgraph.blog]

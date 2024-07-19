@@ -9,7 +9,7 @@ import org.bsc.langgraph4j.state.AgentState;
  *
  * @param <State> the type of the state associated with the node output
  */
-@Value
+@Value(staticConstructor="of")
 @Accessors(fluent = true)
 public class NodeOutput<State extends AgentState> {
 

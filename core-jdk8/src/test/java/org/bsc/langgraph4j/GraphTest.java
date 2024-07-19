@@ -60,7 +60,7 @@ public class GraphTest {
                 "\"agent_2\" -down-> stop\n" +
                 "@enduml\n", result.getContent() );
 
-        System.out.println( result.getContent() );
+        // System.out.println( result.getContent() );
     }
 
     @Test
@@ -86,29 +86,33 @@ public class GraphTest {
         assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
-                "skinparam usecaseFontSize 14\n" +
-                "skinparam usecaseStereotypeFontSize 12\n" +
-                "skinparam hexagonFontSize 14\n" +
-                "skinparam hexagonStereotypeFontSize 12\n" +
-                "title \"Graph Diagram\"\n" +
-                "footer\n" +
-                "\n" +
-                "powered by langgraph4j\n" +
-                "end footer\n" +
-                "circle start<<input>>\n" +
-                "circle stop\n" +
-                "usecase \"evaluate_result\"<<Node>>\n" +
-                "usecase \"agent_review\"<<Node>>\n" +
-                "hexagon \"check state\" as condition1<<Condition>>\n" +
-                "start -down-> \"evaluate_result\"\n" +
-                "\"agent_review\" -down-> \"evaluate_result\"\n" +
-                "\"evaluate_result\" -down-> \"condition1\"\n" +
-                "\"condition1\" --> \"agent_review\": \"ERROR\"\n" +
-                "\"condition1\" -down-> stop: \"UNKNOWN\"\n" +
-                "\"condition1\" -down-> stop: \"OK\"\n" +
-                "@enduml\n", result.getContent() );
+                        "skinparam usecaseFontSize 14\n" +
+                        "skinparam usecaseStereotypeFontSize 12\n" +
+                        "skinparam hexagonFontSize 14\n" +
+                        "skinparam hexagonStereotypeFontSize 12\n" +
+                        "title \"Graph Diagram\"\n" +
+                        "footer\n" +
+                        "\n" +
+                        "powered by langgraph4j\n" +
+                        "end footer\n" +
+                        "circle start<<input>>\n" +
+                        "circle stop\n" +
+                        "usecase \"evaluate_result\"<<Node>>\n" +
+                        "usecase \"agent_review\"<<Node>>\n" +
+                        "hexagon \"check state\" as condition1<<Condition>>\n" +
+                        "start -down-> \"evaluate_result\"\n" +
+                        "\"agent_review\" -down-> \"evaluate_result\"\n" +
+                        "\"evaluate_result\" -down-> \"condition1\"\n" +
+                        "\"condition1\" --> \"agent_review\": \"ERROR\"\n" +
+                        "'\"evaluate_result\" --> \"agent_review\": \"ERROR\"\n" +
+                        "\"condition1\" -down-> stop: \"UNKNOWN\"\n" +
+                        "'\"evaluate_result\" -down-> stop: \"UNKNOWN\"\n" +
+                        "\"condition1\" -down-> stop: \"OK\"\n" +
+                        "'\"evaluate_result\" -down-> stop: \"OK\"\n" +
+                        "@enduml\n",
+                result.getContent() );
 
-        System.out.println( result.getContent() );
+        // System.out.println( result.getContent() );
 
 
     }
@@ -152,11 +156,14 @@ public class GraphTest {
                 "start -down-> \"agent\"\n" +
                 "\"agent\" -down-> \"condition1\"\n" +
                 "\"condition1\" --> \"action\": \"continue\"\n" +
+                "'\"agent\" --> \"action\": \"continue\"\n" +
                 "\"condition1\" -down-> stop: \"end\"\n" +
+                "'\"agent\" -down-> stop: \"end\"\n" +
                 "\"action\" -down-> \"agent\"\n" +
-                "@enduml\n", result.getContent() );
+                "@enduml\n",
+                result.getContent() );
 
-        System.out.println( result.getContent() );
+        // System.out.println( result.getContent() );
     }
 
     @Test
@@ -180,7 +187,7 @@ public class GraphTest {
 
         var app = workflow.compile();
 
-        var result = app.getGraph( GraphRepresentation.Type.PLANTUML );
+        var result = app.getGraph( GraphRepresentation.Type.PLANTUML);
         assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
@@ -203,31 +210,40 @@ public class GraphTest {
                 "start -down-> \"agent_describer\"\n" +
                 "\"agent_describer\" -down-> \"condition1\"\n" +
                 "\"condition1\" --> \"agent_sequence_plantuml\": \"sequence\"\n" +
+                "'\"agent_describer\" --> \"agent_sequence_plantuml\": \"sequence\"\n" +
                 "\"condition1\" --> \"agent_generic_plantuml\": \"generic\"\n" +
+                "'\"agent_describer\" --> \"agent_generic_plantuml\": \"generic\"\n" +
                 "\"agent_sequence_plantuml\" -down-> \"evaluate_result\"\n" +
                 "\"agent_generic_plantuml\" -down-> \"evaluate_result\"\n" +
                 "\"evaluate_result\" -down-> stop\n" +
-                "@enduml\n", result.getContent() );
+                "@enduml\n",
+                result.getContent() );
 
-        result = app.getGraph( GraphRepresentation.Type.MERMAID );
+        result = app.getGraph( GraphRepresentation.Type.MERMAID, "Graph Diagram", false );
         assertEquals( GraphRepresentation.Type.MERMAID, result.getType() );
+
+        // System.out.println( result.getContent() );
+
         assertEquals( "---\n" +
-                        "title: Graph Diagram\n" +
-                        "---\n" +
-                        "flowchart TD\n" +
-                        "\tstart((start))\n" +
-                        "\tstop((stop))\n" +
-                        "\tagent_describer(\"agent_describer\")\n" +
-                        "\tagent_sequence_plantuml(\"agent_sequence_plantuml\")\n" +
-                        "\tagent_generic_plantuml(\"agent_generic_plantuml\")\n" +
-                        "\tevaluate_result(\"evaluate_result\")\n" +
-                        "\tcondition1{\"check state\"}\n" +
-                        "\tstart --> agent_describer\n" +
-                        "\tagent_describer --> condition1\n" +
-                        "\tcondition1 -->|sequence| agent_sequence_plantuml\n" +
-                        "\tcondition1 -->|generic| agent_generic_plantuml\n" +
-                        "\tagent_sequence_plantuml --> evaluate_result\n" +
-                        "\tagent_generic_plantuml --> evaluate_result\n" +
-                        "\tevaluate_result --> stop\n", result.getContent() );
+                "title: Graph Diagram\n" +
+                "---\n" +
+                "flowchart TD\n" +
+                "\tstart((start))\n" +
+                "\tstop((stop))\n" +
+                "\tagent_describer(\"agent_describer\")\n" +
+                "\tagent_sequence_plantuml(\"agent_sequence_plantuml\")\n" +
+                "\tagent_generic_plantuml(\"agent_generic_plantuml\")\n" +
+                "\tevaluate_result(\"evaluate_result\")\n" +
+                "\t%%\tcondition1{\"check state\"}\n" +
+                "\tstart:::start --> agent_describer:::agent_describer\n" +
+                "\t%%\tagent_describer:::agent_describer --> condition1:::condition1\n" +
+                "\t%%\tcondition1:::condition1 -->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml\n" +
+                "\tagent_describer:::agent_describer -->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml\n" +
+                "\t%%\tcondition1:::condition1 -->|generic| agent_generic_plantuml:::agent_generic_plantuml\n" +
+                "\tagent_describer:::agent_describer -->|generic| agent_generic_plantuml:::agent_generic_plantuml\n" +
+                "\tagent_sequence_plantuml:::agent_sequence_plantuml --> evaluate_result:::evaluate_result\n" +
+                "\tagent_generic_plantuml:::agent_generic_plantuml --> evaluate_result:::evaluate_result\n" +
+                "\tevaluate_result:::evaluate_result --> stop:::stop\n",
+                result.getContent() );
     }
 }

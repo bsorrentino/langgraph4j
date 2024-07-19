@@ -6,7 +6,6 @@ import lombok.var;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
-import org.bsc.langgraph4j.diagram.PlantUMLGenerator;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.*;
@@ -16,6 +15,12 @@ import java.util.stream.StreamSupport;
 import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
+/**
+ * Represents a compiled graph of nodes and edges.
+ * This class manage the StateGraph execution
+ *
+ * @param <State> the type of the state associated with the graph
+ */
 @Slf4j
 public class CompiledGraph<State extends AgentState> {
 
@@ -114,11 +119,19 @@ public class CompiledGraph<State extends AgentState> {
             try  {
                 var currentState = stateGraph.getStateFactory().apply(inputs);
 
+                queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of("start", currentState)) ));
+                log.trace( "START");
+
                 var currentNodeId = this.getEntryPoint( currentState );
 
                 Map<String, Object> partialState;
 
-                for(int i = 0; i < maxIterations &&  !Objects.equals(currentNodeId, StateGraph.END); ++i ) {
+                int iteration = 0;
+
+                while( !Objects.equals(currentNodeId, StateGraph.END) ) {
+
+                    log.trace( "NEXT NODE: {}", currentNodeId);
+
                     var action = nodes.get(currentNodeId);
                     if (action == null) {
                         throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
@@ -128,17 +141,27 @@ public class CompiledGraph<State extends AgentState> {
 
                     currentState = currentState.mergeWith(partialState, stateGraph.getStateFactory());
 
-                    var data = new NodeOutput<>(currentNodeId, currentState);
+                    queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of(currentNodeId, currentState) ) ));
 
-                    queue.add( AsyncGenerator.Data.of( completedFuture(data) ));
-
-                    if (Objects.equals(currentNodeId, stateGraph.getFinishPoint())) {
+                    if ( Objects.equals(currentNodeId, stateGraph.getFinishPoint()) ) {
                         break;
                     }
 
                     currentNodeId = nextNodeId(currentNodeId, currentState);
 
+                    if ( Objects.equals(currentNodeId, StateGraph.END) ) {
+                        break;
+                    }
+
+                    if( ++iteration > maxIterations ) {
+                        log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
+                        break;
+                    }
+
                 }
+
+                queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of("stop", currentState) ) ));
+                log.trace( "STOP");
 
             } catch (Exception e) {
                 throw new RuntimeException( e );
@@ -171,11 +194,26 @@ public class CompiledGraph<State extends AgentState> {
      *
      * @param type the type of graph representation to generate
      * @param title the title of the graph
+     * @param printConditionalEdges whether to print conditional edges
+     * @return a diagram code of the state graph
+     */
+    public GraphRepresentation getGraph( GraphRepresentation.Type type, String title, boolean printConditionalEdges ) {
+
+        String content = type.generator.generate( this, title, printConditionalEdges);
+
+        return new GraphRepresentation( type, content );
+    }
+
+    /**
+     * Generates a drawable graph representation of the state graph.
+     *
+     * @param type the type of graph representation to generate
+     * @param title the title of the graph
      * @return a diagram code of the state graph
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type, String title ) {
 
-        String content = type.generator.generate( this,title);
+        String content = type.generator.generate( this, title, true);
 
         return new GraphRepresentation( type, content );
     }
@@ -187,7 +225,7 @@ public class CompiledGraph<State extends AgentState> {
      * @return a diagram code of the state graph
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type ) {
-        return getGraph(type, "Graph Diagram");
+        return getGraph(type, "Graph Diagram", true);
     }
 
 }

@@ -37,7 +37,7 @@ public class AsyncTest {
 
         it.forEachAsync( result::add ).thenAccept( t -> {
             System.out.println( "Finished");
-        });
+        }).join();
 
         for (var i : it) {
             result.add(i);
@@ -45,8 +45,8 @@ public class AsyncTest {
         }
         System.out.println( "Finished");
 
-        assertEquals( result.size(), myArray.length );
-        assertIterableEquals( result, listOf(myArray));
+        assertEquals(myArray.length, result.size() );
+        assertIterableEquals( listOf(myArray), result );
     }
     @Test
     public void asyncQueueTest() throws Exception {
@@ -61,11 +61,11 @@ public class AsyncTest {
 
         it.forEachAsync(result::add).thenAccept( (t) -> {
             System.out.println( "Finished");
-        });
+        }).join();
 
 
-        assertEquals(result.size(), 10);
-        assertIterableEquals(result, listOf("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"));
+        assertEquals( 10, result.size());
+        assertIterableEquals(listOf("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"), result);
 
     }
 
