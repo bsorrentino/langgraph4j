@@ -2,7 +2,7 @@ import { html, svg, LitElement } from 'lit';
 import { Task } from '@lit/task'
 import mermaid from 'mermaid';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
-const mermaidAPI = mermaid.mermaidAPI;
+//const mermaidAPI = mermaid.mermaidAPI;
 
 
 const renderSVG = (diagram) => html`
@@ -20,7 +20,7 @@ export class LG4jMermaid extends LitElement {
   constructor() {
     super();
 
-    mermaidAPI.initialize({
+    mermaid.initialize({
       logLevel: 'none',
       startOnLoad: false,
     });
@@ -31,7 +31,7 @@ export class LG4jMermaid extends LitElement {
 
   #mermaidTask = new Task(this, {
     task: async ([textContent], { signal }) => {
-      return await mermaidAPI.render(
+      return await mermaid.render(
         `graph-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
         textContent);
 

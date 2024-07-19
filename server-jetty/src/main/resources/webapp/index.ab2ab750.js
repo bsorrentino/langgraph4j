@@ -76,11 +76,11 @@ ${t.themeCSS}`),void 0!==t.fontFamily&&(r+=`
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */class y extends m{}y.directiveName="unsafeSVG",y.resultType=2;const x=d(y),C=f.N.mermaidAPI,b=t=>(0,l.html)`
+ */class y extends m{}y.directiveName="unsafeSVG",y.resultType=2;const x=d(y),C=t=>(0,l.html)`
   <div>
   ${x(t.svg)}
-  </div>`;class _ extends l.LitElement{constructor(){super(),C.initialize({logLevel:"none",startOnLoad:!1}),this._content=null,this._activeClass=null}#t=new h(this,{task:async([t],{signal:e})=>await C.render(`graph-${Date.now()}-${Math.floor(1e4*Math.random())}`,t),args:()=>[this.#e]});get #i(){return Array.from(this.childNodes).filter(t=>t.nodeType===this.TEXT_NODE)}get #e(){return this._content?this._activeClass?`
+  </div>`;class b extends l.LitElement{constructor(){super(),(0,f.N).initialize({logLevel:"none",startOnLoad:!1}),this._content=null,this._activeClass=null}#t=new h(this,{task:async([t],{signal:e})=>await (0,f.N).render(`graph-${Date.now()}-${Math.floor(1e4*Math.random())}`,t),args:()=>[this.#e]});get #i(){return Array.from(this.childNodes).filter(t=>t.nodeType===this.TEXT_NODE)}get #e(){return this._content?this._activeClass?`
         ${this._content}
         classDef ${this._activeClass} fill:#f96
-        `:this._content:this.#i.map(t=>t.textContent?.trim()).join("")}#r(t){let{detail:e}=t;this._content=e,this.requestUpdate()}#n(t){let{detail:e}=t;this._activeClass=e,this.requestUpdate()}connectedCallback(){super.connectedCallback(),this.addEventListener("graph",this.#r),this.addEventListener("graph-active",this.#n)}disconnectedCallback(){super.disconnectedCallback(),this.removeEventListener("graph",this.#r),this.removeEventListener("graph-active",this.#n)}render(){return this.#t.render({pending:()=>(0,l.html)`<p>rendering diagram...</p>`,complete:b,error:t=>(0,l.html)`<p>Error: ${t}</p>`})}}window.customElements.define("lg4j-graph",_);
-//# sourceMappingURL=index.15342d10.js.map
+        `:this._content:this.#i.map(t=>t.textContent?.trim()).join("")}#r(t){let{detail:e}=t;this._content=e,this.requestUpdate()}#n(t){let{detail:e}=t;this._activeClass=e,this.requestUpdate()}connectedCallback(){super.connectedCallback(),this.addEventListener("graph",this.#r),this.addEventListener("graph-active",this.#n)}disconnectedCallback(){super.disconnectedCallback(),this.removeEventListener("graph",this.#r),this.removeEventListener("graph-active",this.#n)}render(){return this.#t.render({pending:()=>(0,l.html)`<p>rendering diagram...</p>`,complete:C,error:t=>(0,l.html)`<p>Error: ${t}</p>`})}}window.customElements.define("lg4j-graph",b);
+//# sourceMappingURL=index.ab2ab750.js.map
