@@ -19,14 +19,14 @@ public class LangGraphStreamingServerTest {
         workflow.addNode("agent_1", node_async((state ) -> {
             System.out.println("agent_1 ");
             System.out.println(state);
-            return mapOf("prop1", "test");
+            return mapOf("prop1", "value1");
         }) ) ;
 
         workflow.addNode("agent_2", node_async( state  -> {
 
             System.out.print( "agent_2: ");
             System.out.println( state );
-            return mapOf("prop2", "test");
+            return mapOf("prop2", "value2");
         }));
 
         workflow.addEdge("agent_2", "agent_1" );
