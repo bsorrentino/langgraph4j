@@ -2,6 +2,88 @@
 
 Changelog of langgraph4j.
 
+## v1.0-20240719 (2024-07-19)
+
+### Features
+
+-  toggle conditional-edge representation ([4e55e](https://github.com/bsorrentino/langgraph4j/commit/4e55eda05e23bf3) bsorrentino)  
+-  **front-end**  make result panel scrollable ([fbd73](https://github.com/bsorrentino/langgraph4j/commit/fbd73f12d10b77a) bsorrentino)  
+-  **server-jetty**  add completion of async context ([d67ef](https://github.com/bsorrentino/langgraph4j/commit/d67ef3f6d98de23) bsorrentino)  
+-  add @alenaksu/json-viewer component ([2cc3a](https://github.com/bsorrentino/langgraph4j/commit/2cc3a69c2448965) bsorrentino)  
+-  add support for custom mapper ([b0fe5](https://github.com/bsorrentino/langgraph4j/commit/b0fe566790be739) bsorrentino)  
+-  add agent executor sample ([d7ddb](https://github.com/bsorrentino/langgraph4j/commit/d7ddb58e61e34d3) bsorrentino)  
+-  add support for custom title ([48ec6](https://github.com/bsorrentino/langgraph4j/commit/48ec649edf97477) bsorrentino)  
+-  stream returns also 'start' and 'stop' steps ([bb6e0](https://github.com/bsorrentino/langgraph4j/commit/bb6e0de5ccb8ca8) bsorrentino)  
+-  generate mermaid with node id ([7967a](https://github.com/bsorrentino/langgraph4j/commit/7967a93439a6590) bsorrentino)  
+-  finalize node highlight ([cd934](https://github.com/bsorrentino/langgraph4j/commit/cd934894f2b8c8a) bsorrentino)  
+-  highlight active node ([feae4](https://github.com/bsorrentino/langgraph4j/commit/feae491063ac3a5) bsorrentino)  
+-  move from war to jar packaging ([e942a](https://github.com/bsorrentino/langgraph4j/commit/e942aefdbf96dc1) bsorrentino)  
+-  back-end refinements ([bdec3](https://github.com/bsorrentino/langgraph4j/commit/bdec3a3e9828fe7) bsorrentino)  
+-  front-end refinements ([f4861](https://github.com/bsorrentino/langgraph4j/commit/f48618cdee8f095) bsorrentino)  
+-  **server**  add builder ([9e810](https://github.com/bsorrentino/langgraph4j/commit/9e8109d84887a3a) bsorrentino)  
+-  **js**  finalize front-end candidate release ([33bec](https://github.com/bsorrentino/langgraph4j/commit/33becfcec58795d) bsorrentino)  
+-  **LangGraphStreamingServer**  implementation refinement ([3b8c6](https://github.com/bsorrentino/langgraph4j/commit/3b8c6cf83100e2f) bsorrentino)  
+-  **jetty**  upgrade frontend dist ([3cf8b](https://github.com/bsorrentino/langgraph4j/commit/3cf8b643e76e094) bsorrentino)  
+-  **core**  move on development version of async-iterator ([4d385](https://github.com/bsorrentino/langgraph4j/commit/4d385b9bf9b739d) bsorrentino)  
+-  **LangGraphStreamingServer**  complete pilot implementation ([5ebfa](https://github.com/bsorrentino/langgraph4j/commit/5ebfa769c20ed35) bsorrentino)  
+-  update front-end dist ([0b3fc](https://github.com/bsorrentino/langgraph4j/commit/0b3fc281afeb3b1) bsorrentino)  
+-  webapp frontend refinements ([920ba](https://github.com/bsorrentino/langgraph4j/commit/920bae03c20315b) bsorrentino)  
+-  setup lit + tailwind project ([4ddc6](https://github.com/bsorrentino/langgraph4j/commit/4ddc639a5dac0e0) bsorrentino)  
+-  add http streaming support ([d57e9](https://github.com/bsorrentino/langgraph4j/commit/d57e9170056480c) bsorrentino)  
+
+### Bug Fixes
+
+-  mermaid loading diagram error ([5ccef](https://github.com/bsorrentino/langgraph4j/commit/5ccef4548baa66f) bsorrentino)  
+
+### Other changes
+
+**Merge branch 'release/1.0-20240719'**
+
+
+[082f6](https://github.com/bsorrentino/langgraph4j/commit/082f60073c61d3f) bsorrentino *2024-07-19 18:40:15*
+
+**Merge branch 'feature/jetty' into develop**
+
+
+[9c211](https://github.com/bsorrentino/langgraph4j/commit/9c211be49f6e3f6) bsorrentino *2024-07-17 17:19:19*
+
+**Merge branch 'main' into develop**
+
+
+[a2605](https://github.com/bsorrentino/langgraph4j/commit/a260591fc7d52a6) bsorrentino *2024-06-30 16:23:51*
+
+**Merge branch 'hotfix/docs'**
+
+
+[860f0](https://github.com/bsorrentino/langgraph4j/commit/860f0aa915eb813) bsorrentino *2024-06-30 16:23:48*
+
+**Merge branch 'main' into develop**
+
+
+[5dfaf](https://github.com/bsorrentino/langgraph4j/commit/5dfaf65c562e537) bsorrentino *2024-06-21 16:55:45*
+
+**Merge branch 'hotfix/fix-comments'**
+
+
+[f2471](https://github.com/bsorrentino/langgraph4j/commit/f2471d17a62eba1) bsorrentino *2024-06-21 16:55:43*
+
+**Merge branch 'main' into develop**
+
+
+[2a9be](https://github.com/bsorrentino/langgraph4j/commit/2a9bec3b4870d30) bsorrentino *2024-06-21 16:47:28*
+
+**Merge branch 'hotfix/changelog'**
+
+
+[d595d](https://github.com/bsorrentino/langgraph4j/commit/d595dc60c298bf7) bsorrentino *2024-06-21 16:47:26*
+
+**Merge tag 'v1.0-20240621' into develop**
+
+* new release 
+
+[5bec1](https://github.com/bsorrentino/langgraph4j/commit/5bec1981a103fbd) bsorrentino *2024-06-21 16:44:33*
+
+
 ## v1.0-20240621 (2024-06-21)
 
 ### Features
