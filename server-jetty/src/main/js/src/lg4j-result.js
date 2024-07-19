@@ -37,7 +37,30 @@ export class LG4JResultElement extends LitElement {
     this.removeEventListener( 'result',  this.#onResult )
   }
 
-  
+  #renderResult2(result, index) {
+    return html`
+    <div class="card bg-neutral text-neutral-content">
+    <div class="card-body">
+      <h2 class="card-title">${result.node}</h2>
+      <div class="collapse collapse-arrow bg-base-200">
+        <input type="radio" name="item-1" checked="checked" />
+        <div class="collapse-content">
+        ${Object.entries(result.state).map(([key, value]) => html`
+          <div>
+              <h4 class="italic">${key}</h4>
+              <p class="my-3">
+                <json-viewer id="json${index}">
+                ${JSON.stringify(value)}
+                </json-viewer>
+              </p>
+            </div>
+        `)}
+        </div>
+        </div>
+    </div>
+  </div>   `
+  }
+
   /**
    * Renders a result.
    * @param {ResultData} result - The result data to render.
@@ -45,6 +68,7 @@ export class LG4JResultElement extends LitElement {
    */
   #renderResult(result, index) {
     return html`
+    <div>
     <div class="collapse collapse-arrow bg-base-200">
       <input type="radio" name="item-1" checked="checked" />
       <div class="collapse-title text-xl font-bold">${result.node}</div>
@@ -60,6 +84,7 @@ export class LG4JResultElement extends LitElement {
             </div>
         `)}
       </div>
+    </div>
     </div>
     `
   }
@@ -102,8 +127,10 @@ export class LG4JResultElement extends LitElement {
   render() {
   
     return html`
-      <div class="flex flex-col gap-y-1.5 mx-2 mt-2">
-      ${this.results.map( (result, index) => this.#renderResult(result, index))}
+      <div class="h-screen flex flex-col">
+        <div class="flex flex-col gap-y-1.5 mx-2 mt-2 h-full overflow-auto">
+        ${this.results.map( (result, index) => this.#renderResult(result, index))}
+        </div>
       </div>
     `;
   }
