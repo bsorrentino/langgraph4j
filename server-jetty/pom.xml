@@ -84,6 +84,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.bsc.langgraph4j</groupId>
+            <artifactId>langgraph4j-adaptive-rag</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -122,6 +129,15 @@
                         <configuration>
                             <classpathScope>test</classpathScope>
                             <mainClass>org.bsc.langgraph4j.AgentExecutorStreamingServer</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- exec:java@adaptiverag -->
+                        <id>adaptiverag</id>
+                        <goals><goal>java</goal></goals>
+                        <configuration>
+                            <classpathScope>test</classpathScope>
+                            <mainClass>org.bsc.langgraph4j.AdaptiveRAGStreamingServer</mainClass>
                         </configuration>
                     </execution>
                 </executions>
