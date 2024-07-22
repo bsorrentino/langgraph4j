@@ -5,11 +5,6 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 //const mermaidAPI = mermaid.mermaidAPI;
 
 
-const renderSVG = (diagram) => html`
-  <div>
-  ${unsafeSVG(diagram.svg)}
-  </div>`;
-
 /**
  * WcMermaid
  * @class
@@ -23,6 +18,7 @@ export class LG4jMermaid extends LitElement {
     mermaid.initialize({
       logLevel: 'none',
       startOnLoad: false,
+      theme: 'dark'
     });
 
     this._content = null
@@ -38,6 +34,12 @@ export class LG4jMermaid extends LitElement {
     },
     args: () => [this.#textContent]
   })
+
+  #renderSVG = (diagram) => html`
+  <div>
+  ${unsafeSVG(diagram.svg)}
+  </div>`;
+
   /**
    * @returns {ChildNode[]}
    * @private
@@ -116,7 +118,7 @@ export class LG4jMermaid extends LitElement {
 
     return this.#mermaidTask.render({
       pending: () => html`<p>rendering diagram...</p>`,
-      complete: renderSVG,
+      complete: this.#renderSVG,
       error: (e) => html`<p>Error: ${e}</p>`
     });
   }
