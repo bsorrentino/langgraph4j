@@ -1,16 +1,21 @@
-import { html, svg, LitElement } from 'lit';
+import TWStyles from './twlit';
+import { html, css, LitElement } from 'lit';
 import { Task } from '@lit/task'
 import mermaid from 'mermaid';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 //const mermaidAPI = mermaid.mermaidAPI;
-
+import * as d3 from 'd3'
 
 /**
  * WcMermaid
  * @class
  */
 export class LG4jMermaid extends LitElement {
-
+  static styles = [TWStyles, css`
+    #mermaid svg {
+      height: 100%;
+    }
+  `];
 
   constructor() {
     super();
@@ -18,7 +23,10 @@ export class LG4jMermaid extends LitElement {
     mermaid.initialize({
       logLevel: 'none',
       startOnLoad: false,
-      theme: 'dark'
+      theme: 'dark',
+      flowchart: {
+        useMaxWidth: false
+      }
     });
 
     this._content = null
@@ -35,11 +43,7 @@ export class LG4jMermaid extends LitElement {
     args: () => [this.#textContent]
   })
 
-  #renderSVG = (diagram) => html`
-  <div>
-  ${unsafeSVG(diagram.svg)}
-  </div>`;
-
+  
   /**
    * @returns {ChildNode[]}
    * @private
@@ -97,6 +101,7 @@ export class LG4jMermaid extends LitElement {
     // this.__observer.observe(this, { childList: true });
     // this.__observeTextNodes();
     // this.__renderGraph();
+
   }
 
   disconnectedCallback() {
@@ -113,14 +118,28 @@ export class LG4jMermaid extends LitElement {
     // }
   }
 
+  #renderSVG = (diagram) => html`
+  <div id="mermaid" class="h-full w-full flex items-center justify-center">
+  ${ unsafeSVG(diagram.svg) }
+  </div>`;
+
+  #renderSVG_Test = (diagram) => html`
+  <div class="bg-lime-400 h-full w-full">
+    GRAPH TEST
+  </div>`;
+
 
   render() {
 
-    return this.#mermaidTask.render({
+    const tpl =  this.#mermaidTask.render({
       pending: () => html`<p>rendering diagram...</p>`,
       complete: this.#renderSVG,
       error: (e) => html`<p>Error: ${e}</p>`
     });
+
+    this.updateComplete.then( () => this.#svgPanZoom() )
+
+    return tpl
   }
 
   // __observeTextNodes() {
@@ -144,6 +163,35 @@ export class LG4jMermaid extends LitElement {
   // }
 
 
+  #svgPanZoom() {
+
+    const svgs = d3.select( this.shadowRoot ).select("#mermaid svg");
+    console.debug( 'svgs', svgs )
+
+    svgs.each( function() {
+      // 'this' refers to the current DOM element
+      const svg = d3.select(this);
+      
+      console.debug( 'svg', svg );
+      svg.html("<g>" + svg.html() + "</g>");
+
+      const inner = svg.select("g");
+      console.debug( 'inner', inner )
+      
+      const zoom = d3.zoom().on("zoom", event =>  inner.attr("transform", event.transform) );
+      
+      svg.call(zoom);
+
+    });
+
+    const el = this.shadowRoot.querySelector('#mermaid svg');
+    if( el ) {
+      
+      //el.setAttribute( "width", "800px");
+      //el.setAttribute( "viewBox", "-8 -8 100 338.125");
+    }
+
+  }
 }
 
 window.customElements.define('lg4j-graph', LG4jMermaid);

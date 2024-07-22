@@ -118,15 +118,25 @@ export class LG4JExecutorElement extends LitElement {
       detail: { 
         title: 'LangGraph4j : TEST',
         graph:`
-flowchart TD
-  start((start))
-  stop((stop))
-  node1("node1")
-  node2("node2")
+        flowchart TD
+        start((start))
+        stop((stop))
+        web_search("web_search")
+        retrieve("retrieve")
+        grade_documents("grade_documents")
+        generate("generate")
+        transform_query("transform_query")
+        start:::start -->|web_search| web_search:::web_search
+        start:::start -->|vectorstore| retrieve:::retrieve
+        web_search:::web_search --> generate:::generate
+        retrieve:::retrieve --> grade_documents:::grade_documents
+        grade_documents:::grade_documents -->|transform_query| transform_query:::transform_query
+        grade_documents:::grade_documents -->|generate| generate:::generate
+        transform_query:::transform_query --> retrieve:::retrieve
+        generate:::generate -->|not supported| generate:::generate
+        generate:::generate -->|not useful| transform_query:::transform_query
+        generate:::generate -->|useful| stop:::stop
 
-  start:::start --> node1:::node1
-  node1:::node1 --> node2:::node2
-  node2:::node2 --> stop:::stop
       `
       },
       bubbles: true,
