@@ -1,13 +1,6 @@
 package org.bsc.langgraph4j;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.adaptiverag.AdaptiveRag;
-import dev.langchain4j.agentexecutor.AgentExecutor;
-import dev.langchain4j.model.openai.OpenAiChatModel;
-
-import java.util.List;
 
 public class AdaptiveRAGStreamingServer {
 
@@ -27,6 +20,11 @@ public class AdaptiveRAGStreamingServer {
         // [Serializing with Jackson (JSON) - getting "No serializer found"?](https://stackoverflow.com/a/8395924/521197)
         // ObjectMapper objectMapper = new ObjectMapper();
         // objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        System.out.println (
+                app.getGraph(GraphRepresentation.Type.MERMAID, "ADAPTIVE RAG EXECUTOR", false)
+                        .getContent()
+        );
 
         var server = LangGraphStreamingServer.builder()
                 .port(8080)
