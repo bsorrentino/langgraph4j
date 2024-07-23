@@ -75,7 +75,7 @@ export class LG4JWorkbenchElement extends LitElement {
       <a class="btn btn-ghost text-xl">${this.title}</a>
     </div>
   </div>  
-  <div class="row-span-4 border border-gray-300 p-5 flex items-center justify-center"><slot name="graph">LEFT</slot></div>
+  <div class="row-span-4 border border-gray-300 p-2"><slot name="graph">LEFT</slot></div>
   <div class="row-span-5"><slot name="result">RIGHT</slot></div>
   <div><slot name="executor">BOTTOM</slot></div>
 </div>

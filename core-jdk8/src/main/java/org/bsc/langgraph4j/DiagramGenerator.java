@@ -44,7 +44,7 @@ public abstract class DiagramGenerator {
         }
         else if( entryPoint.value() != null ) {
             String conditionName = "startcondition";
-            declareConditionalStart( sb, conditionName );
+            declareConditionalStart( commentLine(sb, !printConditionalEdge), conditionName );
             edgeCondition( sb, entryPoint.value(), "start", conditionName, printConditionalEdge) ;
         }
 
