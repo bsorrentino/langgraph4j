@@ -15,26 +15,6 @@ let t;var e,i,s,r,n,o=globalThis,l={},a={},h=o.parcelRequire3bab;null==h&&((h=fu
   json-viewer {
     --font-size: .8rem;
   }`];static properties={};constructor(){super(),this.results=[]}connectedCallback(){super.connectedCallback(),this.addEventListener("result",this.#t)}disconnectedCallback(){super.disconnectedCallback(),this.removeEventListener("result",this.#t)}#e(t,e){return(0,c.html)`
-    <div class="card bg-neutral text-neutral-content">
-    <div class="card-body">
-      <h2 class="card-title">${t.node}</h2>
-      <div class="collapse collapse-arrow bg-base-200">
-        <input type="radio" name="item-1" checked="checked" />
-        <div class="collapse-content">
-        ${Object.entries(t.state).map(([t,i])=>(0,c.html)`
-          <div>
-              <h4 class="italic">${t}</h4>
-              <p class="my-3">
-                <json-viewer id="json${e}">
-                ${JSON.stringify(i)}
-                </json-viewer>
-              </p>
-            </div>
-        `)}
-        </div>
-        </div>
-    </div>
-  </div>   `}#i(t,e){return(0,c.html)`
     <div>
     <div class="collapse collapse-arrow bg-base-200">
       <input type="radio" name="item-1" checked="checked" />
@@ -56,8 +36,28 @@ let t;var e,i,s,r,n,o=globalThis,l={},a={},h=o.parcelRequire3bab;null==h&&((h=fu
     `}#t=t=>{let{detail:e}=t;console.debug("onResult",t);let i=this.results.push(e);this.dispatchEvent(new CustomEvent("graph-active",{detail:e.node,bubbles:!0,composed:!0,cancelable:!0})),this.requestUpdate(),this.updateComplete.then(()=>{let t=`#json${i-1}`,e=this.shadowRoot.querySelectorAll(t);for(let i of(console.debug(t,e),e))i.expandAll()})};render(){return(0,c.html)`
       <div class="h-screen flex flex-col">
         <div class="flex flex-col gap-y-1.5 mx-2 mt-2 h-full overflow-auto">
-        ${this.results.map((t,e)=>this.#i(t,e))}
+        ${this.results.map((t,e)=>this.#e(t,e))}
         </div>
       </div>
-    `}}window.customElements.define("lg4j-result",tR);
-//# sourceMappingURL=index.31fd96fb.js.map
+    `}#i(t,e){return(0,c.html)`
+    <div class="card bg-neutral text-neutral-content">
+    <div class="card-body">
+      <h2 class="card-title">${t.node}</h2>
+      <div class="collapse collapse-arrow bg-base-200">
+        <input type="radio" name="item-1" checked="checked" />
+        <div class="collapse-content">
+        ${Object.entries(t.state).map(([t,i])=>(0,c.html)`
+          <div>
+              <h4 class="italic">${t}</h4>
+              <p class="my-3">
+                <json-viewer id="json${e}">
+                ${JSON.stringify(i)}
+                </json-viewer>
+              </p>
+            </div>
+        `)}
+        </div>
+        </div>
+    </div>
+  </div>   `}}window.customElements.define("lg4j-result",tR);
+//# sourceMappingURL=index.cc6f4c90.js.map
