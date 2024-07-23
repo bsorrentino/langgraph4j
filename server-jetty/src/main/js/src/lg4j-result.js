@@ -37,29 +37,6 @@ export class LG4JResultElement extends LitElement {
     this.removeEventListener( 'result',  this.#onResult )
   }
 
-  #renderResult2(result, index) {
-    return html`
-    <div class="card bg-neutral text-neutral-content">
-    <div class="card-body">
-      <h2 class="card-title">${result.node}</h2>
-      <div class="collapse collapse-arrow bg-base-200">
-        <input type="radio" name="item-1" checked="checked" />
-        <div class="collapse-content">
-        ${Object.entries(result.state).map(([key, value]) => html`
-          <div>
-              <h4 class="italic">${key}</h4>
-              <p class="my-3">
-                <json-viewer id="json${index}">
-                ${JSON.stringify(value)}
-                </json-viewer>
-              </p>
-            </div>
-        `)}
-        </div>
-        </div>
-    </div>
-  </div>   `
-  }
 
   /**
    * Renders a result.
@@ -134,6 +111,32 @@ export class LG4JResultElement extends LitElement {
       </div>
     `;
   }
+
+  // @deprecated
+  #renderResultWithCard(result, index) {
+    return html`
+    <div class="card bg-neutral text-neutral-content">
+    <div class="card-body">
+      <h2 class="card-title">${result.node}</h2>
+      <div class="collapse collapse-arrow bg-base-200">
+        <input type="radio" name="item-1" checked="checked" />
+        <div class="collapse-content">
+        ${Object.entries(result.state).map(([key, value]) => html`
+          <div>
+              <h4 class="italic">${key}</h4>
+              <p class="my-3">
+                <json-viewer id="json${index}">
+                ${JSON.stringify(value)}
+                </json-viewer>
+              </p>
+            </div>
+        `)}
+        </div>
+        </div>
+    </div>
+  </div>   `
+  }
+
 }
 
 window.customElements.define('lg4j-result', LG4JResultElement);
