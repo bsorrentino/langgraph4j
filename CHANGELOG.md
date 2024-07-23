@@ -2,6 +2,38 @@
 
 Changelog of langgraph4j.
 
+## v1.0-20240723 (2024-07-23)
+
+### Features
+
+-  **frontend**  add zoom support on graph view ([c6d7f](https://github.com/bsorrentino/langgraph4j/commit/c6d7fab152c1edb) bsorrentino)  
+-  experiment using d3 zoom on svg ([44be1](https://github.com/bsorrentino/langgraph4j/commit/44be1a1f52f6d20) bsorrentino)  
+-  **server-jetty**  set dark theme by default ([c4a06](https://github.com/bsorrentino/langgraph4j/commit/c4a06ec88e12332) bsorrentino)  
+-  **server-jetty**  add adaptiveRAG test ([050c6](https://github.com/bsorrentino/langgraph4j/commit/050c628f45e369a) bsorrentino)  
+
+### Bug Fixes
+
+-  **core**  generation graph ([df75b](https://github.com/bsorrentino/langgraph4j/commit/df75b6db12a659f) bsorrentino)  
+
+### Other changes
+
+**Merge branch 'release/1.0-20240723'**
+
+
+[bd193](https://github.com/bsorrentino/langgraph4j/commit/bd19374a0d01c8a) bsorrentino *2024-07-23 21:44:50*
+
+**Merge branch 'feature/graph_zoom' into develop**
+
+
+[2e35a](https://github.com/bsorrentino/langgraph4j/commit/2e35af9b07f24f3) bsorrentino *2024-07-23 21:43:14*
+
+**Merge tag 'v1.0-20240719' into develop**
+
+* new dev release 
+
+[0b5d4](https://github.com/bsorrentino/langgraph4j/commit/0b5d4e24090fc17) bsorrentino *2024-07-19 18:40:23*
+
+
 ## v1.0-20240719 (2024-07-19)
 
 ### Features
