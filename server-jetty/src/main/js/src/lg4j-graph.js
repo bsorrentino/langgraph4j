@@ -1,4 +1,5 @@
-import { html, svg, LitElement } from 'lit';
+import TWStyles from './twlit';
+import { html, css, LitElement } from 'lit';
 import { Task } from '@lit/task'
 import mermaid from 'mermaid';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
@@ -11,6 +12,7 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
  */
 export class LG4jMermaid extends LitElement {
 
+  static styles = [TWStyles, css``];
 
   constructor() {
     super();
@@ -36,7 +38,7 @@ export class LG4jMermaid extends LitElement {
   })
 
   #renderSVG = (diagram) => html`
-  <div>
+  <div class="bg-neutral flex items-center justify-center h-full w-full">
   ${unsafeSVG(diagram.svg)}
   </div>`;
 
