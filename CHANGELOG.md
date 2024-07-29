@@ -7,6 +7,18 @@
 ## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
 
 
+
+
+
+
+
+
+
+<!-- "name: v1.0-20240729" is a release tag -->
+
+## [v1.0-20240729](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240729) (2024-07-29)
+
+
 ### Bug Fixes
 
  -  **lg4j-graph**  svg height settings ([f4ae09f6fea0025](https://github.com/bsorrentino/langgraph4j/commit/f4ae09f6fea0025b8f9f3d21bb549f71ca08a1a2))
@@ -15,6 +27,8 @@
 
 
 ### Documentation
+
+ -  update readme. refine changelog ([6e1a6864ef9b29a](https://github.com/bsorrentino/langgraph4j/commit/6e1a6864ef9b29a62b314d8a846af2c1b3c122f3))
 
  -  update changelog ([ab5fbc2666f13b3](https://github.com/bsorrentino/langgraph4j/commit/ab5fbc2666f13b37a0b068dcafd625414510bf5c))
 
