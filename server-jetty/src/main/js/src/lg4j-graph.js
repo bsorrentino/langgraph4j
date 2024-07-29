@@ -122,7 +122,7 @@ export class LG4jMermaid extends HTMLElement {
           const { right: width,  bottom: height } = svgContainer.getBoundingClientRect();
           // console.debug( res.svg )
           const translated = res.svg
-            .replace( /heigh="[\d\.]+"/, `height="${height}"`) 
+            .replace( /height="[\d\.]+"/, `height="${height}"`) 
             .replace( /width="[\d\.]+"/, `width="${width}"`);
           // console.debug( translated );
           svgContainer.innerHTML = translated;
@@ -182,13 +182,13 @@ export class LG4jMermaid extends HTMLElement {
     this.#renderDiagram()
   }
 
+  #resizeHandler = () => this.#renderDiagram()
+
   connectedCallback() {
     
     this.addEventListener('graph', this.#onContent)
     this.addEventListener('graph-active', this.#onActive)
-    window.addEventListener('resize', () => { 
-      this.#renderDiagram()
-    })
+    window.addEventListener('resize', this.#resizeHandler )
 
   }
 
@@ -196,6 +196,7 @@ export class LG4jMermaid extends HTMLElement {
 
     this.removeEventListener('graph', this.#onContent)
     this.removeEventListener('graph-active', this.#onActive)
+    window.removeEventListener('resize', this.#resizeHandler )
   }
 
   // @deprecated

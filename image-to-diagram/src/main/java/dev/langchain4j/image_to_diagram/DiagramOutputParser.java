@@ -1,13 +1,11 @@
 package dev.langchain4j.image_to_diagram;
 
 import com.google.gson.Gson;
-import dev.langchain4j.model.output.OutputParser;
 import lombok.var;
 
 import java.util.regex.Pattern;
 
-public class DiagramOutputParser implements OutputParser<Diagram.Element> {
-    @Override
+public class DiagramOutputParser {
     public Diagram.Element parse(String s) {
         // String pattern = "```json\n(.*?)\n```";
         String pattern = "```json\n(.*?)\n```";
@@ -25,10 +23,5 @@ public class DiagramOutputParser implements OutputParser<Diagram.Element> {
 
         var gson = new Gson();
         return gson.fromJson(matcher.group(1), Diagram.Element.class);
-    }
-
-    @Override
-    public String formatInstructions() {
-        return "extract json from markdown text";
     }
 }

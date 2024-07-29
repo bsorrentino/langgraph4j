@@ -1,9 +1,9 @@
 package dev.langchain4j.agentexecutor;
 
-import dev.langchain4j.agent.tool.DefaultToolExecutor;
 import dev.langchain4j.agent.tool.Tool;
-import dev.langchain4j.agent.tool.ToolExecutor;
 import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.service.tool.DefaultToolExecutor;
+import dev.langchain4j.service.tool.ToolExecutor;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Accessors;
@@ -18,7 +18,7 @@ import static java.util.Collections.unmodifiableList;
 @Value
 @Accessors( fluent = true)
 public class ToolInfo {
-    @NonNull  ToolSpecification specification;
+    @NonNull ToolSpecification specification;
     @NonNull ToolExecutor executor;
 
     public static List<ToolInfo> of( Object ...objectsWithTools) {

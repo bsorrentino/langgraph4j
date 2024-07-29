@@ -35,7 +35,9 @@ public class ChromaTest {
         ChromaEmbeddingStore chroma = new ChromaEmbeddingStore(
                 "http://localhost:8000",
                 "rag-chroma",
-                Duration.ofMinutes(2) );
+                Duration.ofMinutes(2),
+                true,
+                true);
 
         OpenAiEmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
                 .apiKey(openApiKey)

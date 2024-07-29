@@ -18,7 +18,9 @@ public final class ChromaStore {
     private final ChromaEmbeddingStore chroma = new ChromaEmbeddingStore(
             "http://localhost:8000",
             "rag-chroma",
-            Duration.ofMinutes(2) );
+            Duration.ofMinutes(2),
+            true,
+            true );
     private final OpenAiEmbeddingModel embeddingModel;
 
     private ChromaStore( String openApiKey ) {
