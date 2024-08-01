@@ -30,7 +30,7 @@
     <dependencies>
         <dependency>
             <groupId>org.bsc.langgraph4j</groupId>
-            <artifactId>langgraph4j-jdk8</artifactId>
+            <artifactId>langgraph4j-core-jdk8</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

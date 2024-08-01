@@ -8,7 +8,7 @@
     <version>1.0-beta1</version>
   </parent>
 
-  <artifactId>langgraph4j-jdk8</artifactId>
+  <artifactId>langgraph4j-core-jdk8</artifactId>
   <packaging>jar</packaging>
   <name>langgraph4j::core::jdk8</name>
   <description>A library for building stateful, multi-agents applications with LLMs</description>
