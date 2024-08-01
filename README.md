@@ -24,14 +24,24 @@
 
 ### Adding LangGraph dependency 
 
-> 👉 Currently are available only the developer SNAPSHOTs
+#### Last stable version
 
 **Maven**
-
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>langgraph4j-jdk8</artifactId>
+    <artifactId>langgraph4j-core-jdk8</artifactId>
+    <version>1.0-beta1</version>
+<dependency>
+```
+
+#### Development Version 
+
+**Maven**
+```xml
+<dependency>
+    <groupId>org.bsc.langgraph4j</groupId>
+    <artifactId>langgraph4j-core-jdk8</artifactId>
     <version>1.0-SNAPSHOT</version>
 <dependency>
 ```
