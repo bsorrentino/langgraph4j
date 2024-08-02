@@ -13,6 +13,7 @@
 
     <packaging>jar</packaging>
     <name>langgraph4j::server::jetty</name>
+    <description>an **embed playground webapp** able to run a Langgraph4j workflow in visual way</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

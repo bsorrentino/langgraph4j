@@ -9,6 +9,30 @@
 
   <name>langgraph4j::parent</name>
   <url>https://github.com/bsorrentino/langgraph4j</url>
+  <description>A library for building stateful, multi-agents applications with LLMs</description>
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>https://opensource.org/license/mit</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>bsorrentino</id>
+      <name>Bartolomeo Sorrentino</name>
+      <email>bartolomeo.sorrentino@gmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git: https://github.com/bsorrentino/langgraph4j.git </connection>
+    <developerConnection>scm:git: https://github.com/bsorrentino/langgraph4j.git </developerConnection>
+    <url> https://github.com/bsorrentino/langgraph4j</url>
+    <tag>HEAD</tag>
+  </scm>
+  <issueManagement>
+    <system>github</system>
+    <url> https://github.com/bsorrentino/langgraph4j/issues</url>
+  </issueManagement>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
