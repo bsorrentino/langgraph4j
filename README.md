@@ -9,15 +9,9 @@
 
 ## News
 
-| Date         | Release | info
-|--------------| --- | ---
-| Jul 29, 2024 | `1.0-SNAPSHOT` | upgrade to langchain4j 0.33.0. improve **Playground Webapp** 
-| Jul 19, 2024 | `1.0-SNAPSHOT` | Add support of an embed **Playground Webapp** able to run Langgrap4j flow - [issue #9](https://github.com/bsorrentino/langgraph4j/issues/9)
-| Jun 21, 2024 | `1.0-SNAPSHOT` | Add support of [Mermaid] diagram generation - [issue #5](https://github.com/bsorrentino/langgraph4j/issues/5)
-| Jun 19, 2024 | `1.0-SNAPSHOT` | Add [adaptive rag](adaptice-rag/README.md) sample
-| Jun 10, 2024 | `1.0-SNAPSHOT` | Refactoring how generate graph representation (plantuml)
-| May 20, 2024 | `1.0-SNAPSHOT` | Add "[Image To PlantUML Diagram](agents-jdk8/README.md#generate-plantuml-diagram-from-image)" sample
-| May 18, 2024 | `1.0-SNAPSHOT` | Add `getGraph()` method to `CompiledGraph` to return a [PlantUML] representation of your Graph
+| Date         | Release        | info
+|--------------|----------------| ---
+| Aug 02, 2024 | `1.0-beta1`    | first official beta release
 
 
 ## Quick Start 
