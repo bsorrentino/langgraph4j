@@ -6,49 +6,35 @@ on:
     types: [created]
 
 jobs:
-  deploy-jdk8:
+  deploy:
     runs-on: ubuntu-latest
-    name: Java 8 deploy
+    name:  deploy
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
+      - name: GPG Setup
+        env:
+          GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: ./gpg-setup.sh
       - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
           distribution: 'liberica'
           java-version: '8'
           java-package: jdk
-      - name: GPG Setup
-        env:
-          GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: ./gpg-setup.sh
       - name: Deploy to OSS Sonatype
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
           OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
         run: mvn -B source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
-
-  deploy-jdk17:
-
-    runs-on: ubuntu-latest
-    name: Java 17 deploy
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'liberica'
           java-version: '17'
           java-package: jdk
-      - name: GPG Setup
-        env:
-          GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: ./gpg-setup.sh
       - name: Deploy to OSS Sonatype
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
