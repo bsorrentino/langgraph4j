@@ -34,5 +34,5 @@ jobs:
       - name: Deploy to OSS Sonatype
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-          OSS_SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
         run: mvn -B source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
