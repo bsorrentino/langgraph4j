@@ -2,14 +2,42 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v1.0-beta1" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
-
-
+## [v1.0-beta1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-beta1) (2024-08-02)
 
 
 
+### Documentation
+
+ -  update readme ([c96574d32dd2395](https://github.com/bsorrentino/langgraph4j/commit/c96574d32dd2395ad4afe861a4b013e1f96b9573))
+
+ -  update readme ([feeb46eb2b3f9e9](https://github.com/bsorrentino/langgraph4j/commit/feeb46eb2b3f9e9750f5a182c6d30b64c0a142f4))
+
+ -  update changelog template ([c66fc6b1774cc90](https://github.com/bsorrentino/langgraph4j/commit/c66fc6b1774cc90e617668ae57bca1a0de02a80d))
+
+ -  update readme ([13afc2265e2d4a2](https://github.com/bsorrentino/langgraph4j/commit/13afc2265e2d4a2409c1bde1bfc4f7f9f6f9899c))
+
+ -  update changelog ([df07e2d4137abcb](https://github.com/bsorrentino/langgraph4j/commit/df07e2d4137abcb99656d579a1a669a1d845f6cc))
+
+
+### Refactor
+
+ -  rename core module from langgraph4j-jdk8 to langgraph4j--core-jdk8 ([ccf6282e9ab9d5e](https://github.com/bsorrentino/langgraph4j/commit/ccf6282e9ab9d5eba48adc8b56d307b9f4103b5e))
+   
+
+### ALM 
+
+ -  update version to next release ([6c4d365ded24b5a](https://github.com/bsorrentino/langgraph4j/commit/6c4d365ded24b5ad83aace0bdfab848a0fe2887e))
+   
+
+### Continuous Integration
+
+ -  add maven plugin for deployment ([3a195394e5b3379](https://github.com/bsorrentino/langgraph4j/commit/3a195394e5b33792b7340590ef6bd6195c1fb6ce))
+    > working on #4
+
+ -  add github action for deployment ([ab8db1d51e28c7e](https://github.com/bsorrentino/langgraph4j/commit/ab8db1d51e28c7ef99cb7867406fc4a6dccc4be1))
+   
 
 
 
@@ -46,6 +74,7 @@
 
  -  update distribution ([7082a1fbb7692db](https://github.com/bsorrentino/langgraph4j/commit/7082a1fbb7692db8b3095d46c5410dbe60312034))
    
+
 
 
 
@@ -96,6 +125,7 @@
    
  -  **server-jetty**  update dist ([6577e93f7cd9520](https://github.com/bsorrentino/langgraph4j/commit/6577e93f7cd9520c181a92af02336f00624e9a9b))
    
+
 
 
 
@@ -255,6 +285,7 @@
 
 
 
+
 <!-- "name: v1.0-20240621" is a release tag -->
 
 ## [v1.0-20240621](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240621) (2024-06-21)
@@ -304,6 +335,7 @@
     > - upsert: Populate Chroma Vector store
  > - chroma: start Chroma Server
  > - app: start demo app
+
 
 
 
@@ -398,6 +430,7 @@
 
 
 
+
 <!-- "name: v1.0-20240610" is a release tag -->
 
 ## [v1.0-20240610](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240610) (2024-06-10)
@@ -424,6 +457,13 @@
  -  diagram code generation method ([6be2a8e7e2ced6a](https://github.com/bsorrentino/langgraph4j/commit/6be2a8e7e2ced6af76fc61d85dbf92ab83899490))
    
 
+
+### Continuous Integration
+
+ -  **deploy-pages**  set jdk8 ([fe67a69e0300784](https://github.com/bsorrentino/langgraph4j/commit/fe67a69e0300784b4403d683130d74d93d877ec0))
+   
+ -  setup deploy-pages action ([0c5c855e9c51761](https://github.com/bsorrentino/langgraph4j/commit/0c5c855e9c51761cb65282ff419ddd00323b46a9))
+   
 
 
 
@@ -461,6 +501,7 @@
 
 
 
+
 <!-- "name: v1.0-20240516" is a release tag -->
 
 ## [v1.0-20240516](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240516) (2024-05-16)
@@ -474,6 +515,7 @@
 ### Documentation
 
  -  update readme ([876c68284f38521](https://github.com/bsorrentino/langgraph4j/commit/876c68284f38521b74b60e51b5e1f83fe4040191))
+
 
 
 
@@ -536,6 +578,7 @@
    
  -  upgrade langchain4j deps ([d80fdc6d9d38d86](https://github.com/bsorrentino/langgraph4j/commit/d80fdc6d9d38d867a2555de85d306bf570b068a3))
    
+
 
 
 
@@ -630,5 +673,6 @@
    
  -  add git ignore ([b3c0a9ee7056bcd](https://github.com/bsorrentino/langgraph4j/commit/b3c0a9ee7056bcd35b05722bd7f9d397e3c9ff1e))
    
+
 
 
