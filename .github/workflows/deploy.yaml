@@ -39,4 +39,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
           OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
-        run: mvn -B source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+        run: mvn -pl server-jetty -B source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
