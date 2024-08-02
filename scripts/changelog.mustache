@@ -77,5 +77,18 @@
     {{/commits}}
 {{/ifContainsType}}
 
+{{#ifContainsType commits type='ci'}}
+### Continuous Integration
+
+    {{#commits}}
+      {{#ifCommitType . type='ci'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/bsorrentino/langgraph4j/commit/{{hashFull}}))
+   {{#messageBodyItems}} > {{.}}
+   {{/messageBodyItems}}
+
+      {{/ifCommitType}}
+    {{/commits}}
+{{/ifContainsType}}
+
 
 {{/tags}}

@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-beta1</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -28,15 +28,6 @@
     </snapshotRepository>
   </distributionManagement>
 
-<!--
-  <modules>
-    <module>core-jdk8</module>
-    <module>agent-executor</module>
-    <module>image-to-diagram</module>
-    <module>adaptive-rag</module>
-    <module>jetty</module>
-  </modules>
--->
 
   <dependencyManagement>
     <dependencies>
@@ -120,6 +111,47 @@
           </dependencies>
 
         </plugin>
+
+        <!--
+        ====================================================================================
+        # https://github.com/keybase/keybase-issues/issues/2798
+        export GPG_TTY=$(tty)
+        mvn -Prelease source:jar javadoc:jar deploy -Dgpg.passphrase=thephrase
+        ====================================================================================
+        -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>3.2.4</version>
+          <executions>
+            <execution>
+              <id>sign-artifacts</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>sign</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <keyname>bartolomeo.sorrentino@gmail.com</keyname>
+            <gpgArguments>
+              <arg>--pinentry-mode</arg>
+              <arg>loopback</arg>
+            </gpgArguments>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.7.0</version>
+          <extensions>true</extensions>
+          <configuration>
+            <serverId>sonatype-server</serverId>
+            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+          </configuration>
+        </plugin>
+
       </plugins>
 
     </pluginManagement>
@@ -152,7 +184,6 @@
         <module>server-jetty</module>
       </modules>
       <build>
-        <!-- Define configuration for JDK >= 11 -->
       </build>
     </profile>
   </profiles>
