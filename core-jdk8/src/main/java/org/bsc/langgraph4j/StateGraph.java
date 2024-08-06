@@ -198,10 +198,11 @@ public class StateGraph<State extends AgentState> {
     /**
      * Compiles the state graph into a compiled graph.
      *
+     * @param config the compile configuration
      * @return a compiled graph
      * @throws GraphStateException if there are errors related to the graph state
      */
-    public CompiledGraph<State> compile() throws GraphStateException {
+    public CompiledGraph<State> compile( CompileConfig config ) throws GraphStateException {
         if (entryPoint == null) {
             throw Errors.missingEntryPoint.exception();
         }
@@ -237,6 +238,17 @@ public class StateGraph<State extends AgentState> {
             }
         }
 
-        return new CompiledGraph<>(this);
+        return new CompiledGraph<>(this, config);
     }
+
+    /**
+     * Compiles the state graph into a compiled graph.
+     *
+     * @return a compiled graph
+     * @throws GraphStateException if there are errors related to the graph state
+     */
+    public CompiledGraph<State> compile() throws GraphStateException {
+        return compile(CompileConfig.builder().build());
+    }
+
 }

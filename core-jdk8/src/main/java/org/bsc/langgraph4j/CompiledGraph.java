@@ -31,14 +31,16 @@ public class CompiledGraph<State extends AgentState> {
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
 
     private int maxIterations = 25;
+    private final CompileConfig compileConfig;
 
     /**
      * Constructs a CompiledGraph with the given StateGraph.
      *
      * @param stateGraph the StateGraph to be used in this CompiledGraph
      */
-    protected CompiledGraph(StateGraph<State> stateGraph) {
+    protected CompiledGraph(StateGraph<State> stateGraph, CompileConfig compileConfig ) {
         this.stateGraph = stateGraph;
+        this.compileConfig = compileConfig;
         stateGraph.nodes.forEach(n ->
                 nodes.put(n.id(), n.action())
         );
@@ -109,10 +111,11 @@ public class CompiledGraph<State extends AgentState> {
      * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
      *
      * @param inputs the input map
+     * @param config the invoke configuration
      * @return an AsyncGenerator stream of NodeOutput
      * @throws Exception if there is an error creating the stream
      */
-    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs, InvokeConfig config ) throws Exception {
 
         return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
 
@@ -172,6 +175,35 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     /**
+     * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
+     *
+     * @param inputs the input map
+     * @return an AsyncGenerator stream of NodeOutput
+     * @throws Exception if there is an error creating the stream
+     */
+    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
+        return this.stream( inputs, InvokeConfig.builder().build() );
+    }
+    /**
+     * Invokes the graph execution with the provided inputs and returns the final state.
+     *
+     * @param inputs the input map
+     * @param config the invoke configuration
+     * @return an Optional containing the final state if present, otherwise an empty Optional
+     * @throws Exception if there is an error during invocation
+     */
+    public Optional<State> invoke(Map<String,Object> inputs, InvokeConfig config ) throws Exception {
+
+        var sourceIterator = stream(inputs, config).iterator();
+
+        var result = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
+                false);
+
+        return  result.reduce((a, b) -> b).map( NodeOutput::state);
+    }
+
+    /**
      * Invokes the graph execution with the provided inputs and returns the final state.
      *
      * @param inputs the input map
@@ -179,14 +211,7 @@ public class CompiledGraph<State extends AgentState> {
      * @throws Exception if there is an error during invocation
      */
     public Optional<State> invoke(Map<String,Object> inputs ) throws Exception {
-
-        var sourceIterator = stream(inputs).iterator();
-
-        var result = StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
-                false);
-
-        return  result.reduce((a, b) -> b).map( NodeOutput::state);
+        return this.invoke( inputs, InvokeConfig.builder().build() );
     }
 
     /**
