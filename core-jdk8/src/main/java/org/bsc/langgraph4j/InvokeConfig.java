@@ -1,6 +1,6 @@
 package org.bsc.langgraph4j;
 
-import org.bsc.langgraph4j.state.CheckpointConfig;
+import org.bsc.langgraph4j.checkpoint.CheckpointConfig;
 
 import java.util.Optional;
 

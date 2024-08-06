@@ -203,6 +203,8 @@ public class StateGraph<State extends AgentState> {
      * @throws GraphStateException if there are errors related to the graph state
      */
     public CompiledGraph<State> compile( CompileConfig config ) throws GraphStateException {
+        Objects.requireNonNull(config, "config cannot be null");
+
         if (entryPoint == null) {
             throw Errors.missingEntryPoint.exception();
         }

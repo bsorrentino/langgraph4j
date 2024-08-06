@@ -116,6 +116,7 @@ public class CompiledGraph<State extends AgentState> {
      * @throws Exception if there is an error creating the stream
      */
     public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs, InvokeConfig config ) throws Exception {
+        Objects.requireNonNull(config, "config cannot be null");
 
         return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
 

@@ -1,9 +1,26 @@
-package org.bsc.langgraph4j.state;
+package org.bsc.langgraph4j.checkpoint;
 
-import lombok.Value;
+import lombok.Data;
+import org.bsc.langgraph4j.state.AgentState;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.*;
 
+
+/**
+ * Represents a checkpoint of an agent state.
+ *
+ * The checkpoint is an immutable object that holds an {@link AgentState}
+ * and a {@code String} that represents the next state.
+ *
+ * The checkpoint is serializable and can be persisted and restored.
+ *
+ * @see AgentState
+ * @see Externalizable
+ */
 public class Checkpoint {
 
     @lombok.Value(staticConstructor="of")
@@ -12,8 +29,8 @@ public class Checkpoint {
         String next;
     }
 
-    private final String id;
-    private final Value value;
+    String id;
+    Value value;
 
     public final String getId() {
         return id;
