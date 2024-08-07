@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.state;
 import lombok.var;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,6 +45,13 @@ public class AgentState {
     public final <T> Optional<T> value(String key) {
         return ofNullable((T) data().get(key));
     }
+    public final <T> T value(String key, T defaultValue ) {
+        return (T)value(key).orElse(defaultValue);
+    }
+
+    public final <T> T value(String key, Supplier<T>  defaultProvider ) {
+        return (T)value(key).orElseGet(defaultProvider);
+    }
 
     /**
      * Retrieves or creates an AppendableValue associated with the given key.
@@ -51,7 +59,9 @@ public class AgentState {
      * @param key the key whose associated AppendableValue is to be returned or created
      * @param <T> the type of the value
      * @return an AppendableValue associated with the given key
+     * @deprecated use {@link Channel} instead
      */
+    @Deprecated
     public final <T> AppendableValue<T> appendableValue(String key) {
         Object value = this.data.get(key);
 
@@ -84,25 +94,40 @@ public class AgentState {
         return newValue;
     }
 
+    private Map<String,Object> updatePartialStateFromSchema(  Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
+        if( channels == null || channels.isEmpty() ) {
+            return partialState;
+        }
+        return partialState.entrySet().stream().map( entry -> {
+
+            var channel = channels.get(entry.getKey());
+            if (channel != null) {
+                var newValue = channel.update( entry.getKey(), data().get(entry.getKey()), entry.getValue());
+                return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), newValue);
+            }
+
+            return entry;
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     /**
      * Merges the current state with a partial state and returns a new state.
      *
      * @param partialState the partial state to merge with
-     * @param factory the factory to create a new state
-     * @param <State> the type of the agent state
      * @return a new state resulting from the merge
      */
-    public <State extends AgentState> State mergeWith(Map<String,Object> partialState, AgentStateFactory<State> factory) {
+    public Map<String,Object> mergeWith( Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
         if (partialState == null || partialState.isEmpty()) {
-            return factory.apply(data());
+            return data();
         }
-        var mergedMap = Stream.concat(data().entrySet().stream(), partialState.entrySet().stream())
+
+        var updatedPartialState = updatePartialStateFromSchema(partialState, channels);
+
+        return Stream.concat(data().entrySet().stream(), updatedPartialState.entrySet().stream())
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         this::mergeFunction));
-
-        return factory.apply(mergedMap);
     }
 
     /**

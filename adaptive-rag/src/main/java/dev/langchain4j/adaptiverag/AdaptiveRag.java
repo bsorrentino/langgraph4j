@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.langgraph4j.CompiledGraph;
-import org.bsc.langgraph4j.GraphRepresentation;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.state.AgentState;
 
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
@@ -50,8 +50,7 @@ public class AdaptiveRag {
 
         }
         public List<String> documents() {
-            Optional<List<String>> result =  value("documents");
-            return result.orElse(emptyList());
+            return this.<List<String>>value("documents").orElse(emptyList());
         }
 
     }
@@ -248,43 +247,40 @@ public class AdaptiveRag {
     }
 
     public CompiledGraph<State> buildGraph() throws Exception {
-        var workflow = new StateGraph<>(State::new);
+        return new StateGraph<>(State::new)
+            // Define the nodes
+            .addNode("web_search", node_async(this::webSearch) )  // web search
+            .addNode("retrieve", node_async(this::retrieve) )  // retrieve
+            .addNode("grade_documents",  node_async(this::gradeDocuments) )  // grade documents
+            .addNode("generate", node_async(this::generate) )  // generatae
+            .addNode("transform_query", node_async(this::transformQuery))  // transform_query
+            // Build graph
+            .addConditionalEdges(START,
+                    edge_async(this::routeQuestion),
+                    mapOf(
+                        "web_search", "web_search",
+                        "vectorstore", "retrieve"
+                    ))
 
-        // Define the nodes
-        workflow.addNode("web_search", node_async(this::webSearch) );  // web search
-        workflow.addNode("retrieve", node_async(this::retrieve) );  // retrieve
-        workflow.addNode("grade_documents",  node_async(this::gradeDocuments) );  // grade documents
-        workflow.addNode("generate", node_async(this::generate) );  // generatae
-        workflow.addNode("transform_query", node_async(this::transformQuery));  // transform_query
-
-        // Build graph
-        workflow.setConditionalEntryPoint(
-                edge_async(this::routeQuestion),
-                mapOf(
-                    "web_search", "web_search",
-                    "vectorstore", "retrieve"
-                ));
-
-        workflow.addEdge("web_search", "generate");
-        workflow.addEdge("retrieve", "grade_documents");
-        workflow.addConditionalEdges(
-                "grade_documents",
-                edge_async(this::decideToGenerate),
-                mapOf(
-                    "transform_query","transform_query",
-                    "generate", "generate"
-                ));
-        workflow.addEdge("transform_query", "retrieve");
-        workflow.addConditionalEdges(
-                "generate",
-                edge_async(this::gradeGeneration_v_documentsAndQuestion),
-                mapOf(
-                        "not supported", "generate",
-                        "useful", END,
-                        "not useful", "transform_query"
-                ));
-
-        return workflow.compile();
+            .addEdge("web_search", "generate")
+            .addEdge("retrieve", "grade_documents")
+            .addConditionalEdges(
+                    "grade_documents",
+                    edge_async(this::decideToGenerate),
+                    mapOf(
+                        "transform_query","transform_query",
+                        "generate", "generate"
+                    ))
+            .addEdge("transform_query", "retrieve")
+            .addConditionalEdges(
+                    "generate",
+                    edge_async(this::gradeGeneration_v_documentsAndQuestion),
+                    mapOf(
+                            "not supported", "generate",
+                            "useful", END,
+                            "not useful", "transform_query"
+                    ))
+             .compile();
     }
 
     public static void main( String[] args ) throws Exception {

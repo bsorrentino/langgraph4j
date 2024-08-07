@@ -14,6 +14,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @param <T> the type of the value
  */
+@Deprecated
 public class AppendableValueRW<T> implements AppendableValue<T>, Externalizable {
     private List<T> values;
 
