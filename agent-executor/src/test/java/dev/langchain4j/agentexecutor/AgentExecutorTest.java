@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
@@ -93,18 +94,17 @@ public class AgentExecutorTest {
     @Test
     public void getGraphTest() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new);
-
-        workflow.setEntryPoint("agent");
-        workflow.addNode( "agent", node_async( state -> mapOf() ));
-        workflow.addNode( "action", node_async( state -> mapOf() ));
-        workflow.addConditionalEdges(
-                "agent",
-                edge_async(state -> ""),
-                mapOf("continue", "action", "end", END)
-        );
-        workflow.addEdge("action", "agent");
-        var app = workflow.compile();
+        var app = new StateGraph<>(AgentState::new)
+            .addEdge(START,"agent")
+            .addNode( "agent", node_async( state -> mapOf() ))
+            .addNode( "action", node_async( state -> mapOf() ))
+            .addConditionalEdges(
+                    "agent",
+                    edge_async(state -> ""),
+                    mapOf("continue", "action", "end", END)
+            )
+            .addEdge("action", "agent")
+            .compile();
 
         var plantUml = app.getGraph( GraphRepresentation.Type.PLANTUML, "Agent Executor" );
 
