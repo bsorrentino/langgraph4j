@@ -5,6 +5,8 @@ import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppendableValue;
+import org.bsc.langgraph4j.state.AppenderChannel;
+import org.bsc.langgraph4j.state.Channel;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -13,8 +15,10 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +40,7 @@ public class StateGraphTest
         System.out.println(exception.getMessage());
         assertEquals( "missing Entry Point", exception.getMessage());
 
-        workflow.setEntryPoint("agent_1");
+        workflow.addEdge( START,"agent_1");
 
         exception = assertThrows(GraphStateException.class, workflow::compile);
         System.out.println(exception.getMessage());
@@ -85,16 +89,15 @@ public class StateGraphTest
     @Test
     public void testRunningOneNode() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new);
-        workflow.setEntryPoint("agent_1");
-
-        workflow.addNode("agent_1", node_async( state -> {
-            System.out.print( "agent_1");
-            System.out.println( state );
-            return mapOf("prop1", "test");
-        }));
-
-        workflow.addEdge( "agent_1",  END);
+        var workflow = new StateGraph<>(AgentState::new)
+            .addEdge( START,"agent_1")
+            .addNode("agent_1", node_async( state -> {
+                System.out.print( "agent_1");
+                System.out.println( state );
+                return mapOf("prop1", "test");
+            }))
+            .addEdge( "agent_1",  END)
+            ;
 
         var app = workflow.compile();
 
@@ -111,15 +114,14 @@ public class StateGraphTest
     @Test
     public void testCheckpointInitialState() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new);
-        workflow.setEntryPoint("agent_1");
-
-        workflow.addNode("agent_1", node_async( state -> {
-            System.out.print( "agent_1");
-            return mapOf("agent_1:prop1", "agent_1:test");
-        }));
-
-        workflow.addEdge( "agent_1",  END);
+        var workflow = new StateGraph<>(AgentState::new)
+            .addEdge( START,"agent_1")
+            .addNode("agent_1", node_async( state -> {
+                System.out.print( "agent_1");
+                return mapOf("agent_1:prop1", "agent_1:test");
+            }))
+            .addEdge( "agent_1",  END)
+        ;
 
         var saver = new MemorySaver();
 
@@ -171,9 +173,9 @@ public class StateGraphTest
 
     }
 
-    static class MessagesState extends AgentState {
+    static class MessagesStateDeprecated extends AgentState {
 
-        public MessagesState(Map<String, Object> initData) {
+        public MessagesStateDeprecated(Map<String, Object> initData) {
             super( initData  );
             appendableValue("messages"); // tip: initialize messages
         }
@@ -189,25 +191,114 @@ public class StateGraphTest
     }
 
     @Test
+    void testWithAppenderDeprecated() throws Exception {
+
+        var workflow = new StateGraph<>(MessagesStateDeprecated::new)
+            .addNode("agent_1", node_async( state -> {
+                System.out.println( "agent_1" );
+                return mapOf("messages", "message1");
+            }))
+           .addNode("agent_2", node_async( state -> {
+               System.out.println( "agent_2" );
+                return mapOf( "messages", "message2");
+            }))
+           .addNode("agent_3", node_async( state -> {
+               System.out.println( "agent_3" );
+               var messages = state.messages();
+               var steps = messages.size() +1 ;
+               return mapOf("messages", "message3","steps", steps);
+            }))
+            .addEdge("agent_1", "agent_2")
+            .addEdge( "agent_2", "agent_3")
+            .addEdge( START, "agent_1")
+            .addEdge( "agent_3", END);
+
+        var app = workflow.compile();
+
+        Optional<MessagesStateDeprecated> result = app.invoke( mapOf() );
+
+        assertTrue( result.isPresent() );
+        System.out.println( result.get().data() );
+        assertEquals( 3, result.get().steps() );
+        assertEquals( 3, result.get().messages().size() );
+        assertIterableEquals( listOf( "message1", "message2", "message3"), result.get().messages().values() );
+    }
+
+    static class MessagesState extends AgentState {
+
+        static Map<String, Channel<?>> SCHEMA = mapOf(
+            "messages", AppenderChannel.<String>of(ArrayList::new)
+        );
+
+        public MessagesState(Map<String, Object> initData) {
+            super( initData  );
+        }
+
+        int steps() {
+            return value("steps", 0);
+        }
+
+        List<String> messages() {
+            return this.<List<String>>value( "messages" )
+                    .orElseThrow( () -> new RuntimeException( "messages not found" ) );
+        }
+
+    }
+
+    @Test
+    void testWithAppender() throws Exception {
+
+        var workflow = new StateGraph<>( MessagesState.SCHEMA, MessagesState::new)
+                .addNode("agent_1", node_async( state -> {
+                    System.out.println( "agent_1" );
+                    return mapOf("messages", "message1");
+                }))
+                .addNode("agent_2", node_async( state -> {
+                    System.out.println( "agent_2" );
+                    return mapOf( "messages", "message2");
+                }))
+                .addNode("agent_3", node_async( state -> {
+                    System.out.println( "agent_3" );
+                    var steps = state.messages().size() +1 ;
+                    return mapOf("messages", "message3","steps", steps);
+                }))
+                .addEdge("agent_1", "agent_2")
+                .addEdge( "agent_2", "agent_3")
+                .addEdge( START, "agent_1")
+                .addEdge( "agent_3", END);
+
+        var app = workflow.compile();
+
+        Optional<MessagesState> result = app.invoke( mapOf() );
+
+        assertTrue( result.isPresent() );
+        System.out.println( result.get().data() );
+        assertEquals( 3, result.get().steps() );
+        assertEquals( 3, result.get().messages().size() );
+        assertIterableEquals( listOf( "message1", "message2", "message3"), result.get().messages() );
+    }
+
+
+    @Test
     public void testCheckpointSaver() throws Exception {
         var STEPS_COUNT = 5;
 
-        var workflow = new StateGraph<>(MessagesState::new);
-        workflow.setEntryPoint("agent_1");
+        var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+                .addEdge(START, "agent_1")
+                .addNode("agent_1", node_async( state -> {
+                    System.out.println( "agent_1");
+                    var steps = state.steps() + 1;
+                    return mapOf("steps", steps, "messages", format( "agent_1:step %d", steps ));
+                }))
+                .addConditionalEdges( "agent_1", edge_async( state -> {
+                    var steps = state.steps();
+                    if( steps >= STEPS_COUNT) {
+                        return "exit";
+                    }
+                    return "next";
+                }), mapOf( "next", "agent_1", "exit", END) );
+                ;
 
-        workflow.addNode("agent_1", node_async( state -> {
-
-            System.out.println( "agent_1");
-            var steps = state.steps() + 1;
-            return mapOf("steps", steps, "messages", format( "agent_1:step %d", steps ));
-        }));
-        workflow.addConditionalEdges( "agent_1", edge_async( state -> {
-            var steps = state.steps();
-            if( steps >= STEPS_COUNT) {
-                return "exit";
-            }
-            return "next";
-        }), mapOf( "next", "agent_1", "exit", END) );
 
         var saver = new MemorySaver();
 
@@ -225,24 +316,27 @@ public class StateGraphTest
 
         assertTrue( state.isPresent() );
         assertEquals( STEPS_COUNT, state.get().steps() );
-        var messages = state.get().appendableValue("messages");
+
+        var messages = state.get().messages();
         assertFalse( messages.isEmpty() );
 
-        System.out.println( messages.values() );
+        System.out.println( messages );
 
         assertEquals( STEPS_COUNT, messages.size() );
         for( int i = 0; i < messages.size(); i++ ) {
-            assertEquals( format("agent_1:step %d", i+1), messages.values().get(i) );
+            assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
         }
 
         state = app.invoke( emptyMap(), invokeConfig );
 
         assertTrue( state.isPresent() );
         assertEquals( STEPS_COUNT + 1, state.get().steps() );
-        messages = state.get().appendableValue("messages");
+        messages = state.get().messages();
+
+        System.out.println( messages );
         assertEquals( STEPS_COUNT + 1, messages.size() );
         for( int i = 0; i < messages.size(); i++ ) {
-            assertEquals( format("agent_1:step %d", i+1), messages.values().get(i) );
+            assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
         }
     }
 

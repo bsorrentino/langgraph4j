@@ -18,6 +18,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.Optional.ofNullable;
+import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
@@ -169,29 +171,25 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .maxTokens(2000)
                 .build();
 
-        var workflow = new StateGraph<>(State::new);
-
-        workflow.addNode("agent_describer", node_async( state ->
-                describeDiagramImage( llmVision, imageUrlOrData, state )) );
-        workflow.addNode("agent_sequence_plantuml",
-                node_async(this::translateSequenceDiagramDescriptionToPlantUML) );
-        workflow.addNode("agent_generic_plantuml",
-                node_async(this::translateGenericDiagramDescriptionToPlantUML) );
-        workflow.addConditionalEdges(
-                "agent_describer",
-                edge_async(this::routeDiagramTranslation),
-                mapOf( "sequence", "agent_sequence_plantuml",
-                    "generic", "agent_generic_plantuml" )
-        );
-
-        workflow.addNode( "evaluate_result", this::evaluateResult);
-        workflow.addEdge("agent_sequence_plantuml", "evaluate_result");
-        workflow.addEdge("agent_generic_plantuml", "evaluate_result");
-        workflow.setEntryPoint("agent_describer");
-        workflow.setFinishPoint("evaluate_result");
-
-
-        var app = workflow.compile();
+        var app = new StateGraph<>(State::new)
+            .addNode("agent_describer", node_async( state ->
+                    describeDiagramImage( llmVision, imageUrlOrData, state )) )
+            .addNode("agent_sequence_plantuml",
+                    node_async(this::translateSequenceDiagramDescriptionToPlantUML) )
+            .addNode("agent_generic_plantuml",
+                    node_async(this::translateGenericDiagramDescriptionToPlantUML) )
+            .addConditionalEdges(
+                    "agent_describer",
+                    edge_async(this::routeDiagramTranslation),
+                    mapOf( "sequence", "agent_sequence_plantuml",
+                        "generic", "agent_generic_plantuml" )
+            )
+            .addNode( "evaluate_result", this::evaluateResult)
+            .addEdge("agent_sequence_plantuml", "evaluate_result")
+            .addEdge("agent_generic_plantuml", "evaluate_result")
+            .addEdge( START,"agent_describer")
+            .addEdge("evaluate_result", END)
+            .compile();
 
         return app.stream( inputs );
     }
