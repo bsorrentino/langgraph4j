@@ -1,9 +1,6 @@
 package org.bsc.langgraph4j.utils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
@@ -13,6 +10,10 @@ import static java.util.Collections.unmodifiableMap;
  */
 public final class CollectionsUtils {
 
+    public static <T> List<T> listOf(Class<T> clazz) {
+        return Collections.emptyList();
+    }
+
     /**
      * Creates a list containing the provided elements.
      *
@@ -20,8 +21,18 @@ public final class CollectionsUtils {
      * @param <T> the type of the elements
      * @return a list containing the provided elements
      */
+    @SafeVarargs
     public static <T> List<T> listOf(T... objects) {
-        return Arrays.asList(objects);
+        if( objects == null ) {
+            return Collections.emptyList();
+        }
+        if ( objects.length == 0 ) {
+            return Collections.emptyList();
+        }
+        if( objects.length == 1 ) {
+            return Collections.singletonList(objects[0]);
+        }
+        return Collections.unmodifiableList(Arrays.asList(objects));
     }
 
     /**
@@ -45,9 +56,7 @@ public final class CollectionsUtils {
      * @return an unmodifiable map containing the provided key-value pair
      */
     public static <K, V> Map<K, V> mapOf(K k1, V v1) {
-        Map<K, V> result = new HashMap<>();
-        result.put(k1, v1);
-        return unmodifiableMap(result);
+        return Collections.singletonMap(k1, v1);
     }
 
     /**
@@ -86,6 +95,29 @@ public final class CollectionsUtils {
         result.put(k1, v1);
         result.put(k2, v2);
         result.put(k3, v3);
+        return unmodifiableMap(result);
+    }
+    /**
+     * Creates a map containing three key-value pairs.
+     *
+     * @param k1 the first key
+     * @param v1 the first value
+     * @param k2 the second key
+     * @param v2 the second value
+     * @param k3 the third key
+     * @param v3 the third value
+     * @param k4 the fourth key
+     * @param v4 the fourth value@
+     * @param <K> the type of the keys
+     * @param <V> the type of the values
+     * @return an unmodifiable map containing the provided key-value pairs
+     */
+    public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
+        Map<K, V> result = new HashMap<K, V>();
+        result.put(k1, v1);
+        result.put(k2, v2);
+        result.put(k3, v3);
+        result.put(k4, v4);
         return unmodifiableMap(result);
     }
 }

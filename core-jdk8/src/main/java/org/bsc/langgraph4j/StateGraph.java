@@ -5,10 +5,13 @@ import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
+import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
 
 import static java.lang.String.format;
+import static java.util.Collections.unmodifiableMap;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 /**
  * Represents a state graph with nodes and edges.
@@ -76,6 +79,7 @@ public class StateGraph<State extends AgentState> {
     }
 
     public static String END = "__END__";
+    public static String START = "__START__";
 
     Set<Node<State>> nodes = new LinkedHashSet<>();
     Set<Edge<State>> edges = new LinkedHashSet<>();
@@ -84,6 +88,7 @@ public class StateGraph<State extends AgentState> {
     private String finishPoint;
 
     private final AgentStateFactory<State> stateFactory;
+    private final Map<String, Channel<?>> channels;
 
     /**
      * Constructs a new StateGraph with the specified state factory.
@@ -91,11 +96,26 @@ public class StateGraph<State extends AgentState> {
      * @param stateFactory the factory to create agent states
      */
     public StateGraph(AgentStateFactory<State> stateFactory) {
+        this( mapOf(), stateFactory );
+
+    }
+
+    /**
+     *
+     * @param channels the state's schema of the graph
+     * @param stateFactory the factory to create agent states
+     */
+    public StateGraph(Map<String, Channel<?>> channels, AgentStateFactory<State> stateFactory) {
         this.stateFactory = stateFactory;
+        this.channels = channels;
     }
 
     public AgentStateFactory<State> getStateFactory() {
         return stateFactory;
+    }
+
+    public Map<String, Channel<?>> getChannels() {
+        return unmodifiableMap(channels);
     }
 
     public EdgeValue<State> getEntryPoint() {
@@ -106,17 +126,37 @@ public class StateGraph<State extends AgentState> {
         return finishPoint;
     }
 
+    /**
+     * Sets the entry point of the graph.
+     *
+     * @param entryPoint the nodeId of the graph's entry-point
+     * @deprecated  use addEdge(START, nodeId)
+     */
+    @Deprecated
     public void setEntryPoint(String entryPoint) {
         this.entryPoint = new EdgeValue<>(entryPoint, null);
     }
-    public void setConditionalEntryPoint(AsyncEdgeAction<State> condition, Map<String, String> mappings) throws GraphStateException {
-        if (mappings == null || mappings.isEmpty()) {
-            throw Errors.edgeMappingIsEmpty.exception("entry point");
-        }
-        this.entryPoint = new EdgeValue<>(null, new EdgeCondition<>(condition, mappings));
 
+    /**
+     * Sets a conditional entry point of the graph.
+     *
+     * @param condition the edge condition
+     * @param mappings the edge mappings
+     * @throws GraphStateException if the edge mappings is null or empty
+     * @deprecated use addConditionalEdge(START, consition, mappings)
+     */
+    @Deprecated
+    public void setConditionalEntryPoint(AsyncEdgeAction<State> condition, Map<String, String> mappings) throws GraphStateException {
+        addConditionalEdges(START, condition, mappings);
     }
 
+    /**
+     * Sets the identifier of the node that represents the end of the graph execution.
+     *
+     * @param finishPoint the identifier of the finish point node
+     * @deprecated use  use addEdge(nodeId, END)
+     */
+    @Deprecated
     public void setFinishPoint(String finishPoint) {
         this.finishPoint = finishPoint;
     }
@@ -128,7 +168,7 @@ public class StateGraph<State extends AgentState> {
      * @param action the action to be performed by the node
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
-    public void addNode(String id, AsyncNodeAction<State> action) throws GraphStateException {
+    public StateGraph<State> addNode(String id, AsyncNodeAction<State> action) throws GraphStateException {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
@@ -139,6 +179,7 @@ public class StateGraph<State extends AgentState> {
         }
 
         nodes.add(node);
+        return this;
     }
 
     /**
@@ -148,10 +189,16 @@ public class StateGraph<State extends AgentState> {
      * @param targetId the identifier of the target node
      * @throws GraphStateException if the edge identifier is invalid or the edge already exists
      */
-    public void addEdge(String sourceId, String targetId) throws GraphStateException {
+    public StateGraph<State> addEdge(String sourceId, String targetId) throws GraphStateException {
         if (Objects.equals(sourceId, END)) {
             throw Errors.invalidEdgeIdentifier.exception(END);
         }
+
+        if (Objects.equals(sourceId, START)) {
+            this.entryPoint = new EdgeValue<>(targetId, null);
+            return this;
+        }
+
         var edge = new Edge<State>(sourceId, new EdgeValue<>(targetId, null));
 
         if (edges.contains(edge)) {
@@ -159,6 +206,7 @@ public class StateGraph<State extends AgentState> {
         }
 
         edges.add(edge);
+        return this;
     }
 
     /**
@@ -169,13 +217,19 @@ public class StateGraph<State extends AgentState> {
      * @param mappings  the mappings of conditions to target nodes
      * @throws GraphStateException if the edge identifier is invalid, the mappings are empty, or the edge already exists
      */
-    public void addConditionalEdges(String sourceId, AsyncEdgeAction<State> condition, Map<String, String> mappings) throws GraphStateException {
+    public StateGraph<State> addConditionalEdges(String sourceId, AsyncEdgeAction<State> condition, Map<String, String> mappings) throws GraphStateException {
         if (Objects.equals(sourceId, END)) {
             throw Errors.invalidEdgeIdentifier.exception(END);
         }
         if (mappings == null || mappings.isEmpty()) {
             throw Errors.edgeMappingIsEmpty.exception(sourceId);
         }
+
+        if (Objects.equals(sourceId, START)) {
+            this.entryPoint = new EdgeValue<>(null, new EdgeCondition<>(condition, mappings));
+            return this;
+        }
+
         var edge = new Edge<State>(sourceId, new EdgeValue<>(null, new EdgeCondition<>(condition, mappings)));
 
         if (edges.contains(edge)) {
@@ -183,6 +237,7 @@ public class StateGraph<State extends AgentState> {
         }
 
         edges.add(edge);
+        return this;
     }
 
     /**

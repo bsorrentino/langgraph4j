@@ -10,11 +10,14 @@ import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppendableValue;
+import org.bsc.langgraph4j.state.AppenderChannel;
+import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
@@ -22,6 +25,9 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 public class AgentExecutor {
 
     public static class State extends AgentState {
+        static Map<String, Channel<?>> SCHEMA = mapOf(
+            "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
+        );
 
         public State(Map<String, Object> initData) {
             super(initData);
@@ -33,8 +39,8 @@ public class AgentExecutor {
         Optional<AgentOutcome> agentOutcome() {
             return value("agent_outcome");
         }
-        AppendableValue<IntermediateStep> intermediateSteps() {
-            return appendableValue("intermediate_steps");
+        List<IntermediateStep> intermediateSteps() {
+            return this.<List<IntermediateStep>>value("intermediate_steps").orElseGet(ArrayList::new);
         }
 
 
@@ -45,7 +51,7 @@ public class AgentExecutor {
         var input = state.input()
                         .orElseThrow(() -> new IllegalArgumentException("no input provided!"));
 
-        var intermediateSteps = state.intermediateSteps().values();
+        var intermediateSteps = state.intermediateSteps();
 
         var response = agentRunnable.execute( input, intermediateSteps );
 
@@ -106,27 +112,21 @@ public class AgentExecutor {
                 .tools( toolSpecifications )
                 .build();
 
-        var workflow = new StateGraph<>(State::new);
-
-        workflow.setEntryPoint("agent");
-
-        workflow.addNode( "agent", node_async( state ->
-                runAgent(agentRunnable, state))
-        );
-
-        workflow.addNode( "action", node_async( state ->
-                executeTools(toolInfoList, state))
-        );
-
-        workflow.addConditionalEdges(
-                "agent",
-                edge_async(this::shouldContinue),
-                mapOf("continue", "action", "end", END)
-        );
-
-        workflow.addEdge("action", "agent");
-
-        return workflow.compile();
+        return new StateGraph<>(State.SCHEMA,State::new)
+                    .addEdge(START,"agent")
+                    .addNode( "agent", node_async( state ->
+                        runAgent(agentRunnable, state))
+                    )
+                    .addNode( "action", node_async( state ->
+                        executeTools(toolInfoList, state))
+                    )
+                    .addConditionalEdges(
+                            "agent",
+                            edge_async(this::shouldContinue),
+                            mapOf("continue", "action", "end", END)
+                    )
+                    .addEdge("action", "agent")
+                    .compile();
 
     }
 

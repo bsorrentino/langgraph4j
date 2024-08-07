@@ -2,8 +2,6 @@ package dev.langchain4j.image_to_diagram;
 
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import lombok.Getter;
-import lombok.var;
 import net.sourceforge.plantuml.ErrorUmlType;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.NodeOutput;
