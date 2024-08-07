@@ -7,7 +7,7 @@ import org.bsc.langgraph4j.state.AgentState;
 
 @Value
 @Accessors(fluent = true)
-class EdgeValue<State extends AgentState> {
+public class EdgeValue<State extends AgentState> {
 
     /**
      * The unique identifier for the edge value.
