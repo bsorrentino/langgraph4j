@@ -26,7 +26,7 @@ public class Checkpoint {
     @lombok.Value(staticConstructor="of")
     public static class Value {
         AgentState state;
-        String next;
+        String nodeId;
     }
 
     String id;

@@ -17,14 +17,14 @@ public class CheckpointSerializer implements Serializer<Checkpoint> {
         out.writeUTF(object.getId());
         Checkpoint.Value value = object.getValue();
         AgentStateSerializer.INSTANCE.write( value.getState(), out );
-        out.writeUTF( value.getNext() );
+        out.writeUTF( value.getNodeId() );
     }
 
     public Checkpoint read(ObjectInput in) throws IOException, ClassNotFoundException {
         String id = in.readUTF();
         AgentState state =  AgentStateSerializer.INSTANCE.read( in );
-        String next = in.readUTF();
-        Checkpoint.Value value  = Checkpoint.Value.of( state, next );
+        String nodeId = in.readUTF();
+        Checkpoint.Value value  = Checkpoint.Value.of( state, nodeId );
         return new Checkpoint(id, value);
     }
 

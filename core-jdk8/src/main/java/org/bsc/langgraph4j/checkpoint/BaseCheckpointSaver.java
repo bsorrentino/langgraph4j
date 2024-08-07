@@ -8,6 +8,6 @@ public interface BaseCheckpointSaver {
 
 
     Collection<Checkpoint> list();
-    Optional<Checkpoint> get( String id );
+    Optional<Checkpoint> getLast();
     void put( Checkpoint checkpoint ) throws Exception;
 }

@@ -1,13 +1,17 @@
 package org.bsc.langgraph4j;
 
 import lombok.var;
+import org.bsc.langgraph4j.checkpoint.Checkpoint;
+import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.AppendableValue;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
@@ -104,5 +108,142 @@ public class StateGraphTest
 
     }
 
+    @Test
+    public void testCheckpointInitialState() throws Exception {
+
+        var workflow = new StateGraph<>(AgentState::new);
+        workflow.setEntryPoint("agent_1");
+
+        workflow.addNode("agent_1", node_async( state -> {
+            System.out.print( "agent_1");
+            return mapOf("agent_1:prop1", "agent_1:test");
+        }));
+
+        workflow.addEdge( "agent_1",  END);
+
+        var saver = new MemorySaver();
+
+        var compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
+
+        var app = workflow.compile( compileConfig );
+
+        Map<String, Object> inputs = mapOf( "input", "test1");
+
+        var initState = app.getInitialState( inputs );
+
+        assertEquals( 1, initState.data().size() );
+        assertTrue(  initState.value("input").isPresent() );
+        assertEquals( "test1", initState.value("input").get() );
+
+        //
+        // Test checkpoint not override inputs
+        //
+        var newState = new AgentState( mapOf( "input", "test2") );
+        saver.put( new Checkpoint( Checkpoint.Value.of( newState, "start" ) ) );
+
+        app = workflow.compile( compileConfig );
+        initState = app.getInitialState( inputs );
+
+        assertEquals( 1, initState.data().size() );
+        assertTrue(  initState.value("input").isPresent() );
+        assertEquals( "test1", initState.value("input").get() );
+
+        // Test checkpoints are saved
+        newState = new AgentState( mapOf( "input", "test2", "agent_1:prop1", "agent_1:test") );
+        saver.put( new Checkpoint( Checkpoint.Value.of( newState, "agent_1" ) ) );
+
+        app = workflow.compile( compileConfig );
+        initState = app.getInitialState( inputs );
+
+        assertEquals( 2, initState.data().size() );
+        assertTrue(  initState.value("input").isPresent() );
+        assertEquals( "test1", initState.value("input").get() );
+        assertTrue(  initState.value("agent_1:prop1").isPresent() );
+        assertEquals( "agent_1:test", initState.value("agent_1:prop1").get() );
+
+        var checkpoints = saver.list();
+        assertEquals( 2, checkpoints.size() );
+        var last = saver.getLast();
+        assertTrue( last.isPresent() );
+        assertEquals( "agent_1", last.get().getValue().getNodeId() );
+        assertTrue( last.get().getValue().getState().value("agent_1:prop1").isPresent() );
+        assertEquals( "agent_1:test", last.get().getValue().getState().value("agent_1:prop1").get() );
+
+    }
+
+    static class MessagesState extends AgentState {
+
+        public MessagesState(Map<String, Object> initData) {
+            super( initData  );
+            appendableValue("messages"); // tip: initialize messages
+        }
+
+        int steps() {
+            return value("steps").map(Integer.class::cast).orElse(0);
+        }
+
+        AppendableValue<String> messages() {
+            return appendableValue("messages");
+        }
+
+    }
+
+    @Test
+    public void testCheckpointSaver() throws Exception {
+        var STEPS_COUNT = 5;
+
+        var workflow = new StateGraph<>(MessagesState::new);
+        workflow.setEntryPoint("agent_1");
+
+        workflow.addNode("agent_1", node_async( state -> {
+
+            System.out.println( "agent_1");
+            var steps = state.steps() + 1;
+            return mapOf("steps", steps, "messages", format( "agent_1:step %d", steps ));
+        }));
+        workflow.addConditionalEdges( "agent_1", edge_async( state -> {
+            var steps = state.steps();
+            if( steps >= STEPS_COUNT) {
+                return "exit";
+            }
+            return "next";
+        }), mapOf( "next", "agent_1", "exit", END) );
+
+        var saver = new MemorySaver();
+
+        var compileConfig = CompileConfig.builder()
+                .checkpointSaver(saver)
+                .build();
+
+        var app = workflow.compile( compileConfig );
+
+        Map<String, Object> inputs = mapOf( "steps", 0 );
+
+        var invokeConfig = InvokeConfig.builder().checkpointThreadId("thread_1").build();
+
+        var state = app.invoke( inputs, invokeConfig );
+
+        assertTrue( state.isPresent() );
+        assertEquals( STEPS_COUNT, state.get().steps() );
+        var messages = state.get().appendableValue("messages");
+        assertFalse( messages.isEmpty() );
+
+        System.out.println( messages.values() );
+
+        assertEquals( STEPS_COUNT, messages.size() );
+        for( int i = 0; i < messages.size(); i++ ) {
+            assertEquals( format("agent_1:step %d", i+1), messages.values().get(i) );
+        }
+
+        state = app.invoke( emptyMap(), invokeConfig );
+
+        assertTrue( state.isPresent() );
+        assertEquals( STEPS_COUNT + 1, state.get().steps() );
+        messages = state.get().appendableValue("messages");
+        assertEquals( STEPS_COUNT + 1, messages.size() );
+        for( int i = 0; i < messages.size(); i++ ) {
+            assertEquals( format("agent_1:step %d", i+1), messages.values().get(i) );
+        }
+    }
 
 }

@@ -6,6 +6,8 @@ import lombok.var;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
+import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.*;
@@ -107,6 +109,26 @@ public class CompiledGraph<State extends AgentState> {
         return nextNodeId(stateGraph.getEntryPoint(), state, "entryPoint");
     }
 
+    private void addCheckpoint( String nodeId, State state ) throws Exception {
+        if( compileConfig.getCheckpointSaver().isPresent() ) {
+            Checkpoint.Value value = Checkpoint.Value.of(state, nodeId);
+            compileConfig.getCheckpointSaver().get().put( new Checkpoint(value) );
+        }
+    }
+
+    State getInitialState(Map<String,Object> inputs) {
+
+        return compileConfig.getCheckpointSaver()
+                .flatMap(BaseCheckpointSaver::getLast)
+                .map( cp -> {
+                    var state = cp.getValue().getState();
+                    return state.mergeWith(inputs, stateGraph.getStateFactory());
+                })
+                .orElseGet( () ->
+                    stateGraph.getStateFactory().apply(inputs)
+                );
+    }
+
     /**
      * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
      *
@@ -121,9 +143,12 @@ public class CompiledGraph<State extends AgentState> {
         return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
 
             try  {
-                var currentState = stateGraph.getStateFactory().apply(inputs);
+
+                var currentState = getInitialState(inputs);
 
                 queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of("start", currentState)) ));
+                addCheckpoint( "start", currentState );
+
                 log.trace( "START");
 
                 var currentNodeId = this.getEntryPoint( currentState );
@@ -146,6 +171,7 @@ public class CompiledGraph<State extends AgentState> {
                     currentState = currentState.mergeWith(partialState, stateGraph.getStateFactory());
 
                     queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of(currentNodeId, currentState) ) ));
+                    addCheckpoint( currentNodeId, currentState );
 
                     if ( Objects.equals(currentNodeId, stateGraph.getFinishPoint()) ) {
                         break;
@@ -165,6 +191,7 @@ public class CompiledGraph<State extends AgentState> {
                 }
 
                 queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of("stop", currentState) ) ));
+                addCheckpoint( "stop", currentState );
                 log.trace( "STOP");
 
             } catch (Exception e) {
