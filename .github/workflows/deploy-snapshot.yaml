@@ -26,9 +26,11 @@ jobs:
         run: |
           VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           if [[ $VERSION == *"-SNAPSHOT" ]]; then
-            echo "::set-output name=is_snapshot::true"
+            echo "is_snapshot=true" >> $GITHUB_OUTPUT
+#            echo "::set-output name=is_snapshot::true"
           else
-            echo "::set-output name=is_snapshot::false"
+            echo "is_snapshot=false" >> $GITHUB_OUTPUT
+#            echo "::set-output name=is_snapshot::false"
           fi
       - name: Build and Deploy SNAPSHOT
         if: steps.check-snapshot.outputs.is_snapshot == 'true'
