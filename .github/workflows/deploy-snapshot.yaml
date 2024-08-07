@@ -1,4 +1,4 @@
-name: Deploy New Version
+name: Deploy New SNAPSHOT
 
 on:
   workflow_dispatch:
