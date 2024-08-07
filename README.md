@@ -44,18 +44,19 @@
 
 The main type of graph in `langgraph` is the `StatefulGraph`. This graph is parameterized by a state object that it passes around to each node. 
 Each node then returns operations to update that state. These operations can either SET specific attributes on the state (e.g. overwrite the existing values) or ADD to the existing attribute. 
-Whether to set or add is denoted by initialize the property with a `AppendableValue`. The State must inherit from `AgentState` base class (that essentially is a `Map` wrapper).
+Whether to set or add is described in the state's schema provided to the graph. The schema is a Map of Channels, each Channel represent an attribute in the state. If an attribute is described with an `AppendeChannel` it will be a List and each element referring the attribute will be automaically added by graph during processing. The State must inherit from `AgentState` base class (that essentially is a `Map` wrapper).
 
 ```java
 public class AgentState {
 
-   public AgentState( Map<String,Object> initData ) { ... };
+   public AgentState( Map<String,Object> initData ) { ... }
    
-   public final java.util.Map<String,Object> data() { ... };
+   public final java.util.Map<String,Object> data() { ... }
 
-   public final <T> Optional<T> value(String key) { ... };
-
-   public final <T> AppendableValue<T> appendableValue(String key ) { ... };
+   public final <T> Optional<T> value(String key) { ... }
+   public final <T> T value(String key, T defaultValue ) { ... }
+   public final <T> T value(String key, Supplier<T>  defaultProvider ) { ... }
+    
 
 }
 ```
@@ -128,19 +129,24 @@ Below you can find a piece of code of the `AgentExecutor` to give you an idea of
 
 public static class State implements AgentState {
 
-   public State(Map<String, Object> initData) {
-      super(initData);
-   }
+    // the state's (partial) schema 
+    static Map<String, Channel<?>> SCHEMA = mapOf(
+        "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
+    );
 
-   Optional<String> input() {
-      return value("input");
-   }
-   Optional<AgentOutcome> agentOutcome() {
-      return value("agent_outcome");
-   }
-   AppendableValue<IntermediateStep> intermediateSteps() {
-      return appendableValue("intermediate_steps");
-   }
+    public State(Map<String, Object> initData) {
+        super(initData);
+    }
+
+    Optional<String> input() {
+        return value("input");
+    }
+    Optional<AgentOutcome> agentOutcome() {
+        return value("agent_outcome");
+    }
+    List<IntermediateStep> intermediateSteps() {
+        return this.<List<IntermediateStep>>value("intermediate_steps").orElseGet(emptyList());
+    }
    
 }
 
@@ -155,32 +161,27 @@ var agentRunnable = Agent.builder()
                         .tools( toolSpecifications )
                         .build();
 
-var workflow = new StateGraph<>(State::new);
-
-workflow.setEntryPoint("agent");
-
-workflow.addNode( "agent", node_async( state ->
-    runAgent(agentRunnable, state)) // see implementation in the repo code
-);
-
-workflow.addNode( "action", node_async( state ->
-    executeTools(toolInfoList, state)) // see implementation in the repo code
-);
-
-workflow.addConditionalEdge(
-        "agent",
-        edge_async( state -> {
-            if (state.agentOutcome().map(AgentOutcome::finish).isPresent()) {
-                return "end";
-            }
-            return "continue";
-        }),
-        Map.of("continue", "action", "end", END)
-);
-
-workflow.addEdge("action", "agent");
-
-var app = workflow.compile();
+// Fluent Interface
+var app = new StateGraph<>(State.SCHEMA,State::new)
+                .addEdge(START,"agent")
+                .addNode( "agent", node_async( state ->
+                    runAgent(agentRunnable, state))
+                )
+                .addNode( "action", node_async( state ->
+                    executeTools(toolInfoList, state))
+                )
+                .addConditionalEdges(
+                        "agent",
+                        edge_async( state -> {
+                            if (state.agentOutcome().map(AgentOutcome::finish).isPresent()) {
+                                return "end";
+                            }
+                            return "continue";
+                        }),
+                        mapOf("continue", "action", "end", END)
+                )
+                .addEdge("action", "agent")
+                .compile();
 
 return  app.stream( inputs );
 
