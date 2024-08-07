@@ -9,6 +9,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @param <T> the type of the value
  */
+@Deprecated
 public interface AppendableValue<T> {
 
     /**

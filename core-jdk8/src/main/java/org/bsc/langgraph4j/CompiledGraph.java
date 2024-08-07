@@ -9,9 +9,12 @@ import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
@@ -116,17 +119,29 @@ public class CompiledGraph<State extends AgentState> {
         }
     }
 
+    Map<String,Object> getInitialStateFromSchema() {
+        return stateGraph.getChannels().entrySet().stream()
+                .filter( c -> c.getValue().getDefault().isPresent() )
+                .collect(Collectors.toMap(Map.Entry::getKey, e ->
+                    e.getValue().getDefault().get().get()
+                ));
+    }
+
     State getInitialState(Map<String,Object> inputs) {
 
         return compileConfig.getCheckpointSaver()
                 .flatMap(BaseCheckpointSaver::getLast)
                 .map( cp -> {
-                    var state = cp.getValue().getState();
-                    return state.mergeWith(inputs, stateGraph.getStateFactory());
+                    var state = cp.getValue().getState().mergeWith(inputs, stateGraph.getChannels());
+                    return stateGraph.getStateFactory().apply(state);
                 })
-                .orElseGet( () ->
-                    stateGraph.getStateFactory().apply(inputs)
-                );
+                .orElseGet( () -> {
+                    var initialState =
+                            stateGraph.getStateFactory()
+                                    .andThen( state -> state.mergeWith(inputs, stateGraph.getChannels()) )
+                                    .apply( getInitialStateFromSchema() );
+                    return stateGraph.getStateFactory().apply(initialState);
+                });
     }
 
     /**
@@ -168,7 +183,7 @@ public class CompiledGraph<State extends AgentState> {
 
                     partialState = action.apply(currentState).get();
 
-                    currentState = currentState.mergeWith(partialState, stateGraph.getStateFactory());
+                    currentState = stateGraph.getStateFactory().apply( currentState.mergeWith(partialState, stateGraph.getChannels()) );
 
                     queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of(currentNodeId, currentState) ) ));
                     addCheckpoint( currentNodeId, currentState );
