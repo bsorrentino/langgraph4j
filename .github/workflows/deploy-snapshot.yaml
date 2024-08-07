@@ -2,9 +2,11 @@ name: Deploy New Version
 
 on:
   workflow_dispatch:
-  release:
-    types: [created]
-
+  push:
+    branches:
+      - main
+    paths:
+      - '**/pom.xml'
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,30 +15,34 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: GPG Setup
-        env:
-          GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: ./gpg-setup.sh
       - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
           distribution: 'liberica'
           java-version: '8'
           java-package: jdk
-      - name: Deploy to OSS Sonatype
+      - name: Check for SNAPSHOT version
+        id: check-snapshot
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          if [[ $VERSION == *"-SNAPSHOT" ]]; then
+            echo "::set-output name=is_snapshot::true"
+          else
+            echo "::set-output name=is_snapshot::false"
+          fi
+      - name: Build and Deploy SNAPSHOT
+        if: steps.check-snapshot.outputs.is_snapshot == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-          OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
-        run: mvn -B -Prelease source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+        run: mvn -B clean deploy --file pom.xml -s settings-template.xml
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'liberica'
           java-version: '17'
           java-package: jdk
-      - name: Deploy to OSS Sonatype
+      - name: Build and Deploy SNAPSHOT
+        if: steps.check-snapshot.outputs.is_snapshot == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-          OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
-        run: mvn -B -Prelease -pl server-jetty source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+        run: mvn -B -pl server-jetty clean deploy --file pom.xml -s settings-template.xml
