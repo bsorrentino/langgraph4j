@@ -1,5 +1,9 @@
 package org.bsc.langgraph4j.state;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.*;
 
 import static java.util.Collections.unmodifiableList;
@@ -10,8 +14,8 @@ import static java.util.Collections.unmodifiableList;
  *
  * @param <T> the type of the value
  */
-public class AppendableValueRW<T> implements AppendableValue<T> {
-    private final List<T> values;
+public class AppendableValueRW<T> implements AppendableValue<T>, Externalizable {
+    private List<T> values;
 
     /**
      * Constructs an AppendableValueRW with the given initial collection of values.
@@ -99,5 +103,15 @@ public class AppendableValueRW<T> implements AppendableValue<T> {
      */
     public String toString() {
         return String.valueOf(values);
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(values);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        values = (List<T>) in.readObject();
     }
 }

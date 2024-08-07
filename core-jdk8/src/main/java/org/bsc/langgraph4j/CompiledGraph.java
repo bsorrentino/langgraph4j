@@ -6,6 +6,8 @@ import lombok.var;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
+import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.*;
@@ -31,14 +33,16 @@ public class CompiledGraph<State extends AgentState> {
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
 
     private int maxIterations = 25;
+    private final CompileConfig compileConfig;
 
     /**
      * Constructs a CompiledGraph with the given StateGraph.
      *
      * @param stateGraph the StateGraph to be used in this CompiledGraph
      */
-    protected CompiledGraph(StateGraph<State> stateGraph) {
+    protected CompiledGraph(StateGraph<State> stateGraph, CompileConfig compileConfig ) {
         this.stateGraph = stateGraph;
+        this.compileConfig = compileConfig;
         stateGraph.nodes.forEach(n ->
                 nodes.put(n.id(), n.action())
         );
@@ -105,21 +109,46 @@ public class CompiledGraph<State extends AgentState> {
         return nextNodeId(stateGraph.getEntryPoint(), state, "entryPoint");
     }
 
+    private void addCheckpoint( String nodeId, State state ) throws Exception {
+        if( compileConfig.getCheckpointSaver().isPresent() ) {
+            Checkpoint.Value value = Checkpoint.Value.of(state, nodeId);
+            compileConfig.getCheckpointSaver().get().put( new Checkpoint(value) );
+        }
+    }
+
+    State getInitialState(Map<String,Object> inputs) {
+
+        return compileConfig.getCheckpointSaver()
+                .flatMap(BaseCheckpointSaver::getLast)
+                .map( cp -> {
+                    var state = cp.getValue().getState();
+                    return state.mergeWith(inputs, stateGraph.getStateFactory());
+                })
+                .orElseGet( () ->
+                    stateGraph.getStateFactory().apply(inputs)
+                );
+    }
+
     /**
      * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
      *
      * @param inputs the input map
+     * @param config the invoke configuration
      * @return an AsyncGenerator stream of NodeOutput
      * @throws Exception if there is an error creating the stream
      */
-    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs, InvokeConfig config ) throws Exception {
+        Objects.requireNonNull(config, "config cannot be null");
 
         return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
 
             try  {
-                var currentState = stateGraph.getStateFactory().apply(inputs);
+
+                var currentState = getInitialState(inputs);
 
                 queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of("start", currentState)) ));
+                addCheckpoint( "start", currentState );
+
                 log.trace( "START");
 
                 var currentNodeId = this.getEntryPoint( currentState );
@@ -142,6 +171,7 @@ public class CompiledGraph<State extends AgentState> {
                     currentState = currentState.mergeWith(partialState, stateGraph.getStateFactory());
 
                     queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of(currentNodeId, currentState) ) ));
+                    addCheckpoint( currentNodeId, currentState );
 
                     if ( Objects.equals(currentNodeId, stateGraph.getFinishPoint()) ) {
                         break;
@@ -161,6 +191,7 @@ public class CompiledGraph<State extends AgentState> {
                 }
 
                 queue.add( AsyncGenerator.Data.of( completedFuture( NodeOutput.of("stop", currentState) ) ));
+                addCheckpoint( "stop", currentState );
                 log.trace( "STOP");
 
             } catch (Exception e) {
@@ -172,6 +203,35 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     /**
+     * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
+     *
+     * @param inputs the input map
+     * @return an AsyncGenerator stream of NodeOutput
+     * @throws Exception if there is an error creating the stream
+     */
+    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
+        return this.stream( inputs, InvokeConfig.builder().build() );
+    }
+    /**
+     * Invokes the graph execution with the provided inputs and returns the final state.
+     *
+     * @param inputs the input map
+     * @param config the invoke configuration
+     * @return an Optional containing the final state if present, otherwise an empty Optional
+     * @throws Exception if there is an error during invocation
+     */
+    public Optional<State> invoke(Map<String,Object> inputs, InvokeConfig config ) throws Exception {
+
+        var sourceIterator = stream(inputs, config).iterator();
+
+        var result = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
+                false);
+
+        return  result.reduce((a, b) -> b).map( NodeOutput::state);
+    }
+
+    /**
      * Invokes the graph execution with the provided inputs and returns the final state.
      *
      * @param inputs the input map
@@ -179,14 +239,7 @@ public class CompiledGraph<State extends AgentState> {
      * @throws Exception if there is an error during invocation
      */
     public Optional<State> invoke(Map<String,Object> inputs ) throws Exception {
-
-        var sourceIterator = stream(inputs).iterator();
-
-        var result = StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
-                false);
-
-        return  result.reduce((a, b) -> b).map( NodeOutput::state);
+        return this.invoke( inputs, InvokeConfig.builder().build() );
     }
 
     /**
