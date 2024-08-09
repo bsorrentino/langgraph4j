@@ -5,9 +5,8 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
-import org.bsc.langgraph4j.CompiledGraph;
-import org.bsc.langgraph4j.StateGraph;
-import org.bsc.langgraph4j.NodeOutput;
+import org.bsc.langgraph4j.*;
+import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppendableValue;
 import org.bsc.langgraph4j.state.AppenderChannel;
@@ -23,6 +22,69 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 public class AgentExecutor {
+
+    public class GraphBuilder {
+        private BaseCheckpointSaver checkpointSaver;
+        private ChatLanguageModel chatLanguageModel;
+        private List<Object> objectsWithTools;
+
+        public GraphBuilder checkpointSaver(BaseCheckpointSaver checkpointSaver) {
+            this.checkpointSaver = checkpointSaver;
+            return this;
+        }
+        public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
+            this.chatLanguageModel = chatLanguageModel;
+            return this;
+        }
+        public GraphBuilder objectsWithTools(List<Object> objectsWithTools) {
+            this.objectsWithTools = objectsWithTools;
+            return this;
+        }
+
+        public CompiledGraph<State> build() throws GraphStateException {
+            Objects.requireNonNull(objectsWithTools, "objectsWithTools is required!");
+            Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
+
+
+            var toolInfoList = ToolInfo.fromList( objectsWithTools );
+
+            final List<ToolSpecification> toolSpecifications = toolInfoList.stream()
+                    .map(ToolInfo::specification)
+                    .collect(Collectors.toList());
+
+            var agentRunnable = Agent.builder()
+                    .chatLanguageModel(chatLanguageModel)
+                    .tools( toolSpecifications )
+                    .build();
+
+            CompileConfig.Builder config = new CompileConfig.Builder();
+
+            if( checkpointSaver != null ) {
+                config.checkpointSaver(checkpointSaver);
+            }
+
+            return new StateGraph<>(State.SCHEMA,State::new)
+                    .addEdge(START,"agent")
+                    .addNode( "agent", node_async( state ->
+                            runAgent(agentRunnable, state))
+                    )
+                    .addNode( "action", node_async( state ->
+                            executeTools(toolInfoList, state))
+                    )
+                    .addConditionalEdges(
+                            "agent",
+                            edge_async(AgentExecutor.this::shouldContinue),
+                            mapOf("continue", "action", "end", END)
+                    )
+                    .addEdge("action", "agent")
+                    .compile( config.build() );
+
+        }
+    }
+
+    public final GraphBuilder builder() {
+        return new GraphBuilder();
+    }
 
     public static class State extends AgentState {
         static Map<String, Channel<?>> SCHEMA = mapOf(
@@ -42,7 +104,6 @@ public class AgentExecutor {
         List<IntermediateStep> intermediateSteps() {
             return this.<List<IntermediateStep>>value("intermediate_steps").orElseGet(ArrayList::new);
         }
-
 
     }
 
@@ -100,40 +161,4 @@ public class AgentExecutor {
         return "continue";
     }
 
-    public CompiledGraph<State> compile(ChatLanguageModel chatLanguageModel, List<Object> objectsWithTools) throws Exception {
-        var toolInfoList = ToolInfo.fromList( objectsWithTools );
-
-        final List<ToolSpecification> toolSpecifications = toolInfoList.stream()
-                .map(ToolInfo::specification)
-                .collect(Collectors.toList());
-
-        var agentRunnable = Agent.builder()
-                .chatLanguageModel(chatLanguageModel)
-                .tools( toolSpecifications )
-                .build();
-
-        return new StateGraph<>(State.SCHEMA,State::new)
-                    .addEdge(START,"agent")
-                    .addNode( "agent", node_async( state ->
-                        runAgent(agentRunnable, state))
-                    )
-                    .addNode( "action", node_async( state ->
-                        executeTools(toolInfoList, state))
-                    )
-                    .addConditionalEdges(
-                            "agent",
-                            edge_async(this::shouldContinue),
-                            mapOf("continue", "action", "end", END)
-                    )
-                    .addEdge("action", "agent")
-                    .compile();
-
-    }
-
-    public AsyncGenerator<NodeOutput<State>> execute(ChatLanguageModel chatLanguageModel, Map<String, Object> inputs, List<Object> objectsWithTools) throws Exception {
-
-        var app = compile(chatLanguageModel, objectsWithTools);
-
-        return  app.stream( inputs );
-    }
 }
