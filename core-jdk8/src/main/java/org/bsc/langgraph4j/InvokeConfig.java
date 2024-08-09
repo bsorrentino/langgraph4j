@@ -12,7 +12,7 @@ public class InvokeConfig {
         return Optional.ofNullable(checkpointConfig);
     }
 
-    static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
