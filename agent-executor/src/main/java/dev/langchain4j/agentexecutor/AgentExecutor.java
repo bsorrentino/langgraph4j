@@ -4,11 +4,9 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import lombok.var;
-import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppendableValue;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
 
@@ -82,7 +80,7 @@ public class AgentExecutor {
         }
     }
 
-    public final GraphBuilder builder() {
+    public final GraphBuilder graphBuilder() {
         return new GraphBuilder();
     }
 

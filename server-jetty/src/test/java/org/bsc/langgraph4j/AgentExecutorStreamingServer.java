@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agentexecutor.AgentExecutor;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 
-import java.util.List;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 
 public class AgentExecutorStreamingServer {
 
@@ -26,9 +26,10 @@ public class AgentExecutorStreamingServer {
                 .maxTokens(2000)
                 .build();
 
-        var agentExecutor = new AgentExecutor();
-
-        var app = agentExecutor.compile( llm, List.of(new TestTool()) );
+        var app = new AgentExecutor().graphBuilder()
+                .chatLanguageModel(llm)
+                .objectsWithTools(listOf(new TestTool()))
+                .build();
 
         // [Serializing with Jackson (JSON) - getting "No serializer found"?](https://stackoverflow.com/a/8395924/521197)
         ObjectMapper objectMapper = new ObjectMapper();
