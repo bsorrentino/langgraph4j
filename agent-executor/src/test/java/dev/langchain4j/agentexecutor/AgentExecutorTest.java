@@ -4,10 +4,17 @@ import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.var;
 import org.bsc.langgraph4j.GraphRepresentation;
+import org.bsc.langgraph4j.InvokeConfig;
+import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
+import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
@@ -24,7 +31,7 @@ public class AgentExecutorTest {
         DotEnvConfig.load();
     }
 
-    private AgentExecutor.State executeAgent(String prompt )  throws Exception {
+    private AgentExecutor.GraphBuilder newGraphBuilder()  throws Exception {
 
         var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
@@ -41,27 +48,40 @@ public class AgentExecutorTest {
 
         var agentExecutor = new AgentExecutor();
 
-        var iterator = agentExecutor.execute(
-                chatLanguageModel,
-                mapOf( "input", prompt ),
-                listOf(new TestTool()) );
+        return agentExecutor.builder()
+                .chatLanguageModel(chatLanguageModel)
+                .objectsWithTools(listOf(new TestTool()));
 
-       AgentExecutor.State state = null;
+    }
 
-        for( var i : iterator ) {
-            state = i.state();
-            System.out.println(i.node());
-        }
+    private List<AgentExecutor.State> executeAgent( String prompt )  throws Exception {
+        var iterator = newGraphBuilder().build().stream( mapOf( "input", prompt ) );
 
-        return state;
+        return iterator.stream()
+                .peek( s -> System.out.println( s.node() ) )
+                .map( NodeOutput::state)
+                .collect(Collectors.toList());
+    }
 
+    private List<AgentExecutor.State> executeAgent(String prompt, String threadId, BaseCheckpointSaver saver)  throws Exception {
+        var config = InvokeConfig.builder().checkpointThreadId(threadId).build();
+
+        var iterator = newGraphBuilder()
+                .checkpointSaver( saver )
+                .build()
+                .stream( mapOf( "input", prompt ), config );
+
+        return iterator.stream()
+                .peek( s -> System.out.println( s.node() ) )
+                .map( NodeOutput::state)
+                .collect(Collectors.toList());
     }
 
     @Test
     void executeAgentWithSingleToolInvocation() throws Exception {
 
-        var state = executeAgent("what is the result of test with messages: 'MY FIRST TEST'");
-
+        var states = executeAgent("what is the result of test with messages: 'MY FIRST TEST'");
+        var state = states.get( states.size() - 1 );
         assertNotNull(state);
         assertFalse(state.intermediateSteps().isEmpty());
         assertEquals( 1, state.intermediateSteps().size());
@@ -76,8 +96,8 @@ public class AgentExecutorTest {
     @Test
     void executeAgentWithDoubleToolInvocation() throws Exception {
 
-        var state = executeAgent("what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'");
-
+        var states = executeAgent("what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'");
+        var state = states.get( states.size() - 1 );
         assertNotNull(state);
         assertFalse(state.intermediateSteps().isEmpty());
         assertEquals( 2, state.intermediateSteps().size());
@@ -89,6 +109,45 @@ public class AgentExecutorTest {
         assertTrue( returnValues.contains( "MY SECOND TEST") );
         System.out.println(returnValues);
 
+    }
+
+    @Test
+    void executeAgentWithDoubleToolInvocationWithCheckpoint() throws Exception {
+
+        var saver = new MemorySaver();
+        var states = executeAgent(
+                "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'",
+                "thread_1",
+                saver
+                );
+        assertEquals( 7, states.size() ); // iterations
+        var state = states.get( states.size() - 1 );
+        assertNotNull(state);
+        assertFalse(state.intermediateSteps().isEmpty());
+        assertEquals( 2, state.intermediateSteps().size());
+        assertTrue(state.agentOutcome().isPresent());
+        assertNotNull(state.agentOutcome().get().finish());
+        assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
+        var returnValues = state.agentOutcome().get().finish().returnValues().get("returnValues").toString();
+        assertTrue( returnValues.contains( "MY FIRST TEST") );
+        assertTrue( returnValues.contains( "MY SECOND TEST") );
+        System.out.println(returnValues);
+
+        states = executeAgent(
+                "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'",
+                "thread_1",
+                saver
+        );
+        assertEquals( 3, states.size() ); // iterations
+        state = states.get( states.size() - 1 );
+        assertNotNull(state);
+        assertTrue(state.agentOutcome().isPresent());
+        assertNotNull(state.agentOutcome().get().finish());
+        assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
+        returnValues = state.agentOutcome().get().finish().returnValues().get("returnValues").toString();
+        assertTrue( returnValues.contains( "MY FIRST TEST") );
+        assertTrue( returnValues.contains( "MY SECOND TEST") );
+        System.out.println(returnValues);
     }
 
     @Test
