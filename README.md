@@ -6,11 +6,43 @@
 🦜🕸️LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
 
+## Features
 
-## News
+- [x] StateGraph
+- [x] Nodes
+- [x] Edges
+- [x] Conditional Edges
+- [x] Entry Points
+- [x] Conditional Entry Points
+- [x] State
+  - [x] Schema (_a series of Channels_)
+    - [x] Reducer (_how apply  updates to the state attributes_)
+    - [x] Default provider
+    - [x] AppenderChannel (_values accumulator_)
+- [x] Compiling graph    
+- [x] Async support (_throught [CompletableFuture]_)
+- [x] Streaming support (_throught [java-async-generator]_)
+- [x] Checkpoints (_save and replay feature_)
+- [x] Graph visualization
+  - [x] [PlantUML]
+  - [x] [Mermaid]
+- [x] Playgroud (_Embeddable Webapp that plays with LangGraph4j_)
+- [ ] Threads (_checkpointing of multiple different runs_)
+- [ ] Update state (_interact with the state directly and update it_)
+- [ ] Breakpoints (_pause and resume feature_)
+- [ ] Graph migration
+
+## Samples
+
+* [Agent Executor](agent-executor/README.md)
+* [Image To PlantUML Diagram](image-to-diagram/README.md)
+* [Adaptive RAG](adaptive-rag/README.md)
+
+## Releases
 
 | Date         | Release        | info
 |--------------|----------------| ---
+| Aug 09, 2024 | `1.0-SNAPSHOT` | last develoment release
 | Aug 02, 2024 | `1.0-beta1`    | first official beta release
 
 
@@ -187,11 +219,6 @@ return  app.stream( inputs );
 
 ```
 
-# Samples
-
-* [Agent Executor](agent-executor/README.md)
-* [Image To PlantUML Diagram](image-to-diagram/README.md)
-* [Adaptive RAG](adaptive-rag/README.md)
 
 # Playground Webapp 
 
@@ -239,6 +266,7 @@ server.start().join();
 * [AI Agent in Java with LangGraph4j - Bartolomeo Blog][article01]
 * [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 
+[CompletableFuture]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
 [article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
 [langgraph.blog]: https://blog.langchain.dev/langgraph/
 [langchain4j]: https://github.com/langchain4j/langchain4j
