@@ -2,6 +2,40 @@
 
 Changelog of langgraph4j.
 
+## v1.0-20240809 (2024-08-09)
+
+### Features
+
+-  add utitlity for support serialization of nullable value ([7a820](https://github.com/bsorrentino/langgraph4j/commit/7a820294f37b9e1) bsorrentino)  
+
+### Bug Fixes
+
+-  update builder visibility to public ([bffa8](https://github.com/bsorrentino/langgraph4j/commit/bffa8a46fc7c228) bsorrentino)  
+
+### Other changes
+
+**Merge branch 'release/1.0-20240809'**
+
+
+[92bf3](https://github.com/bsorrentino/langgraph4j/commit/92bf3dfe247cca8) bsorrentino *2024-08-09 21:39:11*
+
+**Merge branch 'main' into develop**
+
+
+[ba920](https://github.com/bsorrentino/langgraph4j/commit/ba92019f011a935) bsorrentino *2024-08-07 21:42:01*
+
+**Merge branch 'hotfix/changeme'**
+
+
+[aa515](https://github.com/bsorrentino/langgraph4j/commit/aa515bc6b35c80b) bsorrentino *2024-08-07 21:41:57*
+
+**Merge tag 'v1.0-20240807-1' into develop**
+
+* new dev release 
+
+[a3fba](https://github.com/bsorrentino/langgraph4j/commit/a3fba00d85603a9) bsorrentino *2024-08-07 21:40:03*
+
+
 ## v1.0-20240807-1 (2024-08-07)
 
 ### Features
