@@ -229,7 +229,7 @@ It is available an **embed playground webapp** able to run a Langgraph4j workflo
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-server-jetty</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-beta2</version>
 <dependency>
 ```
 
