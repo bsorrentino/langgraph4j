@@ -57,7 +57,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core-jdk8</artifactId>
     <version>1.0-beta2</version>
-<dependency>
+</dependency>
 ```
 
 #### Development Version 
@@ -68,7 +68,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core-jdk8</artifactId>
     <version>1.0-SNAPSHOT</version>
-<dependency>
+</dependency>
 ```
 
 ### Define the agent state
