@@ -1,39 +1,66 @@
 package org.bsc.langgraph4j;
 
-import org.bsc.langgraph4j.checkpoint.CheckpointConfig;
+import lombok.ToString;
 
+import java.util.Objects;
 import java.util.Optional;
 
-public class InvokeConfig {
+@ToString
+public class RunnableConfig {
 
-    private CheckpointConfig checkpointConfig;
+    private String threadId;
+    private String checkPointId;
+    private String nextNode;
 
-    public Optional<CheckpointConfig> getCheckpointConfig() {
-        return Optional.ofNullable(checkpointConfig);
+    public Optional<String> threadId() {
+        return Optional.ofNullable(threadId);
+    }
+    public Optional<String> checkPointId() {
+        return Optional.ofNullable(checkPointId);
+    }
+    public Optional<String> nextNode() {
+        return Optional.ofNullable(nextNode);
     }
 
     public static Builder builder() {
         return new Builder();
     }
+    public static Builder builder( RunnableConfig config ) { return new Builder(config); }
 
     public static class Builder {
+        private final RunnableConfig config;
 
-        private String  checkpointThreadId;
-
-        public Builder checkpointThreadId(String threadId) {
-            this.checkpointThreadId = threadId;
+        Builder() {;
+            this.config = new RunnableConfig();
+        }
+        Builder( RunnableConfig config ) {
+            this.config = new RunnableConfig(config);
+        }
+        public Builder threadId(String threadId) {
+            this.config.threadId = threadId;
             return this;
         }
-        public InvokeConfig build() {
-            InvokeConfig result = new InvokeConfig();
+        public Builder checkPointId(String checkPointId) {
+            this.config.checkPointId = checkPointId;
+            return this;
+        }
+        public Builder nextNode(String nextNode) {
+            this.config.nextNode = nextNode;
+            return this;
+        }
 
-            if( checkpointThreadId != null ) {
-                result.checkpointConfig = CheckpointConfig.of(checkpointThreadId);
-            }
-
-            return result;
+        public RunnableConfig build() {
+            return config;
         }
     }
 
-    private InvokeConfig() {}
+    private RunnableConfig( RunnableConfig config ) {
+        Objects.requireNonNull( config, "config cannot be null" );
+        this.threadId = config.threadId;
+        this.checkPointId = config.checkPointId;
+        this.nextNode = config.nextNode;
+    }
+    private RunnableConfig() {}
+
+
 }
