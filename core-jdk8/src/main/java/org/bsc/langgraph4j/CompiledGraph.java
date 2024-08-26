@@ -14,10 +14,8 @@ import org.bsc.langgraph4j.state.StateSnapshot;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -25,6 +23,26 @@ import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
+
+
+@FunctionalInterface
+interface TryConsumer<T, Ex extends Throwable> extends Consumer<T> {
+
+    void tryAccept( T t ) throws Ex;
+
+    default void accept( T t ) {
+        try {
+            tryAccept(t);
+        } catch (Throwable ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    static <T,Ex extends Throwable> Consumer<T> Try( TryConsumer<T, Ex> consumer ) {
+        return consumer;
+    }
+}
+
 
 /**
  * Represents a compiled graph of nodes and edges.
@@ -61,18 +79,20 @@ public class CompiledGraph<State extends AgentState> {
         );
     }
 
-    public Collection<StateSnapshot> getStateHistory( RunnableConfig config ) {
+    public Collection<StateSnapshot<State>> getStateHistory( RunnableConfig config ) {
         var saver = compileConfig.getCheckpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
-        return saver.list(config).stream().map( checkpoint -> StateSnapshot.of( checkpoint, config ) ).collect(Collectors.toList());
+        return saver.list(config).stream()
+                .map( checkpoint -> StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() ) )
+                .collect(Collectors.toList());
     }
 
-    public StateSnapshot getState( RunnableConfig config ) {
+    public StateSnapshot<State> getState( RunnableConfig config ) {
         var saver = compileConfig.getCheckpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
         var checkpoint = saver.get(config).orElseThrow( () -> (new IllegalStateException("Missing Checkpoint!")) );
 
-        return StateSnapshot.of( checkpoint, config );
+        return StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() );
     }
 
     public RunnableConfig updateState( RunnableConfig config, Map<String,Object> values, String asNode ) throws Exception {
@@ -169,55 +189,29 @@ public class CompiledGraph<State extends AgentState> {
                 ));
     }
 
-    State getInitialState(Map<String,Object> inputs, RunnableConfig config) {
+    Map<String,Object> getInitialState(Map<String,Object> inputs, RunnableConfig config) {
 
         return compileConfig.getCheckpointSaver()
                 .flatMap( saver -> saver.get( config ) )
-                .map( cp ->
-                    stateGraph.getStateFactory()
-                            .apply( AgentState.updateState( cp.getState(), inputs, stateGraph.getChannels() ) )
-                )
-                .orElseGet( () ->
-                    stateGraph.getStateFactory()
-                            .apply( AgentState.updateState(getInitialStateFromSchema(), inputs, stateGraph.getChannels() ) )
-                );
+                .map( cp -> AgentState.updateState( cp.getState(), inputs, stateGraph.getChannels() ))
+                .orElseGet( () -> AgentState.updateState(getInitialStateFromSchema(), inputs, stateGraph.getChannels() ));
     }
 
-    private State cloneState( Map<String,Object> data ) throws IOException, ClassNotFoundException {
+    State cloneState( Map<String,Object> data ) throws IOException, ClassNotFoundException {
 
         Map<String,Object> newData = MapSerializer.INSTANCE.cloneObject(data);
 
         return stateGraph.getStateFactory().apply(newData);
     }
 
-    private State cloneState( State state ) throws IOException, ClassNotFoundException {
-        return cloneState(state.data());
-    }
-
-    private void yieldData(BlockingQueue<AsyncGenerator.Data<NodeOutput<State>>> queue, NodeOutput<State> data) {
-        queue.add( AsyncGenerator.Data.of( completedFuture( data) ) );
-    }
-
-    private void streamData(
-                             State initialState,
+    private void streamData( State initialState,
                              String startNodeId,
                              RunnableConfig config,
                              Consumer<NodeOutput<State>> yieldData) throws Exception {
 
                 var currentState = initialState;
 
-
-//                if( initialNodeId != null ) {
-//
-//                    yieldData.accept( NodeOutput.of(initialNodeId, currentState));
-//
-//                    log.trace("START FROM NODE: {}", initialNodeId);
-//                }
-
-
                 var currentNodeId = startNodeId;
-//                addCheckpoint( config, initialNodeId, currentState, currentNodeId );
-
 
                 Map<String, Object> partialState;
 
@@ -261,7 +255,7 @@ public class CompiledGraph<State extends AgentState> {
 
                 yieldData.accept( NodeOutput.of(END, currentState) );
 
-                addCheckpoint( config, END, currentState, END );
+                // addCheckpoint( config, END, currentState, null );
 
                 log.trace( "STOP");
 
@@ -287,87 +281,38 @@ public class CompiledGraph<State extends AgentState> {
 
             Checkpoint startCheckpoint = saver.get( config ).orElseThrow( () -> (new IllegalStateException("Resume request without a saved checkpoint!")) );
 
-            return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
+            return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), TryConsumer.Try(queue -> {
 
-                try  {
-                    State startState = stateGraph.getStateFactory().apply( startCheckpoint.getState().data() );
-                    streamData( startState,
-                                startCheckpoint.getNextNodeId(),
-                                config,
-                                data -> queue.add( AsyncGenerator.Data.of( completedFuture(data) ) )
-                                );
-                }
-                catch (Throwable e) {
-                    throw new RuntimeException( e );
-                }
+                log.trace( "RESUME FROM {}", startCheckpoint.getNodeId() );
 
-            });
+                State startState = stateGraph.getStateFactory().apply( startCheckpoint.getState() );
+
+                streamData( startState,
+                            startCheckpoint.getNextNodeId(),
+                            config,
+                            data -> queue.add( AsyncGenerator.Data.of( completedFuture(data) ) )
+                            );
+
+            }));
 
         }
 
-        return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), queue -> {
+        return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), TryConsumer.Try(queue -> {
 
-            try  {
+            log.trace( "START" );
 
-                var currentState = cloneState( getInitialState(inputs, config) ) ;
+            State startState = cloneState( getInitialState(inputs, config) ) ;
+            queue.add( AsyncGenerator.Data.of( NodeOutput.of( START, startState ) ));
 
-                yieldData( queue, NodeOutput.of( START, currentState ) );
+            String startNodeId = this.getEntryPoint( startState );
+            addCheckpoint( config, START, startState, startNodeId );
 
-                log.trace( "START");
+            streamData( startState,
+                        startNodeId,
+                        config,
+                        data -> queue.add( AsyncGenerator.Data.of( completedFuture(data) ) ) );
 
-                var currentNodeId = this.getEntryPoint( currentState );
-                addCheckpoint( config, START, currentState, currentNodeId );
-
-                Map<String, Object> partialState;
-
-                int iteration = 0;
-
-                while( !Objects.equals(currentNodeId, END) ) {
-
-                    log.trace( "NEXT NODE: {}", currentNodeId);
-
-                    var action = nodes.get(currentNodeId);
-                    if (action == null) {
-                        throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
-                    }
-
-                    partialState = action.apply(currentState).get();
-
-                    currentState = cloneState( AgentState.updateState(currentState, partialState, stateGraph.getChannels()) );
-
-                    yieldData( queue, NodeOutput.of(currentNodeId, currentState) );
-
-                    if ( Objects.equals(currentNodeId, stateGraph.getFinishPoint()) ) {
-                        addCheckpoint( config, currentNodeId, currentState, stateGraph.getFinishPoint() );
-                        break;
-                    }
-
-                    final String nextNodeId = nextNodeId(currentNodeId, currentState);
-                    addCheckpoint( config, currentNodeId, currentState, nextNodeId );
-
-                    currentNodeId = nextNodeId;
-
-                    if ( Objects.equals(currentNodeId, END) ) {
-                        break;
-                    }
-
-                    if( ++iteration > maxIterations ) {
-                        log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
-                        break;
-                    }
-
-                }
-
-                yieldData( queue, NodeOutput.of(END, currentState) );
-
-                addCheckpoint( config, END, currentState, END );
-                log.trace( "STOP");
-
-            } catch (Exception e) {
-                throw new RuntimeException( e );
-            }
-
-        });
+        }));
 
     }
 
