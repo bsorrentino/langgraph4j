@@ -7,23 +7,26 @@ import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 
 @Value
-public class StateSnapshot {
-    AgentState state;
-    String next;
+public class StateSnapshot<State extends AgentState> {
+    State state;
     RunnableConfig config;
 
-    private StateSnapshot(@NonNull AgentState state, @NonNull String next, @NonNull RunnableConfig config) {
+    public String getNext( ) {
+        return config.nextNode().orElse(null);
+    }
+
+    private StateSnapshot(@NonNull State state, @NonNull RunnableConfig config) {
         this.state = state;
-        this.next = next;
         this.config = config;
     }
 
-    public static StateSnapshot of(Checkpoint checkpoint, RunnableConfig config) {
+    public static <State extends AgentState> StateSnapshot<State> of(Checkpoint checkpoint, RunnableConfig config, AgentStateFactory<State> factory) {
 
         var newConfig = RunnableConfig.builder(config)
                                 .checkPointId( checkpoint.getId() )
+                                .nextNode( checkpoint.getNextNodeId() )
                                 .build() ;
-        return new StateSnapshot(checkpoint.getState(), checkpoint.getNextNodeId(), newConfig);
+        return new StateSnapshot<>( factory.apply(checkpoint.getState()), newConfig);
     }
 
 }
