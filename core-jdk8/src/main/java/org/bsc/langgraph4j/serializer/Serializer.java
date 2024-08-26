@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j.serializer;
 
-import org.bsc.langgraph4j.checkpoint.Checkpoint;
-
 import java.io.*;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,4 +49,5 @@ public interface Serializer<T> {
         Objects.requireNonNull( object, "object cannot be null" );
         return readObject(writeObject(object));
     }
+
 }

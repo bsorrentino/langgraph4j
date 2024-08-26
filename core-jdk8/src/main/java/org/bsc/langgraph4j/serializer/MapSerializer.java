@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class StateSerializer implements Serializer<Map<String,Object>> {
-    public static final StateSerializer INSTANCE = new StateSerializer();
-    private StateSerializer() {}
+public class MapSerializer implements Serializer<Map<String,Object>> {
+    public static final MapSerializer INSTANCE = new MapSerializer();
+    private MapSerializer() {}
 
     @Override
     public void write(Map<String,Object> object, ObjectOutput out) throws IOException {
@@ -23,7 +23,7 @@ public class StateSerializer implements Serializer<Map<String,Object>> {
                     tupleStream.writeObject(e.getValue());
                     ++actualSize;
                 } catch (IOException ex) {
-                    log.error( "Error writing state key '{}' - {}", e.getKey(), ex.getMessage() );
+                    log.error( "Error writing map key '{}' - {}", e.getKey(), ex.getMessage() );
                     throw ex;
                 }
             }
@@ -47,7 +47,7 @@ public class StateSerializer implements Serializer<Map<String,Object>> {
         if( expectedSize > 0 && actualSize > 0 ) {
 
             if( expectedSize != actualSize ) {
-                final String message = String.format( "Deserialize State: Expected size %d and actual size %d do not match!", expectedSize, actualSize ) ;
+                final String message = String.format( "Deserialize map: Expected size %d and actual size %d do not match!", expectedSize, actualSize ) ;
                 log.error( message ) ;
                 throw new IOException( message ) ;
             }

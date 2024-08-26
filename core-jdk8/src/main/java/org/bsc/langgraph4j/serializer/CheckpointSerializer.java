@@ -15,17 +15,18 @@ public class CheckpointSerializer implements Serializer<Checkpoint> {
 
     public void write( Checkpoint object, ObjectOutput out) throws IOException {
         out.writeUTF(object.getId());
-        Checkpoint.Value value = object.getValue();
-        AgentStateSerializer.INSTANCE.write( value.getState(), out );
-        out.writeUTF( value.getNodeId() );
+        AgentStateSerializer.INSTANCE.write( object.getState(), out );
+        out.writeUTF( object.getNodeId() );
+        out.writeUTF( object.getNextNodeId() );
     }
 
     public Checkpoint read(ObjectInput in) throws IOException, ClassNotFoundException {
-        String id = in.readUTF();
-        AgentState state =  AgentStateSerializer.INSTANCE.read( in );
-        String nodeId = in.readUTF();
-        Checkpoint.Value value  = Checkpoint.Value.of( state, nodeId );
-        return new Checkpoint(id, value);
+        return Checkpoint.builder()
+                .id(in.readUTF())
+                .state(AgentStateSerializer.INSTANCE.read( in ))
+                .nodeId(in.readUTF())
+                .nextNodeId(in.readUTF())
+                .build();
     }
 
 }
