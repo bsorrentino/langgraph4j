@@ -80,54 +80,15 @@ public class AgentState {
     }
 
     /**
-     * Merges the current value with the new value using the appropriate merge function.
-     *
-     * @param currentValue the current value
-     * @param newValue the new value
-     * @return the merged value
-     */
-    private Object mergeFunction(Object currentValue, Object newValue) {
-        if (currentValue instanceof AppendableValueRW<?>) {
-            ((AppendableValueRW<?>) currentValue).append(newValue);
-            return currentValue;
-        }
-        return newValue;
-    }
-
-    private Map<String,Object> updatePartialStateFromSchema(  Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
-        if( channels == null || channels.isEmpty() ) {
-            return partialState;
-        }
-        return partialState.entrySet().stream().map( entry -> {
-
-            var channel = channels.get(entry.getKey());
-            if (channel != null) {
-                var newValue = channel.update( entry.getKey(), data().get(entry.getKey()), entry.getValue());
-                return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), newValue);
-            }
-
-            return entry;
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    /**
      * Merges the current state with a partial state and returns a new state.
      *
      * @param partialState the partial state to merge with
      * @return a new state resulting from the merge
+     * @deprecated use {@link #updateState(AgentState, Map, Map)}
      */
-    public Map<String,Object> mergeWith( Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
-        if (partialState == null || partialState.isEmpty()) {
-            return data();
-        }
-
-        var updatedPartialState = updatePartialStateFromSchema(partialState, channels);
-
-        return Stream.concat(data().entrySet().stream(), updatedPartialState.entrySet().stream())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        this::mergeFunction));
+    @Deprecated
+    public final Map<String,Object> mergeWith( Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
+        return updateState(data(), partialState, channels);
     }
 
     /**
@@ -139,4 +100,75 @@ public class AgentState {
     public String toString() {
         return data.toString();
     }
+
+    /**
+     * Merges the current value with the new value using the appropriate merge function.
+     *
+     * @param currentValue the current value
+     * @param newValue the new value
+     * @return the merged value
+     */
+    private static Object mergeFunction(Object currentValue, Object newValue) {
+        if (currentValue instanceof AppendableValueRW<?>) {
+            ((AppendableValueRW<?>) currentValue).append(newValue);
+            return currentValue;
+        }
+        return newValue;
+    }
+
+    private static Map<String,Object> updatePartialStateFromSchema(  Map<String,Object> state, Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
+        if( channels == null || channels.isEmpty() ) {
+            return partialState;
+        }
+        return partialState.entrySet().stream().map( entry -> {
+
+            var channel = channels.get(entry.getKey());
+            if (channel != null) {
+                var newValue = channel.update( entry.getKey(), state.get(entry.getKey()), entry.getValue());
+                return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), newValue);
+            }
+
+            return entry;
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    /**
+     * Updates a state with the provided partial state.
+     * The merge function is used to merge the current state value with the new value.
+     *
+     * @param state the current state
+     * @param partialState the partial state to update from
+     * @param channels the channels used to update the partial state if necessary
+     * @return the updated state
+     * @throws NullPointerException if state is null
+     */
+    public static Map<String,Object> updateState( Map<String,Object> state, Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
+        Objects.requireNonNull(state, "state cannot be null");
+        if (partialState == null || partialState.isEmpty()) {
+            return state;
+        }
+
+        var updatedPartialState = updatePartialStateFromSchema(state, partialState, channels);
+
+        return Stream.concat(state.entrySet().stream(), updatedPartialState.entrySet().stream())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        AgentState::mergeFunction));
+    }
+
+    /**
+     * Updates a state with the provided partial state.
+     * The merge function is used to merge the current state value with the new value.
+     *
+     * @param state the current state
+     * @param partialState the partial state to update from
+     * @param channels the channels used to update the partial state if necessary
+     * @return the updated state
+     * @throws NullPointerException if state is null
+     */
+    public static Map<String,Object> updateState( AgentState state, Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
+        return updateState(state.data(), partialState, channels);
+    }
+
 }

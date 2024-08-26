@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j.serializer;
 
-import org.bsc.langgraph4j.checkpoint.Checkpoint;
-
 import java.io.*;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,6 +20,20 @@ public interface Serializer<T> {
     default Optional<T> readNullable(ObjectInput in) throws IOException, ClassNotFoundException {
         if( in.readBoolean() ) {
             return Optional.ofNullable(read(in));
+        }
+        return Optional.empty();
+    }
+    static void writeUTFNullable(String object, ObjectOutput out) throws IOException {
+        if( object == null ) {
+            out.writeBoolean(false);
+        } else {
+            out.writeBoolean(true);
+            out.writeUTF(object);
+        }
+    }
+    static Optional<String> readUTFNullable(ObjectInput in) throws IOException {
+        if( in.readBoolean() ) {
+            return Optional.of(in.readUTF());
         }
         return Optional.empty();
     }
@@ -51,4 +63,5 @@ public interface Serializer<T> {
         Objects.requireNonNull( object, "object cannot be null" );
         return readObject(writeObject(object));
     }
+
 }

@@ -1,7 +1,6 @@
 package org.bsc.langgraph4j.serializer;
 
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
-import org.bsc.langgraph4j.state.AgentState;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -15,17 +14,18 @@ public class CheckpointSerializer implements Serializer<Checkpoint> {
 
     public void write( Checkpoint object, ObjectOutput out) throws IOException {
         out.writeUTF(object.getId());
-        Checkpoint.Value value = object.getValue();
-        AgentStateSerializer.INSTANCE.write( value.getState(), out );
-        out.writeUTF( value.getNodeId() );
+        MapSerializer.INSTANCE.write( object.getState(), out );
+        out.writeUTF( object.getNodeId() );
+        Serializer.writeUTFNullable( object.getNextNodeId(), out );
     }
 
     public Checkpoint read(ObjectInput in) throws IOException, ClassNotFoundException {
-        String id = in.readUTF();
-        AgentState state =  AgentStateSerializer.INSTANCE.read( in );
-        String nodeId = in.readUTF();
-        Checkpoint.Value value  = Checkpoint.Value.of( state, nodeId );
-        return new Checkpoint(id, value);
+        return Checkpoint.builder()
+                .id(in.readUTF())
+                .state(MapSerializer.INSTANCE.read( in ))
+                .nodeId(in.readUTF())
+                .nextNodeId(Serializer.readUTFNullable(in).orElse(null))
+                .build();
     }
 
 }

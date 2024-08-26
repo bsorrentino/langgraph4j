@@ -4,7 +4,7 @@ import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.var;
 import org.bsc.langgraph4j.GraphRepresentation;
-import org.bsc.langgraph4j.InvokeConfig;
+import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
@@ -45,13 +45,11 @@ public class AgentExecutorTest {
                 .maxTokens(2000)
                 .build();
 
-
         var agentExecutor = new AgentExecutor();
 
         return agentExecutor.graphBuilder()
                 .chatLanguageModel(chatLanguageModel)
                 .objectsWithTools(listOf(new TestTool()));
-
     }
 
     private List<AgentExecutor.State> executeAgent( String prompt )  throws Exception {
@@ -64,7 +62,7 @@ public class AgentExecutorTest {
     }
 
     private List<AgentExecutor.State> executeAgent(String prompt, String threadId, BaseCheckpointSaver saver)  throws Exception {
-        var config = InvokeConfig.builder().checkpointThreadId(threadId).build();
+        var config = RunnableConfig.builder().threadId(threadId).build();
 
         var iterator = newGraphBuilder()
                 .checkpointSaver( saver )
