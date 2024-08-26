@@ -23,7 +23,7 @@ import java.util.*;
 public class Checkpoint {
 
     private String id = UUID.randomUUID().toString();
-    private AgentState state = null;
+    private Map<String,Object> state = null;
     private String nodeId = null ;
     private String nextNodeId = null;
 
@@ -49,6 +49,10 @@ public class Checkpoint {
             return this;
         }
         public Builder state( AgentState state ) {
+            result.state = state.data();
+            return this;
+        }
+        public Builder state( Map<String,Object> state ) {
             result.state = state;
             return this;
         }
@@ -74,8 +78,7 @@ public class Checkpoint {
     public Checkpoint updateState(Map<String,Object> values, Map<String, Channel<?>> channels ) {
 
         Checkpoint result = new Checkpoint( this );
-        Map<String,Object> data = AgentState.updateState( state, values, channels );
-        result.state = new AgentState(data);
+        result.state = AgentState.updateState( state, values, channels );;
         return result;
     }
 

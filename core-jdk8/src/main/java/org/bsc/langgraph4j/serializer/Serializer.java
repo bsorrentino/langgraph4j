@@ -23,6 +23,20 @@ public interface Serializer<T> {
         }
         return Optional.empty();
     }
+    static void writeUTFNullable(String object, ObjectOutput out) throws IOException {
+        if( object == null ) {
+            out.writeBoolean(false);
+        } else {
+            out.writeBoolean(true);
+            out.writeUTF(object);
+        }
+    }
+    static Optional<String> readUTFNullable(ObjectInput in) throws IOException {
+        if( in.readBoolean() ) {
+            return Optional.of(in.readUTF());
+        }
+        return Optional.empty();
+    }
 
     default byte[] writeObject(T object) throws IOException {
         Objects.requireNonNull( object, "object cannot be null" );
