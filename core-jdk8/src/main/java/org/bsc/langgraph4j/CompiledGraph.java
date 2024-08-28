@@ -151,6 +151,14 @@ public class CompiledGraph<State extends AgentState> {
         return nextNodeId(stateGraph.getEntryPoint(), state, "entryPoint");
     }
 
+    private boolean shouldInterruptBefore( String nodeId ) {
+        return Arrays.asList(compileConfig.getInterruptBefore()).contains(nodeId);
+    }
+
+    private boolean shouldInterruptAfter( String nodeId ) {
+        return Arrays.asList(compileConfig.getInterruptAfter()).contains(nodeId);
+    }
+
     private void addCheckpoint( RunnableConfig config, String nodeId, State state, String nextNodeId ) throws Exception {
         if( compileConfig.checkpointSaver().isPresent() ) {
             Checkpoint cp =  Checkpoint.builder()
@@ -203,8 +211,13 @@ public class CompiledGraph<State extends AgentState> {
                     log.trace( "NEXT NODE: {}", currentNodeId);
 
                     var action = nodes.get(currentNodeId);
-                    if (action == null) {
+
+                    if (action == null)
                         throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
+
+                    if ( shouldInterruptBefore( currentNodeId ) ) {
+                        log.trace("interrupt before node {}", currentNodeId);
+                        return;
                     }
 
                     partialState = action.apply(currentState).get();
@@ -221,11 +234,16 @@ public class CompiledGraph<State extends AgentState> {
                     final String nextNodeId = nextNodeId(currentNodeId, currentState);
                     addCheckpoint( config, currentNodeId, currentState, nextNodeId );
 
+                    if ( shouldInterruptAfter( currentNodeId ) ) {
+                        log.trace( "interrupt after node {}", currentNodeId);
+                        return;
+                    }
+
                     currentNodeId = nextNodeId;
 
-                    if ( Objects.equals(currentNodeId, END) ) {
+                    if ( Objects.equals(currentNodeId, END) )
                         break;
-                    }
+
 
                     if( ++iteration > maxIterations ) {
                         log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
@@ -273,7 +291,6 @@ public class CompiledGraph<State extends AgentState> {
                             config,
                             data -> queue.add( AsyncGenerator.Data.of( completedFuture(data) ) )
                             );
-
             }));
 
         }
@@ -286,13 +303,17 @@ public class CompiledGraph<State extends AgentState> {
             queue.add( AsyncGenerator.Data.of( NodeOutput.of( START, startState ) ));
 
             String startNodeId = this.getEntryPoint( startState );
+            if( shouldInterruptBefore( startNodeId ) ) return;
+
             addCheckpoint( config, START, startState, startNodeId );
+
+            if( shouldInterruptAfter( startNodeId ) ) return;
+
 
             streamData( startState,
                         startNodeId,
                         config,
                         data -> queue.add( AsyncGenerator.Data.of( completedFuture(data) ) ) );
-
         }));
 
     }
