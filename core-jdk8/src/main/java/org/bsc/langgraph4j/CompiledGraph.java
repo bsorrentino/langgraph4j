@@ -11,6 +11,7 @@ import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.serializer.MapSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
+import org.bsc.langgraph4j.utils.TryConsumer;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,26 +24,6 @@ import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
-
-
-@FunctionalInterface
-interface TryConsumer<T, Ex extends Throwable> extends Consumer<T> {
-
-    void tryAccept( T t ) throws Ex;
-
-    default void accept( T t ) {
-        try {
-            tryAccept(t);
-        } catch (Throwable ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    static <T,Ex extends Throwable> Consumer<T> Try( TryConsumer<T, Ex> consumer ) {
-        return consumer;
-    }
-}
-
 
 /**
  * Represents a compiled graph of nodes and edges.
