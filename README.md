@@ -26,9 +26,9 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Graph visualization
   - [x] [PlantUML]
   - [x] [Mermaid]
-- [x] Playgroud (_Embeddable Webapp that plays with LangGraph4j_)
-- [ ] Threads (_checkpointing of multiple different runs_)
-- [ ] Update state (_interact with the state directly and update it_)
+- [x] Playground (_Embeddable Webapp that plays with LangGraph4j_)
+- [x] Threads (_checkpointing of multiple different runs_)
+- [x] Update state (_interact with the state directly and update it_)
 - [ ] Breakpoints (_pause and resume feature_)
 - [ ] Graph migration
 
