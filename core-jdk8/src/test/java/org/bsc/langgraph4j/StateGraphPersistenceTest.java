@@ -7,12 +7,14 @@ import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.state.StateSnapshot;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
@@ -238,7 +240,6 @@ public class StateGraphPersistenceTest
                     if(state.messages().stream().anyMatch(m -> m.contains("bartolo"))) {
                         return mapOf("messages", "Hi, bartolo welcome back?");
                     }
-
                     throw new IllegalStateException( "unknown message!" );
                 }))
                 .addNode("tools", node_async( state ->
@@ -279,8 +280,38 @@ public class StateGraphPersistenceTest
         assertEquals( 4, stateHistory.size() );
 
         for( var s : stateHistory ) {
-            log.info( "SNAPSHOT:\n{}\n", s );
+            log.info( "SNAPSHOT HISTORY:\n{}\n", s );
         }
+
+        var results = app.stream( null, runnableConfig ).stream().collect( Collectors.toList() );
+
+        assertNotNull( results );
+        assertFalse( results.isEmpty() );
+        assertEquals( 1, results.size() );
+        assertTrue( results.get(0).state().lastMessage().isPresent() );
+        assertEquals( "whether in Naples is sunny", results.get(0).state().lastMessage().get() );
+
+        var firstSnapshot = stateHistory.stream().reduce( (first, second) -> second); // take the last
+        assertTrue( firstSnapshot.isPresent() );
+        assertTrue( firstSnapshot.get().getState().lastMessage().isPresent() );
+        assertEquals( "whether in Naples?", firstSnapshot.get().getState().lastMessage().get() );
+
+        var toReplay = firstSnapshot.get().getConfig();
+
+        toReplay = app.updateState( toReplay, mapOf( "messages", "i'm bartolo"), null );
+        results = app.stream( null, toReplay ).stream().collect( Collectors.toList() );
+
+        assertNotNull( results );
+        assertFalse( results.isEmpty() );
+        assertEquals( 2, results.size() );
+        assertEquals( END, results.get(1).node() );
+        assertTrue( results.get(1).state().lastMessage().isPresent() );
+        assertEquals( "Hi bartolo, nice to meet you too! How can I assist you today?", results.get(0).state().lastMessage().get() );
+
     }
 
+    @Test
+    public void testPauseAndUpdatePastGraphState() throws Exception {
+
+    }
 }
