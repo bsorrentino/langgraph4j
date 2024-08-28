@@ -29,7 +29,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Playground (_Embeddable Webapp that plays with LangGraph4j_)
 - [x] Threads (_checkpointing of multiple different runs_)
 - [x] Update state (_interact with the state directly and update it_)
-- [ ] Breakpoints (_pause and resume feature_)
+- [x] Breakpoints (_pause and resume feature_)
 - [ ] Graph migration
 
 ## Samples
