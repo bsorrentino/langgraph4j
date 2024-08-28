@@ -61,7 +61,7 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     public Collection<StateSnapshot<State>> getStateHistory( RunnableConfig config ) {
-        var saver = compileConfig.getCheckpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
+        var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
         return saver.list(config).stream()
                 .map( checkpoint -> StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() ) )
@@ -69,7 +69,7 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     public StateSnapshot<State> getState( RunnableConfig config ) {
-        var saver = compileConfig.getCheckpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
+        var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
         var checkpoint = saver.get(config).orElseThrow( () -> (new IllegalStateException("Missing Checkpoint!")) );
 
@@ -77,7 +77,7 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     public RunnableConfig updateState( RunnableConfig config, Map<String,Object> values, String asNode ) throws Exception {
-        var saver = compileConfig.getCheckpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
+        var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
         // merge values with checkpoint values
         var updatedCheckpoint = saver.get(config)
@@ -152,13 +152,13 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     private void addCheckpoint( RunnableConfig config, String nodeId, State state, String nextNodeId ) throws Exception {
-        if( compileConfig.getCheckpointSaver().isPresent() ) {
+        if( compileConfig.checkpointSaver().isPresent() ) {
             Checkpoint cp =  Checkpoint.builder()
                                 .nodeId( nodeId )
                                 .state( state )
                                 .nextNodeId( nextNodeId )
                                 .build();
-            compileConfig.getCheckpointSaver().get().put( config, cp );
+            compileConfig.checkpointSaver().get().put( config, cp );
         }
     }
 
@@ -172,7 +172,7 @@ public class CompiledGraph<State extends AgentState> {
 
     Map<String,Object> getInitialState(Map<String,Object> inputs, RunnableConfig config) {
 
-        return compileConfig.getCheckpointSaver()
+        return compileConfig.checkpointSaver()
                 .flatMap( saver -> saver.get( config ) )
                 .map( cp -> AgentState.updateState( cp.getState(), inputs, stateGraph.getChannels() ))
                 .orElseGet( () -> AgentState.updateState(getInitialStateFromSchema(), inputs, stateGraph.getChannels() ));
@@ -258,7 +258,7 @@ public class CompiledGraph<State extends AgentState> {
 
         if( isResumeRequest ) {
 
-            BaseCheckpointSaver saver = compileConfig.getCheckpointSaver().orElseThrow(() -> (new IllegalStateException("inputs cannot be null (ie. resume request) if no checkpoint saver is configured")));
+            BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow(() -> (new IllegalStateException("inputs cannot be null (ie. resume request) if no checkpoint saver is configured")));
 
             Checkpoint startCheckpoint = saver.get( config ).orElseThrow( () -> (new IllegalStateException("Resume request without a saved checkpoint!")) );
 
