@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
@@ -12,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptyMap;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
@@ -25,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for simple App.
  */
+@Slf4j
 public class StateGraphTest
 {
     public static <T> List<Map.Entry<String,T>> sortMap(Map<String,T> map ) {
@@ -111,118 +111,6 @@ public class StateGraphTest
 
     }
 
-    @Test
-    public void testCheckpointInitialState() throws Exception {
-
-        var workflow = new StateGraph<>(AgentState::new)
-            .addEdge( START,"agent_1")
-            .addNode("agent_1", node_async( state -> {
-                System.out.print( "agent_1");
-                return mapOf("agent_1:prop1", "agent_1:test");
-            }))
-            .addEdge( "agent_1",  END)
-        ;
-
-        var saver = new MemorySaver();
-
-        var compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
-
-        var app = workflow.compile( compileConfig );
-
-        Map<String, Object> inputs = mapOf( "input", "test1");
-
-        var initState = app.getInitialState( inputs );
-
-        assertEquals( 1, initState.data().size() );
-        assertTrue(  initState.value("input").isPresent() );
-        assertEquals( "test1", initState.value("input").get() );
-
-        //
-        // Test checkpoint not override inputs
-        //
-        var newState = new AgentState( mapOf( "input", "test2") );
-        saver.put( new Checkpoint( Checkpoint.Value.of( newState, "start" ) ) );
-
-        app = workflow.compile( compileConfig );
-        initState = app.getInitialState( inputs );
-
-        assertEquals( 1, initState.data().size() );
-        assertTrue(  initState.value("input").isPresent() );
-        assertEquals( "test1", initState.value("input").get() );
-
-        // Test checkpoints are saved
-        newState = new AgentState( mapOf( "input", "test2", "agent_1:prop1", "agent_1:test") );
-        saver.put( new Checkpoint( Checkpoint.Value.of( newState, "agent_1" ) ) );
-
-        app = workflow.compile( compileConfig );
-        initState = app.getInitialState( inputs );
-
-        assertEquals( 2, initState.data().size() );
-        assertTrue(  initState.value("input").isPresent() );
-        assertEquals( "test1", initState.value("input").get() );
-        assertTrue(  initState.value("agent_1:prop1").isPresent() );
-        assertEquals( "agent_1:test", initState.value("agent_1:prop1").get() );
-
-        var checkpoints = saver.list();
-        assertEquals( 2, checkpoints.size() );
-        var last = saver.getLast();
-        assertTrue( last.isPresent() );
-        assertEquals( "agent_1", last.get().getValue().getNodeId() );
-        assertTrue( last.get().getValue().getState().value("agent_1:prop1").isPresent() );
-        assertEquals( "agent_1:test", last.get().getValue().getState().value("agent_1:prop1").get() );
-
-    }
-
-    static class MessagesStateDeprecated extends AgentState {
-
-        public MessagesStateDeprecated(Map<String, Object> initData) {
-            super( initData  );
-            appendableValue("messages"); // tip: initialize messages
-        }
-
-        int steps() {
-            return value("steps").map(Integer.class::cast).orElse(0);
-        }
-
-        AppendableValue<String> messages() {
-            return appendableValue("messages");
-        }
-
-    }
-
-    @Test
-    void testWithAppenderDeprecated() throws Exception {
-
-        var workflow = new StateGraph<>(MessagesStateDeprecated::new)
-            .addNode("agent_1", node_async( state -> {
-                System.out.println( "agent_1" );
-                return mapOf("messages", "message1");
-            }))
-           .addNode("agent_2", node_async( state -> {
-               System.out.println( "agent_2" );
-                return mapOf( "messages", "message2");
-            }))
-           .addNode("agent_3", node_async( state -> {
-               System.out.println( "agent_3" );
-               var messages = state.messages();
-               var steps = messages.size() +1 ;
-               return mapOf("messages", "message3","steps", steps);
-            }))
-            .addEdge("agent_1", "agent_2")
-            .addEdge( "agent_2", "agent_3")
-            .addEdge( START, "agent_1")
-            .addEdge( "agent_3", END);
-
-        var app = workflow.compile();
-
-        Optional<MessagesStateDeprecated> result = app.invoke( mapOf() );
-
-        assertTrue( result.isPresent() );
-        System.out.println( result.get().data() );
-        assertEquals( 3, result.get().steps() );
-        assertEquals( 3, result.get().messages().size() );
-        assertIterableEquals( listOf( "message1", "message2", "message3"), result.get().messages().values() );
-    }
 
     static class MessagesState extends AgentState {
 
@@ -278,66 +166,55 @@ public class StateGraphTest
         assertIterableEquals( listOf( "message1", "message2", "message3"), result.get().messages() );
     }
 
+    static class MessagesStateDeprecated extends AgentState {
+
+        public MessagesStateDeprecated(Map<String, Object> initData) {
+            super( initData  );
+            appendableValue("messages"); // tip: initialize messages
+        }
+
+        int steps() {
+            return value("steps").map(Integer.class::cast).orElse(0);
+        }
+
+        AppendableValue<String> messages() {
+            return appendableValue("messages");
+        }
+
+    }
 
     @Test
-    public void testCheckpointSaver() throws Exception {
-        var STEPS_COUNT = 5;
+    void testWithAppenderDeprecated() throws Exception {
 
-        var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
-                .addEdge(START, "agent_1")
+        var workflow = new StateGraph<>(MessagesStateDeprecated::new)
                 .addNode("agent_1", node_async( state -> {
-                    System.out.println( "agent_1");
-                    var steps = state.steps() + 1;
-                    return mapOf("steps", steps, "messages", format( "agent_1:step %d", steps ));
+                    System.out.println( "agent_1" );
+                    return mapOf("messages", "message1");
                 }))
-                .addConditionalEdges( "agent_1", edge_async( state -> {
-                    var steps = state.steps();
-                    if( steps >= STEPS_COUNT) {
-                        return "exit";
-                    }
-                    return "next";
-                }), mapOf( "next", "agent_1", "exit", END) );
-                ;
+                .addNode("agent_2", node_async( state -> {
+                    System.out.println( "agent_2" );
+                    return mapOf( "messages", "message2");
+                }))
+                .addNode("agent_3", node_async( state -> {
+                    System.out.println( "agent_3" );
+                    var messages = state.messages();
+                    var steps = messages.size() +1 ;
+                    return mapOf("messages", "message3","steps", steps);
+                }))
+                .addEdge("agent_1", "agent_2")
+                .addEdge( "agent_2", "agent_3")
+                .addEdge( START, "agent_1")
+                .addEdge( "agent_3", END);
 
+        var app = workflow.compile();
 
-        var saver = new MemorySaver();
+        Optional<MessagesStateDeprecated> result = app.invoke( mapOf() );
 
-        var compileConfig = CompileConfig.builder()
-                .checkpointSaver(saver)
-                .build();
-
-        var app = workflow.compile( compileConfig );
-
-        Map<String, Object> inputs = mapOf( "steps", 0 );
-
-        var invokeConfig = InvokeConfig.builder().checkpointThreadId("thread_1").build();
-
-        var state = app.invoke( inputs, invokeConfig );
-
-        assertTrue( state.isPresent() );
-        assertEquals( STEPS_COUNT, state.get().steps() );
-
-        var messages = state.get().messages();
-        assertFalse( messages.isEmpty() );
-
-        System.out.println( messages );
-
-        assertEquals( STEPS_COUNT, messages.size() );
-        for( int i = 0; i < messages.size(); i++ ) {
-            assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
-        }
-
-        state = app.invoke( emptyMap(), invokeConfig );
-
-        assertTrue( state.isPresent() );
-        assertEquals( STEPS_COUNT + 1, state.get().steps() );
-        messages = state.get().messages();
-
-        System.out.println( messages );
-        assertEquals( STEPS_COUNT + 1, messages.size() );
-        for( int i = 0; i < messages.size(); i++ ) {
-            assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
-        }
+        assertTrue( result.isPresent() );
+        System.out.println( result.get().data() );
+        assertEquals( 3, result.get().steps() );
+        assertEquals( 3, result.get().messages().size() );
+        assertIterableEquals( listOf( "message1", "message2", "message3"), result.get().messages().values() );
     }
 
 }

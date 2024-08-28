@@ -1,37 +1,35 @@
 package org.bsc.langgraph4j.serializer;
 
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
-import org.bsc.langgraph4j.state.AgentState;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class AgentStateSerializer implements Serializer<AgentState> {
-    public static final AgentStateSerializer INSTANCE = new AgentStateSerializer();
-    private AgentStateSerializer() {}
+public class MapSerializer implements Serializer<Map<String,Object>> {
+    public static final MapSerializer INSTANCE = new MapSerializer();
+    private MapSerializer() {}
 
     @Override
-    public void write(AgentState object, ObjectOutput out) throws IOException {
+    public void write(Map<String,Object> object, ObjectOutput out) throws IOException {
         try( ByteArrayOutputStream baos = new ByteArrayOutputStream() ) {
-            int actuoalSize = 0;
+            int actualSize = 0;
 
             final ObjectOutputStream tupleStream = new ObjectOutputStream( baos );
-            for( Map.Entry<String,Object> e : object.data().entrySet() ) {
+            for( Map.Entry<String,Object> e : object.entrySet() ) {
                 try {
                     tupleStream.writeUTF(e.getKey());
                     tupleStream.writeObject(e.getValue());
-                    ++actuoalSize;
+                    ++actualSize;
                 } catch (IOException ex) {
-                    log.error( "Error writing state key '{}' - {}", e.getKey(), ex.getMessage() );
+                    log.error( "Error writing map key '{}' - {}", e.getKey(), ex.getMessage() );
                     throw ex;
                 }
             }
 
-            out.writeInt( object.data().size() );
-            out.writeInt( actuoalSize ); // actual size
+            out.writeInt( object.size() );
+            out.writeInt( actualSize ); // actual size
             byte[] data = baos.toByteArray();
             out.writeInt( data.length );
             out.write( data );
@@ -41,7 +39,7 @@ public class AgentStateSerializer implements Serializer<AgentState> {
     }
 
     @Override
-    public AgentState read(ObjectInput in) throws IOException, ClassNotFoundException {
+    public Map<String, Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
         Map<String, Object> data = new HashMap<>();
 
         int expectedSize = in.readInt();
@@ -49,7 +47,7 @@ public class AgentStateSerializer implements Serializer<AgentState> {
         if( expectedSize > 0 && actualSize > 0 ) {
 
             if( expectedSize != actualSize ) {
-                final String message = String.format( "Deserialize State: Expected size %d and actual size %d do not match!", expectedSize, actualSize ) ;
+                final String message = String.format( "Deserialize map: Expected size %d and actual size %d do not match!", expectedSize, actualSize ) ;
                 log.error( message ) ;
                 throw new IOException( message ) ;
             }
@@ -69,6 +67,7 @@ public class AgentStateSerializer implements Serializer<AgentState> {
             }
 
         }
-        return new AgentState(data);
+        return data;
     }
+
 }

@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j;
 
+import lombok.Getter;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 
 import java.util.Optional;
@@ -8,12 +9,12 @@ import java.util.Optional;
 public class CompileConfig {
 
     private BaseCheckpointSaver checkpointSaver;
+    @Getter
     private String[] interruptBefore = {};
+    @Getter
     private String[] interruptAfter = {};
 
-    public Optional<BaseCheckpointSaver> getCheckpointSaver() { return Optional.ofNullable(checkpointSaver); }
-    public String[] getInterruptBefore() { return interruptBefore; }
-    public String[] getInterruptAfter() { return interruptAfter; }
+    public Optional<BaseCheckpointSaver> checkpointSaver() { return Optional.ofNullable(checkpointSaver); }
 
     public static Builder builder() {
         return new Builder();
