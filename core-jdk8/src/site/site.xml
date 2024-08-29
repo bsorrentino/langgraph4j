@@ -20,8 +20,21 @@
             <!--
             <item name="Usage" href="usage.html"/>
             -->
-            <item name="javadoc" href="apidocs/index.html"/>
 
+
+        </menu>
+
+        <menu name="Reference">
+            <item name="javadoc" href="apidocs/index.html"/>
+        </menu>
+        <menu name="Conceptual Guides">
+            <item name="Overview" href="concepts/index.html"/>
+            <!-- 
+            <item name="LangGraph4j for Agentic Applications" href="concepts/high_level.html"/>
+            <item name="Common Agentic Patterns" href="concepts/agentic_concepts.html"/>
+            -->
+            <item name="Low Level LangGraph Concepts" href="concepts/low_level.html"/>
+            <item name="FAQ" href="concepts/faq.html"/>
         </menu>
     </body>
 </project>
