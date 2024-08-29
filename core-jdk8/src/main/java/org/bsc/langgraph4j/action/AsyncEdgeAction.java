@@ -9,6 +9,7 @@ import java.util.function.Function;
  * 
  * @param <S> the type of the agent state
  */
+@FunctionalInterface
 public interface AsyncEdgeAction<S extends AgentState> extends Function<S, CompletableFuture<String>> {
 
     /**
