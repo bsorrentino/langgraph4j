@@ -95,7 +95,7 @@ var graphBuilder = new StateGraph<>( MessagesState.SCHEMA, MyState::new)
 <!--
 In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#state), and (optionally), the **second** positional argument is a "config", containing optional [configurable parameters](#configuration) (such as a `thread_id`).
 -->
-In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#state), you add these nodes to a graph using the [`addNode`](/apidocs/org/bsc/langgraph4j/StateGraph.html#addNode-java.lang.String-org.bsc.langgraph4j.action.AsyncNodeAction-) method:
+In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#state), you add these nodes to a graph using the [`addNode`](../../apidocs/org/bsc/langgraph4j/StateGraph.html#addNode-java.lang.String-org.bsc.langgraph4j.action.AsyncNodeAction-) method:
 
 ```java
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
@@ -368,22 +368,22 @@ There are several different streaming modes that LangGraph4j supports:
 
 In addition, you can use the [`streamEvents`](https://v02.api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents) method to stream back events that happen _inside_ nodes. This is useful for [streaming tokens of LLM calls](../how-tos/streaming-tokens-without-langchain.html). -->
 
-[Reducer]: /apidocs/org/bsc/langgraph4j/state/Reducer.html
-[`AgentState`]: /apidocs/org/bsc/langgraph4j/state/AgentState.html
-[`StateGraph`]: /apidocs/org/bsc/langgraph4j/StateGraph.html
-[`Channel`]: /apidocs/org/bsc/langgraph4j/state/Channel.html
-[`AsyncNodeAction`]: /apidocs/org/bsc/langgraph4j/action/AsyncNodeAction.html
-[`AsyncEdgeAction`]: /apidocs/org/bsc/langgraph4j/action/AsyncEdgeAction.html
-[`AppenderChannel`]: /apidocs/org/bsc/langgraph4j/state/AppenderChannel.html
-[`addNode`]: /apidocs/org/bsc/langgraph4j/StateGraph.html#addNode-java.lang.String-org.bsc.langgraph4j.action.AsyncNodeAction-
-[`addEdge`]: /apidocs/org/bsc/langgraph4j/StateGraph.html#addEdge-java.lang.String-java.lang.String-
-[`addConditionalEdges`]: /apidocs/org/bsc/langgraph4j/StateGraph.html#addConditionalEdges-java.lang.String-org.bsc.langgraph4j.action.AsyncEdgeAction-java.util.Map-
+[Reducer]: ../../apidocs/org/bsc/langgraph4j/state/Reducer.html
+[`AgentState`]: ../../apidocs/org/bsc/langgraph4j/state/AgentState.html
+[`StateGraph`]: ../../apidocs/org/bsc/langgraph4j/StateGraph.html
+[`Channel`]: ../../apidocs/org/bsc/langgraph4j/state/Channel.html
+[`AsyncNodeAction`]: ../../apidocs/org/bsc/langgraph4j/action/AsyncNodeAction.html
+[`AsyncEdgeAction`]: ../../apidocs/org/bsc/langgraph4j/action/AsyncEdgeAction.html
+[`AppenderChannel`]: ../../apidocs/org/bsc/langgraph4j/state/AppenderChannel.html
+[`addNode`]: ../../apidocs/org/bsc/langgraph4j/StateGraph.html#addNode-java.lang.String-org.bsc.langgraph4j.action.AsyncNodeAction-
+[`addEdge`]: ../../apidocs/org/bsc/langgraph4j/StateGraph.html#addEdge-java.lang.String-java.lang.String-
+[`addConditionalEdges`]: ../../apidocs/org/bsc/langgraph4j/StateGraph.html#addConditionalEdges-java.lang.String-org.bsc.langgraph4j.action.AsyncEdgeAction-java.util.Map-
 [`CompletableFuture`]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
-[`Checkpointers`]: http://localhost:8080/apidocs/org/bsc/langgraph4j/checkpoint/BaseCheckpointSaver.html
-[`graph.updateState(config,values,asNode)`]: /apidocs/org/bsc/langgraph4j/CompiledGraph.html#updateState-org.bsc.langgraph4j.RunnableConfig-java.util.Map-java.lang.String-
-[`graph.getStateHistory(config)`]: /apidocs/org/bsc/langgraph4j/CompiledGraph.html#getStateHistory-org.bsc.langgraph4j.RunnableConfig-
-[`graph.getState(config)`]: /apidocs/org/bsc/langgraph4j/CompiledGraph.html#getState-org.bsc.langgraph4j.RunnableConfig-
+[`Checkpointers`]: http://localhost:8080../../apidocs/org/bsc/langgraph4j/checkpoint/BaseCheckpointSaver.html
+[`graph.updateState(config,values,asNode)`]: ../../apidocs/org/bsc/langgraph4j/CompiledGraph.html#updateState-org.bsc.langgraph4j.RunnableConfig-java.util.Map-java.lang.String-
+[`graph.getStateHistory(config)`]: ../../apidocs/org/bsc/langgraph4j/CompiledGraph.html#getStateHistory-org.bsc.langgraph4j.RunnableConfig-
+[`graph.getState(config)`]: ../../apidocs/org/bsc/langgraph4j/CompiledGraph.html#getState-org.bsc.langgraph4j.RunnableConfig-
 [PlantUML]: https://plantuml.com
 [java-async-generator]: https://github.com/bsorrentino/java-async-generator
 [Mermaid]: https://mermaid.js.org
-[`graph.getGraph`]: http://localhost:8080/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getGraph-org.bsc.langgraph4j.GraphRepresentation.Type-java.lang.String-
+[`graph.getGraph`]: http://localhost:8080../../apidocs/org/bsc/langgraph4j/CompiledGraph.html#getGraph-org.bsc.langgraph4j.GraphRepresentation.Type-java.lang.String-
