@@ -5,16 +5,6 @@ agent. We will use a ReAct agent as an example. The tl;dr is to use
 [streamEvents](https://js.langchain.com/v0.2/docs/how_to/chat_streaming/#stream-events)
 ([API Ref](https://api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents)).
 
-<!-- <div class="admonition info">
-    <p class="admonition-title">Note</p>
-    <p>
-      If you are using a version of <code>@langchain/core</code> < 0.2.3, when calling chat models or LLMs you need to call <code>await model.stream()</code> within your nodes to get token-by-token streaming events, and aggregate final outputs if needed to update the graph state. In later versions of <code>@langchain/core</code>, this occurs automatically, and you can call <code>await model.invoke()</code>.
-      <br>
-      For more on how to upgrade <code>@langchain/core</code>, check out <a href="https://js.langchain.com/v0.2/docs/how_to/installation/#installing-integration-packages">the instructions here</a>.
-    </p>
-
-</div> -->
-
 This how-to guide closely follows the others in this directory, showing how to
 incorporate the functionality into a prototypical agent in LangGraph.
 
@@ -23,19 +13,9 @@ This works for
 and all its subclasses, such as
 [MessageGraph](/langgraphjs/reference/classes/langgraph.MessageGraph.html).
 
-<!-- <div class="admonition info">
-    <p class="admonition-title">Streaming Support</p>
-    <p>
-        Token streaming is supported by many, but not all chat models. Check to see if your LLM integration supports token streaming <a href="https://js.langchain.com/v0.2/docs/integrations/chat/">here (doc)</a>. Note that some integrations may support <i>general</i> token streaming but lack support for streaming tool calls.
-    </p>
-</div>
+Token streaming is supported by many, but not all chat models. Check to see if your LLM integration supports token streaming here [doc](https://js.langchain.com/v0.2/docs/integrations/chat/). Note that some integrations may support _general_ token streaming but lack support for streaming tool calls.
 
-<div class="admonition tip">
-    <p class="admonition-title">Note</p>
-    <p>
-        In this how-to, we will create our agent from scratch to be transparent (but verbose). You can accomplish similar functionality using the <code>createReactAgent({ llm, tools })</code> (<a href="/langgraphjs/reference/functions/langgraph_prebuilt.createReactAgent.html">API doc</a>) constructor. This may be more appropriate if you are used to LangChain's <a href="https://js.langchain.com/v0.2/docs/how_to/agent_executor">AgentExecutor</a> class.
-    </p>
-</div> -->
+In this how-to, we will create our agent from scratch to be transparent (but verbose). You can accomplish similar functionality using the `createReactAgent({ llm, tools })` [API doc](/langgraphjs/reference/functions/langgraph_prebuilt.createReactAgent.html) constructor. This may be more appropriate if you are used to LangChain's [AgentExecutor](https://js.langchain.com/v0.2/docs/how_to/agent_executor) class.
 
 ## Setup
 
@@ -121,12 +101,7 @@ Now load the [chat model](https://js.langchain.com/v0.2/docs/concepts/#chat-mode
    [tool calling](https://js.langchain.com/v0.2/docs/how_to/tool_calling/#passing-tools-to-llms),
    meaning it can return function arguments in its response.
 
-<!-- <div class="admonition tip">
-    <p class="admonition-title">Note</p>
-    <p>
-        These model requirements are not general requirements for using LangGraph - they are just requirements for this one example.
-    </p>
-</div> -->
+These model requirements are not general requirements for using LangGraph - they are just requirements for this one example.
 
 
 ```typescript
