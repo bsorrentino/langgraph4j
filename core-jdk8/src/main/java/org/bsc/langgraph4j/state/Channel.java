@@ -3,6 +3,30 @@ package org.bsc.langgraph4j.state;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static java.util.Optional.ofNullable;
+
+/**
+ *
+ * @param <T>
+ */
+class BaseChannel<T> implements Channel<T> {
+    final Supplier<T> defaultProvider;
+    final Reducer<T> reducer;
+
+    BaseChannel(Reducer<T> reducer, Supplier<T> defaultProvider ) {
+        this.defaultProvider = defaultProvider;
+        this.reducer = reducer;
+    }
+
+    public Optional<Supplier<T>> getDefault() {
+        return ofNullable(defaultProvider);
+    }
+
+    public Optional<Reducer<T>> getReducer() {
+        return ofNullable(reducer);
+    }
+}
+
 /**
  * A Channel is a mechanism used to maintain a state property.
  * <p>
@@ -27,6 +51,16 @@ import java.util.function.Supplier;
  * @param <T> the type of the state property
  */
 public interface Channel<T> {
+
+    static <T> Channel<T> of( Supplier<T> defaultProvider) {
+        return new BaseChannel<T>(null, defaultProvider);
+    }
+    static <T> Channel<T> of( Reducer<T> reducer ) {
+        return new BaseChannel<T>(reducer, null);
+    }
+    static <T> Channel<T> of( Reducer<T> reducer, Supplier<T> defaultProvider ) {
+        return new BaseChannel<T>(reducer, defaultProvider);
+    }
 
     /**
      * The Reducer, if provided, is invoked for each state property to compute value.
