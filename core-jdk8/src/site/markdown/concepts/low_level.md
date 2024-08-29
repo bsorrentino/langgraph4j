@@ -379,11 +379,11 @@ In addition, you can use the [`streamEvents`](https://v02.api.js.langchain.com/c
 [`addEdge`]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#addEdge-java.lang.String-java.lang.String-
 [`addConditionalEdges`]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#addConditionalEdges-java.lang.String-org.bsc.langgraph4j.action.AsyncEdgeAction-java.util.Map-
 [`CompletableFuture`]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
-[`Checkpointers`]: http://localhost:8080/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/BaseCheckpointSaver.html
+[`Checkpointers`]: /langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/BaseCheckpointSaver.html
 [`graph.updateState(config,values,asNode)`]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#updateState-org.bsc.langgraph4j.RunnableConfig-java.util.Map-java.lang.String-
 [`graph.getStateHistory(config)`]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getStateHistory-org.bsc.langgraph4j.RunnableConfig-
 [`graph.getState(config)`]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getState-org.bsc.langgraph4j.RunnableConfig-
 [PlantUML]: https://plantuml.com
 [java-async-generator]: https://github.com/bsorrentino/java-async-generator
 [Mermaid]: https://mermaid.js.org
-[`graph.getGraph`]: http://localhost:8080/langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getGraph-org.bsc.langgraph4j.GraphRepresentation.Type-java.lang.String-
+[`graph.getGraph`]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getGraph-org.bsc.langgraph4j.GraphRepresentation.Type-java.lang.String-
