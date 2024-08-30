@@ -161,7 +161,8 @@ Edges define how the logic is routed and how the graph decides to stop. This is 
 - **Conditional Entry Point**: 
   > Call a function to determine which node(s) to call first when user input arrives.
 
-<!-- A node can have MULTIPLE outgoing edges. If a node has multiple out-going edges, **all** of those destination nodes will be executed in parallel as a part of the next superstep. -->
+<!-- 👉 PARALLEL
+ A node can have MULTIPLE outgoing edges. If a node has multiple out-going edges, **all** of those destination nodes will be executed in parallel as a part of the next superstep. -->
 
 ### Normal Edges
 
@@ -286,9 +287,10 @@ These are the values that will be used to update the state. Note that this updat
 
 **`asNode`**
 
-The final thing you specify when calling `updateState` is `asNode`. This update will be applied as if it came from node `asNode`. If `asNode` is null, it will be set to the last node that updated the state, if not ambiguous.
+The final thing you specify when calling `updateState` is `asNode`. This update will be applied as if it came from node `asNode`. If `asNode` is null, it will be set to the last node that updated the state.
 
-<!-- The final thing you specify when calling `updateState` is `asNode`. This update will be applied as if it came from node `asNode`. If `asNode` is null, it will be set to the last node that updated the state, if not ambiguous.
+<!-- 👉 AMBIGUITY  
+The final thing you specify when calling `updateState` is `asNode`. This update will be applied as if it came from node `asNode`. If `asNode` is null, it will be set to the last node that updated the state, if not ambiguous.
 
 The reason this matters is that the next steps in the graph to execute depend on the last node to have given an update, so this can be used to control which node executes next. -->
 
