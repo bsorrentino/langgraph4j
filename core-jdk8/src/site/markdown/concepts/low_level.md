@@ -342,7 +342,7 @@ See [this guide](../how-tos/breakpoints.html) for a full walkthrough of how to a
 
 ## Visualization
 
-It's often nice to be able to visualize graphs, especially as they get more complex. LangGraph4j comes with several built-in ways to visualize graphs using diagram-as-code tools such as [PlantUML] and [Mermaid] through the [`graph.getGraph()`] method. 
+It's often nice to be able to visualize graphs, especially as they get more complex. LangGraph4j comes with several built-in ways to visualize graphs using diagram-as-code tools such as [PlantUML] and [Mermaid] through the [`graph.getGraph`] method. 
 
 ```java
 // for PlantUML
