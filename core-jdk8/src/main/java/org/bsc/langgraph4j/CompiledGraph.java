@@ -84,12 +84,16 @@ public class CompiledGraph<State extends AgentState> {
                             .map( cp -> cp.updateState(values, stateGraph.getChannels()) )
                             .orElseThrow( () -> (new IllegalStateException("Missing Checkpoint!")) );
 
+        String nextNodeId = null;
+        if( asNode != null ) {
+            nextNodeId = nextNodeId( asNode, stateGraph.getStateFactory().apply(updatedCheckpoint.getState()) );
+        }
         // update checkpoint in saver
         var newConfig = saver.put( config, updatedCheckpoint );
 
         return RunnableConfig.builder(newConfig)
                                 .checkPointId( updatedCheckpoint.getId() )
-                                .nextNode( asNode )
+                                .nextNode( nextNodeId )
                                 .build();
     }
 
