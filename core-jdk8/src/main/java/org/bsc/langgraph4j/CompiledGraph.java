@@ -8,7 +8,7 @@ import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
-import org.bsc.langgraph4j.serializer.MapSerializer;
+import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
 import org.bsc.langgraph4j.utils.TryConsumer;
@@ -192,7 +192,7 @@ public class CompiledGraph<State extends AgentState> {
 
     State cloneState( Map<String,Object> data ) throws IOException, ClassNotFoundException {
 
-        Map<String,Object> newData = MapSerializer.INSTANCE.cloneObject(data);
+        Map<String,Object> newData = StateSerializer.INSTANCE.cloneObject(data);
 
         return stateGraph.getStateFactory().apply(newData);
     }
