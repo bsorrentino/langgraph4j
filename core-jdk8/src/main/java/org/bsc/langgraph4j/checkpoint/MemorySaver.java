@@ -19,6 +19,8 @@ public class MemorySaver implements BaseCheckpointSaver {
     private final Lock r = rwl.readLock();
     private final Lock w = rwl.writeLock();
 
+    private final CheckpointSerializer _serializer = CheckpointSerializer.of();
+
     public MemorySaver() {
     }
 
@@ -66,7 +68,7 @@ public class MemorySaver implements BaseCheckpointSaver {
 
         w.lock();
         try {
-            final Checkpoint clonedCheckpoint = CheckpointSerializer.INSTANCE.cloneObject(checkpoint);
+            final Checkpoint clonedCheckpoint = _serializer.cloneObject(checkpoint);
 
             if (config.checkPointId().isPresent()) { // Replace Checkpoint
                 String checkPointId = config.checkPointId().get();

@@ -7,9 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class MapSerializer implements Serializer<Map<String,Object>> {
-    public static final MapSerializer INSTANCE = new MapSerializer();
-    private MapSerializer() {}
+public class MapSerialize extends BaseSerializer<Map<String,Object>> {
+
+    public static Serializer<Map<String,Object>> of() {
+        return new MapSerialize();
+    }
+    protected MapSerialize() {}
 
     @Override
     public void write(Map<String,Object> object, ObjectOutput out) throws IOException {
@@ -20,10 +23,12 @@ public class MapSerializer implements Serializer<Map<String,Object>> {
             for( Map.Entry<String,Object> e : object.entrySet() ) {
                 try {
                     tupleStream.writeUTF(e.getKey());
-                    tupleStream.writeObject(e.getValue());
+
+                    writeObjectWithSerializer( e.getValue(), tupleStream );
+
                     ++actualSize;
                 } catch (IOException ex) {
-                    log.error( "Error writing map key '{}' - {}", e.getKey(), ex.getMessage() );
+                    log.error( "Error writing map key '{}'", e.getKey(), ex );
                     throw ex;
                 }
             }
@@ -40,7 +45,12 @@ public class MapSerializer implements Serializer<Map<String,Object>> {
 
     @Override
     public Map<String, Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> result = null;
+        try {
+            result = newInstance(HashMap::new);
+        } catch (InstantiationException|IllegalAccessException e) {
+            throw new ClassNotFoundException( "error on create new instance! see root cause", e );
+        }
 
         int expectedSize = in.readInt();
         int actualSize = in.readInt();
@@ -57,17 +67,20 @@ public class MapSerializer implements Serializer<Map<String,Object>> {
             in.readFully(bytes);
 
             try( ByteArrayInputStream bais = new ByteArrayInputStream( bytes ) ) {
-                ObjectInputStream ois = new ObjectInputStream( bais );
+                ObjectInputStream tupleStream = new ObjectInputStream( bais );
 
                 for( int i = 0; i < actualSize; i++ ) {
-                    String key = ois.readUTF();
-                    Object value = ois.readObject();
-                    data.put(key, value);
+                    String key = tupleStream.readUTF();
+
+                    Object value = readObjectWithSerializer( tupleStream );
+
+                    result.put(key, value);
+
                 }
             }
 
         }
-        return data;
+        return result;
     }
 
 }

@@ -8,13 +8,16 @@ import java.io.ObjectOutput;
 
 public class CheckpointSerializer implements Serializer<Checkpoint> {
 
-    public static final CheckpointSerializer INSTANCE = new CheckpointSerializer();
+    public static CheckpointSerializer of() {
+        return new CheckpointSerializer();
+    }
+    private final StateSerializer stateSerializer = StateSerializer.of();
 
     private CheckpointSerializer() {}
 
     public void write( Checkpoint object, ObjectOutput out) throws IOException {
         out.writeUTF(object.getId());
-        MapSerializer.INSTANCE.write( object.getState(), out );
+        stateSerializer.write( object.getState(), out );
         out.writeUTF( object.getNodeId() );
         Serializer.writeUTFNullable( object.getNextNodeId(), out );
     }
@@ -22,7 +25,7 @@ public class CheckpointSerializer implements Serializer<Checkpoint> {
     public Checkpoint read(ObjectInput in) throws IOException, ClassNotFoundException {
         return Checkpoint.builder()
                 .id(in.readUTF())
-                .state(MapSerializer.INSTANCE.read( in ))
+                .state(stateSerializer.read( in ))
                 .nodeId(in.readUTF())
                 .nextNodeId(Serializer.readUTFNullable(in).orElse(null))
                 .build();
