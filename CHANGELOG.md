@@ -2,20 +2,91 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v1.0-beta3" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+## [v1.0-beta3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-beta3) (2024-09-03)
 
+### Features
+
+ *  **serilaizer**  enhance the serialization api ([06ed83d7c8ba6c8](https://github.com/bsorrentino/langgraph4j/commit/06ed83d7c8ba6c8360e60f0cada7a3a124a230c5))
+     > - add BaseSerializer
+     > - add Custom Serializer support
+   
+ *  **notebook**  add persistence how-to using a java notebook ([b89dbcfe05123b8](https://github.com/bsorrentino/langgraph4j/commit/b89dbcfe05123b8459c26a95d663608177ed91d3))
+   
+ *  **persistence.ipynb**  add AiMessage Serializer ([363600c0b629d42](https://github.com/bsorrentino/langgraph4j/commit/363600c0b629d423bc70dd9e577a99290b3b417b))
+   
+ *  **serializer**  add custom serializer support ([f958f0c03e5b9c8](https://github.com/bsorrentino/langgraph4j/commit/f958f0c03e5b9c816188aa927b82cc3a7ae754a5))
+   
+ *  **persistence.ipynb**  add workflow execution ([c4bf0819b3f65a2](https://github.com/bsorrentino/langgraph4j/commit/c4bf0819b3f65a2c94c4bc2e715b251bf0aedc1a))
+   
+ *  **persistence**  refine Graph definition ([f09aeb6a0b583b4](https://github.com/bsorrentino/langgraph4j/commit/f09aeb6a0b583b4c1c620978772371a331e79cce))
+   
+ *  add support of java notebook based on 'rapaio-jupyter-kernel' ([41ab46694adf90e](https://github.com/bsorrentino/langgraph4j/commit/41ab46694adf90e9853d5e53f4acd0f89fa650ff))
+   
+ *  add factory methods to create custom Channel ([8abb17312f788fb](https://github.com/bsorrentino/langgraph4j/commit/8abb17312f788fb2b510145e22d35f31c2a96c01))
+   
+
+### Bug Fixes
+
+ -  **CompiledGraph**  when asNode is provided next node is evaluated keeping in consideration edges ([d3595cb41ec9f64](https://github.com/bsorrentino/langgraph4j/commit/d3595cb41ec9f64ce9e2f2806e564a2a94ef67c3))
+     > work on #14
 
 
 ### Documentation
+
+ -  **site**  update documentation ([254f64f7bfb41a1](https://github.com/bsorrentino/langgraph4j/commit/254f64f7bfb41a14da82aba7ea4e4af67ef42c11))
+     > - persistence howto
+
+ -  update links ([0d7b1df3766efe4](https://github.com/bsorrentino/langgraph4j/commit/0d7b1df3766efe4d7901ce029e6fc77f597e06f6))
+     > work on #12
+
+ -  update links ([a5af831f480b016](https://github.com/bsorrentino/langgraph4j/commit/a5af831f480b016540e489e71126efb6818cc3b0))
+     > work on #12
+
+ -  update links ([2a1f1b8ca779832](https://github.com/bsorrentino/langgraph4j/commit/2a1f1b8ca779832ff7f0329b3763840fc8373c7d))
+     > work on #12
+
+ -  update links ([45eb6850811a164](https://github.com/bsorrentino/langgraph4j/commit/45eb6850811a164ffa6518448c76dbf082569024))
+
+ -  update links ([7245d150fed8c1d](https://github.com/bsorrentino/langgraph4j/commit/7245d150fed8c1df07a3e14e65c9a3b9f1257979))
+
+ -  update links ([6c77da53ac2fdc7](https://github.com/bsorrentino/langgraph4j/commit/6c77da53ac2fdc7a8867f90ca71a85a30e1fa8fb))
+
+ -  update links ([4449fb4148d5a90](https://github.com/bsorrentino/langgraph4j/commit/4449fb4148d5a907a2d45319362928b5c1dbb9a7))
+
+ -  update ([b82abebd61df183](https://github.com/bsorrentino/langgraph4j/commit/b82abebd61df183930c8ea288d4a31c61a974bcd))
+
+ -  update ([ea080158b19a91d](https://github.com/bsorrentino/langgraph4j/commit/ea080158b19a91dbb0b56e6563895e7006e9123a))
+
+ -  add javadoc task on site  generation ([c236773dbef7752](https://github.com/bsorrentino/langgraph4j/commit/c236773dbef77520d1471b6c785725e75017ac30))
+     > work on #12
+
+ -  add Conceptual Guides ([33ba7527b9d2c79](https://github.com/bsorrentino/langgraph4j/commit/33ba7527b9d2c79f9154f3afa6fdce8289f8cd30))
+     > work on #12
+
+ -  update readme ([1a087fca04acfc6](https://github.com/bsorrentino/langgraph4j/commit/1a087fca04acfc65740befdbedd97250794fd884))
+
+ -  update changeme ([04f1ff7a00254f3](https://github.com/bsorrentino/langgraph4j/commit/04f1ff7a00254f31520653cc07ebec84247ed9b6))
 
  -  update changeme ([d8bdbcb7309dde5](https://github.com/bsorrentino/langgraph4j/commit/d8bdbcb7309dde548bce27aa97ed0fec02f65287))
 
  -  update changeme ([160d7093b6123ec](https://github.com/bsorrentino/langgraph4j/commit/160d7093b6123ec645bcbe63e4830d70c6c6b297))
 
 
+### Refactor
 
+ -  **TryConsumer**  add log ([526f296c70bc587](https://github.com/bsorrentino/langgraph4j/commit/526f296c70bc5872c4dfb58f4ea27146350a0794))
+   
+ -  remove unused import ([eeb00a08078449c](https://github.com/bsorrentino/langgraph4j/commit/eeb00a08078449cf9e6036ac940bf2ac59e69783))
+   
+ -  add @@FunctionalInterface annotation ([e37621cf6bdbef0](https://github.com/bsorrentino/langgraph4j/commit/e37621cf6bdbef0782c420be75bd8790d516e930))
+   
+
+### ALM 
+
+ -  bump version 1.0-beta3 ([d7fbde9e3a6f8d5](https://github.com/bsorrentino/langgraph4j/commit/d7fbde9e3a6f8d5d2f549b153cd54a30f5c15eea))
+   
 
 
 
