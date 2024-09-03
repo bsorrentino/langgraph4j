@@ -7,7 +7,6 @@ import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
-import org.bsc.langgraph4j.state.StateSnapshot;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

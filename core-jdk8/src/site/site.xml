@@ -14,6 +14,18 @@
         </fluidoSkin>
     </custom>
     <body>
+
+        <head>
+            <!--
+            Workaround by https://shred.zone/cilla/page/431/fluido-skin-and-markdown-syntax-highlighting.html
+            -->
+            <![CDATA[<script type="text/javascript">
+                    $(document).ready(function () {
+                        $(".language-java").addClass("prettyprint");
+                        prettyPrint();
+                    });
+            </script>]]>
+        </head>
         <menu name="Overview">
             <item name="Summary" href="summary.html"/>
             <item name="Dependencies" href="dependencies.html"/>
@@ -35,6 +47,9 @@
             -->
             <item name="Low Level LangGraph Concepts" href="concepts/low_level.html"/>
             <item name="FAQ" href="concepts/faq.html"/>
+        </menu>
+        <menu name="How To(s)">
+            <item name="Persistence" href="how-tos/persistence.html"/>
         </menu>
     </body>
 </project>

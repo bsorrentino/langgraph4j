@@ -37,6 +37,7 @@ To build your graph, you first define the [state](#state), you then add [nodes](
 Compiling is a pretty simple step. It provides a few basic checks on the structure of your graph (no orphaned nodes, etc). It is also where you can specify runtime args like [checkpointers](#checkpointer) and [breakpoints](#breakpoints). You compile your graph by just calling the `.compile` method:
 
 ```java
+// compile your graph
 var graph = graphBuilder.compile(...);
 ```
 
@@ -58,7 +59,6 @@ If no [`Channel`] is specified for an item then it is assumed that all updates t
 **Example A:**
 
 ```java
-
 static class MessagesState extends AgentState {
 
     static Map<String, Channel<?>> SCHEMA = mapOf(
@@ -77,7 +77,6 @@ You can also specify a custom reducer for a particular state property
 **Example B:**
 
 ```java
-
 static class MyState extends AgentState {
 
     static Map<String, Channel<?>> SCHEMA = mapOf(
@@ -168,7 +167,8 @@ Edges define how the logic is routed and how the graph decides to stop. This is 
 
 If you **always** want to go from node A to node B, you can use the [addEdge](/langgraphjs/reference/classes/langgraph.StateGraph.html#addEdge) method directly.
 
-```typescript
+```java
+// add a normal edge
 graph.addEdge("nodeA", "nodeB");
 ```
 
@@ -234,7 +234,7 @@ First, checkpointers facilitate [human-in-the-loop workflows](agentic_concepts.m
 
 Second, it allows for ["memory"](agentic_concepts.md#memory) between interactions. You can use checkpointers to create threads and save the state of a thread after a graph executes. In the case of repeated human interactions (like conversations) any follow up messages can be sent to that checkpoint, which will retain its memory of previous ones.
 
-See [this guide](../how-tos/persistence.html) for how to add a checkpointer to your graph.
+See [this guide](../../how-tos/persistence.html) for how to add a checkpointer to your graph.
 
 ## Threads
 
@@ -252,7 +252,7 @@ RunnableConfig config = RunnableConfig.builder()
 graph.invoke(inputs, config);
 ```
 
-See [this guide](../how-tos/persistence.html) for how to use threads.
+See [this guide](../../how-tos/persistence.html) for how to use threads.
 
 ## Checkpointer state
 

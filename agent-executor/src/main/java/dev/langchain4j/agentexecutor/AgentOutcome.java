@@ -19,16 +19,16 @@ public class AgentOutcome implements Externalizable {
     }
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        AgentAction.SERIALIZER.writeNullable(action, out);
-        AgentFinish.SERIALIZER.writeNullable(finish, out);
+        AgentAction.SERIALIZER.writeObjectNullable(action, out);
+        AgentFinish.SERIALIZER.writeObjectNullable(finish, out);
 
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        AgentAction.SERIALIZER.readNullable(in)
+        AgentAction.SERIALIZER.readObjectNullable(in)
                     .ifPresent( value -> action = value );
-        AgentFinish.SERIALIZER.readNullable(in)
+        AgentFinish.SERIALIZER.readObjectNullable(in)
                     .ifPresent( value -> finish = value );
     }
 }

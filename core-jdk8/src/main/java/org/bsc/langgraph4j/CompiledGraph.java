@@ -42,6 +42,7 @@ public class CompiledGraph<State extends AgentState> {
 
     private int maxIterations = 25;
     private final CompileConfig compileConfig;
+    private final StateSerializer stateSerializer = StateSerializer.of();
 
     /**
      * Constructs a CompiledGraph with the given StateGraph.
@@ -190,9 +191,9 @@ public class CompiledGraph<State extends AgentState> {
                 .orElseGet( () -> AgentState.updateState(getInitialStateFromSchema(), inputs, stateGraph.getChannels() ));
     }
 
-    State cloneState( Map<String,Object> data ) throws IOException, ClassNotFoundException {
+    State cloneState( Map<String,Object> data ) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        Map<String,Object> newData = StateSerializer.INSTANCE.cloneObject(data);
+        Map<String,Object> newData = stateSerializer.cloneObject(data);
 
         return stateGraph.getStateFactory().apply(newData);
     }

@@ -14,7 +14,7 @@ public interface TryConsumer<T, Ex extends Throwable> extends Consumer<T> {
         try {
             tryAccept(t);
         } catch (Throwable ex) {
-            log.error(ex.getMessage(), ex);
+            log.error( ex.getMessage(), ex );
             throw new RuntimeException(ex);
         }
     }

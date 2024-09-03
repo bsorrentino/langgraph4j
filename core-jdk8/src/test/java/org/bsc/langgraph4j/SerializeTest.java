@@ -12,12 +12,12 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SerializeTest {
-
+    private final StateSerializer stateSerializer = StateSerializer.of();
 
     private byte[] serializeState(Map<String,Object> state) throws Exception {
         try( ByteArrayOutputStream baos = new ByteArrayOutputStream() ) {
             ObjectOutputStream oas = new ObjectOutputStream(baos);
-            StateSerializer.INSTANCE.write(state, oas);
+            stateSerializer.write(state, oas);
             oas.flush();
             return baos.toByteArray();
         }
@@ -25,7 +25,7 @@ public class SerializeTest {
     private Map<String,Object> deserializeState( byte[] bytes ) throws Exception {
         try(ByteArrayInputStream bais = new ByteArrayInputStream( bytes ) ) {
             ObjectInputStream ois = new ObjectInputStream( bais );
-            return StateSerializer.INSTANCE.read( ois );
+            return stateSerializer.read( ois );
         }
     }
 
@@ -77,7 +77,7 @@ public class SerializeTest {
     @Test
     public void customSerializeStateTest() throws Exception {
 
-        StateSerializer.INSTANCE.register(NonSerializableElement.class, new Serializer<NonSerializableElement>() {
+        StateSerializer.register(NonSerializableElement.class, new Serializer<NonSerializableElement>() {
 
             @Override
             public void write(NonSerializableElement object, ObjectOutput out) throws IOException {

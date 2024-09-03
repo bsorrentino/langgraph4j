@@ -5,11 +5,19 @@ import java.util.Objects;
 import java.util.Optional;
 
 public interface Serializer<T> {
-
     void write(T object, ObjectOutput out) throws IOException;
-    T read(ObjectInput in) throws IOException, ClassNotFoundException ;
+    T read(ObjectInput in) throws IOException, ClassNotFoundException;
 
-    default void writeNullable(T object, ObjectOutput out) throws IOException {
+    /**
+     * component type
+     *
+     * @return
+     */
+    default Optional<Class<? extends T>> type() {
+        return Optional.empty();
+    }
+
+    default void writeObjectNullable(T object, ObjectOutput out) throws IOException {
         if( object == null ) {
             out.writeBoolean(false);
         } else {
@@ -17,12 +25,13 @@ public interface Serializer<T> {
             write(object, out);
         }
     }
-    default Optional<T> readNullable(ObjectInput in) throws IOException, ClassNotFoundException {
+    default Optional<T> readObjectNullable(ObjectInput in) throws IOException, ClassNotFoundException {
         if( in.readBoolean() ) {
             return Optional.ofNullable(read(in));
         }
         return Optional.empty();
     }
+
     static void writeUTFNullable(String object, ObjectOutput out) throws IOException {
         if( object == null ) {
             out.writeBoolean(false);
