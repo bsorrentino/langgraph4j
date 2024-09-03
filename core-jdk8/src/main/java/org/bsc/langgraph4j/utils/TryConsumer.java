@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 @FunctionalInterface
 public interface TryConsumer<T, Ex extends Throwable> extends Consumer<T> {
+    org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TryConsumer.class);
 
     void tryAccept( T t ) throws Ex;
 
@@ -11,6 +12,7 @@ public interface TryConsumer<T, Ex extends Throwable> extends Consumer<T> {
         try {
             tryAccept(t);
         } catch (Throwable ex) {
+            log.error( ex.getMessage(), ex );
             throw new RuntimeException(ex);
         }
     }
