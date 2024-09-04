@@ -4,18 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
-public class CollectionSerializer extends BaseSerializer<Collection<Object>> {
+public class ListSerializer extends BaseSerializer<List<Object>> {
 
-    public static Serializer<Collection<Object>> of() {
-        return new CollectionSerializer();
+    public static Serializer<List<Object>> of() {
+        return new ListSerializer();
     }
 
-    protected CollectionSerializer() {}
+    protected ListSerializer() {}
     @Override
-    public void write(Collection<Object> object, ObjectOutput out) throws IOException {
+    public void write(List<Object> object, ObjectOutput out) throws IOException {
 
         try( ByteArrayOutputStream baos = new ByteArrayOutputStream() ) {
             int expectedSize = object.size();
@@ -45,13 +45,8 @@ public class CollectionSerializer extends BaseSerializer<Collection<Object>> {
     }
 
     @Override
-    public Collection<Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
-        Collection<Object> result = null;
-        try {
-            result = newInstance( ArrayList::new );
-        } catch (InstantiationException|IllegalAccessException e) {
-            throw new ClassNotFoundException( "error on create new instance! see root cause", e );
-        }
+    public List<Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
+        List<Object> result = new ArrayList<>();
 
         int expectedSize = in.readInt();
         int actualSize = in.readInt();

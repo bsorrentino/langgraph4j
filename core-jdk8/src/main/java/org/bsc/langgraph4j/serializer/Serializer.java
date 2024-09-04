@@ -8,15 +8,6 @@ public interface Serializer<T> {
     void write(T object, ObjectOutput out) throws IOException;
     T read(ObjectInput in) throws IOException, ClassNotFoundException;
 
-    /**
-     * component type
-     *
-     * @return
-     */
-    default Optional<Class<? extends T>> type() {
-        return Optional.empty();
-    }
-
     default void writeObjectNullable(T object, ObjectOutput out) throws IOException {
         if( object == null ) {
             out.writeBoolean(false);

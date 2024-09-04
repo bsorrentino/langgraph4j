@@ -45,12 +45,7 @@ public class MapSerialize extends BaseSerializer<Map<String,Object>> {
 
     @Override
     public Map<String, Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
-        Map<String, Object> result = null;
-        try {
-            result = newInstance(HashMap::new);
-        } catch (InstantiationException|IllegalAccessException e) {
-            throw new ClassNotFoundException( "error on create new instance! see root cause", e );
-        }
+        Map<String, Object> result = new HashMap<>();
 
         int expectedSize = in.readInt();
         int actualSize = in.readInt();
