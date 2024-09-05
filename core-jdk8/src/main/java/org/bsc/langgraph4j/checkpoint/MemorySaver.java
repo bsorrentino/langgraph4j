@@ -1,7 +1,6 @@
 package org.bsc.langgraph4j.checkpoint;
 
 import org.bsc.langgraph4j.RunnableConfig;
-import org.bsc.langgraph4j.serializer.CheckpointSerializer;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -18,8 +17,6 @@ public class MemorySaver implements BaseCheckpointSaver {
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();
     private final Lock w = rwl.writeLock();
-
-    private final CheckpointSerializer _serializer = CheckpointSerializer.of();
 
     public MemorySaver() {
     }
@@ -68,7 +65,6 @@ public class MemorySaver implements BaseCheckpointSaver {
 
         w.lock();
         try {
-            final Checkpoint clonedCheckpoint = _serializer.cloneObject(checkpoint);
 
             if (config.checkPointId().isPresent()) { // Replace Checkpoint
                 String checkPointId = config.checkPointId().get();
@@ -76,14 +72,14 @@ public class MemorySaver implements BaseCheckpointSaver {
                         .filter(i -> checkpoints.get(i).getId().equals(checkPointId))
                         .findFirst()
                         .orElseThrow(() -> (new NoSuchElementException(format("Checkpoint with id %s not found!", checkPointId))));
-                checkpoints.set(index, clonedCheckpoint);
+                checkpoints.set(index, checkpoint );
                 return config;
             }
 
-            checkpoints.push(clonedCheckpoint); // Add Checkpoint
+            checkpoints.push( checkpoint ); // Add Checkpoint
 
             return RunnableConfig.builder(config)
-                    .checkPointId(clonedCheckpoint.getId())
+                    .checkPointId(checkpoint.getId())
                     .build();
         }
         finally {
