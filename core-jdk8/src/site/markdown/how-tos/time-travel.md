@@ -257,11 +257,6 @@ OpenAiChatModel llm = OpenAiChatModel.builder()
 
 ```
 
-    SLF4J: No SLF4J providers were found.
-    SLF4J: Defaulting to no-operation (NOP) logger implementation
-    SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
-
-
 ## Test function calling
 
 
@@ -293,10 +288,6 @@ result;
 ```
 
     AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_3YrelSH5At2zVambJLLf8gYo", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
-
-
-
-
 
     Cold, with a low of 13 degrees
 
@@ -437,9 +428,6 @@ The next value is `__END__`  since the graph has terminated.
 ```java
 checkpoint.getNext()
 ```
-
-
-
 
     __END__
 
