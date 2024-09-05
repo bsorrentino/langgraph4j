@@ -2,6 +2,51 @@
 
 
 
+<!-- "name: v1.0-20240905" is a release tag -->
+
+## [v1.0-20240905](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240905) (2024-09-05)
+
+### Features
+
+ *  **notebook**  add "How to view and update past graph state" ([8df2d1101fa898e](https://github.com/bsorrentino/langgraph4j/commit/8df2d1101fa898ea828da0db3791fce6a11ff890))
+   
+
+### Bug Fixes
+
+ -  pause management ([7042bce11521c91](https://github.com/bsorrentino/langgraph4j/commit/7042bce11521c9145e6c923da24497a74f245fe6))
+     > - check resume startpoint
+     > - refine state cloning
+     > - improve unit test
+
+
+### Documentation
+
+ -  add "How to view and update past graph state" ([99d9130895e0b0a](https://github.com/bsorrentino/langgraph4j/commit/99d9130895e0b0aa62b71565511a7eef5c3461db))
+
+ -  update changeme ([609cc0f20f03f88](https://github.com/bsorrentino/langgraph4j/commit/609cc0f20f03f88d45ba9e481aff27126d78c669))
+
+
+### Refactor
+
+ -  **TryConsumer**  add logging ([7c752de608c863e](https://github.com/bsorrentino/langgraph4j/commit/7c752de608c863e0ab26928923dac01e4d2c273c))
+   
+ -  update git ignore ([3eaabbeef0c25be](https://github.com/bsorrentino/langgraph4j/commit/3eaabbeef0c25be559cc208d13b1bcbc69d31796))
+   
+ -  **serializer**  remove CheckpointSerializer ([26128e081863ea2](https://github.com/bsorrentino/langgraph4j/commit/26128e081863ea259403c0e39c5b06f787ce4c77))
+   
+ -  **serializer**  remove type() method ([ebbac63139e2e9f](https://github.com/bsorrentino/langgraph4j/commit/ebbac63139e2e9fa2834787564a22dd7c1ad25e9))
+    > Simplify implementation
+
+
+### ALM 
+
+ -  move to next dev release ([e8b0735d16687bf](https://github.com/bsorrentino/langgraph4j/commit/e8b0735d16687bfe7922dbcea2095e90c42dc8d9))
+   
+
+
+
+
+
 <!-- "name: v1.0-beta3" is a release tag -->
 
 ## [v1.0-beta3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-beta3) (2024-09-03)
