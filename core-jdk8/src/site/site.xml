@@ -50,6 +50,7 @@
         </menu>
         <menu name="How To(s)">
             <item name="Persistence" href="how-tos/persistence.html"/>
+            <item name="How to view and update past graph state" href="how-tos/time-travel.html"
         </menu>
     </body>
 </project>
