@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j.utils;
 
-import lombok.extern.slf4j.XSlf4j;
-
 import java.util.function.Consumer;
 
 @FunctionalInterface
