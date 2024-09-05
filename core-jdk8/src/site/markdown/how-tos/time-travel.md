@@ -25,419 +25,521 @@ TODO
 ...
 ``` -->
 
-This works for
-[StateGraph](/langgraphjs/reference/classes/langgraph.StateGraph.html)
-and all its subclasses, such as
-[MessageGraph](/langgraphjs/reference/classes/langgraph.MessageGraph.html).
+This works for [StateGraph](https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html)
 
 Below is an example.
 
-<div class="admonition tip">
-    <p class="admonition-title">Note</p>
-    <p>
-        In this how-to, we will create our agent from scratch to be transparent (but verbose). You can accomplish similar functionality using the <code>createReactAgent(model, tools=tool, checkpointer=checkpointer)</code> (<a href="/langgraphjs/reference/functions/langgraph_prebuilt.createReactAgent.html">API doc</a>) constructor. This may be more appropriate if you are used to LangChain's <a href="https://js.langchain.com/v0.2/docs/how_to/agent_executor">AgentExecutor</a> class.
-    </p>
-</div>
-
-## Setup
-
-This guide will use OpenAI's GPT-4o model. We will optionally set our API key
-for [LangSmith tracing](https://smith.langchain.com/), which will give us
-best-in-class observability.
-
-
-```typescript
-// process.env.OPENAI_API_KEY = "sk_...";
-
-// Optional, add tracing in LangSmith
-// process.env.LANGCHAIN_API_KEY = "ls__...";
-process.env.LANGCHAIN_CALLBACKS_BACKGROUND = "true";
-process.env.LANGCHAIN_TRACING_V2 = "true";
-process.env.LANGCHAIN_PROJECT = "Time Travel: LangGraphJS";
-```
-
-    Time Travel: LangGraphJS
-
-
 ## Define the state
 
-The state is the interface for all of the nodes in our graph.
+State is an (immutable) data class, inheriting from [AgentState], shared with all nodes in our graph. A state is basically a wrapper of a `Map<String,Object>` that provides some enhancers:
+
+1. Schema (optional), that is a `Map<String,Channel>` where each [Channel] describe behaviour of the related property
+1. `value()` accessors that inspect Map an return an Optional of value contained and cast to the required type
+
+[Channel]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/state/Channel.html
+[AgentState]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/state/AgentState.html
 
 
+```java
+import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.state.AppenderChannel;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
 
-```typescript
-import { Annotation } from "@langchain/langgraph";
-import { BaseMessage } from "@langchain/core/messages";
+public class MessageState extends AgentState {
 
-const GraphState = Annotation.Root({
-  messages: Annotation<BaseMessage[]>({
-    reducer: (x, y) => x.concat(y),
-  }),
+    static Map<String, Channel<?>> SCHEMA = Map.of(
+            "messages", AppenderChannel.<AiMessage>of(ArrayList::new)
+    );
+
+    public MessageState(Map<String, Object> initData) {
+        super( initData  );
+    }
+
+    List<? extends ChatMessage> messages() {
+        return this.<List<? extends ChatMessage>>value( "messages" )
+                .orElseThrow( () -> new RuntimeException( "messages not found" ) );
+    }
+
+    // utility method to quick access to last message
+    Optional<? extends ChatMessage> lastMessage() {
+        List<? extends ChatMessage> messages = messages();
+        return ( messages.isEmpty() ) ? 
+            Optional.empty() :
+            Optional.of(messages.get( messages.size() - 1 ));
+    }
+}
+```
+
+## Create Serializers
+
+Every object that should be stored into State **MUST BE SERIALIZABLE**. If the object is not `Serializable` by default, Langgraph4j provides a way to build and associate a custom [Serializer] to it. 
+
+In the example, since [AiMessage] and [UserMessage] from Langchain4j are not Serialzable we have to create an register a new custom [`Serializer`].
+
+[Serializer]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/serializer/Serializer.html
+[AiMessage]: https://docs.langchain4j.dev/apidocs/dev/langchain4j/data/message/AiMessage.html
+[UserMessage]: https://docs.langchain4j.dev/apidocs/dev/langchain4j/data/message/UserMessage.html
+
+
+```java
+import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.BaseSerializer;
+import org.bsc.langgraph4j.serializer.StateSerializer;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.data.message.ChatMessageType;
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.data.message.ToolExecutionResultMessage;
+
+// Setup custom serializer for Langchain4j ToolExecutionRequest
+StateSerializer.register(ToolExecutionRequest.class, new Serializer<ToolExecutionRequest>() {
+
+    @Override
+    public void write(ToolExecutionRequest object, ObjectOutput out) throws IOException {
+        out.writeUTF( object.id() );
+        out.writeUTF( object.name() );
+        out.writeUTF( object.arguments() );
+    }
+
+    @Override
+    public ToolExecutionRequest read(ObjectInput in) throws IOException, ClassNotFoundException {
+        return ToolExecutionRequest.builder()
+                    .id(in.readUTF())
+                    .name(in.readUTF())
+                    .arguments(in.readUTF())
+                    .build();
+    }
 });
+
+// Setup custom serializer for Langchain4j AiMessage
+StateSerializer.register(ChatMessage.class, new BaseSerializer<ChatMessage>() {
+
+    void writeAI( AiMessage msg, ObjectOutput out) throws IOException {
+        var hasToolExecutionRequests = msg.hasToolExecutionRequests();
+
+        out.writeBoolean( hasToolExecutionRequests );
+        
+        if( hasToolExecutionRequests ) {
+            writeObjectWithSerializer( msg.toolExecutionRequests(), out);
+        }
+        else {
+            out.writeUTF(msg.text());
+        }        
+    }
+
+    AiMessage readAI( ObjectInput in) throws IOException, ClassNotFoundException {
+        var hasToolExecutionRequests = in.readBoolean();
+        if( hasToolExecutionRequests ) {
+            List<ToolExecutionRequest> toolExecutionRequests = readObjectWithSerializer(in);
+            return AiMessage.aiMessage( toolExecutionRequests );
+        }
+        return AiMessage.aiMessage(in.readUTF());
+    }
+    
+    void writeUSER( UserMessage msg, ObjectOutput out) throws IOException {
+        out.writeUTF( msg.text() );        
+    }
+
+    UserMessage readUSER( ObjectInput in) throws IOException, ClassNotFoundException {
+        return UserMessage.from( in.readUTF() );
+    }
+
+    void writeEXREQ( ToolExecutionResultMessage msg, ObjectOutput out ) throws IOException {
+            out.writeUTF( msg.id() );
+            out.writeUTF( msg.toolName() );
+            out.writeUTF( msg.text() );
+    }
+
+    ToolExecutionResultMessage readEXREG( ObjectInput in ) throws IOException, ClassNotFoundException {
+        return new ToolExecutionResultMessage( in.readUTF(), in.readUTF(),in.readUTF() );
+    }
+
+
+    @Override
+    public void write(ChatMessage object, ObjectOutput out) throws IOException {
+        out.writeObject( object.type() );
+        switch( object.type() ) {
+            case AI -> writeAI((AiMessage)object, out );
+            case USER -> writeUSER( (UserMessage)object, out );
+            case TOOL_EXECUTION_RESULT -> writeEXREQ( (ToolExecutionResultMessage)object, out );
+            case SYSTEM -> {
+                // Nothing
+            }
+        };
+    }
+
+    @Override
+    public ChatMessage read(ObjectInput in) throws IOException, ClassNotFoundException {
+
+        ChatMessageType type = (ChatMessageType)in.readObject();
+
+        return switch( type ) {
+            case AI -> { yield readAI( in ); }
+            case USER -> { yield readUSER( in ); }
+            case TOOL_EXECUTION_RESULT -> { yield readEXREG( in ); }
+            case SYSTEM -> {
+                yield null;
+            }
+        };
+    }
+});
+
+
+
+
+
 ```
 
 ## Set up the tools
 
-We will first define the tools we want to use. For this simple example, we will
+Using [langchain4j], We will first define the tools we want to use. For this simple example, we will
 use create a placeholder search engine. However, it is really easy to create
 your own tools - see documentation
-[here](https://js.langchain.com/v0.2/docs/how_to/custom_tools) on how to do
+[here][tools] on how to do
 that.
 
+[langchain4j]: https://docs.langchain4j.dev
+[tools]: https://docs.langchain4j.dev/tutorials/tools
 
 
-```typescript
-import { DynamicStructuredTool } from "@langchain/core/tools";
-import { z } from "zod";
+```java
+import dev.langchain4j.agent.tool.P;
+import dev.langchain4j.agent.tool.Tool;
 
-const searchTool = new DynamicStructuredTool({
-  name: "search",
-  description:
-    "Use to surf the web, fetch current information, check the weather, and retrieve other information.",
-  schema: z.object({
-    query: z.string().describe("The query to use in your search."),
-  }),
-  func: async (_) => {
-    // This is a placeholder for the actual implementation
-    return "Cold, with a low of 13 ℃";
-  },
-});
+import java.util.Optional;
 
-await searchTool.invoke({ query: "What's the weather like?" });
+import static java.lang.String.format;
 
-const tools = [searchTool];
-```
+public class SearchTool {
 
-We can now wrap these tools in a simple
-[ToolNode](/langgraphjs/reference/classes/prebuilt.ToolNode.html).
-This object will actually run the tools (functions) whenever they are invoked by
-our LLM.
+    @Tool("Use to surf the web, fetch current information, check the weather, and retrieve other information.")
+    String execQuery(@P("The query to use in your search.") String query) {
 
-
-
-```typescript
-import { ToolNode } from "@langchain/langgraph/prebuilt";
-
-const toolNode = new ToolNode<typeof GraphState.State>(tools);
+        // This is a placeholder for the actual implementation
+        return "Cold, with a low of 13 degrees";
+    }
+}
 ```
 
 ## Set up the model
 
 Now we will load the
-[chat model](https://js.langchain.com/v0.2/docs/concepts/#chat-models).
+[chat model].
 
-1. It should work with messages. We will represent all agent state in the form
-   of messages, so it needs to be able to work well with them.
-2. It should work with
-   [tool calling](https://js.langchain.com/v0.2/docs/how_to/tool_calling/#passing-tools-to-llms),
-   meaning it can return function arguments in its response.
+1. It should work with messages. We will represent all agent state in the form of messages, so it needs to be able to work well with them.
+2. It should work with [tool calling],meaning it can return function arguments in its response.
 
-<div class="admonition tip">
-    <p class="admonition-title">Note</p>
-    <p>
-        These model requirements are not general requirements for using LangGraph - they are just requirements for this one example.
-    </p>
-</div>
+Note:
+   >
+   > These model requirements are not general requirements for using LangGraph4j - they are just requirements for this one example.
+   >
+
+[chat model]: https://docs.langchain4j.dev/tutorials/chat-and-language-models
+[tool calling]: https://docs.langchain4j.dev/tutorials/tools   
 
 
-```typescript
-import { ChatOpenAI } from "@langchain/openai";
 
-const model = new ChatOpenAI({ model: "gpt-4o" });
+```java
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.agent.tool.ToolSpecifications;
+
+OpenAiChatModel llm = OpenAiChatModel.builder()
+    .apiKey( System.getenv("OPENAI_API_KEY") )
+    .modelName( "gpt-4o" )
+    .logResponses(true)
+    .maxRetries(2)
+    .temperature(0.0)
+    .maxTokens(2000)
+    .build()  
+
 ```
 
-After we've done this, we should make sure the model knows that it has these
-tools available to call. We can do this by calling
-[bindTools](https://v01.api.js.langchain.com/classes/langchain_core_language_models_chat_models.BaseChatModel.html#bindTools).
+    SLF4J: No SLF4J providers were found.
+    SLF4J: Defaulting to no-operation (NOP) logger implementation
+    SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
 
 
+## Test function calling
 
-```typescript
-const boundModel = model.bindTools(tools);
+
+```java
+import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.agent.tool.ToolSpecifications;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.service.tool.DefaultToolExecutor;
+
+var tools = ToolSpecifications.toolSpecificationsFrom( SearchTool.class );
+
+UserMessage userMessage = UserMessage.from("What will the weather be like in London tomorrow?");
+Response<AiMessage> response = llm.generate(Collections.singletonList(userMessage), tools );
+AiMessage aiMessage = response.content();
+
+System.out.println( aiMessage );
+
+var executionRequest = aiMessage.toolExecutionRequests().get(0);
+
+var executor = new DefaultToolExecutor( new SearchTool(), executionRequest );
+
+var result = executor.execute( executionRequest, null );
+
+result;
+
 ```
+
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_3YrelSH5At2zVambJLLf8gYo", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
+
+
+
+
+
+    Cold, with a low of 13 degrees
+
+
 
 ## Define the graph
 
-We can now put it all together. Time travel requires a checkpointer to save the
-state - otherwise you wouldn't have anything go `get` or `update`. We will use
-the
-[MemorySaver](/langgraphjs/reference/classes/index.MemorySaver.html),
-which "saves" checkpoints in-memory.
+We can now put it all together. We will run it first without a checkpointer:
 
 
-```typescript
-import { END, START, StateGraph } from "@langchain/langgraph";
-import { AIMessage } from "@langchain/core/messages";
-import { RunnableConfig } from "@langchain/core/runnables";
-import { MemorySaver } from "@langchain/langgraph";
 
-const routeMessage = (state: typeof GraphState.State) => {
-  const { messages } = state;
-  const lastMessage = messages[messages.length - 1] as AIMessage;
-  // If no tools are called, we can finish (respond to the user)
-  if (!lastMessage?.tool_calls?.length) {
-    return END;
+```java
+import static org.bsc.langgraph4j.StateGraph.START;
+import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
+import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
+import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.action.EdgeAction;
+import org.bsc.langgraph4j.action.NodeAction;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.service.tool.DefaultToolExecutor;
+import org.bsc.langgraph4j.checkpoint.MemorySaver; 
+import org.bsc.langgraph4j.CompileConfig; 
+import java.util.stream.Collectors;
+// Route Message 
+EdgeAction<MessageState> routeMessage = state -> {
+  
+  var lastMessage = state.lastMessage();
+  
+  if ( !lastMessage.isPresent()) return "exit";
+
+  if( lastMessage.get() instanceof AiMessage message  ) {
+
+    // If tools should be called
+    if ( message.hasToolExecutionRequests() ) return "next";
+    
   }
-  // Otherwise if there is, we continue and call the tools
-  return "tools";
+  
+  // If no tools are called, we can finish (respond to the user)
+  return "exit";
 };
 
-const callModel = async (
-  state: typeof GraphState.State,
-  config?: RunnableConfig,
-) => {
-  const { messages } = state;
-  const response = await boundModel.invoke(messages, config);
-  return { messages: [response] };
+// Call Model
+NodeAction<MessageState> callModel = state -> {
+  var tools = ToolSpecifications.toolSpecificationsFrom( SearchTool.class );
+
+  var response = llm.generate( (List<ChatMessage>)state.messages(), tools );
+
+  return Map.of( "messages", response.content() );
 };
 
-const workflow = new StateGraph(GraphState)
-  .addNode("agent", callModel)
-  .addNode("tools", toolNode)
+// Invoke Tool 
+NodeAction<MessageState> invokeTool = state -> {
+  var lastMessage = (AiMessage)state.lastMessage()
+                          .orElseThrow( () -> ( new IllegalStateException( "last message not found!")) );
+
+  var executionRequest = lastMessage.toolExecutionRequests().get(0);
+  
+  var executor = new DefaultToolExecutor( new SearchTool(), executionRequest );
+
+  var result = executor.execute( executionRequest, null );
+
+  return Map.of( "messages", new ToolExecutionResultMessage( executionRequest.id(), executionRequest.name(), result ) );
+};
+
+// Define Graph
+var workflow = new StateGraph<MessageState> ( MessageState.SCHEMA, MessageState::new )
+  .addNode("agent", node_async(callModel) )
+  .addNode("tools", node_async(invokeTool) )
   .addEdge(START, "agent")
-  .addConditionalEdges("agent", routeMessage)
+  .addConditionalEdges("agent", edge_async(routeMessage), Map.of( "next", "tools", "exit", END ))
   .addEdge("tools", "agent");
 
 // Here we only save in-memory
-let memory = new MemorySaver();
-const graph = workflow.compile({ checkpointer: memory });
+var memory = new MemorySaver();
+
+var compileConfig = CompileConfig.builder()
+                    .checkpointSaver(memory)
+                    .build();
+
+var graph = workflow.compile(compileConfig);
 ```
 
 ## Interacting with the Agent
 
-We can now interact with the agent. Between interactions you can get and update
-state.
+We can now interact with the agent. Between interactions you can get and update state.
 
 
-```typescript
-let config = { configurable: { thread_id: "conversation-num-1" } };
-let inputs = { messages: [["user", "Hi I'm Jo."]] };
-for await (
-  const { messages } of await graph.stream(inputs, {
-    ...config,
-    streamMode: "values",
-  })
-) {
-  let msg = messages[messages?.length - 1];
-  if (msg?.content) {
-    console.log(msg.content);
-  } else if (msg?.tool_calls?.length > 0) {
-    console.log(msg.tool_calls);
-  } else {
-    console.log(msg);
-  }
-  console.log("-----\n");
+```java
+import org.bsc.langgraph4j.RunnableConfig;
+
+var runnableConfig =  RunnableConfig.builder()
+                .threadId("conversation-num-1" )
+                .build();
+
+Map<String,Object> inputs = Map.of( "messages", UserMessage.from("Hi I'm Bartolo.") );
+
+var result = graph.stream( inputs, runnableConfig );
+
+for( var r : result ) {
+  System.out.println( r.node() );
+  System.out.println( r.state() );
+  
 }
 ```
 
-    [ 'user', "Hi I'm Jo." ]
-    -----
-    
-    Hello Jo! How can I assist you today?
-    -----
-    
+    __START__
+    {messages=[UserMessage { name = null contents = [TextContent { text = "Hi I'm Bartolo." }] }]}
+    agent
+    {messages=[UserMessage { name = null contents = [TextContent { text = "Hi I'm Bartolo." }] }, AiMessage { text = "Hello Bartolo! How can I assist you today?" toolExecutionRequests = null }]}
+    __END__
+    {messages=[UserMessage { name = null contents = [TextContent { text = "Hi I'm Bartolo." }] }, AiMessage { text = "Hello Bartolo! How can I assist you today?" toolExecutionRequests = null }]}
 
 
-See LangSmith example run here
-https://smith.langchain.com/public/b3feb09b-bcd2-4ad5-ad1d-414106148448/r
-
-Here you can see the "agent" node ran, and then our edge returned `__end__` so
-the graph stopped execution there.
+Here you can see the "`agent`" node ran, and then our edge returned `__END__` so the graph stopped execution there.
 
 Let's check the current graph state.
 
 
-```typescript
-let checkpoint = await graph.getState(config);
-checkpoint.values;
+```java
+import org.bsc.langgraph4j.checkpoint.Checkpoint;
+
+var checkpoint = graph.getState(runnableConfig);
+
+System.out.println(checkpoint);
+
 ```
 
-    {
-      messages: [
-        [ 'user', "Hi I'm Jo." ],
-        AIMessage {
-          "id": "chatcmpl-9y6TlYVbfL3d3VonkF1b3iXwnbdFm",
-          "content": "Hello Jo! How can I assist you today?",
-          "additional_kwargs": {},
-          "response_metadata": {
-            "tokenUsage": {
-              "completionTokens": 11,
-              "promptTokens": 68,
-              "totalTokens": 79
-            },
-            "finish_reason": "stop",
-            "system_fingerprint": "fp_3aa7262c27"
-          },
-          "tool_calls": [],
-          "invalid_tool_calls": []
-        }
-      ]
-    }
+    StateSnapshot(state={messages=[UserMessage { name = null contents = [TextContent { text = "Hi I'm Bartolo." }] }, AiMessage { text = "Hello Bartolo! How can I assist you today?" toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-num-1, checkPointId=93c2b047-7927-4062-89e0-4498f63813f6, nextNode=__END__))
 
 
-The current state is the two messages we've seen above, 1. the HumanMessage we
-sent in, 2. the AIMessage we got back from the model.
+The current state is the two messages we've seen above, 1. the Human Message we sent in, 2. the AIMessage we got back from the model.
 
-The `next` values are empty since the graph has terminated (transitioned to the
-`__end__`).
+The next value is `__END__`  since the graph has terminated.
 
 
-```typescript
-checkpoint.next;
+```java
+checkpoint.getNext()
 ```
 
-    []
+
+
+
+    __END__
+
 
 
 ## Let's get it to execute a tool
 
-When we call the graph again, it will create a checkpoint after each internal
-execution step. Let's get it to run a tool, then look at the checkpoint.
+When we call the graph again, it will create a checkpoint after each internal execution step. Let's get it to run a tool, then look at the checkpoint.
 
 
-```typescript
-inputs = { messages: [["user", "What's the weather like in SF currently?"]] };
-for await (
-  const { messages } of await graph.stream(inputs, {
-    ...config,
-    streamMode: "values",
-  })
-) {
-  let msg = messages[messages?.length - 1];
-  if (msg?.content) {
-    console.log(msg.content);
-  } else if (msg?.tool_calls?.length > 0) {
-    console.log(msg.tool_calls);
-  } else {
-    console.log(msg);
-  }
-  console.log("-----\n");
-}
+```java
+
+Map<String,Object> inputs = Map.of( "messages", UserMessage.from("What's the weather like in SF currently?") );
+
+var state = graph.invoke( inputs, runnableConfig ).orElseThrow( () ->(new IllegalStateException()) ) ;
+
+System.out.println( state.lastMessage().orElse(null) );
+  
 ```
 
-    [ 'user', "What's the weather like in SF currently?" ]
-    -----
-    
-    [
-      {
-        name: 'search',
-        args: { query: 'current weather in San Francisco' },
-        type: 'tool_call',
-        id: 'call_IBDK50kVnVq2RtDjbpq0UiTA'
-      }
-    ]
-    -----
-    
-    Cold, with a low of 13 ℃
-    -----
-    
-    The current weather in San Francisco is cold, with a low temperature of 13°C (55°F). Is there anything else you would like to know?
-    -----
-    
+    AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius. Is there anything else you need help with?" toolExecutionRequests = null }
 
 
-See the trace of the above execution here:
-https://smith.langchain.com/public/0ef426fd-0da1-4c02-a50b-64ae1e68338e/r We can
-see it planned the tool execution (ie the "agent" node), then "should_continue"
-edge returned "continue" so we proceeded to "action" node, which executed the
-tool, and then "agent" node emitted the final response, which made
-"should_continue" edge return "end". Let's see how we can have more control over
-this.
+## Pause before tools
 
-### Pause before tools
-
-If you notice below, we now will add `interruptBefore=["action"]` - this means
-that before any actions are taken we pause. This is a great moment to allow the
-user to correct and update the state! This is very useful when you want to have
-a human-in-the-loop to validate (and potentially change) the action to take.
+If you notice below, we now will add interruptBefore=["action"] - this means that before any actions are taken we pause. This is a great moment to allow the user to correct and update the state! This is very useful when you want to have a human-in-the-loop to validate (and potentially change) the action to take.
 
 
-```typescript
-memory = new MemorySaver();
-const graphWithInterrupt = workflow.compile({
-  checkpointer: memory,
-  interruptBefore: ["tools"],
-});
 
-inputs = { messages: [["user", "What's the weather like in SF currently?"]] };
-for await (
-  const { messages } of await graphWithInterrupt.stream(inputs, {
-    ...config,
-    streamMode: "values",
-  })
-) {
-  let msg = messages[messages?.length - 1];
-  if (msg?.content) {
-    console.log(msg.content);
-  } else if (msg?.tool_calls?.length > 0) {
-    console.log(msg.tool_calls);
-  } else {
-    console.log(msg);
-  }
-  console.log("-----\n");
+```java
+var memory = new MemorySaver();
+
+var compileConfig = CompileConfig.builder()
+                    .checkpointSaver(memory)
+                    .interruptBefore( "tools")
+                    .build();
+
+var graphWithInterrupt = workflow.compile(compileConfig);
+
+var runnableConfig =  RunnableConfig.builder()
+                .threadId("conversation-2" )
+                .build();
+
+Map<String,Object> inputs = Map.of( "messages", UserMessage.from("What's the weather like in SF currently?") );
+
+var result = graphWithInterrupt.stream( inputs, runnableConfig );
+
+for( var r : result ) {
+  System.out.println( r.node() );
+  System.out.println( r.state() );
+  
 }
+
 ```
 
-    [ 'user', "What's the weather like in SF currently?" ]
-    -----
-    
-    [
-      {
-        name: 'search',
-        args: { query: 'current weather in San Francisco, CA' },
-        type: 'tool_call',
-        id: 'call_upim4LMd1U6JdWlsGGk772Pa'
-      }
-    ]
-    -----
-    
+    __START__
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }]}
+    agent
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }]}
 
 
 ## Get State
 
-You can fetch the latest graph checkpoint using
-[`getState(config)`](/langgraphjs/reference/classes/pregel.Pregel.html#getState).
+You can fetch the latest graph checkpoint using `getState(config)`.
 
 
-```typescript
-let snapshot = await graphWithInterrupt.getState(config);
-snapshot.next;
+```java
+var snapshot = graphWithInterrupt.getState(runnableConfig);
+snapshot.getNext();
+
 ```
 
-    [ 'tools' ]
+
+
+
+    tools
+
 
 
 ## Resume
 
-You can resume by running the graph with a `null` input. The checkpoint is
-loaded, and with no new inputs, it will execute as if no interrupt had occurred.
+You can resume by running the graph with a null input. The checkpoint is loaded, and with no new inputs, it will execute as if no interrupt had occurred.
 
 
-```typescript
-for await (
-  const { messages } of await graphWithInterrupt.stream(null, {
-    ...snapshot.config,
-    streamMode: "values",
-  })
-) {
-  let msg = messages[messages?.length - 1];
-  if (msg?.content) {
-    console.log(msg.content);
-  } else if (msg?.tool_calls?.length > 0) {
-    console.log(msg.tool_calls);
-  } else {
-    console.log(msg);
-  }
-  console.log("-----\n");
+```java
+var result = graphWithInterrupt.stream( null, snapshot.getConfig() );
+
+for( var r : result ) {
+  System.out.println( r.node() );
+  System.out.println( r.state() );
+  
 }
 ```
 
-    Cold, with a low of 13 ℃
-    -----
-    
-    Currently, it's cold in San Francisco, with a temperature around 13°C.
-    -----
-    
+    tools
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}
+    agent
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
+    __END__
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
 
 
 ## Check full history
@@ -446,231 +548,37 @@ Let's browse the history of this thread, from newest to oldest.
 
 
 
-```typescript
-let toReplay;
-const states = await graphWithInterrupt.getStateHistory(config);
-for await (const state of states) {
-  console.log(state);
-  console.log("--");
-  if (state.values?.messages?.length === 2) {
-    toReplay = state;
+
+```java
+RunnableConfig toReplay = null;
+var states = graphWithInterrupt.getStateHistory(runnableConfig);
+for( var state: states ) {
+  
+  System.out.println(state);
+  System.out.println("--");
+
+  if (state.getState().messages().size() == 3) {
+     toReplay = state.getConfig();
   }
 }
-if (!toReplay) {
-  throw new Error("No state to replay");
+if (toReplay==null) {
+  throw new IllegalStateException("No state to replay");
 }
 ```
 
-    {
-      values: {
-        messages: [
-          [Array],
-          AIMessage {
-            "id": "chatcmpl-9y6Tn0RGjUnVqxDHz5CxlGfldPS2E",
-            "content": "",
-            "additional_kwargs": {
-              "tool_calls": [
-                {
-                  "id": "call_upim4LMd1U6JdWlsGGk772Pa",
-                  "type": "function",
-                  "function": "[Object]"
-                }
-              ]
-            },
-            "response_metadata": {
-              "tokenUsage": {
-                "completionTokens": 19,
-                "promptTokens": 72,
-                "totalTokens": 91
-              },
-              "finish_reason": "tool_calls",
-              "system_fingerprint": "fp_3aa7262c27"
-            },
-            "tool_calls": [
-              {
-                "name": "search",
-                "args": {
-                  "query": "current weather in San Francisco, CA"
-                },
-                "type": "tool_call",
-                "id": "call_upim4LMd1U6JdWlsGGk772Pa"
-              }
-            ],
-            "invalid_tool_calls": []
-          },
-          ToolMessage {
-            "content": "Cold, with a low of 13 ℃",
-            "name": "search",
-            "additional_kwargs": {},
-            "response_metadata": {},
-            "tool_call_id": "call_upim4LMd1U6JdWlsGGk772Pa"
-          },
-          AIMessage {
-            "id": "chatcmpl-9y6ToC6yczhz1hzn5XMPt6Fha4CLJ",
-            "content": "Currently, it's cold in San Francisco, with a temperature around 13°C.",
-            "additional_kwargs": {},
-            "response_metadata": {
-              "tokenUsage": {
-                "completionTokens": 17,
-                "promptTokens": 107,
-                "totalTokens": 124
-              },
-              "finish_reason": "stop",
-              "system_fingerprint": "fp_3aa7262c27"
-            },
-            "tool_calls": [],
-            "invalid_tool_calls": []
-          }
-        ]
-      },
-      next: [],
-      metadata: { source: 'loop', step: 3, writes: { agent: [Object] } },
-      config: {
-        configurable: {
-          thread_id: 'conversation-num-1',
-          checkpoint_id: '1ef5e864-0045-68b1-8003-3da747a708d6'
-        }
-      },
-      createdAt: '2024-08-19T23:53:36.443Z',
-      parentConfig: undefined
-    }
+    StateSnapshot(state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=5bb993e3-8703-48c9-8284-1ee801c265b7, nextNode=__END__))
     --
-    {
-      values: {
-        messages: [
-          [Array],
-          AIMessage {
-            "id": "chatcmpl-9y6Tn0RGjUnVqxDHz5CxlGfldPS2E",
-            "content": "",
-            "additional_kwargs": {
-              "tool_calls": [
-                {
-                  "id": "call_upim4LMd1U6JdWlsGGk772Pa",
-                  "type": "function",
-                  "function": "[Object]"
-                }
-              ]
-            },
-            "response_metadata": {
-              "tokenUsage": {
-                "completionTokens": 19,
-                "promptTokens": 72,
-                "totalTokens": 91
-              },
-              "finish_reason": "tool_calls",
-              "system_fingerprint": "fp_3aa7262c27"
-            },
-            "tool_calls": [
-              {
-                "name": "search",
-                "args": {
-                  "query": "current weather in San Francisco, CA"
-                },
-                "type": "tool_call",
-                "id": "call_upim4LMd1U6JdWlsGGk772Pa"
-              }
-            ],
-            "invalid_tool_calls": []
-          },
-          ToolMessage {
-            "content": "Cold, with a low of 13 ℃",
-            "name": "search",
-            "additional_kwargs": {},
-            "response_metadata": {},
-            "tool_call_id": "call_upim4LMd1U6JdWlsGGk772Pa"
-          }
-        ]
-      },
-      next: [ 'agent' ],
-      metadata: { source: 'loop', step: 2, writes: { tools: [Object] } },
-      config: {
-        configurable: {
-          thread_id: 'conversation-num-1',
-          checkpoint_id: '1ef5e863-fa1c-6650-8002-bf4528305aac'
-        }
-      },
-      createdAt: '2024-08-19T23:53:35.797Z',
-      parentConfig: undefined
-    }
+    StateSnapshot(state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=11fc5618-c5b2-4b15-843c-8a51267c76a1, nextNode=agent))
     --
-    {
-      values: {
-        messages: [
-          [Array],
-          AIMessage {
-            "id": "chatcmpl-9y6Tn0RGjUnVqxDHz5CxlGfldPS2E",
-            "content": "",
-            "additional_kwargs": {
-              "tool_calls": [
-                {
-                  "id": "call_upim4LMd1U6JdWlsGGk772Pa",
-                  "type": "function",
-                  "function": "[Object]"
-                }
-              ]
-            },
-            "response_metadata": {
-              "tokenUsage": {
-                "completionTokens": 19,
-                "promptTokens": 72,
-                "totalTokens": 91
-              },
-              "finish_reason": "tool_calls",
-              "system_fingerprint": "fp_3aa7262c27"
-            },
-            "tool_calls": [
-              {
-                "name": "search",
-                "args": {
-                  "query": "current weather in San Francisco, CA"
-                },
-                "type": "tool_call",
-                "id": "call_upim4LMd1U6JdWlsGGk772Pa"
-              }
-            ],
-            "invalid_tool_calls": []
-          }
-        ]
-      },
-      next: [ 'tools' ],
-      metadata: { source: 'loop', step: 1, writes: { agent: [Object] } },
-      config: {
-        configurable: {
-          thread_id: 'conversation-num-1',
-          checkpoint_id: '1ef5e863-f976-6611-8001-af242a92fef8'
-        }
-      },
-      createdAt: '2024-08-19T23:53:35.729Z',
-      parentConfig: undefined
-    }
+    StateSnapshot(state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=ab776d0f-a051-424c-9a70-6017f3bfdbf8, nextNode=__END__))
     --
-    {
-      values: { messages: [ [Array] ] },
-      next: [ 'agent' ],
-      metadata: { source: 'loop', step: 0, writes: null },
-      config: {
-        configurable: {
-          thread_id: 'conversation-num-1',
-          checkpoint_id: '1ef5e863-f365-6a51-8000-6443aafd5477'
-        }
-      },
-      createdAt: '2024-08-19T23:53:35.093Z',
-      parentConfig: undefined
-    }
+    StateSnapshot(state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=d6909dae-6f94-4afe-a8b5-7b39da95cc22, nextNode=agent))
     --
-    {
-      values: {},
-      next: [ '__start__' ],
-      metadata: { source: 'input', step: -1, writes: { __start__: [Object] } },
-      config: {
-        configurable: {
-          thread_id: 'conversation-num-1',
-          checkpoint_id: '1ef5e863-f365-6a50-ffff-0ae60570513f'
-        }
-      },
-      createdAt: '2024-08-19T23:53:35.093Z',
-      parentConfig: undefined
-    }
+    StateSnapshot(state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=0bb4e2ce-67fe-4585-94c7-035602f51f16, nextNode=tools))
+    --
+    StateSnapshot(state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=0167fa6f-e3b1-4b9e-aeac-b8ff15f191ba, nextNode=tools))
+    --
+    StateSnapshot(state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=3a4cc3c3-e863-4799-b33c-8ca295000552, nextNode=agent))
     --
 
 
@@ -679,143 +587,19 @@ if (!toReplay) {
 To replay from this place we just need to pass its config back to the agent.
 
 
+```java
+var results = graphWithInterrupt.stream(null, toReplay ); 
 
-```typescript
-for await (
-  const { messages } of await graphWithInterrupt.stream(null, {
-    ...toReplay.config,
-    streamMode: "values",
-  })
-) {
-  let msg = messages[messages?.length - 1];
-  if (msg?.content) {
-    console.log(msg.content);
-  } else if (msg?.tool_calls?.length > 0) {
-    console.log(msg.tool_calls);
-  } else {
-    console.log(msg);
-  }
-  console.log("-----\n");
+for( var r : results ) {
+  System.out.println( r.node() );
+  System.out.println( r.state() );
+  
 }
+
 ```
 
-    Cold, with a low of 13 ℃
-    -----
-    
-    The current weather in San Francisco, CA is cold, with a temperature of 13°C (approximately 55°F).
-    -----
-    
-
-
-## Branch off a past state
-
-Using LangGraph's checkpointing, you can do more than just replay past states.
-You can branch off previous locations to let the agent explore alternate
-trajectories or to let a user "version control" changes in a workflow.
-
-#### First, update a previous checkpoint
-
-Updating the state will create a **new** snapshot by applying the update to the
-previous checkpoint. Let's **add a tool message** to simulate calling the tool.
-
-
-```typescript
-import { ToolMessage } from "@langchain/core/messages";
-
-const tool_calls =
-  toReplay.values.messages[toReplay.values.messages.length - 1].tool_calls;
-const branchConfig = await graphWithInterrupt.updateState(
-  toReplay.config,
-  {
-    messages: [
-      new ToolMessage("It's sunny out, with a high of 38 ℃.", tool_calls[0].id),
-    ],
-  },
-  // Updates are applied "as if" they were coming from a node. By default,
-  // the updates will come from the last node to run. In our case, we want to treat
-  // this update as if it came from the tools node, so that the next node to run will be
-  // the agent.
-  "tools",
-);
-
-const branchState = await graphWithInterrupt.getState(branchConfig);
-console.log(branchState.values);
-console.log(branchState.next);
-```
-
-    {
-      messages: [
-        [ 'user', "What's the weather like in SF currently?" ],
-        AIMessage {
-          "id": "chatcmpl-9y6Tn0RGjUnVqxDHz5CxlGfldPS2E",
-          "content": "",
-          "additional_kwargs": {
-            "tool_calls": [
-              {
-                "id": "call_upim4LMd1U6JdWlsGGk772Pa",
-                "type": "function",
-                "function": "[Object]"
-              }
-            ]
-          },
-          "response_metadata": {
-            "tokenUsage": {
-              "completionTokens": 19,
-              "promptTokens": 72,
-              "totalTokens": 91
-            },
-            "finish_reason": "tool_calls",
-            "system_fingerprint": "fp_3aa7262c27"
-          },
-          "tool_calls": [
-            {
-              "name": "search",
-              "args": {
-                "query": "current weather in San Francisco, CA"
-              },
-              "type": "tool_call",
-              "id": "call_upim4LMd1U6JdWlsGGk772Pa"
-            }
-          ],
-          "invalid_tool_calls": []
-        },
-        ToolMessage {
-          "content": "It's sunny out, with a high of 38 ℃.",
-          "additional_kwargs": {},
-          "response_metadata": {},
-          "tool_call_id": "call_upim4LMd1U6JdWlsGGk772Pa"
-        }
-      ]
-    }
-    [ 'agent' ]
-
-
-#### Now you can run from this branch
-
-Just use the updated config (containing the new checkpoint ID). The trajectory
-will follow the new branch.
-
-
-```typescript
-for await (
-  const { messages } of await graphWithInterrupt.stream(null, {
-    ...branchConfig,
-    streamMode: "values",
-  })
-) {
-  let msg = messages[messages?.length - 1];
-  if (msg?.content) {
-    console.log(msg.content);
-  } else if (msg?.tool_calls?.length > 0) {
-    console.log(msg.tool_calls);
-  } else {
-    console.log(msg);
-  }
-  console.log("-----\n");
-}
-```
-
-    The current weather in San Francisco is sunny with a high of 38°C (100.4°F).
-    -----
-    
+    agent
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
+    __END__
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_M60jubFO7QzVUGZsutRsvdjw", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_M60jubFO7QzVUGZsutRsvdjw" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
 

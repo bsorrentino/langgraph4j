@@ -9,25 +9,6 @@ import java.util.function.Supplier;
 
 public abstract class BaseSerializer<T> implements Serializer<T> {
 
-    private  static <S> Serializer<S> typedSerializer( Class<? extends S> clazz, Serializer<S> serializer ) {
-        return new Serializer<S>() {
-
-            @Override
-            public void write(S object, ObjectOutput out) throws IOException {
-                serializer.write(object, out);
-            }
-
-            @Override
-            public S read(ObjectInput in) throws IOException, ClassNotFoundException {
-                return serializer.read(in);
-            }
-
-            @Override
-            public Optional<Class<? extends S>> type() {
-                return Optional.of(clazz);
-            }
-        };
-    }
     private static final Map<Class<?>, Serializer<?> > serializers = new HashMap<>();
 
     public static <S> void register( Class<?> clazz, Serializer<S> serializer ) {
@@ -54,7 +35,7 @@ public abstract class BaseSerializer<T> implements Serializer<T> {
 
         return serializers.entrySet().stream()
                 .filter( e -> e.getKey().isAssignableFrom(clazz) )
-                .map( e -> typedSerializer(clazz, (Serializer<S>)e.getValue() ) )
+                .map( e -> (Serializer<S>)e.getValue() )
                 .findFirst();
 
     }
@@ -85,9 +66,5 @@ public abstract class BaseSerializer<T> implements Serializer<T> {
             value = serializer.read(in);
         }
         return (S)value;
-    }
-
-    protected T newInstance( Supplier<T> defaultValue ) throws InstantiationException, IllegalAccessException {
-        return  ( type().isPresent() ) ? type().get().newInstance() : defaultValue.get();
     }
 }

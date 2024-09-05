@@ -1,7 +1,8 @@
 package org.bsc.langgraph4j.serializer;
 
-import java.util.Collection;
-import java.util.Map;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.util.*;
 
 public class StateSerializer extends MapSerialize {
 
@@ -11,10 +12,12 @@ public class StateSerializer extends MapSerialize {
 
     private StateSerializer() {
         super();
-        register( Collection.class, CollectionSerializer.of() );
+        register( Collection.class, ListSerializer.of() );
         register( Map.class, MapSerialize.of() );
-
     }
 
-
+    @Override
+    public Map<String, Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
+        return Collections.unmodifiableMap(super.read(in));
+    }
 }
