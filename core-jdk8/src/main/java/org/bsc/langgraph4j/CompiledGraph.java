@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
@@ -156,7 +157,10 @@ public class CompiledGraph<State extends AgentState> {
         return nextNodeId(stateGraph.getEntryPoint(), state, "entryPoint");
     }
 
-    private boolean shouldInterruptBefore( String nodeId ) {
+    private boolean shouldInterruptBefore(@NonNull String nodeId, String startNodeId ) {
+        if( nodeId.equals(startNodeId)) { // FIX RESUME ERROR
+            return false;
+        }
         return Arrays.asList(compileConfig.getInterruptBefore()).contains(nodeId);
     }
 
@@ -168,11 +172,12 @@ public class CompiledGraph<State extends AgentState> {
         if( compileConfig.checkpointSaver().isPresent() ) {
             Checkpoint cp =  Checkpoint.builder()
                                 .nodeId( nodeId )
-                                .state( state )
+                                .state( state.data() )
                                 .nextNodeId( nextNodeId )
                                 .build();
             compileConfig.checkpointSaver().get().put( config, cp );
         }
+
     }
 
     Map<String,Object> getInitialStateFromSchema() {
@@ -214,30 +219,30 @@ public class CompiledGraph<State extends AgentState> {
                 while( !Objects.equals(currentNodeId, END) ) {
 
                     log.trace( "NEXT NODE: {}", currentNodeId);
-
                     var action = nodes.get(currentNodeId);
 
                     if (action == null)
                         throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
 
-                    if ( shouldInterruptBefore( currentNodeId ) ) {
+                    if ( shouldInterruptBefore( currentNodeId, startNodeId  )) {
                         log.trace("interrupt before node {}", currentNodeId);
+                        addCheckpoint( config, currentNodeId, cloneState(currentState.data()), currentNodeId );
                         return;
                     }
 
-                    partialState = action.apply(currentState).get();
+                    partialState = action.apply( cloneState(currentState.data())).get();
 
-                    currentState = cloneState( AgentState.updateState(currentState, partialState, stateGraph.getChannels()) );
+                    currentState = stateGraph.getStateFactory().apply(AgentState.updateState(currentState, partialState, stateGraph.getChannels()));
 
-                    yieldData.accept( NodeOutput.of(currentNodeId, currentState) );
+                    yieldData.accept( NodeOutput.of(currentNodeId, cloneState(currentState.data())) );
 
                     if ( Objects.equals(currentNodeId, stateGraph.getFinishPoint()) ) {
-                        addCheckpoint( config, currentNodeId, currentState, stateGraph.getFinishPoint() );
+                        addCheckpoint( config, currentNodeId, cloneState(currentState.data()), stateGraph.getFinishPoint() );
                         break;
                     }
 
                     final String nextNodeId = nextNodeId(currentNodeId, currentState);
-                    addCheckpoint( config, currentNodeId, currentState, nextNodeId );
+                    addCheckpoint( config, currentNodeId, cloneState(currentState.data()), nextNodeId );
 
                     if ( shouldInterruptAfter( currentNodeId ) ) {
                         log.trace( "interrupt after node {}", currentNodeId);
@@ -257,7 +262,7 @@ public class CompiledGraph<State extends AgentState> {
 
                 }
 
-                yieldData.accept( NodeOutput.of(END, currentState) );
+                yieldData.accept( NodeOutput.of(END, cloneState(currentState.data())) );
 
                 // addCheckpoint( config, END, currentState, null );
 
@@ -280,7 +285,7 @@ public class CompiledGraph<State extends AgentState> {
         final boolean isResumeRequest =  (inputs == null);
 
         if( isResumeRequest ) {
-
+            log.trace( "RESUME REQUEST" );
             BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow(() -> (new IllegalStateException("inputs cannot be null (ie. resume request) if no checkpoint saver is configured")));
 
             Checkpoint startCheckpoint = saver.get( config ).orElseThrow( () -> (new IllegalStateException("Resume request without a saved checkpoint!")) );
@@ -291,9 +296,14 @@ public class CompiledGraph<State extends AgentState> {
 
                 State startState = stateGraph.getStateFactory().apply( startCheckpoint.getState() );
 
+                // Reset checkpoint id
+                RunnableConfig resumeConfig = RunnableConfig.builder(config)
+                        .checkPointId(null)
+                        .build();
+
                 streamData( startState,
                             startCheckpoint.getNextNodeId(),
-                            config,
+                            resumeConfig,
                             data -> queue.add( AsyncGenerator.Data.of( completedFuture(data) ) )
                             );
             }));
@@ -304,16 +314,16 @@ public class CompiledGraph<State extends AgentState> {
 
             log.trace( "START" );
 
-            State startState = cloneState( getInitialState(inputs, config) ) ;
-            queue.add( AsyncGenerator.Data.of( NodeOutput.of( START, startState ) ));
+            State startState = stateGraph.getStateFactory().apply(getInitialState(inputs, config )) ;
+
+            queue.add( AsyncGenerator.Data.of( NodeOutput.of( START, cloneState(startState.data()) ) ));
 
             String startNodeId = this.getEntryPoint( startState );
-            if( shouldInterruptBefore( startNodeId ) ) return;
+            if( shouldInterruptBefore( startNodeId, null ) ) return;
 
-            addCheckpoint( config, START, startState, startNodeId );
+            addCheckpoint( config, START, cloneState(startState.data()), startNodeId );
 
             if( shouldInterruptAfter( startNodeId ) ) return;
-
 
             streamData( startState,
                         startNodeId,

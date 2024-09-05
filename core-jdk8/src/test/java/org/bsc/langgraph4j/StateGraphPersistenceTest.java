@@ -50,7 +50,7 @@ public class StateGraphPersistenceTest
         }
 
         Optional<String> lastMessage() {
-            List<String> messages = messages();
+                List<String> messages = messages();
             if( messages.isEmpty() ) {
                 return Optional.empty();
             }
@@ -311,6 +311,70 @@ public class StateGraphPersistenceTest
 
     @Test
     public void testPauseAndUpdatePastGraphState() throws Exception {
+        var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+                .addNode("agent", node_async( state -> {
+                    String lastMessage = state.lastMessage().orElseThrow( () -> new IllegalStateException("No last message!") );
 
+                    if( lastMessage.contains( "temperature")) {
+                        return mapOf("messages", "whether in Naples is sunny");
+                    }
+                    if( lastMessage.contains( "whether")) {
+                        return mapOf("messages", "tool_calls");
+                    }
+                    if( lastMessage.contains( "bartolo")) {
+                        return mapOf("messages", "Hi bartolo, nice to meet you too! How can I assist you today?");
+                    }
+                    if(state.messages().stream().anyMatch(m -> m.contains("bartolo"))) {
+                        return mapOf("messages", "Hi, bartolo welcome back?");
+                    }
+                    throw new IllegalStateException( "unknown message!" );
+                }))
+                .addNode("tools", node_async( state ->
+                        mapOf( "messages", "temperature in Napoli is 30 degree" )
+                ))
+                .addEdge(START, "agent")
+                .addConditionalEdges("agent", edge_async( state ->
+                        state.lastMessage().filter( m -> m.equals("tool_calls")  ).map( m -> "tools" ).orElse(END)
+                ), mapOf("tools", "tools", END, END))
+                .addEdge("tools", "agent");
+
+
+        var saver = new MemorySaver();
+
+        var compileConfig = CompileConfig.builder()
+                .checkpointSaver(saver)
+                .interruptBefore("tools")
+                .build();
+
+        var app = workflow.compile( compileConfig );
+
+        var runnableConfig = RunnableConfig.builder()
+                .threadId("thread_1")
+                .build();
+
+        Map<String,Object> inputs = mapOf( "messages","whether in Naples?" ) ;
+        var results = app.stream( inputs, runnableConfig ).stream().collect(Collectors.toList());
+
+        assertNotNull( results );
+        assertEquals( 2, results.size() );
+        assertEquals( START, results.get(0).node() );
+        assertEquals( "agent", results.get(1).node() );
+        assertTrue( results.get(1).state().lastMessage().isPresent() );
+
+        var state = app.getState(runnableConfig);
+
+        assertNotNull( state );
+        assertEquals( "tools", state.getNext() );
+
+        results = app.stream( null, state.getConfig() ).stream().collect(Collectors.toList());
+
+        assertNotNull( results );
+        assertEquals( 3, results.size() );
+        assertEquals( "tools", results.get(0).node() );
+        assertEquals( "agent", results.get(1).node() );
+        assertEquals( END, results.get(2).node() );
+        assertTrue( results.get(2).state().lastMessage().isPresent() );
+
+        System.out.println( results.get(2).state().lastMessage().get() );
     }
 }
