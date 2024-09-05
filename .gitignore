@@ -40,3 +40,5 @@ build/
 
 ### Jupyter
 .venv/
+how-tos/log.txt
+how-tos/log.txt.lck
