@@ -30,7 +30,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Threads (_checkpointing of multiple different runs_)
 - [x] Update state (_interact with the state directly and update it_)
 - [x] Breakpoints (_pause and resume feature_)
-- [ ] Graph migration
+- [ ] Parallel Node Execution
 
 ## Samples
 
@@ -38,11 +38,16 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 * [Image To PlantUML Diagram](image-to-diagram/README.md)
 * [Adaptive RAG](adaptive-rag/README.md)
 
+## How To(s)
+
+* [How to add persistence ("memory") to your graph](how-tos/persistence.ipynb)
+* [How to view and update past graph state](how-tos/time-travel.ipynb)
+
 ## Releases
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Aug 10, 2024 | `1.0-beta2` | last official beta release
+| Sep 06, 2024 | `1.0-beta4` | last official beta release
 
 
 ## Quick Start 
