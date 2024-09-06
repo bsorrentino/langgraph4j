@@ -2,6 +2,61 @@
 
 
 
+<!-- "name: v1.0-beta4" is a release tag -->
+
+## [v1.0-beta4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-beta4) (2024-09-06)
+
+### Features
+
+ *  **notebook**  add "How to view and update past graph state" ([ae60f3094661e4e](https://github.com/bsorrentino/langgraph4j/commit/ae60f3094661e4e2bfa5d9000bb11ec532d51bd4))
+   
+
+### Bug Fixes
+
+ -  pause management ([9ec77fb711d11c3](https://github.com/bsorrentino/langgraph4j/commit/9ec77fb711d11c336e8ad26d3002f9e7b6868960))
+     > - check resume startpoint
+     > - refine state cloning
+     > - improve unit test
+     > work on #14
+
+
+### Documentation
+
+ -  update readme ([67b61a7be81bd11](https://github.com/bsorrentino/langgraph4j/commit/67b61a7be81bd113fce703a8e48f429722b34ffc))
+
+ -  **time-travel.ipynb**  update ([a1216b97240b6b9](https://github.com/bsorrentino/langgraph4j/commit/a1216b97240b6b9f34bb188aae54b10ae5fe964d))
+
+ -  update maven site ([c89323fe75721c6](https://github.com/bsorrentino/langgraph4j/commit/c89323fe75721c68d81ece1e860b8255dda77fef))
+
+ -  update site ([79fb38b1da3ba77](https://github.com/bsorrentino/langgraph4j/commit/79fb38b1da3ba775e33e8436a5fee9499de0e2bb))
+
+ -  update changeme ([a6c54e814b4b9ef](https://github.com/bsorrentino/langgraph4j/commit/a6c54e814b4b9ef747eb13f37f6b1e7f27730cb4))
+
+ -  add "How to view and update past graph state" ([40dd70e59c6d283](https://github.com/bsorrentino/langgraph4j/commit/40dd70e59c6d2833a2b12094d02d4ebf82de120e))
+
+ -  update changeme ([8adee9a867c7de7](https://github.com/bsorrentino/langgraph4j/commit/8adee9a867c7de79c25824ffd9ce1b8acd61164e))
+
+
+### Refactor
+
+ -  update git ignore ([a09be23ce723385](https://github.com/bsorrentino/langgraph4j/commit/a09be23ce72338550dac754809bdabb3215020b3))
+   
+ -  **TryConsumer**  add logging ([7023501ea4ea944](https://github.com/bsorrentino/langgraph4j/commit/7023501ea4ea944e99c9d4878a93de1dc2b8674e))
+   
+
+### ALM 
+
+ -  bump new beta version ([25f45aa52fc1f38](https://github.com/bsorrentino/langgraph4j/commit/25f45aa52fc1f3817954e7e2626d88d6ac400c99))
+   
+ -  utility shells refinements ([f1765769556e024](https://github.com/bsorrentino/langgraph4j/commit/f1765769556e0242a96e1abbe6371e423cb8731b))
+   
+ -  bump langchai4j version ([b0689ac981193b6](https://github.com/bsorrentino/langgraph4j/commit/b0689ac981193b6cb42432410180f9cb1a55fd6f))
+   
+
+
+
+
+
 <!-- "name: v1.0-20240905" is a release tag -->
 
 ## [v1.0-20240905](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240905) (2024-09-05)
