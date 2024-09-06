@@ -78,6 +78,19 @@ public class CompiledGraph<State extends AgentState> {
         return StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() );
     }
 
+
+    /**
+     * 
+     * Update the state of the graph with the given values.
+     * If asNode is given, it will be used to determine the next node to run.
+     * If not given, the next node will be determined by the state graph.
+     * 
+     * @param config the RunnableConfig containg the graph state
+     * @param values the values to be updated
+     * @param asNode the node id to be used for the next node. can be null
+     * @return the updated RunnableConfig
+     * @throws Exception when something goes wrong
+     */
     public RunnableConfig updateState( RunnableConfig config, Map<String,Object> values, String asNode ) throws Exception {
         var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
@@ -98,7 +111,6 @@ public class CompiledGraph<State extends AgentState> {
                                 .nextNode( nextNodeId )
                                 .build();
     }
-
     public EdgeValue<State> getEntryPoint() {
         return stateGraph.getEntryPoint();
     }
