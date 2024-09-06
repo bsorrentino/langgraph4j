@@ -42,7 +42,7 @@ public class Checkpoint {
     }
 
     public static class Builder {
-        private final Checkpoint result = new Checkpoint();;
+        private final Checkpoint result = new Checkpoint();
 
         public Builder id( String id ) {
             result.id = id;
@@ -78,7 +78,7 @@ public class Checkpoint {
     public Checkpoint updateState(Map<String,Object> values, Map<String, Channel<?>> channels ) {
 
         Checkpoint result = new Checkpoint( this );
-        result.state = AgentState.updateState( state, values, channels );;
+        result.state = AgentState.updateState( state, values, channels );
         return result;
     }
 
