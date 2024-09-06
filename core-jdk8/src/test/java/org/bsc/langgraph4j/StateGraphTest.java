@@ -210,8 +210,8 @@ public class StateGraphTest
 
         assertTrue( result.isPresent() );
         System.out.println( result.get().data() );
-        assertEquals( 3, result.get().steps() );
         assertEquals( 3, result.get().messages().size() );
+        assertEquals( 3, result.get().steps() );
         assertIterableEquals( listOf( "message1", "message2", "message3"), result.get().messages().values() );
     }
 
