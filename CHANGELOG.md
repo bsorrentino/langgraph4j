@@ -2,6 +2,40 @@
 
 
 
+<!-- "name: v1.0-20240906" is a release tag -->
+
+## [v1.0-20240906](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240906) (2024-09-06)
+
+### Features
+
+ *  **how-tos**  add loggin support ([27c7afd0ecc609b](https://github.com/bsorrentino/langgraph4j/commit/27c7afd0ecc609bca4dfd18ea214928f9271c0f4))
+   
+ *  **CompiledGraph**  optimize code ([4e9a763700b9814](https://github.com/bsorrentino/langgraph4j/commit/4e9a763700b9814d7ac444151533c6b3486f521b))
+     > minimize cloneState() calls
+   
+
+
+### Documentation
+
+ -  update changeme ([890367f24ce3d27](https://github.com/bsorrentino/langgraph4j/commit/890367f24ce3d27c910a2a6fde8deee79bad2c81))
+
+
+### Refactor
+
+ -  merge PR #23 ([9e1248b468f1204](https://github.com/bsorrentino/langgraph4j/commit/9e1248b468f1204ebbc83b75c35fac798bb57fec))
+   
+
+### ALM 
+
+ -  update git ignore ([1983a7380200aa2](https://github.com/bsorrentino/langgraph4j/commit/1983a7380200aa2ad282a2fef3d5eb090bc78dd7))
+   
+ -  bump to developer release ([e8a2f07f273fe59](https://github.com/bsorrentino/langgraph4j/commit/e8a2f07f273fe5903a9a39525991e062968732a1))
+   
+
+
+
+
+
 <!-- "name: v1.0-beta4" is a release tag -->
 
 ## [v1.0-beta4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-beta4) (2024-09-06)
