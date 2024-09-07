@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,16 +24,15 @@ public class GraphTest {
     @Test
     public void testSimpleGraph() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new);
-        workflow.setEntryPoint("agent_1");
-        workflow.setFinishPoint("agent_2");
-
-        workflow.addNode("agent_3", this::dummyNodeAction);
-        workflow.addNode("agent_1", this::dummyNodeAction);
-        workflow.addNode("agent_2", this::dummyNodeAction);
-
-        workflow.addEdge( "agent_1",  "agent_3");
-        workflow.addEdge( "agent_3",  "agent_2");
+        var workflow = new StateGraph<>(AgentState::new)
+            .addNode("agent_3", this::dummyNodeAction)
+            .addNode("agent_1", this::dummyNodeAction)
+            .addNode("agent_2", this::dummyNodeAction)
+            .addEdge( START, "agent_1")
+            .addEdge("agent_2", END)
+            .addEdge( "agent_1",  "agent_3")
+            .addEdge( "agent_3",  "agent_2")
+            ;
 
         var app = workflow.compile();
 
@@ -50,14 +50,14 @@ public class GraphTest {
                 "powered by langgraph4j\n" +
                 "end footer\n" +
                 "circle start<<input>>\n" +
-                "circle stop\n" +
+                "circle stop as __END__\n" +
                 "usecase \"agent_3\"<<Node>>\n" +
                 "usecase \"agent_1\"<<Node>>\n" +
                 "usecase \"agent_2\"<<Node>>\n" +
                 "start -down-> \"agent_1\"\n" +
+                "\"agent_2\" -down-> \"__END__\"\n" +
                 "\"agent_1\" -down-> \"agent_3\"\n" +
                 "\"agent_3\" -down-> \"agent_2\"\n" +
-                "\"agent_2\" -down-> stop\n" +
                 "@enduml\n", result.getContent() );
 
         // System.out.println( result.getContent() );
@@ -66,19 +66,19 @@ public class GraphTest {
     @Test
     public void testCorrectionProcessGraph() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new);
-
-        workflow.addNode( "evaluate_result", this::dummyNodeAction);
-        workflow.addNode( "agent_review", this::dummyNodeAction );
-        workflow.addEdge( "agent_review", "evaluate_result" );
-        workflow.addConditionalEdges(
-                "evaluate_result",
-                this::dummyCondition,
-                mapOf(  "OK", END,
-                        "ERROR", "agent_review",
-                        "UNKNOWN", END )
-        );
-        workflow.setEntryPoint("evaluate_result");
+        var workflow = new StateGraph<>(AgentState::new)
+            .addNode( "evaluate_result", this::dummyNodeAction)
+            .addNode( "agent_review", this::dummyNodeAction )
+            .addEdge( "agent_review", "evaluate_result" )
+            .addConditionalEdges(
+                    "evaluate_result",
+                    this::dummyCondition,
+                    mapOf(  "OK", END,
+                            "ERROR", "agent_review",
+                            "UNKNOWN", END )
+            )
+            .addEdge( START, "evaluate_result")
+                ;
 
         var app = workflow.compile();
 
@@ -96,7 +96,7 @@ public class GraphTest {
                         "powered by langgraph4j\n" +
                         "end footer\n" +
                         "circle start<<input>>\n" +
-                        "circle stop\n" +
+                        "circle stop as __END__\n" +
                         "usecase \"evaluate_result\"<<Node>>\n" +
                         "usecase \"agent_review\"<<Node>>\n" +
                         "hexagon \"check state\" as condition1<<Condition>>\n" +
@@ -118,20 +118,17 @@ public class GraphTest {
     }
     @Test
     public void GenerateAgentExecutorGraph() throws Exception {
-        var workflow = new StateGraph<>(AgentState::new);
-
-        workflow.setEntryPoint("agent");
-
-        workflow.addNode( "agent", this::dummyNodeAction);
-        workflow.addNode( "action", this::dummyNodeAction);
-
-        workflow.addConditionalEdges(
-                "agent",
-                this::dummyCondition,
-                mapOf("continue", "action", "end", END)
-        );
-
-        workflow.addEdge("action", "agent");
+        var workflow = new StateGraph<>(AgentState::new)
+            .addNode( "agent", this::dummyNodeAction)
+            .addNode( "action", this::dummyNodeAction)
+            .addEdge(START, "agent")
+            .addConditionalEdges(
+                    "agent",
+                    this::dummyCondition,
+                    mapOf("continue", "action", "end", END)
+            )
+            .addEdge("action", "agent")
+            ;
 
         var app = workflow.compile();
 
@@ -149,7 +146,7 @@ public class GraphTest {
                 "powered by langgraph4j\n" +
                 "end footer\n" +
                 "circle start<<input>>\n" +
-                "circle stop\n" +
+                "circle stop as __END__\n" +
                 "usecase \"agent\"<<Node>>\n" +
                 "usecase \"action\"<<Node>>\n" +
                 "hexagon \"check state\" as condition1<<Condition>>\n" +
@@ -168,22 +165,22 @@ public class GraphTest {
 
     @Test
     public void GenerateImageToDiagramGraph() throws Exception {
-        var workflow = new StateGraph<>(AgentState::new);
-
-        workflow.addNode("agent_describer", this::dummyNodeAction );
-        workflow.addNode("agent_sequence_plantuml", this::dummyNodeAction );
-        workflow.addNode("agent_generic_plantuml", this::dummyNodeAction );
-        workflow.addConditionalEdges(
-                "agent_describer",
-                this::dummyCondition,
-                mapOf( "sequence", "agent_sequence_plantuml",
-                        "generic", "agent_generic_plantuml" )
-        );
-        workflow.addNode( "evaluate_result", this::dummyNodeAction );
-        workflow.addEdge("agent_sequence_plantuml", "evaluate_result");
-        workflow.addEdge("agent_generic_plantuml", "evaluate_result");
-        workflow.setEntryPoint("agent_describer");
-        workflow.setFinishPoint("evaluate_result");
+        var workflow = new StateGraph<>(AgentState::new)
+            .addNode("agent_describer", this::dummyNodeAction )
+            .addNode("agent_sequence_plantuml", this::dummyNodeAction )
+            .addNode("agent_generic_plantuml", this::dummyNodeAction )
+            .addConditionalEdges(
+                    "agent_describer",
+                    this::dummyCondition,
+                    mapOf( "sequence", "agent_sequence_plantuml",
+                            "generic", "agent_generic_plantuml" )
+            )
+            .addNode( "evaluate_result", this::dummyNodeAction )
+            .addEdge("agent_sequence_plantuml", "evaluate_result")
+            .addEdge("agent_generic_plantuml", "evaluate_result")
+            .addEdge(START, "agent_describer")
+            .addEdge("evaluate_result", END)
+        ;
 
         var app = workflow.compile();
 
@@ -201,7 +198,7 @@ public class GraphTest {
                 "powered by langgraph4j\n" +
                 "end footer\n" +
                 "circle start<<input>>\n" +
-                "circle stop\n" +
+                "circle stop as __END__\n" +
                 "usecase \"agent_describer\"<<Node>>\n" +
                 "usecase \"agent_sequence_plantuml\"<<Node>>\n" +
                 "usecase \"agent_generic_plantuml\"<<Node>>\n" +
@@ -215,7 +212,7 @@ public class GraphTest {
                 "'\"agent_describer\" --> \"agent_generic_plantuml\": \"generic\"\n" +
                 "\"agent_sequence_plantuml\" -down-> \"evaluate_result\"\n" +
                 "\"agent_generic_plantuml\" -down-> \"evaluate_result\"\n" +
-                "\"evaluate_result\" -down-> stop\n" +
+                "\"evaluate_result\" -down-> \"__END__\"\n" +
                 "@enduml\n",
                 result.getContent() );
 
@@ -229,7 +226,7 @@ public class GraphTest {
                 "---\n" +
                 "flowchart TD\n" +
                 "\tstart((start))\n" +
-                "\tstop((stop))\n" +
+                "\t__END__((stop))\n" +
                 "\tagent_describer(\"agent_describer\")\n" +
                 "\tagent_sequence_plantuml(\"agent_sequence_plantuml\")\n" +
                 "\tagent_generic_plantuml(\"agent_generic_plantuml\")\n" +
@@ -243,7 +240,7 @@ public class GraphTest {
                 "\tagent_describer:::agent_describer -->|generic| agent_generic_plantuml:::agent_generic_plantuml\n" +
                 "\tagent_sequence_plantuml:::agent_sequence_plantuml --> evaluate_result:::evaluate_result\n" +
                 "\tagent_generic_plantuml:::agent_generic_plantuml --> evaluate_result:::evaluate_result\n" +
-                "\tevaluate_result:::evaluate_result --> stop:::stop\n",
+                "\tevaluate_result:::evaluate_result --> __END__:::__END__\n",
                 result.getContent() );
     }
 }
