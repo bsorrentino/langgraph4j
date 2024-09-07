@@ -19,7 +19,7 @@ public class PlantUMLGenerator extends DiagramGenerator {
         .append("powered by langgraph4j\n")
         .append("end footer\n")
         .append("circle start<<input>>\n")
-        .append("circle stop\n");
+        .append("circle stop as __END__\n");
     }
 
     @Override

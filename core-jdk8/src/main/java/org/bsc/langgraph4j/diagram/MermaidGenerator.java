@@ -17,7 +17,7 @@ public class MermaidGenerator extends DiagramGenerator {
          .append( format("---\ntitle: %s\n---\n", title))
          .append( "flowchart TD\n")
          .append( "\tstart((start))\n")
-         .append( "\tstop((stop))\n")
+         .append( "\t__END__((stop))\n")
        ;
     }
 

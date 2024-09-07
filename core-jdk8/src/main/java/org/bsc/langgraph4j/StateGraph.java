@@ -246,7 +246,7 @@ public class StateGraph<State extends AgentState> {
      * @param id the identifier of the fake node
      * @return a new fake node
      */
-    private Node<State> makeFakeNode(String id) {
+    private Node<State> nodeById(String id) {
         return new Node<>(id, null);
     }
 
@@ -264,29 +264,29 @@ public class StateGraph<State extends AgentState> {
             throw Errors.missingEntryPoint.exception();
         }
 
-        if( entryPoint.id()!=null && !nodes.contains(makeFakeNode(entryPoint.id()))) {
+        if( entryPoint.id()!=null && !nodes.contains(nodeById(entryPoint.id()))) {
             throw Errors.entryPointNotExist.exception(entryPoint.id());
         }
 
         if (finishPoint != null) {
-            if (!nodes.contains(makeFakeNode(finishPoint))) {
+            if (!nodes.contains(nodeById(finishPoint))) {
                 throw Errors.finishPointNotExist.exception(finishPoint);
             }
         }
 
         for (Edge<State> edge : edges) {
 
-            if (!nodes.contains(makeFakeNode(edge.sourceId()))) {
+            if (!nodes.contains(nodeById(edge.sourceId()))) {
                 throw Errors.missingNodeReferencedByEdge.exception(edge.sourceId());
             }
 
             if (edge.target().id() != null) {
-                if (!Objects.equals(edge.target().id(), END) && !nodes.contains(makeFakeNode(edge.target().id()))) {
+                if (!Objects.equals(edge.target().id(), END) && !nodes.contains(nodeById(edge.target().id()))) {
                     throw Errors.missingNodeReferencedByEdge.exception(edge.target().id());
                 }
             } else if (edge.target().value() != null) {
                 for (String nodeId : edge.target().value().mappings().values()) {
-                    if (!Objects.equals(nodeId, END) && !nodes.contains(makeFakeNode(nodeId))) {
+                    if (!Objects.equals(nodeId, END) && !nodes.contains(nodeById(nodeId))) {
                         throw Errors.missingNodeInEdgeMapping.exception(edge.sourceId(), nodeId);
                     }
                 }
