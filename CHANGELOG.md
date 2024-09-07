@@ -2,6 +2,41 @@
 
 
 
+<!-- "name: v1.0-20240907" is a release tag -->
+
+## [v1.0-20240907](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240907) (2024-09-07)
+
+### Features
+
+ *  **howtos**  visualize plantuml image ([3ade1774a4e76b0](https://github.com/bsorrentino/langgraph4j/commit/3ade1774a4e76b04c3f4c4237d9e132ec006c948))
+   
+
+### Bug Fixes
+
+ -  **diagram**  update diagram generation ([786cede1ac528b6](https://github.com/bsorrentino/langgraph4j/commit/786cede1ac528b60ad2724a08a7e0d2e2bfe1772))
+     > - PlantUML
+     > - Mermaid
+
+
+### Documentation
+
+ -  **CompiledGraph**  javadoc refinements ([9d10c4806e7ff21](https://github.com/bsorrentino/langgraph4j/commit/9d10c4806e7ff2144528e259629b55e5987b1c36))
+
+ -  update changeme ([c709e3800d24ebf](https://github.com/bsorrentino/langgraph4j/commit/c709e3800d24ebf23e9985748556caf7751a18b3))
+
+
+
+### ALM 
+
+ -  bump developer version ([b87196100219609](https://github.com/bsorrentino/langgraph4j/commit/b871961002196091a8fbbc56a34ebe24dd37f8b5))
+   
+ -  add set-version shell ([d8c034974444d65](https://github.com/bsorrentino/langgraph4j/commit/d8c034974444d65215c0ab91d289d92395c99fa8))
+   
+
+
+
+
+
 <!-- "name: v1.0-20240906" is a release tag -->
 
 ## [v1.0-20240906](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240906) (2024-09-06)
