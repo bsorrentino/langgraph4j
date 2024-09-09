@@ -102,7 +102,16 @@ export class LG4JResultElement extends LitElement {
       
       <div class="h-full">
         <div role="tablist" class="tabs tabs-bordered">
-        <a role="tab" class="tab">No Thread</a>
+        <a role="tab" class="tab">
+          <div class="flex items-center gap-x-2">
+            <p>No Thread</p>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+              <circle cx="10" cy="10" r="9" fill="none" stroke="white" stroke-width="1.5"/>
+              <line x1="5" y1="10" x2="15" y2="10" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="10" y1="5" x2="10" y2="15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </a>
         </div> 
         <div class="max-h-[95%] overflow-x-auto bg-slate-500">
           <table class="table table-pin-rows">
