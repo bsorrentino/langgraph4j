@@ -225,14 +225,14 @@ public class GraphTest {
                 "title: Graph Diagram\n" +
                 "---\n" +
                 "flowchart TD\n" +
-                "\tstart((start))\n" +
+                "\t__START__((start))\n" +
                 "\t__END__((stop))\n" +
                 "\tagent_describer(\"agent_describer\")\n" +
                 "\tagent_sequence_plantuml(\"agent_sequence_plantuml\")\n" +
                 "\tagent_generic_plantuml(\"agent_generic_plantuml\")\n" +
                 "\tevaluate_result(\"evaluate_result\")\n" +
                 "\t%%\tcondition1{\"check state\"}\n" +
-                "\tstart:::start --> agent_describer:::agent_describer\n" +
+                "\t__START__:::__START__ --> agent_describer:::agent_describer\n" +
                 "\t%%\tagent_describer:::agent_describer --> condition1:::condition1\n" +
                 "\t%%\tcondition1:::condition1 -->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml\n" +
                 "\tagent_describer:::agent_describer -->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml\n" +
