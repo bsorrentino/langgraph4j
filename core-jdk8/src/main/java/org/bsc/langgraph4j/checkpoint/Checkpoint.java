@@ -16,7 +16,6 @@ import java.util.*;
  * The checkpoint is serializable and can be persisted and restored.
  *
  * @see AgentState
- * @see Externalizable
  */
 @Getter
 @ToString
