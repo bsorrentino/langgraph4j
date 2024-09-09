@@ -37,36 +37,6 @@ export class LG4JResultElement extends LitElement {
     this.removeEventListener( 'result',  this.#onResult )
   }
 
-
-  /**
-   * Renders a result.
-   * @param {ResultData} result - The result data to render.
-   * @returns {import('lit').TemplateResult} The template for the result.
-   */
-  #renderResult(result, index) {
-    return html`
-    <div>
-    <div class="collapse collapse-arrow bg-base-200">
-      <input type="radio" name="item-1" checked="checked" />
-      <div class="collapse-title text-xl font-bold">${result.node}</div>
-      <div class="collapse-content">
-      ${Object.entries(result.state).map(([key, value]) => html`
-          <div>
-              <h4 class="italic">${key}</h4>
-              <p class="my-3">
-                <json-viewer id="json${index}">
-                ${JSON.stringify(value)}
-                </json-viewer>
-              </p>
-            </div>
-        `)}
-      </div>
-    </div>
-    </div>
-    `
-  }
-
-  
   /**
    * Event handler for the 'result' event.
    * 
@@ -100,15 +70,49 @@ export class LG4JResultElement extends LitElement {
     });
   }
 
-
+  /**
+   * Renders a result.
+   * @param {ResultData} result - The result data to render.
+   * @returns {import('lit').TemplateResult} The template for the result.
+   */
+  #renderResult(result, index) {
+    return html`
+    <div class="collapse collapse-arrow bg-base-200">
+      <input type="radio" name="item-1" checked="checked" />
+      <div class="collapse-title text-ml font-bold">${result.node}</div>
+      <div class="collapse-content">
+      ${Object.entries(result.state).map(([key, value]) => html`
+          <div>
+              <h4 class="italic">${key}</h4>
+              <p class="my-3">
+                <json-viewer id="json${index}">
+                ${JSON.stringify(value)}
+                </json-viewer>
+              </p>
+            </div>
+        `)}
+      </div>
+    </div>
+    `
+  }
+  
   render() {
   
     return html`
-      <div class="h-screen flex flex-col">
-        <div class="flex flex-col gap-y-1.5 mx-2 mt-2 h-full overflow-auto">
-        ${this.results.map( (result, index) => this.#renderResult(result, index))}
+      
+      <div class="h-full">
+        <div role="tablist" class="tabs tabs-bordered">
+        <a role="tab" class="tab">No Thread</a>
+        </div> 
+        <div class="max-h-[95%] overflow-x-auto bg-slate-500">
+          <table class="table table-pin-rows">
+            <tbody>
+                ${this.results.map( (result, index) => html`<tr><td>${this.#renderResult(result, index)}</td></tr>`) }
+            </tbody>
+          </table>
         </div>
       </div>
+       
     `;
   }
 

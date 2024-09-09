@@ -30,20 +30,20 @@ export class LG4jMermaid extends HTMLElement {
 
     const style = document.createElement("style");
     style.textContent = `
-    :host {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
+    // :host {
+    //   display: block;
+    //   width: 100%;
+    //   height: 100%;
+    // }
     .h-full {
       height: 100%;
     }
     .w-full {
       width: 100%;
     }
-    .flex {
-      display: flex;
-    }
+    // .flex {
+    //   display: flex;
+    // }
     .items-center {
       align-items: center;
     }
@@ -115,12 +115,12 @@ export class LG4jMermaid extends HTMLElement {
 
     // console.debug( svgContainer );
     return mermaid.render( 'graph', this.#textContent )
-    
         .then( res => { 
           console.debug( "RENDER COMPLETE", svgContainer );
           // svgContainer.innerHTML = res.svg
-          const { right: width,  bottom: height } = svgContainer.getBoundingClientRect();
+          const { width, height } = svgContainer.getBoundingClientRect();
           // console.debug( res.svg )
+          console.debug( 'width:', width, 'height:', height);
           const translated = res.svg
             .replace( /height="[\d\.]+"/, `height="${height}"`) 
             .replace( /width="[\d\.]+"/, `width="${width}"`);
@@ -128,6 +128,12 @@ export class LG4jMermaid extends HTMLElement {
           svgContainer.innerHTML = translated;
         })
         .then( () => this.#svgPanZoom() )
+        .then( () => {
+          console.debug( "boundingClientRect", svgContainer.getBoundingClientRect() );
+          for( const rc of svgContainer.getClientRects() ) {
+            console.debug( rc );
+          }
+        })
         .catch( e => console.error( "RENDER ERROR", e ) )
 
   }
