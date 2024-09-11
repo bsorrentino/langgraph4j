@@ -396,7 +396,7 @@ public class CompiledGraph<State extends AgentState> {
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type, String title, boolean printConditionalEdges ) {
 
-        String content = type.generator.generate( this, title, printConditionalEdges);
+        String content = type.generator.generate( this.stateGraph, title, printConditionalEdges);
 
         return new GraphRepresentation( type, content );
     }
@@ -410,7 +410,7 @@ public class CompiledGraph<State extends AgentState> {
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type, String title ) {
 
-        String content = type.generator.generate( this, title, true);
+        String content = type.generator.generate( this.stateGraph, title, true);
 
         return new GraphRepresentation( type, content );
     }
