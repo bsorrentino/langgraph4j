@@ -5,7 +5,6 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import lombok.var;
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
@@ -22,14 +21,9 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 public class AgentExecutor {
 
     public class GraphBuilder {
-        private BaseCheckpointSaver checkpointSaver;
         private ChatLanguageModel chatLanguageModel;
         private List<Object> objectsWithTools;
 
-        public GraphBuilder checkpointSaver(BaseCheckpointSaver checkpointSaver) {
-            this.checkpointSaver = checkpointSaver;
-            return this;
-        }
         public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
             this.chatLanguageModel = chatLanguageModel;
             return this;
@@ -39,7 +33,7 @@ public class AgentExecutor {
             return this;
         }
 
-        public CompiledGraph<State> build() throws GraphStateException {
+        public StateGraph<State> build() throws GraphStateException {
             Objects.requireNonNull(objectsWithTools, "objectsWithTools is required!");
             Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
 
@@ -55,11 +49,6 @@ public class AgentExecutor {
                     .tools( toolSpecifications )
                     .build();
 
-            CompileConfig.Builder config = new CompileConfig.Builder();
-
-            if( checkpointSaver != null ) {
-                config.checkpointSaver(checkpointSaver);
-            }
 
             return new StateGraph<>(State.SCHEMA,State::new)
                     .addEdge(START,"agent")
@@ -75,7 +64,7 @@ public class AgentExecutor {
                             mapOf("continue", "action", "end", END)
                     )
                     .addEdge("action", "agent")
-                    .compile( config.build() );
+                    ;
 
         }
     }

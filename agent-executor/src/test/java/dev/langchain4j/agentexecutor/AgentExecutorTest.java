@@ -3,10 +3,7 @@ package dev.langchain4j.agentexecutor;
 import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.var;
-import org.bsc.langgraph4j.GraphRepresentation;
-import org.bsc.langgraph4j.RunnableConfig;
-import org.bsc.langgraph4j.NodeOutput;
-import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
@@ -31,7 +28,7 @@ public class AgentExecutorTest {
         DotEnvConfig.load();
     }
 
-    private AgentExecutor.GraphBuilder newGraphBuilder()  throws Exception {
+    private StateGraph<AgentExecutor.State> newGraph()  throws Exception {
 
         var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
@@ -49,11 +46,13 @@ public class AgentExecutorTest {
 
         return agentExecutor.graphBuilder()
                 .chatLanguageModel(chatLanguageModel)
-                .objectsWithTools(listOf(new TestTool()));
+                .objectsWithTools(listOf(new TestTool()))
+                .build();
     }
 
     private List<AgentExecutor.State> executeAgent( String prompt )  throws Exception {
-        var iterator = newGraphBuilder().build().stream( mapOf( "input", prompt ) );
+
+        var iterator = newGraph().compile().stream( mapOf( "input", prompt ) );
 
         return iterator.stream()
                 .peek( s -> System.out.println( s.node() ) )
@@ -62,12 +61,16 @@ public class AgentExecutorTest {
     }
 
     private List<AgentExecutor.State> executeAgent(String prompt, String threadId, BaseCheckpointSaver saver)  throws Exception {
+
+        CompileConfig compileConfig = CompileConfig.builder()
+                .checkpointSaver( saver )
+                .build();
+
         var config = RunnableConfig.builder().threadId(threadId).build();
 
-        var iterator = newGraphBuilder()
-                .checkpointSaver( saver )
-                .build()
-                .stream( mapOf( "input", prompt ), config );
+        var graph = newGraph().compile( compileConfig );
+
+        var iterator = graph.stream( mapOf( "input", prompt ), config );
 
         return iterator.stream()
                 .peek( s -> System.out.println( s.node() ) )
