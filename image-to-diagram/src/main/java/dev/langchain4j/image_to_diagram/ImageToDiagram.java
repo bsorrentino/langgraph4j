@@ -6,20 +6,22 @@ import net.sourceforge.plantuml.ErrorUmlType;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppendableValue;
+import org.bsc.langgraph4j.state.AppenderChannel;
+import org.bsc.langgraph4j.state.Channel;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-import static java.util.Optional.ofNullable;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.*;
 
 public interface ImageToDiagram {
 
     class State extends AgentState {
-
+        static Map<String, Channel<?>> SCHEMA = mapOf(
+                "messages", AppenderChannel.<String>of(ArrayList::new)
+        );
         public State(Map<String, Object> initData) {
             super(initData);
         }
@@ -27,8 +29,8 @@ public interface ImageToDiagram {
         public Optional<Diagram.Element> diagram() {
             return value("diagram");
         }
-        public AppendableValue<String> diagramCode() {
-            return appendableValue("diagramCode");
+        public List<String> diagramCode() {
+            return this.<List<String>>value("diagramCode").orElseGet(Collections::emptyList);
         }
         public Optional<ImageToDiagramProcess.EvaluationResult> evaluationResult() {
             return value("evaluationResult" );
@@ -49,10 +51,10 @@ public interface ImageToDiagram {
         public boolean lastTwoDiagramsAreEqual() {
             if( diagramCode().size() < 2 ) return false;
 
-            String last = diagramCode().last()
+            String last = last( diagramCode() )
                     .map(String::trim)
                     .orElseThrow( () -> new IllegalStateException( "last() is null!" ) );
-            String prev = diagramCode().lastMinus(1)
+            String prev = lastMinus( diagramCode(), 1)
                     .map(String::trim)
                     .orElseThrow( () -> new IllegalStateException( "last(-1) is null!" ) );
 

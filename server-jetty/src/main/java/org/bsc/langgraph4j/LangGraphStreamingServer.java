@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * of LangGraph.
  * Implementations of this interface can be used to create a web server
  * that exposes an API for interacting with compiled language graphs.
-     */
+ */
 public interface LangGraphStreamingServer {
 
     Logger log = LoggerFactory.getLogger(LangGraphStreamingServer.class);
@@ -45,7 +45,7 @@ public interface LangGraphStreamingServer {
 
     class Builder {
         private int port = 8080;
-        private Map<String, ArgumentMetadata> inputArgs = new HashMap<>();
+        private final Map<String, ArgumentMetadata> inputArgs = new HashMap<>();
         private String title = null;
         private ObjectMapper objectMapper;
 
@@ -74,7 +74,7 @@ public interface LangGraphStreamingServer {
             return this;
         }
 
-        public <State extends AgentState> LangGraphStreamingServer build(CompiledGraph<State> compiledGraph) throws Exception {
+        public <State extends AgentState> LangGraphStreamingServer build(StateGraph<State> stateGraph) throws Exception {
 
             Server server = new Server();
 
@@ -82,28 +82,31 @@ public interface LangGraphStreamingServer {
             connector.setPort(port);
             server.addConnector(connector);
 
-            ResourceHandler resourceHandler = new ResourceHandler();
+            var resourceHandler = new ResourceHandler();
 
 //            Path publicResourcesPath = Paths.get("jetty", "src", "main", "webapp");
 //            Resource baseResource = ResourceFactory.of(resourceHandler).newResource(publicResourcesPath));
-            Resource baseResource = ResourceFactory.of(resourceHandler).newClassLoaderResource("webapp");
+            var baseResource = ResourceFactory.of(resourceHandler).newClassLoaderResource("webapp");
             resourceHandler.setBaseResource(baseResource);
 
             resourceHandler.setDirAllowed(true);
 
-            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
             if (objectMapper == null) {
                 objectMapper = new ObjectMapper();
             }
+
+            context.setSessionHandler(new org.eclipse.jetty.ee10.servlet.SessionHandler());
+
+            var initData = new InitData(title, inputArgs);
+            context.addServlet(new ServletHolder(new GraphInitServlet<>(stateGraph, initData)), "/init");
+
             // context.setContextPath("/");
             // Add the streaming servlet
-            context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(compiledGraph, objectMapper)), "/stream");
+            context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(stateGraph, objectMapper)), "/stream");
 
-            InitData initData = new InitData(title, inputArgs);
-            context.addServlet(new ServletHolder(new GraphInitServlet<State>(compiledGraph, initData)), "/init");
-
-            Handler.Sequence handlerList = new Handler.Sequence(resourceHandler, context);
+            var handlerList = new Handler.Sequence( resourceHandler, context);
 
             server.setHandler(handlerList);
 
@@ -127,12 +130,12 @@ public interface LangGraphStreamingServer {
 
 
 class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
-    final CompiledGraph<State> compiledGraph;
+    final StateGraph<State> stateGraph;
     final ObjectMapper objectMapper;
 
-    public GraphExecutionServlet(CompiledGraph<State> compiledGraph, ObjectMapper objectMapper) {
-        Objects.requireNonNull(compiledGraph, "compiledGraph cannot be null");
-        this.compiledGraph = compiledGraph;
+    public GraphExecutionServlet(StateGraph<State> stateGraph, ObjectMapper objectMapper) {
+        Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
+        this.stateGraph = stateGraph;
         this.objectMapper = objectMapper;
     }
 
@@ -151,6 +154,10 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
         var asyncContext = request.startAsync();
 
         try {
+            var config = CompileConfig.builder().build();
+
+            var compiledGraph = stateGraph.compile(config);
+
             compiledGraph.stream(dataMap)
                     .forEachAsync(s -> {
                         try {
@@ -197,7 +204,7 @@ record InitData(
  */
 class GraphInitServlet<State extends AgentState> extends HttpServlet {
 
-    final CompiledGraph<State> compiledGraph;
+    final StateGraph<State> stateGraph;
     final ObjectMapper objectMapper = new ObjectMapper();
     final InitData initData;
 
@@ -212,9 +219,9 @@ class GraphInitServlet<State extends AgentState> extends HttpServlet {
         }
     }
 
-    public GraphInitServlet(CompiledGraph<State> compiledGraph, InitData initData) {
-        Objects.requireNonNull(compiledGraph, "compiledGraph cannot be null");
-        this.compiledGraph = compiledGraph;
+    public GraphInitServlet(StateGraph<State> stateGraph, InitData initData) {
+        Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
+        this.stateGraph = stateGraph;
         this.initData = initData;
     }
 
@@ -223,7 +230,7 @@ class GraphInitServlet<State extends AgentState> extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        GraphRepresentation graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID, initData.title(), false);
+        GraphRepresentation graph = stateGraph.getGraph(GraphRepresentation.Type.MERMAID, initData.title(), false);
 
         final Result result = new Result(graph, initData);
         String resultJson = objectMapper.writeValueAsString(result);

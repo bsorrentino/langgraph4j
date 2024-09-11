@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 @Slf4j( topic="DiagramCorrectionProcess" )
@@ -44,7 +45,7 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
         CompletableFuture<Map<String,Object>> future = new CompletableFuture<>();
         try {
 
-            var diagramCode = state.diagramCode().last()
+            var diagramCode = last( state.diagramCode() )
                     .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
 
             var error = state.evaluationError()
@@ -71,7 +72,7 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
 
     private CompletableFuture<Map<String,Object>> evaluateResult(State state) {
 
-        var diagramCode = state.diagramCode().last()
+        var diagramCode = last( state.diagramCode() )
                 .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
 
         return PlantUMLAction.validate( diagramCode )
