@@ -20,6 +20,11 @@ export class LG4JResultElement extends LitElement {
   static properties = {
   }
 
+  /**
+   * @type {string[]}
+   */
+  threads = []
+
   constructor() {
     super()
     this.results = []
@@ -29,13 +34,21 @@ export class LG4JResultElement extends LitElement {
     super.connectedCallback();
 
     this.addEventListener( 'result', this.#onResult )
+    this.addEventListener( 'result-threads', this.#onInitThreads )
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
 
     this.removeEventListener( 'result',  this.#onResult )
+    this.removeEventListener( 'result-threads',  this.#onInitThreads )
   }
+
+  #onInitThreads = (e) => {
+    const { detail: threads } = e 
+
+  }
+
 
   /**
    * Event handler for the 'result' event.
@@ -70,7 +83,13 @@ export class LG4JResultElement extends LitElement {
     });
   }
 
-  /**
+  #onNewTab = (event) => {
+    console.log( "NEW TAB", event)
+    this.threads.push( `Thread-${this.threads.length+1}`);
+    this.requestUpdate();
+  }
+
+  /** 
    * Renders a result.
    * @param {ResultData} result - The result data to render.
    * @returns {import('lit').TemplateResult} The template for the result.
@@ -102,25 +121,24 @@ export class LG4JResultElement extends LitElement {
       
       <div class="h-full">
         <div role="tablist" class="tabs tabs-bordered">
-        <a role="tab" class="tab">
-          <div class="flex items-center gap-x-2">
-            <p>No Thread</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
-              <circle cx="10" cy="10" r="9" fill="none" stroke="white" stroke-width="1.5"/>
-              <line x1="5" y1="10" x2="15" y2="10" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="10" y1="5" x2="10" y2="15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
+            <a role="tab" class="tab tab-active">No Thread</a>
+            ${this.threads.map( t => html`<a role="tab" class="tab" >${t}</a>`)}
+            <a role="tab" class="tab">
+              <svg  @click="${this.#onNewTab}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+                <circle cx="10" cy="10" r="9" fill="none" stroke="white" stroke-width="1.5"/>
+                <line x1="5" y1="10" x2="15" y2="10" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="10" y1="5" x2="10" y2="15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </a>
           </div>
-        </a>
+            <div class="max-h-[95%] overflow-x-auto bg-slate-500">
+              <table class="table table-pin-rows">
+                <tbody>
+                    ${this.results.map( (result, index) => html`<tr><td>${this.#renderResult(result, index)}</td></tr>`) }
+                </tbody>
+              </table>
+            </div>
         </div> 
-        <div class="max-h-[95%] overflow-x-auto bg-slate-500">
-          <table class="table table-pin-rows">
-            <tbody>
-                ${this.results.map( (result, index) => html`<tr><td>${this.#renderResult(result, index)}</td></tr>`) }
-            </tbody>
-          </table>
-        </div>
-      </div>
        
     `;
   }

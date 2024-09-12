@@ -36,9 +36,10 @@ export class LG4JWorkbenchElement extends LitElement {
   }
 
   #routeInitEvent( e ) {
-      const { graph, title } = e.detail 
+      const { graph, title, threads = [] } = e.detail 
 
       this.#routeEvent( new CustomEvent( "graph", { detail: graph }));
+      this.#routeEvent( new CustomEvent( "result-threads", { detail: threads }));
 
       if( title ) {
         this.title = title

@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
@@ -128,10 +129,20 @@ public interface LangGraphStreamingServer {
     }
 }
 
+record PersistentConfig(String sessionId, String threadId) {
+    public PersistentConfig {
+        Objects.requireNonNull(sessionId);
+    }
+
+}
 
 class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
+    Logger log = LangGraphStreamingServer.log;
+
     final StateGraph<State> stateGraph;
     final ObjectMapper objectMapper;
+    final MemorySaver saver = new MemorySaver();
+    final Map<PersistentConfig, CompiledGraph<State>> graphCache = new HashMap<>();
 
     public GraphExecutionServlet(StateGraph<State> stateGraph, ObjectMapper objectMapper) {
         Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
@@ -139,11 +150,27 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
         this.objectMapper = objectMapper;
     }
 
+    private CompileConfig compileConfig(PersistentConfig config) {
+        return CompileConfig.builder()
+                .checkpointSaver(saver)
+                .build();
+    }
+
+    RunnableConfig runnableConfig( PersistentConfig config ) {
+        return RunnableConfig.builder()
+                .threadId(config.threadId())
+                .build();
+    }
+
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setHeader("Accept", "application/json");
         response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
+
+        var session = request.getSession(true);
+        Objects.requireNonNull(session, "session cannot be null");
 
         final PrintWriter writer = response.getWriter();
 
@@ -154,9 +181,15 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
         var asyncContext = request.startAsync();
 
         try {
-            var config = CompileConfig.builder().build();
+            var threadId = request.getParameter("threadId");
 
-            var compiledGraph = stateGraph.compile(config);
+            var config = new PersistentConfig( session.getId(), threadId);
+
+            var compiledGraph =  graphCache.get(config);
+            if( compiledGraph == null ) {
+                compiledGraph = stateGraph.compile( compileConfig(config) );
+                graphCache.put( config, compiledGraph );
+            }
 
             compiledGraph.stream(dataMap)
                     .forEachAsync(s -> {
@@ -184,7 +217,7 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
             ;
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ServletException(e);
         }
     }
 }
