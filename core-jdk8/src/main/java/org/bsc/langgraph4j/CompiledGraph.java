@@ -314,7 +314,7 @@ public class CompiledGraph<State extends AgentState> {
     }
 
 
-    public class AsyncNodeGenerator<O extends NodeOutput<State>> implements AsyncGenerator<O> {
+    public class AsyncNodeGenerator<Output extends NodeOutput<State>> implements AsyncGenerator<Output> {
 
         Map<String,Object> currentState;
         String currentNodeId;
@@ -322,7 +322,7 @@ public class CompiledGraph<State extends AgentState> {
         int iteration = 0;
         RunnableConfig config;
 
-        public AsyncNodeGenerator(Map<String,Object> inputs, RunnableConfig config) throws Exception {
+        protected AsyncNodeGenerator(Map<String,Object> inputs, RunnableConfig config) throws Exception {
             final boolean isResumeRequest =  (inputs == null);
 
             if( isResumeRequest ) {
@@ -361,8 +361,12 @@ public class CompiledGraph<State extends AgentState> {
             }
         }
 
+        protected Output buildOutput(String nodeId ) throws Exception {
+            return  (Output)NodeOutput.of( nodeId, cloneState(currentState) );
+        }
+
         @Override
-        public Data<O> next() {
+        public Data<Output> next() {
             // GUARD: CHECK MAX ITERATION REACHED
             if( ++iteration > maxIterations ) {
                 log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
@@ -372,7 +376,7 @@ public class CompiledGraph<State extends AgentState> {
             // GUARD: CHECK IF IT IS END
             if( nextNodeId == null &&  currentNodeId == null  ) return Data.done();
 
-            CompletableFuture<O> future = new CompletableFuture<>();
+            CompletableFuture<Output> future = new CompletableFuture<>();
 
             try {
 
@@ -380,13 +384,14 @@ public class CompiledGraph<State extends AgentState> {
                     nextNodeId = getEntryPoint( currentState );
                     currentNodeId = nextNodeId;
                     addCheckpoint( config, START, currentState, nextNodeId );
-                    return Data.of((O)NodeOutput.of( START, cloneState(currentState) ));
+                    return Data.of( buildOutput( START ) );
+
                 }
 
                 if( END.equals(nextNodeId) ) {
                     nextNodeId = null;
                     currentNodeId = null;
-                    return Data.of((O)NodeOutput.of( END, cloneState(currentState) ));
+                    return Data.of( buildOutput( END ) );
                 }
 
                 // check on previous node
@@ -407,7 +412,8 @@ public class CompiledGraph<State extends AgentState> {
                         nextNodeId = nextNodeId(currentNodeId, currentState);
                         addCheckpoint(config, currentNodeId, currentState, nextNodeId);
 
-                        return (O)NodeOutput.of( currentNodeId, cloneState(currentState) );
+                        return buildOutput( currentNodeId );
+
                     }
                     catch (Exception e) {
                         throw new CompletionException(e);
