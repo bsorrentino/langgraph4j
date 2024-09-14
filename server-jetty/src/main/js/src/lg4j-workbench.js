@@ -35,6 +35,13 @@ export class LG4JWorkbenchElement extends LitElement {
 
   }
 
+  /**
+   * Event handler for the 'init' event.
+   * 
+   * @param {CustomEvent} e - The event object containing init data.
+   * @private
+   */
+
   #routeInitEvent( e ) {
       const { graph, title, threads = [] } = e.detail 
 
@@ -47,9 +54,22 @@ export class LG4JWorkbenchElement extends LitElement {
       }
   }
 
+  
+  /**
+   * Event handler for the 'updates' event.
+   * 
+   * @param {CustomEvent} e - The event object containing the updated data.
+   * @private
+   */
+  #routeUpdateEvent( e ) {
+    console.debug( 'got updated event', e );
+    this.#routeEvent( new CustomEvent( `executor-${e.type}`, { detail: e.detail }));
+  }
+
   connectedCallback() {
     super.connectedCallback()
 
+    this.addEventListener( "update-threads", this.#routeUpdateEvent );
     this.addEventListener( "init", this.#routeInitEvent );
     this.addEventListener( "result", this.#routeEvent );
     this.addEventListener( "graph-active", this.#routeEvent );
@@ -58,6 +78,7 @@ export class LG4JWorkbenchElement extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback()
 
+    this.removeEventListener( "init", this.#routeUpdateEvent );
     this.removeEventListener( "init", this.#routeInitEvent );
     this.removeEventListener( "result", this.#routeEvent );
     this.removeEventListener( "graph-active", this.#routeEvent );

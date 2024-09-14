@@ -21,13 +21,20 @@ export class LG4JResultElement extends LitElement {
   }
 
   /**
+   * @type {any[]}
+   */
+  results = []
+  /**
    * @type {string[]}
    */
   threads = []
+  /**
+   * @type {string}
+   */
+  selectedThread = "thread-0"
 
   constructor() {
     super()
-    this.results = []
   }
   
   connectedCallback() {
@@ -83,11 +90,31 @@ export class LG4JResultElement extends LitElement {
     });
   }
 
-  #onNewTab = (event) => {
+  /**
+   * Event handler select tab.
+   * 
+   * @param {Event} event - The event object.
+   * @private
+   */
+
+  #onSelectTab( event ) {
+    this.selectedThread = event.target.id
+    this.requestUpdate();
+  }
+
+  #onNewTab(event) {
     console.log( "NEW TAB", event)
     this.threads.push( `Thread-${this.threads.length+1}`);
     this.requestUpdate();
+
+    this.dispatchEvent( new CustomEvent( 'update-threads', { 
+      detail: this.threads,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
   }
+
 
   /** 
    * Renders a result.
@@ -114,6 +141,13 @@ export class LG4JResultElement extends LitElement {
     </div>
     `
   }
+
+  #renderTabs() {
+    return html`
+    <a id="thread-0" @click="${this.#onSelectTab}" role="tab" class="tab ${this.selectedThread==='thread-0' ? 'tab-active' : ''}">No Thread</a>
+    ${this.threads.map( t => html`<a id="${t}" @click="${this.#onSelectTab}" role="tab" class="tab ${this.selectedThread===t ? 'tab-active' : ''}" >${t}</a>`)}
+    `
+  }
   
   render() {
   
@@ -121,10 +155,9 @@ export class LG4JResultElement extends LitElement {
       
       <div class="h-full">
         <div role="tablist" class="tabs tabs-bordered">
-            <a role="tab" class="tab tab-active">No Thread</a>
-            ${this.threads.map( t => html`<a role="tab" class="tab" >${t}</a>`)}
-            <a role="tab" class="tab">
-              <svg  @click="${this.#onNewTab}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+            ${this.#renderTabs()}
+            <a role="tab" class="tab" @click="${this.#onNewTab}">
+              <svg  xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
                 <circle cx="10" cy="10" r="9" fill="none" stroke="white" stroke-width="1.5"/>
                 <line x1="5" y1="10" x2="15" y2="10" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
                 <line x1="10" y1="5" x2="10" y2="15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
