@@ -5,24 +5,21 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.bsc.async.AsyncGenerator;
-import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
-import org.bsc.langgraph4j.utils.TryConsumer;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
-import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 
@@ -34,7 +31,10 @@ import static org.bsc.langgraph4j.StateGraph.START;
  */
 @Slf4j
 public class CompiledGraph<State extends AgentState> {
-
+    public enum StreamMode {
+        VALUES,
+        SNAPSHOTS
+    }
     final StateGraph<State> stateGraph;
     @Getter
     final Map<String, AsyncNodeAction<State>> nodes = new LinkedHashMap<>();
@@ -170,14 +170,17 @@ public class CompiledGraph<State extends AgentState> {
         return nextNodeId(stateGraph.getEntryPoint(), state, "entryPoint");
     }
 
-    private boolean shouldInterruptBefore(@NonNull String nodeId, String startNodeId ) {
-        if( nodeId.equals(startNodeId)) { // FIX RESUME ERROR
+    private boolean shouldInterruptBefore(@NonNull String nodeId, String previousNodeId ) {
+        if( previousNodeId == null ) { // FIX RESUME ERROR
             return false;
         }
         return Arrays.asList(compileConfig.getInterruptBefore()).contains(nodeId);
     }
 
-    private boolean shouldInterruptAfter( String nodeId ) {
+    private boolean shouldInterruptAfter(String nodeId, String previousNodeId ) {
+        if( nodeId == null ) { // FIX RESUME ERROR
+            return false;
+        }
         return Arrays.asList(compileConfig.getInterruptAfter()).contains(nodeId);
     }
 
@@ -216,73 +219,6 @@ public class CompiledGraph<State extends AgentState> {
         return stateGraph.getStateFactory().apply(newData);
     }
 
-    private void streamData( Map<String,Object> initialState,
-                             String startNodeId,
-                             RunnableConfig config,
-                             Consumer<NodeOutput<State>> yieldData) throws Exception {
-
-                var currentState = initialState;
-
-                var currentNodeId = startNodeId;
-
-                Map<String, Object> partialState;
-
-                int iteration = 0;
-
-                while( !Objects.equals(currentNodeId, END) ) {
-
-                    log.trace( "NEXT NODE: {}", currentNodeId);
-                    var action = nodes.get(currentNodeId);
-
-                    if (action == null)
-                        throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
-
-                    if ( shouldInterruptBefore( currentNodeId, startNodeId  )) {
-                        log.trace("interrupt before node {}", currentNodeId);
-                        addCheckpoint( config, currentNodeId, currentState, currentNodeId );
-                        return;
-                    }
-
-                    partialState = action.apply( cloneState(currentState)).get();
-
-                    currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
-
-                    yieldData.accept( NodeOutput.of(currentNodeId, cloneState(currentState)) );
-
-                    if ( Objects.equals(currentNodeId, stateGraph.getFinishPoint()) ) {
-                        addCheckpoint( config, currentNodeId, currentState, stateGraph.getFinishPoint() );
-                        break;
-                    }
-
-                    final String nextNodeId = nextNodeId(currentNodeId, currentState);
-                    addCheckpoint( config, currentNodeId, currentState, nextNodeId );
-
-                    if ( shouldInterruptAfter( currentNodeId ) ) {
-                        log.trace( "interrupt after node {}", currentNodeId);
-                        return;
-                    }
-
-                    currentNodeId = nextNodeId;
-
-                    if ( Objects.equals(currentNodeId, END) )
-                        break;
-
-
-                    if( ++iteration > maxIterations ) {
-                        log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
-                        break;
-                    }
-
-                }
-
-                yieldData.accept( NodeOutput.of(END, cloneState(currentState)) );
-
-                // addCheckpoint( config, END, currentState, null );
-
-                log.trace( "STOP");
-
-    }
-
 
     /**
      * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
@@ -292,58 +228,10 @@ public class CompiledGraph<State extends AgentState> {
      * @return an AsyncGenerator stream of NodeOutput
      * @throws Exception if there is an error creating the stream
      */
-    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs, RunnableConfig config ) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> stream( Map<String,Object> inputs, RunnableConfig config ) throws Exception {
         Objects.requireNonNull(config, "config cannot be null");
 
-        final boolean isResumeRequest =  (inputs == null);
-
-        if( isResumeRequest ) {
-            log.trace( "RESUME REQUEST" );
-            BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow(() -> (new IllegalStateException("inputs cannot be null (ie. resume request) if no checkpoint saver is configured")));
-
-            Checkpoint startCheckpoint = saver.get( config ).orElseThrow( () -> (new IllegalStateException("Resume request without a saved checkpoint!")) );
-
-            return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), TryConsumer.Try(queue -> {
-
-                log.trace( "RESUME FROM {}", startCheckpoint.getNodeId() );
-
-                Map<String,Object> startState = startCheckpoint.getState();
-
-                // Reset checkpoint id
-                RunnableConfig resumeConfig = RunnableConfig.builder(config)
-                        .checkPointId(null)
-                        .build();
-
-                streamData( startState,
-                            startCheckpoint.getNextNodeId(),
-                            resumeConfig,
-                            data -> queue.add( AsyncGenerator.Data.of( completedFuture(data) ) )
-                            );
-            }));
-
-        }
-
-        return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), TryConsumer.Try(queue -> {
-
-            log.trace( "START" );
-
-            State startState = stateGraph.getStateFactory().apply(getInitialState(inputs, config )) ;
-
-            queue.add( AsyncGenerator.Data.of( NodeOutput.of( START, cloneState(startState.data()) ) ));
-
-            String startNodeId = this.getEntryPoint( startState.data() );
-            if( shouldInterruptBefore( startNodeId, null ) ) return;
-
-            addCheckpoint( config, START, startState.data(), startNodeId );
-
-            if( shouldInterruptAfter( startNodeId ) ) return;
-
-            streamData( startState.data(),
-                        startNodeId,
-                        config,
-                        data -> queue.add( AsyncGenerator.Data.of( completedFuture(data) ) ) );
-        }));
-
+        return new AsyncNodeGenerator<>( inputs, config );
     }
 
     /**
@@ -423,6 +311,117 @@ public class CompiledGraph<State extends AgentState> {
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type ) {
         return getGraph(type, "Graph Diagram", true);
+    }
+
+
+    public class AsyncNodeGenerator<O extends NodeOutput<State>> implements AsyncGenerator<O> {
+
+        Map<String,Object> currentState;
+        String currentNodeId;
+        String nextNodeId;
+        int iteration = 0;
+        RunnableConfig config;
+
+        public AsyncNodeGenerator(Map<String,Object> inputs, RunnableConfig config) throws Exception {
+            final boolean isResumeRequest =  (inputs == null);
+
+            if( isResumeRequest ) {
+
+                log.trace( "RESUME REQUEST" );
+
+                BaseCheckpointSaver saver = compileConfig.checkpointSaver()
+                        .orElseThrow(() -> (new IllegalStateException("inputs cannot be null (ie. resume request) if no checkpoint saver is configured")));
+                Checkpoint startCheckpoint = saver.get( config )
+                        .orElseThrow( () -> (new IllegalStateException("Resume request without a saved checkpoint!")) );
+
+                this.currentState = startCheckpoint.getState();
+
+
+                // Reset checkpoint id
+                this.config = RunnableConfig.builder(config)
+                        .checkPointId(null)
+                        .build();
+
+
+                this.nextNodeId = startCheckpoint.getNextNodeId();
+                this.currentNodeId = null;
+                log.trace( "RESUME FROM {}", startCheckpoint.getNodeId() );
+            }
+            else {
+
+                log.trace( "START" );
+                
+                Map<String,Object> initState = getInitialState(inputs, config );
+                // patch for backward support of AppendableValue
+                State initializedState = stateGraph.getStateFactory().apply(initState);
+                this.currentState = initializedState.data();
+                this.nextNodeId = null;
+                this.currentNodeId = START;
+                this.config = config;
+            }
+        }
+
+        @Override
+        public Data<O> next() {
+            // GUARD: CHECK MAX ITERATION REACHED
+            if( ++iteration > maxIterations ) {
+                log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
+                return Data.done();
+            }
+
+            // GUARD: CHECK IF IT IS END
+            if( nextNodeId == null &&  currentNodeId == null  ) return Data.done();
+
+            CompletableFuture<O> future = new CompletableFuture<>();
+
+            try {
+
+                if( START.equals(currentNodeId) ) {
+                    nextNodeId = getEntryPoint( currentState );
+                    currentNodeId = nextNodeId;
+                    addCheckpoint( config, START, currentState, nextNodeId );
+                    return Data.of((O)NodeOutput.of( START, cloneState(currentState) ));
+                }
+
+                if( END.equals(nextNodeId) ) {
+                    nextNodeId = null;
+                    currentNodeId = null;
+                    return Data.of((O)NodeOutput.of( END, cloneState(currentState) ));
+                }
+
+                // check on previous node
+                if( shouldInterruptAfter( currentNodeId, nextNodeId )) return Data.done();
+
+                if( shouldInterruptBefore( nextNodeId, currentNodeId ) ) return Data.done();
+
+                currentNodeId = nextNodeId;
+
+                AsyncNodeAction<State> action = nodes.get(currentNodeId);
+
+                if (action == null)
+                    throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
+
+                future = action.apply( cloneState(currentState) ).thenApply(  partialState -> {
+                    try {
+                        currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
+                        nextNodeId = nextNodeId(currentNodeId, currentState);
+                        addCheckpoint(config, currentNodeId, currentState, nextNodeId);
+
+                        return (O)NodeOutput.of( currentNodeId, cloneState(currentState) );
+                    }
+                    catch (Exception e) {
+                        throw new CompletionException(e);
+                    }
+
+                });
+            }
+            catch( Exception e ) {
+                future.completeExceptionally(e);
+            }
+            return Data.of(future);
+
+
+        }
     }
 
 }

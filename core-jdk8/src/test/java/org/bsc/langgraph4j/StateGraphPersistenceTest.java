@@ -21,6 +21,7 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -268,13 +269,15 @@ public class StateGraphPersistenceTest
             log.info( "Node: {} - {}", r.node(), r.state().messages() );
         }
 
+
         var snapshot = app.getState(runnableConfig);
         assertNotNull( snapshot );
-        assertEquals( END, snapshot.getNext() );
+        assertEquals( END, snapshot.next() );
 
         log.info( "LAST SNAPSHOT:\n{}\n", snapshot );
 
         var stateHistory = app.getStateHistory( runnableConfig );
+        stateHistory.forEach( state -> log.info( "SNAPSHOT HISTORY:\n{}\n", state ) );
         assertNotNull( stateHistory );
         assertEquals( 4, stateHistory.size() );
 
@@ -292,10 +295,10 @@ public class StateGraphPersistenceTest
 
         var firstSnapshot = stateHistory.stream().reduce( (first, second) -> second); // take the last
         assertTrue( firstSnapshot.isPresent() );
-        assertTrue( firstSnapshot.get().getState().lastMessage().isPresent() );
-        assertEquals( "whether in Naples?", firstSnapshot.get().getState().lastMessage().get() );
+        assertTrue( firstSnapshot.get().state().lastMessage().isPresent() );
+        assertEquals( "whether in Naples?", firstSnapshot.get().state().lastMessage().get() );
 
-        var toReplay = firstSnapshot.get().getConfig();
+        var toReplay = firstSnapshot.get().config();
 
         toReplay = app.updateState( toReplay, mapOf( "messages", "i'm bartolo"), null );
         results = app.stream( null, toReplay ).stream().collect( Collectors.toList() );
@@ -354,7 +357,7 @@ public class StateGraphPersistenceTest
 
         Map<String,Object> inputs = mapOf( "messages","whether in Naples?" ) ;
         var results = app.stream( inputs, runnableConfig ).stream().collect(Collectors.toList());
-
+        results.forEach( System.out::println);
         assertNotNull( results );
         assertEquals( 2, results.size() );
         assertEquals( START, results.get(0).node() );
@@ -364,9 +367,9 @@ public class StateGraphPersistenceTest
         var state = app.getState(runnableConfig);
 
         assertNotNull( state );
-        assertEquals( "tools", state.getNext() );
+        assertEquals( "tools", state.next() );
 
-        results = app.stream( null, state.getConfig() ).stream().collect(Collectors.toList());
+        results = app.stream( null, state.config() ).stream().collect(Collectors.toList());
 
         assertNotNull( results );
         assertEquals( 3, results.size() );
