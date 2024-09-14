@@ -5,6 +5,8 @@ import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 
+import static java.lang.String.*;
+
 public final class StateSnapshot<State extends AgentState> extends NodeOutput<State> {
     private final RunnableConfig config;
 
@@ -37,6 +39,11 @@ public final class StateSnapshot<State extends AgentState> extends NodeOutput<St
         this.config = config;
     }
 
+    @Override
+    public String toString() {
+
+        return format("StateSnapshot{node=%s, state=%s, config=%s}", node(), state(), config());
+    }
     public static <State extends AgentState> StateSnapshot<State> of(Checkpoint checkpoint, RunnableConfig config, AgentStateFactory<State> factory) {
 
         RunnableConfig newConfig = RunnableConfig.builder(config)
@@ -45,5 +52,6 @@ public final class StateSnapshot<State extends AgentState> extends NodeOutput<St
                                 .build() ;
         return new StateSnapshot<>( checkpoint.getNodeId(), factory.apply(checkpoint.getState()), newConfig);
     }
+
 
 }
