@@ -2,6 +2,51 @@
 
 
 
+<!-- "name: v1.0-20240915" is a release tag -->
+
+## [v1.0-20240915](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240915) (2024-09-15)
+
+
+### Bug Fixes
+
+ -  mermaid generation ([53b68e0ffef4291](https://github.com/bsorrentino/langgraph4j/commit/53b68e0ffef4291792e13e70d975d3ac662a0aaf))
+     > START, END issue
+     > work on #24
+
+ -  graph  layout ([ab0a0c2cf91b5be](https://github.com/bsorrentino/langgraph4j/commit/ab0a0c2cf91b5be6959d0c0d40fbeb984838660f))
+     > sync container and grapsh svg size
+     > work on #24
+
+
+### Documentation
+
+ -  update changeme ([95b8c4541900bab](https://github.com/bsorrentino/langgraph4j/commit/95b8c4541900bab6b6429506369f5ae5ba0600af))
+
+
+### Refactor
+
+ -  refine set-version script ([26351252b389547](https://github.com/bsorrentino/langgraph4j/commit/26351252b389547d4810b28a74444f13718ab62a))
+   
+
+### ALM 
+
+ -  bump new intermediate version ([683a8ab92e407da](https://github.com/bsorrentino/langgraph4j/commit/683a8ab92e407da2f2234d68516a176433bb34b6))
+   
+ -  **server**  update frontend dist ([fe4aff4ca05cc04](https://github.com/bsorrentino/langgraph4j/commit/fe4aff4ca05cc04a4c8dd946516428377fd65be9))
+   
+ -  bump to SNAPSHOT ([ee26478dab44f09](https://github.com/bsorrentino/langgraph4j/commit/ee26478dab44f09da09365f8d1ac41fa9d4172ac))
+   
+ -  bump deps versions ([963be9b8e824f80](https://github.com/bsorrentino/langgraph4j/commit/963be9b8e824f8066ea1a6629c16f33d390d675c))
+    > lit, tailwindcss, postcss, autoprefixer, typescript
+ > work on #24
+
+ -  update css gen tools ([8b1b0e2b0224e93](https://github.com/bsorrentino/langgraph4j/commit/8b1b0e2b0224e931233308cad49d6d3204a87c13))
+   
+
+
+
+
+
 <!-- "name: v1.0-20240907" is a release tag -->
 
 ## [v1.0-20240907](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240907) (2024-09-07)
