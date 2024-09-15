@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.0-20240907</version>
+        <version>1.0-20240915</version>
     </parent>
 
     <artifactId>langgraph4j-server-jetty</artifactId>
@@ -139,13 +139,21 @@
                         <configuration>
                             <executable>java</executable>
                             <arguments>
-                                <argument>-Djava.util.logging.config.file=${project.basedir}/
-                                    logging.properties</argument>
+                                <argument>-Djava.util.logging.config.file=${project.basedir}/logging.properties</argument>
                                 <argument>-classpath</argument>
                                 <classpath/>
                                 <argument>org.bsc.langgraph4j.AdaptiveRAGStreamingServer</argument>
                             </arguments>
                             <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- exec:exec@adaptiverag1 -->
+                        <id>adaptiverag1</id>
+                        <goals><goal>java</goal></goals>
+                        <configuration>
+                            <classpathScope>test</classpathScope>
+                            <mainClass>org.bsc.langgraph4j.AdaptiveRAGStreamingServer</mainClass>
                         </configuration>
                     </execution>
                 </executions>
@@ -160,7 +168,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.bsc.langgraph4j</groupId>
-                        <artifactId>langgraph4j-jdk8</artifactId>
+                        <artifactId>langgraph4j-core-jdk8</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>

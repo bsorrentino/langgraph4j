@@ -57,9 +57,10 @@ async function start( watch = true ) {
   const watcher = fs.watch('./dist', {})
 
   for await (const event of watcher) {
-    console.log( event.filename, event.eventType  )
+    // console.debug( event.filename, event.eventType  )
     
     if( event.filename === path.basename(input) ) { 
+      console.debug( event.filename, event.eventType  )
       processCss(input)
     }
   }

@@ -12,8 +12,6 @@ export class LG4JWorkbenchElement extends LitElement {
 
   constructor() {
     super();
-
-    
   }
 
   #routeEvent( e, slot ) {
@@ -69,15 +67,17 @@ export class LG4JWorkbenchElement extends LitElement {
   
   render() {
     return html`
-<div class="grid grid-cols-2 gap-y-2 grid-rows-[60px_auto_auto_auto_auto_auto] h-screen">
-  <div class="col-span-2">
-    <div class="navbar bg-base-100">
-      <a class="btn btn-ghost text-xl">${this.title}</a>
-    </div>
-  </div>  
-  <div class="row-span-4 border border-gray-300 p-2"><slot name="graph">LEFT</slot></div>
-  <div class="row-span-5"><slot name="result">RIGHT</slot></div>
-  <div><slot name="executor">BOTTOM</slot></div>
+<div class="h-screen">
+
+  <div class="navbar bg-base-100">
+    <a class="btn btn-ghost text-xl">${this.title}</a>
+  </div>
+
+  <div class="h-full grid gap-x-2 gap-y-9 grid-cols-2 grid-rows-5 ">    
+    <div class="row-span-3 border border-gray-300"><slot name="graph">LEFT</slot></div>
+    <div class="row-span-5"><slot name="result">RIGHT</slot></div>
+    <div class=" border-slate-50"><slot name="executor">BOTTOM</slot></div>
+  </div>
 </div>
     `;
   }

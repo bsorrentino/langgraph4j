@@ -16,7 +16,7 @@ public class MermaidGenerator extends DiagramGenerator {
        sb
          .append( format("---\ntitle: %s\n---\n", title))
          .append( "flowchart TD\n")
-         .append( "\tstart((start))\n")
+         .append( "\t__START__((start))\n")
          .append( "\t__END__((stop))\n")
        ;
     }
@@ -48,17 +48,17 @@ public class MermaidGenerator extends DiagramGenerator {
 
     @Override
     protected void start(StringBuilder sb, String entryPoint) {
-        call( sb, "start", entryPoint );
+        call( sb, "__START__", entryPoint );
     }
 
     @Override
     protected void finish(StringBuilder sb, String finishPoint) {
-        call( sb, finishPoint, "stop" );
+        call( sb, finishPoint, "__END__" );
     }
 
     @Override
     protected void finish(StringBuilder sb, String finishPoint, String description) {
-        call( sb, finishPoint, "stop", description );
+        call( sb, finishPoint, "__END__", description );
     }
 
     @Override
