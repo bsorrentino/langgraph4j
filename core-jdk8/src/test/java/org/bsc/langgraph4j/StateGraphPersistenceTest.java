@@ -7,6 +7,7 @@ import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.state.StateSnapshot;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -263,12 +263,20 @@ public class StateGraphPersistenceTest
         Map<String, Object> inputs = mapOf( "messages", "whether in Naples?" );
 
         var runnableConfig = RunnableConfig.builder()
-                .threadId("thread_1").build();
+                .streamMode( CompiledGraph.StreamMode.SNAPSHOTS )
+                .threadId("thread_1")
+                .build();
 
-        for( var r : app.stream( inputs, runnableConfig ) ) {
-            log.info( "Node: {} - {}", r.node(), r.state().messages() );
-        }
+        var results = app.stream( inputs, runnableConfig ).stream().collect( Collectors.toList() );
 
+        results.forEach( r -> log.info( "{}: Node: {} - {}", r.getClass().getSimpleName(), r.node(), r.state().messages() ) );
+
+        assertEquals( 5, results.size() );
+        assertInstanceOf( NodeOutput.class, results.get(0) );
+        assertInstanceOf( StateSnapshot.class, results.get(1) );
+        assertInstanceOf( StateSnapshot.class, results.get(2) );
+        assertInstanceOf( StateSnapshot.class, results.get(3) );
+        assertInstanceOf( NodeOutput.class, results.get(4) );
 
         var snapshot = app.getState(runnableConfig);
         assertNotNull( snapshot );
@@ -285,7 +293,7 @@ public class StateGraphPersistenceTest
             log.info( "SNAPSHOT HISTORY:\n{}\n", s );
         }
 
-        var results = app.stream( null, runnableConfig ).stream().collect( Collectors.toList() );
+        results = app.stream( null, runnableConfig ).stream().collect( Collectors.toList() );
 
         assertNotNull( results );
         assertFalse( results.isEmpty() );

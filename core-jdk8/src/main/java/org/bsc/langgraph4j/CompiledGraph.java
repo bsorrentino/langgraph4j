@@ -184,7 +184,7 @@ public class CompiledGraph<State extends AgentState> {
         return Arrays.asList(compileConfig.getInterruptAfter()).contains(nodeId);
     }
 
-    private void addCheckpoint( RunnableConfig config, String nodeId, Map<String,Object> state, String nextNodeId ) throws Exception {
+    private Optional<Checkpoint> addCheckpoint( RunnableConfig config, String nodeId, Map<String,Object> state, String nextNodeId ) throws Exception {
         if( compileConfig.checkpointSaver().isPresent() ) {
             Checkpoint cp =  Checkpoint.builder()
                                 .nodeId( nodeId )
@@ -192,7 +192,9 @@ public class CompiledGraph<State extends AgentState> {
                                 .nextNodeId( nextNodeId )
                                 .build();
             compileConfig.checkpointSaver().get().put( config, cp );
+            return Optional.of(cp);
         }
+        return Optional.empty();
 
     }
 
@@ -361,8 +363,12 @@ public class CompiledGraph<State extends AgentState> {
             }
         }
 
-        protected Output buildOutput(String nodeId ) throws Exception {
+        protected Output buildNodeOutput(String nodeId ) throws Exception {
             return  (Output)NodeOutput.of( nodeId, cloneState(currentState) );
+        }
+
+        protected Output buildStateSnapshot( Checkpoint checkpoint ) throws Exception {
+            return (Output)StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory()  ) ;
         }
 
         @Override
@@ -384,14 +390,14 @@ public class CompiledGraph<State extends AgentState> {
                     nextNodeId = getEntryPoint( currentState );
                     currentNodeId = nextNodeId;
                     addCheckpoint( config, START, currentState, nextNodeId );
-                    return Data.of( buildOutput( START ) );
+                    return Data.of( buildNodeOutput( START ) );
 
                 }
 
                 if( END.equals(nextNodeId) ) {
                     nextNodeId = null;
                     currentNodeId = null;
-                    return Data.of( buildOutput( END ) );
+                    return Data.of( buildNodeOutput( END ) );
                 }
 
                 // check on previous node
@@ -410,9 +416,12 @@ public class CompiledGraph<State extends AgentState> {
                     try {
                         currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
                         nextNodeId = nextNodeId(currentNodeId, currentState);
-                        addCheckpoint(config, currentNodeId, currentState, nextNodeId);
 
-                        return buildOutput( currentNodeId );
+                        Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
+                        return ( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
+                            buildStateSnapshot(cp.get()) :
+                            buildNodeOutput( currentNodeId )
+                                ;
 
                     }
                     catch (Exception e) {
