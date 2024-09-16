@@ -14,7 +14,6 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,8 @@ import java.util.concurrent.TimeUnit;
  */
 public interface LangGraphStreamingServer {
 
-    Logger log = LoggerFactory.getLogger(LangGraphStreamingServer.class);
+
+    static Logger log = LoggerFactory.getLogger(LangGraphStreamingServer.class);
 
     CompletableFuture<Void> start() throws Exception;
 
@@ -105,7 +105,7 @@ public interface LangGraphStreamingServer {
 
             // context.setContextPath("/");
             // Add the streaming servlet
-            context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(stateGraph, objectMapper)), "/stream");
+            context.addServlet(new ServletHolder(new GraphStreamServlet<State>(stateGraph, objectMapper)), "/stream");
 
             var handlerList = new Handler.Sequence( resourceHandler, context);
 
@@ -136,7 +136,7 @@ record PersistentConfig(String sessionId, String threadId) {
 
 }
 
-class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
+class GraphStreamServlet<State extends AgentState> extends HttpServlet {
     Logger log = LangGraphStreamingServer.log;
 
     final StateGraph<State> stateGraph;
@@ -144,7 +144,7 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
     final MemorySaver saver = new MemorySaver();
     final Map<PersistentConfig, CompiledGraph<State>> graphCache = new HashMap<>();
 
-    public GraphExecutionServlet(StateGraph<State> stateGraph, ObjectMapper objectMapper) {
+    public GraphStreamServlet(StateGraph<State> stateGraph, ObjectMapper objectMapper) {
         Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
         this.stateGraph = stateGraph;
         this.objectMapper = objectMapper;
@@ -191,9 +191,10 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
                 graphCache.put( config, compiledGraph );
             }
 
-            compiledGraph.stream(dataMap)
+            compiledGraph.streamSnapshots(dataMap, runnableConfig(config) )
                     .forEachAsync(s -> {
                         try {
+                            LangGraphStreamingServer.log.trace("{}", s);
 
                             writer.print("{");
                             writer.printf("\"node\": \"%s\"", s.node());

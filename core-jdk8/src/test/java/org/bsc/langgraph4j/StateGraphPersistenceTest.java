@@ -263,11 +263,10 @@ public class StateGraphPersistenceTest
         Map<String, Object> inputs = mapOf( "messages", "whether in Naples?" );
 
         var runnableConfig = RunnableConfig.builder()
-                .streamMode( CompiledGraph.StreamMode.SNAPSHOTS )
                 .threadId("thread_1")
                 .build();
 
-        var results = app.stream( inputs, runnableConfig ).stream().collect( Collectors.toList() );
+        var results = app.streamSnapshots( inputs, runnableConfig ).stream().collect( Collectors.toList() );
 
         results.forEach( r -> log.info( "{}: Node: {} - {}", r.getClass().getSimpleName(), r.node(), r.state().messages() ) );
 
