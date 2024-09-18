@@ -17,21 +17,34 @@ export class LG4JResultElement extends LitElement {
     --font-size: .8rem;
   }`]
 
-  static properties = {
-  }
+  static properties = {}
 
+  
   /**
-   * @type {any[]}
+   * @type {Map<string, Record<string, any[]>>}
    */
-  results = []
-  /**
-   * @type {string[]}
-   */
-  threads = []
-  /**
+  threadMap = new Map()
+  
+  /*
    * @type {string}
    */
-  selectedThread = "thread-0"
+  #selectedThread;
+
+  get selectedTab() {
+    return this.#selectedThread
+  }
+
+  set selectedTab( thread ) {
+    this.#selectedThread = thread
+
+    this.dispatchEvent( new CustomEvent( 'update-thread', { 
+      detail: thread ,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+
+  }
 
   constructor() {
     super()
@@ -41,19 +54,33 @@ export class LG4JResultElement extends LitElement {
     super.connectedCallback();
 
     this.addEventListener( 'result', this.#onResult )
-    this.addEventListener( 'result-threads', this.#onInitThreads )
+    this.addEventListener( 'init-threads', this.#onInitThreads )
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
 
     this.removeEventListener( 'result',  this.#onResult )
-    this.removeEventListener( 'result-threads',  this.#onInitThreads )
+    this.removeEventListener( 'init-threads',  this.#onInitThreads )
   }
 
+  /**
+   * Event handler for the 'init threads' event.
+   * 
+   * @param {CustomEvent} e - The event object containing the result data.
+   * @private
+   */
   #onInitThreads = (e) => {
-    const { detail: threads } = e 
+    const { detail: threads  = [] } = e 
 
+    console.debug( threads )
+
+    this.threadMap = new Map( threads )
+    
+    if( threads && threads.length > 0 ) {
+      this.selectedThread = threads[0][0]
+      this.requestUpdate()  
+    }
   }
 
 
@@ -65,11 +92,18 @@ export class LG4JResultElement extends LitElement {
    */
   #onResult = (e) => {
 
-    const { detail: result } = e 
-    console.debug( "onResult", e )
+    const [ thread, result ] = e.detail
+    console.debug( "onResult", thread, result  )
     
+    if( !this.threadMap.has( thread ) ) {
+      throw new Error( `result doesn't contain a valid thread!` );
+    }
+
+    let results = this.threadMap.get( thread )
     // TODO: validate e.detail
-    const index = this.results.push( result )
+    const index = results.push( result )
+
+    this.threadMap.set( thread, results );
 
     this.dispatchEvent( new CustomEvent( 'graph-active', { 
       detail: result.node,
@@ -98,21 +132,23 @@ export class LG4JResultElement extends LitElement {
    */
 
   #onSelectTab( event ) {
-    this.selectedThread = event.target.id
+
+    this.selectedTab = event.target.id
+
     this.requestUpdate();
   }
 
   #onNewTab(event) {
-    console.log( "NEW TAB", event)
-    this.threads.push( `Thread-${this.threads.length+1}`);
+    console.debug( "NEW TAB", event)
+
+    const threadId = `Thread-${this.threadMap.size+1}`
+
+    this.threadMap.set( threadId, [] );
+
+    this.selectedTab = threadId
+
     this.requestUpdate();
 
-    this.dispatchEvent( new CustomEvent( 'update-threads', { 
-      detail: this.threads,
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    }));
   }
 
 
@@ -143,9 +179,10 @@ export class LG4JResultElement extends LitElement {
   }
 
   #renderTabs() {
+
+    const threads = [ ...this.threadMap.keys() ] 
     return html`
-    <a id="thread-0" @click="${this.#onSelectTab}" role="tab" class="tab ${this.selectedThread==='thread-0' ? 'tab-active' : ''}">No Thread</a>
-    ${this.threads.map( t => html`<a id="${t}" @click="${this.#onSelectTab}" role="tab" class="tab ${this.selectedThread===t ? 'tab-active' : ''}" >${t}</a>`)}
+    ${threads.map( t => html`<a id="${t}" @click="${this.#onSelectTab}" role="tab" class="tab ${this.selectedTab===t ? 'tab-active' : ''}" >${t}</a>`)}
     `
   }
   
@@ -167,7 +204,7 @@ export class LG4JResultElement extends LitElement {
             <div class="max-h-[95%] overflow-x-auto bg-slate-500">
               <table class="table table-pin-rows">
                 <tbody>
-                    ${this.results.map( (result, index) => html`<tr><td>${this.#renderResult(result, index)}</td></tr>`) }
+                    ${this.threadMap.get(this.selectedTab)?.map( (result, index) => html`<tr><td>${this.#renderResult(result, index)}</td></tr>`) }
                 </tbody>
               </table>
             </div>
