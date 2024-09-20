@@ -99,6 +99,8 @@ export class LG4JResultElement extends LitElement {
       throw new Error( `result doesn't contain a valid thread!` );
     }
 
+    console.debug( 'onResult', thread )
+
     let results = this.threadMap.get( thread )
     // TODO: validate e.detail
     const index = results.push( result )
@@ -133,6 +135,7 @@ export class LG4JResultElement extends LitElement {
 
   #onSelectTab( event ) {
 
+    console.debug( event.target.id )
     this.selectedTab = event.target.id
 
     this.requestUpdate();

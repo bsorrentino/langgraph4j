@@ -236,10 +236,11 @@ flowchart TD
 
   async #submit_test( ) {
 
+    const thread = this.selectedThread
     const send = async ( nodeId ) => {
       await delay( 1000 );
       this.dispatchEvent( new CustomEvent( 'result', { 
-        detail: [ this.selectedThread, { 
+        detail: [ thread, { 
           node: nodeId, 
           state: { 
             input: "this is input",
