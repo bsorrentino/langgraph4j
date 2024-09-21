@@ -195,6 +195,7 @@ async #init_test() {
   await delay( 1000 );
   this.dispatchEvent( new CustomEvent( 'init', { 
     detail: { 
+      threads: [ ['default', [] ] ],
       title: 'LangGraph4j : TEST',
       graph:`
 ---

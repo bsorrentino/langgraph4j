@@ -71,14 +71,14 @@ export class LG4JResultElement extends LitElement {
    * @private
    */
   #onInitThreads = (e) => {
-    const { detail: threads  = [] } = e 
+    const { detail: threads  = [] } = e 
 
     console.debug( threads )
 
     this.threadMap = new Map( threads )
     
     if( threads && threads.length > 0 ) {
-      this.selectedThread = threads[0][0]
+      this.selectedTab = threads[0][0]
       this.requestUpdate()  
     }
   }
