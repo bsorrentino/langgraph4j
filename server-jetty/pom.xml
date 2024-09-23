@@ -133,7 +133,10 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- exec:exec@adaptiverag -->
+                        <!--
+                        exec:exec@adaptiverag
+                        mvn -pl server-jetty exec:java@test -Djava.util.logging.config.file=server-jetty/logging.properties
+                        -->
                         <id>adaptiverag</id>
                         <goals><goal>exec</goal></goals>
                         <configuration>
