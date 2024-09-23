@@ -68,7 +68,7 @@ export class LG4JExecutorElement extends LitElement {
   /**
    * @type {string}
    */
-  selectedThread
+  #selectedThread
 
   /**
    * Creates an instance of LG4JInputElement.
@@ -89,7 +89,7 @@ export class LG4JExecutorElement extends LitElement {
    */
   #onUpdateThread( e ) {
     console.debug( 'update-thread', e.detail )
-    this.selectedThread = e.detail
+    this.#selectedThread = e.detail
   }
 
 
@@ -166,7 +166,7 @@ async #submit() {
     return acc
   }, {});
 
-  const execResponse = await fetch(`${this.url}/stream?thread=${this.selectedThread}`, {
+  const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
       headers: {
         'Content-Type': 'application/json'
@@ -237,7 +237,7 @@ flowchart TD
 
   async #submit_test( ) {
 
-    const thread = this.selectedThread
+    const thread = this.#selectedThread
     const send = async ( nodeId ) => {
       await delay( 1000 );
       this.dispatchEvent( new CustomEvent( 'result', { 
