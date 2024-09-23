@@ -43,11 +43,12 @@ public class LangGraphStreamingServerTest {
                     edge_async(conditionalAge), mapOf( "a2", "agent_2", "end", END ) )
             ;
 
-        LangGraphStreamingServer server = LangGraphStreamingServer.builder()
-                                                                    .port(8080)
-                                                                    .title("LANGGRAPH4j - TEST")
-                                                                    .addInputStringArg("input")
-                                                                    .build(workflow);
+        var server = LangGraphStreamingServer.builder()
+                                                .port(8080)
+                                                .title("LANGGRAPH4j - TEST")
+                                                .addInputStringArg("input")
+                                                .stateGraph(workflow)
+                                                .build();
 
         server.start().join();
 

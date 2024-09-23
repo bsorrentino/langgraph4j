@@ -40,7 +40,8 @@ public class AgentExecutorStreamingServer {
                 .objectMapper(objectMapper)
                 .title("AGENT EXECUTOR")
                 .addInputStringArg("input")
-                .build(app);
+                .stateGraph(app)
+                .build();
 
         server.start().join();
 

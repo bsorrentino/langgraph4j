@@ -31,7 +31,8 @@ public class AdaptiveRAGStreamingServer {
                 //.objectMapper(objectMapper)
                 .title("ADAPTIVE RAG EXECUTOR")
                 .addInputStringArg("question")
-                .build(app);
+                .stateGraph(app)
+                .build();
 
         server.start().join();
 
