@@ -24,7 +24,7 @@ public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrade
         public String binaryScore;
     }
 
-    @StructuredPrompt("User question: \\n\\n {question} \\n\\n LLM generation: {generation}")
+    @StructuredPrompt("User question: \\n\\n {{question}} \\n\\n LLM generation: {{generation}}")
     @Value(staticConstructor="of")
     public static class Arguments {
         String question;
