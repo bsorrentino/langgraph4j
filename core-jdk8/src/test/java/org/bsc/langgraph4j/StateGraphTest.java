@@ -15,8 +15,7 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -162,6 +161,7 @@ public class StateGraphTest
         assertEquals( 3, result.get().steps() );
         assertEquals( 3, result.get().messages().size() );
         assertIterableEquals( listOf( "message1", "message2", "message3"), result.get().messages() );
+
     }
 
     static class MessagesStateDeprecated extends AgentState {
@@ -209,10 +209,10 @@ public class StateGraphTest
         Optional<MessagesStateDeprecated> result = app.invoke( mapOf() );
 
         assertTrue( result.isPresent() );
-        System.out.println( result.get().data() );
         assertEquals( 3, result.get().messages().size() );
         assertEquals( 3, result.get().steps() );
         assertIterableEquals( listOf( "message1", "message2", "message3"), result.get().messages().values() );
+
     }
 
 }

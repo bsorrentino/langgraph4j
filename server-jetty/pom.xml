@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.0-20240915</version>
+        <version>1.0-beta5</version>
     </parent>
 
     <artifactId>langgraph4j-server-jetty</artifactId>
@@ -115,7 +115,10 @@
                 <version>3.3.0</version>
                 <executions>
                     <execution>
-                        <!-- exec:java@test -->
+                        <!--
+                        exec:java@test
+                        mvn -pl server-jetty exec:java@test -Djava.util.logging.config.file=server-jetty/logging.properties
+                        -->
                         <id>test</id>
                         <goals><goal>java</goal></goals>
                         <configuration>
@@ -124,7 +127,10 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- exec:java@agentexecutor -->
+                        <!--
+                        exec:java@agentexecutor
+                        mvn -pl server-jetty exec:java@agentexecutor -Djava.util.logging.config.file=server-jetty/logging.properties
+                        -->
                         <id>agentexecutor</id>
                         <goals><goal>java</goal></goals>
                         <configuration>
@@ -133,23 +139,11 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- exec:exec@adaptiverag -->
+                        <!--
+                        exec:exec@adaptiverag
+                        mvn -pl server-jetty exec:java@test -Djava.util.logging.config.file=server-jetty/logging.properties
+                        -->
                         <id>adaptiverag</id>
-                        <goals><goal>exec</goal></goals>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-Djava.util.logging.config.file=${project.basedir}/logging.properties</argument>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>org.bsc.langgraph4j.AdaptiveRAGStreamingServer</argument>
-                            </arguments>
-                            <classpathScope>test</classpathScope>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- exec:exec@adaptiverag1 -->
-                        <id>adaptiverag1</id>
                         <goals><goal>java</goal></goals>
                         <configuration>
                             <classpathScope>test</classpathScope>
@@ -157,14 +151,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>java.util.logging.config.file</key>
-                            <value>/Users/bsorrentino/WORKSPACES/GITHUB.me/JAVA/langgraph4j/server-jetty/logging.properties</value>
-                        </systemProperty>
-                    </systemProperties>
-                </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.bsc.langgraph4j</groupId>

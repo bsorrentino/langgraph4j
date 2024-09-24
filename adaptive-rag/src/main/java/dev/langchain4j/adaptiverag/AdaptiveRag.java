@@ -246,7 +246,7 @@ public class AdaptiveRag {
         return "not supported";
     }
 
-    public CompiledGraph<State> buildGraph() throws Exception {
+    public StateGraph<State> buildGraph() throws Exception {
         return new StateGraph<>(State::new)
             // Define the nodes
             .addNode("web_search", node_async(this::webSearch) )  // web search
@@ -280,7 +280,7 @@ public class AdaptiveRag {
                             "useful", END,
                             "not useful", "transform_query"
                     ))
-             .compile();
+             ;
     }
 
     public static void main( String[] args ) throws Exception {
@@ -290,7 +290,7 @@ public class AdaptiveRag {
 
         AdaptiveRag adaptiveRagTest = new AdaptiveRag( System.getenv("OPENAI_API_KEY"), System.getenv("TAVILY_API_KEY"));
 
-        var graph = adaptiveRagTest.buildGraph();
+        var graph = adaptiveRagTest.buildGraph().compile();
 
         var result = graph.stream( mapOf( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
         // var result = graph.stream( mapOf( "question", "What kind the agent memory do iu know?" ) );

@@ -3,6 +3,8 @@ package org.bsc.langgraph4j.diagram;
 import org.bsc.langgraph4j.DiagramGenerator;
 
 import static java.lang.String.format;
+import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
 
 /**
  * This class represents a MermaidGenerator that extends DiagramGenerator. It generates a flowchart using Mermaid syntax.
@@ -16,8 +18,8 @@ public class MermaidGenerator extends DiagramGenerator {
        sb
          .append( format("---\ntitle: %s\n---\n", title))
          .append( "flowchart TD\n")
-         .append( "\t__START__((start))\n")
-         .append( "\t__END__((stop))\n")
+         .append( format("\t%s((start))\n", START))
+         .append( format("\t%s((stop))\n",END))
        ;
     }
 
@@ -48,17 +50,17 @@ public class MermaidGenerator extends DiagramGenerator {
 
     @Override
     protected void start(StringBuilder sb, String entryPoint) {
-        call( sb, "__START__", entryPoint );
+        call( sb, START, entryPoint );
     }
 
     @Override
     protected void finish(StringBuilder sb, String finishPoint) {
-        call( sb, finishPoint, "__END__" );
+        call( sb, finishPoint, END );
     }
 
     @Override
     protected void finish(StringBuilder sb, String finishPoint, String description) {
-        call( sb, finishPoint, "__END__", description );
+        call( sb, finishPoint, END, description );
     }
 
     @Override

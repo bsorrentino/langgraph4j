@@ -10,6 +10,29 @@ import static java.util.Collections.unmodifiableMap;
  */
 public final class CollectionsUtils {
 
+    /**
+     * Returns the last value in the list, if present.
+     *
+     * @return an Optional containing the last value if present, otherwise an empty Optional
+     */
+    public static <T> Optional<T> last( List<T> values ) {
+        return (values == null || values.isEmpty()) ?
+                Optional.empty() :
+                Optional.of(values.get(values.size() - 1));
+    }
+
+    /**
+     * Returns the value at the specified position from the end of the list, if present.
+     *
+     * @param n the position from the end of the list
+     * @return an Optional containing the value at the specified position if present, otherwise an empty Optional
+     */
+    public static <T> Optional<T> lastMinus(List<T> values, int n) {
+        return (values == null || values.isEmpty()) ?
+                Optional.empty() :
+                Optional.of(values.get(values.size() - 1));
+    }
+
     public static <T> List<T> listOf(Class<T> clazz) {
         return Collections.emptyList();
     }

@@ -5,8 +5,13 @@ import java.util.Objects;
 import java.util.Optional;
 
 public interface Serializer<T> {
+
     void write(T object, ObjectOutput out) throws IOException;
     T read(ObjectInput in) throws IOException, ClassNotFoundException;
+
+    default String mimeType() {
+        return "application/octet-stream";
+    }
 
     default void writeObjectNullable(T object, ObjectOutput out) throws IOException {
         if( object == null ) {

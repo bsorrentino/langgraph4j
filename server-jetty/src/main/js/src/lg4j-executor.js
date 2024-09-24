@@ -66,6 +66,11 @@ export class LG4JExecutorElement extends LitElement {
   }
 
   /**
+   * @type {string}
+   */
+  #selectedThread
+
+  /**
    * Creates an instance of LG4JInputElement.
    * 
    * @constructor
@@ -77,10 +82,24 @@ export class LG4JExecutorElement extends LitElement {
   }
 
   /**
+   * Event handler for the 'update slected thread' event.
+   * 
+   * @param {CustomEvent} e - The event object containing the updated data.
+   * @private
+   */
+  #onUpdateThread( e ) {
+    console.debug( 'update-thread', e.detail )
+    this.#selectedThread = e.detail
+  }
+
+
+  /**
    * Lifecycle method called when the element is added to the document's DOM.
    */
   connectedCallback() {
     super.connectedCallback();
+
+    this.addEventListener( "update-thread", this.#onUpdateThread );
 
     if(this.test ) {
       this.#init_test();
@@ -91,6 +110,10 @@ export class LG4JExecutorElement extends LitElement {
 
   }
 
+  disconnectedCallback() {
+    super.disconnectedCallback( "update-thread", this.#onUpdateThread );
+
+  }
 
   async #init() {
 
@@ -111,13 +134,70 @@ export class LG4JExecutorElement extends LitElement {
     this.requestUpdate()
   }
 
-  async #init_test() {
+  /**
+   * Renders the HTML template for the component.
+   * 
+   * @returns {TemplateResult} The rendered HTML template.
+   */
+  render() {
+
+    console.debug( 'render', this.formMetaData )
+    
+    return html`
+        <div class="container">
+          ${ Object.entries(this.formMetaData).map( ([key,value]) => 
+             html`<textarea id="${key}" class="textarea textarea-primary" placeholder="${key}"></textarea>`
+          )}
+          <button @click="${this.#submit}" class="btn btn-primary">Submit</button>
+        </div>
+    `;
+  }
+
+
+async #submit() {
+  
+  if(this.test ) {
+    await this.#submit_test();
+    return
+  }
+  
+  const data = Object.keys(this.formMetaData).reduce( (acc, key) => {
+    acc[key] = this.shadowRoot.getElementById(key).value
+    return acc
+  }, {});
+
+  const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+  });
+
+  for await (let chunk of streamingResponse( execResponse )  ) {
+    console.debug( chunk )
+
+    this.dispatchEvent( new CustomEvent( 'result', { 
+      detail: JSON.parse(chunk),
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    } ) );
+
+  }
+}
+  
+////////////////////////////////////////////////////////
+// TEST
+///////////////////////////////////////////////////////
+async #init_test() {
         
-    await delay( 1000 );
-    this.dispatchEvent( new CustomEvent( 'init', { 
-      detail: { 
-        title: 'LangGraph4j : TEST',
-        graph:`
+  await delay( 1000 );
+  this.dispatchEvent( new CustomEvent( 'init', { 
+    detail: { 
+      threads: [ ['default', [] ] ],
+      title: 'LangGraph4j : TEST',
+      graph:`
 ---
 title: TEST
 ---        
@@ -154,68 +234,20 @@ flowchart TD
 
   }
 
-  /**
-   * Renders the HTML template for the component.
-   * 
-   * @returns {TemplateResult} The rendered HTML template.
-   */
-  render() {
-    console.debug( 'render', this.formMetaData )
-    return html`
-        <div class="container">
-          ${ Object.entries(this.formMetaData).map( ([key,value]) => 
-             html`<textarea id="${key}" class="textarea textarea-primary" placeholder="${key}"></textarea>`
-          )}
-          <button @click="${this.#submit}" class="btn btn-primary">Submit</button>
-        </div>
-    `;
-  }
 
+  async #submit_test( ) {
 
-  async #submit() {
-    
-    if(this.test ) {
-      await this.#submit_test();
-      return
-    }
-    
-    const data = Object.keys(this.formMetaData).reduce( (acc, key) => {
-      acc[key] = this.shadowRoot.getElementById(key).value
-      return acc
-    }, {});
-
-    const execResponse = await fetch(`${this.url}/stream`, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    });
-
-    for await (let chunk of streamingResponse( execResponse )  ) {
-      console.debug( chunk )
-
-      this.dispatchEvent( new CustomEvent( 'result', { 
-        detail: JSON.parse(chunk),
-        bubbles: true,
-        composed: true,
-        cancelable: true
-      } ) );
-
-    }
-  }
-  
-  async #submit_test() {
-
+    const thread = this.#selectedThread
     const send = async ( nodeId ) => {
       await delay( 1000 );
       this.dispatchEvent( new CustomEvent( 'result', { 
-        detail: { 
+        detail: [ thread, { 
           node: nodeId, 
           state: { 
             input: "this is input",
             property1: { value: "value1", valid: true } , 
-            property2: { value: "value2", children: { elements: [1,2,3]} } }},
+            property2: { value: "value2", children: { elements: [1,2,3]} } }}
+          ],
         bubbles: true,
         composed: true,
         cancelable: true

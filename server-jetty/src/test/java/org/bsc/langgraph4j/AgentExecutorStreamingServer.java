@@ -19,7 +19,7 @@ public class AgentExecutorStreamingServer {
 
         var llm = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
-                .modelName( "gpt-3.5-turbo" )
+                .modelName( "gpt-4o-mini" )
                 .logResponses(true)
                 .maxRetries(2)
                 .temperature(0.0)
@@ -40,7 +40,8 @@ public class AgentExecutorStreamingServer {
                 .objectMapper(objectMapper)
                 .title("AGENT EXECUTOR")
                 .addInputStringArg("input")
-                .build(app);
+                .stateGraph(app)
+                .build();
 
         server.start().join();
 

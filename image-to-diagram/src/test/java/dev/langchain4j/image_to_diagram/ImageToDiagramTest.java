@@ -22,6 +22,7 @@ import java.util.logging.LogManager;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -136,7 +137,7 @@ public class ImageToDiagramTest {
         }
 
         System.out.println( ofNullable(state)
-                                .flatMap( s -> s.diagramCode().last() ).orElse("NO DIAGRAM CODE") );
+                                .flatMap( s -> last( s.diagramCode() ) ).orElse("NO DIAGRAM CODE") );
 
     }
 
@@ -160,7 +161,7 @@ public class ImageToDiagramTest {
                 })
                 .join();
 
-        var code = result.diagramCode().last();
+        var code = last( result.diagramCode() );
         assertTrue( code.isPresent() );
         assertEquals( expectedCode, code.get().trim() );
 

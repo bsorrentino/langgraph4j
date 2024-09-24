@@ -1,11 +1,17 @@
 package org.bsc.langgraph4j;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
+import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
@@ -13,16 +19,13 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * of LangGraph.
  * Implementations of this interface can be used to create a web server
  * that exposes an API for interacting with compiled language graphs.
-     */
+ */
 public interface LangGraphStreamingServer {
 
     Logger log = LoggerFactory.getLogger(LangGraphStreamingServer.class);
@@ -45,9 +48,11 @@ public interface LangGraphStreamingServer {
 
     class Builder {
         private int port = 8080;
-        private Map<String, ArgumentMetadata> inputArgs = new HashMap<>();
+        private final Map<String, ArgumentMetadata> inputArgs = new HashMap<>();
         private String title = null;
         private ObjectMapper objectMapper;
+        private BaseCheckpointSaver saver;
+        private StateGraph<? extends AgentState>  stateGraph;
 
         public Builder port(int port) {
             this.port = port;
@@ -74,7 +79,23 @@ public interface LangGraphStreamingServer {
             return this;
         }
 
-        public <State extends AgentState> LangGraphStreamingServer build(CompiledGraph<State> compiledGraph) throws Exception {
+        public Builder checkpointSaver(BaseCheckpointSaver saver) {
+            this.saver = saver;
+            return this;
+        }
+
+        public <State extends AgentState> Builder stateGraph(StateGraph<State> stateGraph) {
+            this.stateGraph = stateGraph;
+            return this;
+        }
+
+        public LangGraphStreamingServer build() throws Exception {
+            Objects.requireNonNull( stateGraph, "stateGraph cannot be null");
+
+//            Objects.requireNonNull( saver, "checkpoint saver cannot be null");
+            if (saver == null) {
+                saver = new MemorySaver();
+            }
 
             Server server = new Server();
 
@@ -82,28 +103,31 @@ public interface LangGraphStreamingServer {
             connector.setPort(port);
             server.addConnector(connector);
 
-            ResourceHandler resourceHandler = new ResourceHandler();
+            var resourceHandler = new ResourceHandler();
 
 //            Path publicResourcesPath = Paths.get("jetty", "src", "main", "webapp");
 //            Resource baseResource = ResourceFactory.of(resourceHandler).newResource(publicResourcesPath));
-            Resource baseResource = ResourceFactory.of(resourceHandler).newClassLoaderResource("webapp");
+            var baseResource = ResourceFactory.of(resourceHandler).newClassLoaderResource("webapp");
             resourceHandler.setBaseResource(baseResource);
 
             resourceHandler.setDirAllowed(true);
 
-            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
             if (objectMapper == null) {
                 objectMapper = new ObjectMapper();
             }
+
+            context.setSessionHandler(new org.eclipse.jetty.ee10.servlet.SessionHandler());
+
+
+            context.addServlet(new ServletHolder(new GraphInitServlet(stateGraph, title, inputArgs)), "/init");
+
             // context.setContextPath("/");
             // Add the streaming servlet
-            context.addServlet(new ServletHolder(new GraphExecutionServlet<State>(compiledGraph, objectMapper)), "/stream");
+            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, objectMapper, saver)), "/stream");
 
-            InitData initData = new InitData(title, inputArgs);
-            context.addServlet(new ServletHolder(new GraphInitServlet<State>(compiledGraph, initData)), "/init");
-
-            Handler.Sequence handlerList = new Handler.Sequence(resourceHandler, context);
+            var handlerList = new Handler.Sequence( resourceHandler, context);
 
             server.setHandler(handlerList);
 
@@ -126,21 +150,72 @@ public interface LangGraphStreamingServer {
 }
 
 
-class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
-    final CompiledGraph<State> compiledGraph;
-    final ObjectMapper objectMapper;
+class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
+    Logger log = LangGraphStreamingServer.log;
 
-    public GraphExecutionServlet(CompiledGraph<State> compiledGraph, ObjectMapper objectMapper) {
-        Objects.requireNonNull(compiledGraph, "compiledGraph cannot be null");
-        this.compiledGraph = compiledGraph;
-        this.objectMapper = objectMapper;
+    protected NodeOutputSerializer() {
+        super( NodeOutput.class );
     }
+
+    @Override
+    public void serialize(NodeOutput nodeOutput, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
+        log.trace( "NodeOutputSerializer start!" );
+        gen.writeStartObject();
+            gen.writeStringField("node", nodeOutput.node());
+            gen.writeObjectField("state", nodeOutput.state());
+        gen.writeEndObject();
+    }
+}
+
+record PersistentConfig(String sessionId, String threadId) {
+    public PersistentConfig {
+        Objects.requireNonNull(sessionId);
+    }
+
+}
+
+class GraphStreamServlet extends HttpServlet {
+    Logger log = LangGraphStreamingServer.log;
+    final BaseCheckpointSaver saver;
+
+    final StateGraph<? extends AgentState> stateGraph;
+    final ObjectMapper objectMapper;
+    final Map<PersistentConfig, CompiledGraph<? extends AgentState>> graphCache = new HashMap<>();
+
+    public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph, ObjectMapper objectMapper, BaseCheckpointSaver saver) {
+        Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
+        this.stateGraph = stateGraph;
+        this.objectMapper = objectMapper;
+        var module = new SimpleModule();
+        module.addSerializer(NodeOutput.class, new NodeOutputSerializer());
+        objectMapper.registerModule(module);
+        this.saver = saver;
+    }
+
+    private CompileConfig compileConfig(PersistentConfig config) {
+        return CompileConfig.builder()
+                .checkpointSaver(saver)
+                .build();
+    }
+
+    RunnableConfig runnableConfig( PersistentConfig config ) {
+        return RunnableConfig.builder()
+                .threadId(config.threadId())
+                .build();
+    }
+
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setHeader("Accept", "application/json");
         response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
+
+        var session = request.getSession(true);
+        Objects.requireNonNull(session, "session cannot be null");
+
+        var threadId = request.getParameter("thread");
+        Objects.requireNonNull(threadId, "thread cannot be null");
 
         final PrintWriter writer = response.getWriter();
 
@@ -151,23 +226,30 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
         var asyncContext = request.startAsync();
 
         try {
-            compiledGraph.stream(dataMap)
+
+            var config = new PersistentConfig( session.getId(), threadId);
+
+            var compiledGraph =  graphCache.get(config);
+            if( compiledGraph == null ) {
+                compiledGraph = stateGraph.compile( compileConfig(config) );
+                graphCache.put( config, compiledGraph );
+            }
+
+            compiledGraph.streamSnapshots(dataMap, runnableConfig(config) )
                     .forEachAsync(s -> {
                         try {
-
-                            writer.print("{");
-                            writer.printf("\"node\": \"%s\"", s.node());
                             try {
-                                var stateAsString = objectMapper.writeValueAsString(s.state().data());
-                                writer.printf(",\"state\": %s", stateAsString);
+                                writer.printf("[ \"%s\",", threadId);
+                                writer.println();
+                                var outputAsString = objectMapper.writeValueAsString(s);
+                                writer.println(outputAsString);
+                                writer.println( "]" );
                             } catch (IOException e) {
-                                LangGraphStreamingServer.log.info("error serializing state", e);
-                                writer.printf(",\"state\": {}");
+                                log.warn("error serializing state", e);
                             }
-                            writer.print("}");
                             writer.flush();
                             TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException e) {
+                        } catch ( InterruptedException e) {
                             throw new RuntimeException(e);
                         }
 
@@ -177,7 +259,7 @@ class GraphExecutionServlet<State extends AgentState> extends HttpServlet {
             ;
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ServletException(e);
         }
     }
 }
@@ -187,35 +269,74 @@ record ArgumentMetadata(
         boolean required) {
 }
 
+record ThreadEntry( String id, List<? extends NodeOutput<? extends AgentState>> entries) {
+
+}
+
 record InitData(
+        String graph,
+        List<ThreadEntry> threads,
         String title,
-        Map<String, ArgumentMetadata> args) {
+        Map<String, ArgumentMetadata> args
+        ) {
+
+    public InitData( String graph, String title, Map<String, ArgumentMetadata> args) {
+        this(graph, Collections.singletonList( new ThreadEntry("default", Collections.emptyList())), title, args);
+    }
+}
+
+class InitDataSerializer extends StdSerializer<InitData> {
+    Logger log = LangGraphStreamingServer.log;
+
+    protected InitDataSerializer(Class<InitData> t) {
+        super(t);
+    }
+
+    @Override
+    public void serialize(InitData initData, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        log.trace( "InitDataSerializer start!" );
+        jsonGenerator.writeStartObject();
+
+            jsonGenerator.writeStringField("graph", initData.graph());
+            jsonGenerator.writeStringField("title", initData.title());
+            jsonGenerator.writeObjectField("args", initData.args());
+
+            jsonGenerator.writeArrayFieldStart("threads" );
+            for( var thread : initData.threads() ) {
+                jsonGenerator.writeStartArray();
+                    jsonGenerator.writeString(thread.id());
+                    jsonGenerator.writeStartArray( thread.entries() );
+                    jsonGenerator.writeEndArray();
+                jsonGenerator.writeEndArray();
+            }
+            jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeEndObject();
+    }
 }
 
 /**
  * return the graph representation in mermaid format
  */
-class GraphInitServlet<State extends AgentState> extends HttpServlet {
+class GraphInitServlet extends HttpServlet {
 
-    final CompiledGraph<State> compiledGraph;
+    Logger log = LangGraphStreamingServer.log;
+
+    final StateGraph<? extends AgentState> stateGraph;
     final ObjectMapper objectMapper = new ObjectMapper();
     final InitData initData;
 
-    record Result(
-            String graph,
-            String title,
-            Map<String, ArgumentMetadata> args
-    ) {
+    public GraphInitServlet(StateGraph<? extends AgentState> stateGraph, String title, Map<String, ArgumentMetadata> args) {
+        Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
+        this.stateGraph = stateGraph;
 
-        public Result(GraphRepresentation graph, InitData initData) {
-            this(graph.getContent(), initData.title(), initData.args()); // graph.getContent();
-        }
-    }
+        var module = new SimpleModule();
+        module.addSerializer(InitData.class, new InitDataSerializer(InitData.class));
+        objectMapper.registerModule(module);
 
-    public GraphInitServlet(CompiledGraph<State> compiledGraph, InitData initData) {
-        Objects.requireNonNull(compiledGraph, "compiledGraph cannot be null");
-        this.compiledGraph = compiledGraph;
-        this.initData = initData;
+        var graph = stateGraph.getGraph(GraphRepresentation.Type.MERMAID, title, false);
+
+        initData = new InitData( graph.getContent(), title, args);
     }
 
     @Override
@@ -223,10 +344,10 @@ class GraphInitServlet<State extends AgentState> extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        GraphRepresentation graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID, initData.title(), false);
+        String resultJson = objectMapper.writeValueAsString(initData);
 
-        final Result result = new Result(graph, initData);
-        String resultJson = objectMapper.writeValueAsString(result);
+        log.trace( "{}", resultJson);
+
         // Start asynchronous processing
         final PrintWriter writer = response.getWriter();
         writer.println(resultJson);

@@ -7,18 +7,21 @@ import java.util.Optional;
 
 @ToString
 public class RunnableConfig {
-
     private String threadId;
     private String checkPointId;
     private String nextNode;
 
-    public Optional<String> threadId() {
+    public CompiledGraph.StreamMode streamMode() {
+        return CompiledGraph.StreamMode.VALUES;
+    }
+
+    public final Optional<String> threadId() {
         return Optional.ofNullable(threadId);
     }
-    public Optional<String> checkPointId() {
+    public final Optional<String> checkPointId() {
         return Optional.ofNullable(checkPointId);
     }
-    public Optional<String> nextNode() {
+    public final Optional<String> nextNode() {
         return Optional.ofNullable(nextNode);
     }
 
@@ -54,7 +57,7 @@ public class RunnableConfig {
         }
     }
 
-    private RunnableConfig( RunnableConfig config ) {
+    protected RunnableConfig( RunnableConfig config ) {
         Objects.requireNonNull( config, "config cannot be null" );
         this.threadId = config.threadId;
         this.checkPointId = config.checkPointId;

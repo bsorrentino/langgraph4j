@@ -7,6 +7,7 @@ import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.state.StateSnapshot;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -262,19 +263,28 @@ public class StateGraphPersistenceTest
         Map<String, Object> inputs = mapOf( "messages", "whether in Naples?" );
 
         var runnableConfig = RunnableConfig.builder()
-                .threadId("thread_1").build();
+                .threadId("thread_1")
+                .build();
 
-        for( var r : app.stream( inputs, runnableConfig ) ) {
-            log.info( "Node: {} - {}", r.node(), r.state().messages() );
-        }
+        var results = app.streamSnapshots( inputs, runnableConfig ).stream().collect( Collectors.toList() );
+
+        results.forEach( r -> log.info( "{}: Node: {} - {}", r.getClass().getSimpleName(), r.node(), r.state().messages() ) );
+
+        assertEquals( 5, results.size() );
+        assertInstanceOf( NodeOutput.class, results.get(0) );
+        assertInstanceOf( StateSnapshot.class, results.get(1) );
+        assertInstanceOf( StateSnapshot.class, results.get(2) );
+        assertInstanceOf( StateSnapshot.class, results.get(3) );
+        assertInstanceOf( NodeOutput.class, results.get(4) );
 
         var snapshot = app.getState(runnableConfig);
         assertNotNull( snapshot );
-        assertEquals( END, snapshot.getNext() );
+        assertEquals( END, snapshot.next() );
 
         log.info( "LAST SNAPSHOT:\n{}\n", snapshot );
 
         var stateHistory = app.getStateHistory( runnableConfig );
+        stateHistory.forEach( state -> log.info( "SNAPSHOT HISTORY:\n{}\n", state ) );
         assertNotNull( stateHistory );
         assertEquals( 4, stateHistory.size() );
 
@@ -282,7 +292,7 @@ public class StateGraphPersistenceTest
             log.info( "SNAPSHOT HISTORY:\n{}\n", s );
         }
 
-        var results = app.stream( null, runnableConfig ).stream().collect( Collectors.toList() );
+        results = app.stream( null, runnableConfig ).stream().collect( Collectors.toList() );
 
         assertNotNull( results );
         assertFalse( results.isEmpty() );
@@ -292,10 +302,10 @@ public class StateGraphPersistenceTest
 
         var firstSnapshot = stateHistory.stream().reduce( (first, second) -> second); // take the last
         assertTrue( firstSnapshot.isPresent() );
-        assertTrue( firstSnapshot.get().getState().lastMessage().isPresent() );
-        assertEquals( "whether in Naples?", firstSnapshot.get().getState().lastMessage().get() );
+        assertTrue( firstSnapshot.get().state().lastMessage().isPresent() );
+        assertEquals( "whether in Naples?", firstSnapshot.get().state().lastMessage().get() );
 
-        var toReplay = firstSnapshot.get().getConfig();
+        var toReplay = firstSnapshot.get().config();
 
         toReplay = app.updateState( toReplay, mapOf( "messages", "i'm bartolo"), null );
         results = app.stream( null, toReplay ).stream().collect( Collectors.toList() );
@@ -354,7 +364,7 @@ public class StateGraphPersistenceTest
 
         Map<String,Object> inputs = mapOf( "messages","whether in Naples?" ) ;
         var results = app.stream( inputs, runnableConfig ).stream().collect(Collectors.toList());
-
+        results.forEach( System.out::println);
         assertNotNull( results );
         assertEquals( 2, results.size() );
         assertEquals( START, results.get(0).node() );
@@ -364,9 +374,9 @@ public class StateGraphPersistenceTest
         var state = app.getState(runnableConfig);
 
         assertNotNull( state );
-        assertEquals( "tools", state.getNext() );
+        assertEquals( "tools", state.next() );
 
-        results = app.stream( null, state.getConfig() ).stream().collect(Collectors.toList());
+        results = app.stream( null, state.config() ).stream().collect(Collectors.toList());
 
         assertNotNull( results );
         assertEquals( 3, results.size() );
