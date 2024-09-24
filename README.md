@@ -254,7 +254,7 @@ var server = LangGraphStreamingServer.builder()
                                       .port(8080)
                                       .title("LANGGRAPH4j - TEST")
                                       .stateGraph( workflow )
-                                      checkpointSaver(saver)
+                                      .checkpointSaver(saver)
                                       .addInputStringArg("input")
                                       .build();
 // start playground
