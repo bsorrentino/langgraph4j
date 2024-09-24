@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.diagram;
 import org.bsc.langgraph4j.DiagramGenerator;
 
 import static java.lang.String.format;
+import static org.bsc.langgraph4j.StateGraph.END;
 
 public class PlantUMLGenerator extends DiagramGenerator {
 
@@ -19,7 +20,7 @@ public class PlantUMLGenerator extends DiagramGenerator {
         .append("powered by langgraph4j\n")
         .append("end footer\n")
         .append("circle start<<input>>\n")
-        .append("circle stop as __END__\n");
+        .append( format("circle stop as %s\n", END));
     }
 
     @Override

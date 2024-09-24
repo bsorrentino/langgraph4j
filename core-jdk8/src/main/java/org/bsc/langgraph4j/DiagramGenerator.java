@@ -1,10 +1,10 @@
 package org.bsc.langgraph4j;
 
-import lombok.Value;
 import lombok.var;
 import org.bsc.langgraph4j.state.AgentState;
 
 import static java.lang.String.format;
+import static org.bsc.langgraph4j.StateGraph.START;
 
 public abstract class DiagramGenerator {
 
@@ -20,18 +20,18 @@ public abstract class DiagramGenerator {
     protected abstract void declareConditionalEdge( StringBuilder sb, int ordinal ) ;
     protected abstract StringBuilder commentLine( StringBuilder sb, boolean yesOrNo );
 
-    public final <State extends AgentState> String generate( CompiledGraph<State> compiledGraph, String title, boolean printConditionalEdge ) {
+    public final <State extends AgentState> String generate( StateGraph<State> compiledGraph, String title, boolean printConditionalEdge ) {
         StringBuilder sb = new StringBuilder();
 
         appendHeader( sb, title );
 
-        compiledGraph.getNodes().keySet()
-                .forEach( s -> declareNode( sb, s ) );
+        compiledGraph.nodes
+                .forEach( s -> declareNode( sb, s.id() ) );
 
         final int[] conditionalEdgeCount = { 0 };
 
-        compiledGraph.getEdges().forEach( (k, v) -> {
-            if( v.value() != null ) {
+        compiledGraph.edges.forEach( e -> {
+            if( e.target().value() != null ) {
                 conditionalEdgeCount[0] += 1;
                 declareConditionalEdge( commentLine(sb, !printConditionalEdge), conditionalEdgeCount[0] );
             }
@@ -45,20 +45,20 @@ public abstract class DiagramGenerator {
         else if( entryPoint.value() != null ) {
             String conditionName = "startcondition";
             declareConditionalStart( commentLine(sb, !printConditionalEdge), conditionName );
-            edgeCondition( sb, entryPoint.value(), "start", conditionName, printConditionalEdge) ;
+            edgeCondition( sb, entryPoint.value(), START, conditionName, printConditionalEdge) ;
         }
 
         conditionalEdgeCount[0] = 0; // reset
 
-        compiledGraph.getEdges().forEach( (k,v) -> {
-            if( v.id() != null ) {
-                call( sb, k,  v.id() );
+        compiledGraph.edges.forEach( v -> {
+            if( v.target().id() != null ) {
+                call( sb, v.sourceId(),  v.target().id() );
             }
-            else if( v.value() != null ) {
+            else if( v.target().value() != null ) {
                 conditionalEdgeCount[0] += 1;
                 String conditionName = format("condition%d", conditionalEdgeCount[0]);
 
-                edgeCondition( sb, v.value(), k, conditionName, printConditionalEdge );
+                edgeCondition( sb, v.target().value(), v.sourceId(), conditionName, printConditionalEdge );
 
             }
         });
