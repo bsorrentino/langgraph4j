@@ -248,15 +248,15 @@ StateGraph<AgentState> workflow = new StateGraph<>( AgentState::new );
 
 ...
 
-// compile workflow
-CompiledGraph<AgentState> app = workflow.compile();
-
+var saver = new MemorySaver();
 // connect playgroud webapp to workflow
 var server = LangGraphStreamingServer.builder()
                                       .port(8080)
                                       .title("LANGGRAPH4j - TEST")
+                                      .stateGraph( workflow )
+                                      checkpointSaver(saver)
                                       .addInputStringArg("input")
-                                      .build(app);
+                                      .build();
 // start playground
 server.start().join();
 
