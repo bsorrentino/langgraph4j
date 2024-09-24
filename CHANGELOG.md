@@ -2,12 +2,77 @@
 
 
 
-<!-- "name: v1.0-20240915" is a release tag -->
+<!-- "name: v1.0-beta5" is a release tag -->
 
-## [v1.0-20240915](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240915) (2024-09-15)
+## [v1.0-beta5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-beta5) (2024-09-24)
 
+### Features
+
+ *  **Server**  finalize thread support ([3f4ee84236c1aa6](https://github.com/bsorrentino/langgraph4j/commit/3f4ee84236c1aa6a3838e2730c62560774231507))
+     > - NodeOutput Json Serialization
+     > - read thread from get parameter
+     > - add thread on straming result
+     > resolve #24
+   
+ *  **backend**  add threads into init servlet ([1f0f20afe80db2c](https://github.com/bsorrentino/langgraph4j/commit/1f0f20afe80db2ce1338988bcfa1773d0cc470d9))
+     > work on #24
+   
+ *  set initial thread ([525286a37f767a4](https://github.com/bsorrentino/langgraph4j/commit/525286a37f767a4134bf8d764a4e552ed3ac1bfd))
+     > work on #24
+   
+ *  **frontend**  thread management refinement ([24042d4b65b505a](https://github.com/bsorrentino/langgraph4j/commit/24042d4b65b505ae5703e6e593400d27b9a5d9cd))
+     > work on #24
+   
+ *  **CompiledGraph**  add streamSnapshots() method ([11fc73be5e7a89f](https://github.com/bsorrentino/langgraph4j/commit/11fc73be5e7a89f1b00212aa7414a6332e7fce98))
+     > work on #24
+   
+ *  allow stream return subclass of NodeOutput ([780b2b90bf56af2](https://github.com/bsorrentino/langgraph4j/commit/780b2b90bf56af2156d518bbba715824bd6912d1))
+     > allow return of StateSnapshot
+     > work on #24
+   
+ *  **frontend**  add support for thread(tab) switch ([39b651d67ac0f7a](https://github.com/bsorrentino/langgraph4j/commit/39b651d67ac0f7a4242c04b53034f963ec3dcdd9))
+     > work on #24
+   
+ *  **AsyncNodeGenerator**  add output factory method ([0f612363c68f9e6](https://github.com/bsorrentino/langgraph4j/commit/0f612363c68f9e61ea85ace04c83ed85bf138766))
+     > work on #24
+   
+ *  **CompliedGraph**  update AsyncGenerator implementation ([04bcd136803086a](https://github.com/bsorrentino/langgraph4j/commit/04bcd136803086aad7b9a859be14c3f00fa3eac1))
+     > remove AsyncGeneratorQueue
+     > add a custom AsyncNodeGenerator
+     > update unit test
+   
+ *  **RunnableConfig**  add StreamMode enum ([40fad25c6b2e327](https://github.com/bsorrentino/langgraph4j/commit/40fad25c6b2e32721ed91fdedd3d019e88fdbfe9))
+     > work on #24
+   
+ *  add toString() ([7445a88be87845f](https://github.com/bsorrentino/langgraph4j/commit/7445a88be87845f6974bb9462cb2394da6e94189))
+   
+ *  **server**  threads Implementation refinements ([3e291dbc62b98c0](https://github.com/bsorrentino/langgraph4j/commit/3e291dbc62b98c081d3a82ea1c01f8cf722578cf))
+     > start preparing backend and fronend to manage threads
+     > work on #24
+   
+ *  move main implementation of getGraph() on StateGraph ([39da1f4c07db473](https://github.com/bsorrentino/langgraph4j/commit/39da1f4c07db47352331b7d2ada873196561a6fd))
+     > work on #24
+   
+ *  move main implementation of getGraph() on StateGraph ([9c1b39b2f5fd5ab](https://github.com/bsorrentino/langgraph4j/commit/9c1b39b2f5fd5ab752ba4be0736f09d674dac87f))
+     > work on #24
+   
+ *  **collection**  add last() and lastMinus() support for the List<T> ([52bfbec8084adfb](https://github.com/bsorrentino/langgraph4j/commit/52bfbec8084adfbadab505e5f08b28adf941a637))
+     > work on #24
+   
+ *  **serializer**  add support for mimetype ([7ca1a6169376932](https://github.com/bsorrentino/langgraph4j/commit/7ca1a6169376932ab95abe557d09f95eb9190fa3))
+     > work on #24
+   
+ *  **frontend**  add thread button ([75f975e9bea7ce8](https://github.com/bsorrentino/langgraph4j/commit/75f975e9bea7ce84af58387218f55121794e00e7))
+     > work on #24
+   
 
 ### Bug Fixes
+
+ -  separate thread panel ([4383975f68972b7](https://github.com/bsorrentino/langgraph4j/commit/4383975f68972b768e6f421a9e79bb34c1a49676))
+     > work on #24
+
+ -  diagram generator issue with START on mermaid ([7474b86718cbf43](https://github.com/bsorrentino/langgraph4j/commit/7474b86718cbf43d87def78e4beee88b60ea0392))
+     > work on #24
 
  -  mermaid generation ([53b68e0ffef4291](https://github.com/bsorrentino/langgraph4j/commit/53b68e0ffef4291792e13e70d975d3ac662a0aaf))
      > START, END issue
@@ -20,17 +85,51 @@
 
 ### Documentation
 
+ -  update readme ([cb01f90346068d6](https://github.com/bsorrentino/langgraph4j/commit/cb01f90346068d667ff6ac2446542f2643b0ed11))
+
+ -  **pom**  add executions comment ([0193aefd115351f](https://github.com/bsorrentino/langgraph4j/commit/0193aefd115351fe0979682b79d87d47fce669df))
+
+ -  update changeme ([e8552308ed95488](https://github.com/bsorrentino/langgraph4j/commit/e8552308ed95488229f765dc23fe0dd3f50c3185))
+
  -  update changeme ([95b8c4541900bab](https://github.com/bsorrentino/langgraph4j/commit/95b8c4541900bab6b6429506369f5ae5ba0600af))
 
 
 ### Refactor
+
+ -  update model ([1cac3901446ebf5](https://github.com/bsorrentino/langgraph4j/commit/1cac3901446ebf542328a4f8c2946f8f47c2c262))
+    > work on #24
+
+ -  **pom**  add hint for server exection ([0e8d7eca3dfdc2e](https://github.com/bsorrentino/langgraph4j/commit/0e8d7eca3dfdc2e8c3efc917a037c6d848d16553))
+    > work on #24
+
+ -  **executor.js**  rename property ([bef2f436746b3df](https://github.com/bsorrentino/langgraph4j/commit/bef2f436746b3df4031047e11a7fce884a714536))
+    > work on #24
+
+ -  **NodeOutput**  remove lombok @Value and remove final class constraint ([41a095ebffff6b5](https://github.com/bsorrentino/langgraph4j/commit/41a095ebffff6b525151d16a57f1161a10dc3a69))
+    > work on #24
+
+ -  make StateSnapshot inherit from NodeOutput ([b210f381e061aa6](https://github.com/bsorrentino/langgraph4j/commit/b210f381e061aa63527bf7285f15493c09c3c29e))
+    > work on #24
+
+ -  **server**  enable use of StateGraph ([16aefea482a7aaa](https://github.com/bsorrentino/langgraph4j/commit/16aefea482a7aaa2590232b2160b769566205a77))
+    > work on #24
+
+ -  **samples**  expose StateGraph intead of CompiledGraph ([f193da8f1d3f632](https://github.com/bsorrentino/langgraph4j/commit/f193da8f1d3f6326a9011b0c047c29a7877d5513))
+    > work on #24
 
  -  refine set-version script ([26351252b389547](https://github.com/bsorrentino/langgraph4j/commit/26351252b389547d4810b28a74444f13718ab62a))
    
 
 ### ALM 
 
- -  bump new intermediate version ([683a8ab92e407da](https://github.com/bsorrentino/langgraph4j/commit/683a8ab92e407da2f2234d68516a176433bb34b6))
+ -  bump to new version ([abdb35503b611a7](https://github.com/bsorrentino/langgraph4j/commit/abdb35503b611a750d12d9ec0ded547cba298942))
+   
+ -  **forntend**  update dist ([644e7a1c232ec48](https://github.com/bsorrentino/langgraph4j/commit/644e7a1c232ec488c3455f65392384d71a6573b4))
+   
+ -  update webapp dist ([bebf5c045bd939d](https://github.com/bsorrentino/langgraph4j/commit/bebf5c045bd939d56cdd2b7fd40e3f848b789979))
+    > work on #24
+
+ -  bump to SNAPSHOT ([a3eb4e92badd416](https://github.com/bsorrentino/langgraph4j/commit/a3eb4e92badd4163182bf82215f6a00fd362f139))
    
  -  **server**  update frontend dist ([fe4aff4ca05cc04](https://github.com/bsorrentino/langgraph4j/commit/fe4aff4ca05cc04a4c8dd946516428377fd65be9))
    
@@ -41,6 +140,23 @@
  > work on #24
 
  -  update css gen tools ([8b1b0e2b0224e93](https://github.com/bsorrentino/langgraph4j/commit/8b1b0e2b0224e931233308cad49d6d3204a87c13))
+   
+
+
+
+
+
+<!-- "name: v1.0-20240915" is a release tag -->
+
+## [v1.0-20240915](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240915) (2024-09-15)
+
+
+
+
+
+### ALM 
+
+ -  bump new intermediate version ([683a8ab92e407da](https://github.com/bsorrentino/langgraph4j/commit/683a8ab92e407da2f2234d68516a176433bb34b6))
    
 
 
