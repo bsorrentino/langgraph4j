@@ -24,7 +24,7 @@ public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrade
         public String binaryScore;
     }
 
-    @StructuredPrompt("User question: \\n\\n {{question}} \\n\\n LLM generation: {{generation}}")
+    @StructuredPrompt("User question: \n\n {{question}} \n\n LLM generation: {{generation}}")
     @Value(staticConstructor="of")
     public static class Arguments {
         String question;
@@ -33,8 +33,9 @@ public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrade
 
     interface Service {
 
-        @SystemMessage("You are a grader assessing whether an answer addresses / resolves a question \\n \n" +
-                "     Give a binary score 'yes' or 'no'. Yes' means that the answer resolves the question.")
+        
+        @SystemMessage( "You are a grader assessing whether an answer addresses and/or resolves a question. \n\n" + 
+                        "Give a binary score 'yes' or 'no'. Yes, means that the answer resolves the question otherwise return 'no'")
         Score invoke(String userMessage);
     }
 
