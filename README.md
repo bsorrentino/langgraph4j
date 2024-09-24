@@ -47,7 +47,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Sep 06, 2024 | `1.0-beta4` | last official beta release
+| Sep 24, 2024 | `1.0-beta5` | last official beta release
 
 
 ## Quick Start 
@@ -61,7 +61,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core-jdk8</artifactId>
-    <version>1.0-beta2</version>
+    <version>1.0-beta5</version>
 </dependency>
 ```
 
