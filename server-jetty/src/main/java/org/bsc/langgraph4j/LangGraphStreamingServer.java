@@ -149,6 +149,24 @@ public interface LangGraphStreamingServer {
     }
 }
 
+
+class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
+    Logger log = LangGraphStreamingServer.log;
+
+    protected NodeOutputSerializer() {
+        super( NodeOutput.class );
+    }
+
+    @Override
+    public void serialize(NodeOutput nodeOutput, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
+        log.trace( "NodeOutputSerializer start!" );
+        gen.writeStartObject();
+            gen.writeStringField("node", nodeOutput.node());
+            gen.writeObjectField("state", nodeOutput.state());
+        gen.writeEndObject();
+    }
+}
+
 record PersistentConfig(String sessionId, String threadId) {
     public PersistentConfig {
         Objects.requireNonNull(sessionId);
@@ -168,6 +186,9 @@ class GraphStreamServlet extends HttpServlet {
         Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
         this.stateGraph = stateGraph;
         this.objectMapper = objectMapper;
+        var module = new SimpleModule();
+        module.addSerializer(NodeOutput.class, new NodeOutputSerializer());
+        objectMapper.registerModule(module);
         this.saver = saver;
     }
 
@@ -193,6 +214,9 @@ class GraphStreamServlet extends HttpServlet {
         var session = request.getSession(true);
         Objects.requireNonNull(session, "session cannot be null");
 
+        var threadId = request.getParameter("thread");
+        Objects.requireNonNull(threadId, "thread cannot be null");
+
         final PrintWriter writer = response.getWriter();
 
         Map<String, Object> dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<Map<String, Object>>() {
@@ -202,7 +226,6 @@ class GraphStreamServlet extends HttpServlet {
         var asyncContext = request.startAsync();
 
         try {
-            var threadId = request.getParameter("threadId");
 
             var config = new PersistentConfig( session.getId(), threadId);
 
@@ -215,21 +238,18 @@ class GraphStreamServlet extends HttpServlet {
             compiledGraph.streamSnapshots(dataMap, runnableConfig(config) )
                     .forEachAsync(s -> {
                         try {
-                            LangGraphStreamingServer.log.trace("{}", s);
-
-                            writer.print("{");
-                            writer.printf("\"node\": \"%s\"", s.node());
                             try {
-                                var stateAsString = objectMapper.writeValueAsString(s.state().data());
-                                writer.printf(",\"state\": %s", stateAsString);
+                                writer.printf("[ \"%s\",", threadId);
+                                writer.println();
+                                var outputAsString = objectMapper.writeValueAsString(s);
+                                writer.println(outputAsString);
+                                writer.println( "]" );
                             } catch (IOException e) {
-                                LangGraphStreamingServer.log.info("error serializing state", e);
-                                writer.printf(",\"state\": {}");
+                                log.warn("error serializing state", e);
                             }
-                            writer.print("}");
                             writer.flush();
                             TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException e) {
+                        } catch ( InterruptedException e) {
                             throw new RuntimeException(e);
                         }
 
@@ -266,6 +286,7 @@ record InitData(
 }
 
 class InitDataSerializer extends StdSerializer<InitData> {
+    Logger log = LangGraphStreamingServer.log;
 
     protected InitDataSerializer(Class<InitData> t) {
         super(t);
@@ -273,7 +294,7 @@ class InitDataSerializer extends StdSerializer<InitData> {
 
     @Override
     public void serialize(InitData initData, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        LangGraphStreamingServer.log.trace( "InitDataSerializer start!" );
+        log.trace( "InitDataSerializer start!" );
         jsonGenerator.writeStartObject();
 
             jsonGenerator.writeStringField("graph", initData.graph());
@@ -299,7 +320,8 @@ class InitDataSerializer extends StdSerializer<InitData> {
  */
 class GraphInitServlet extends HttpServlet {
 
-    private static final Logger log = LoggerFactory.getLogger(GraphInitServlet.class);
+    Logger log = LangGraphStreamingServer.log;
+
     final StateGraph<? extends AgentState> stateGraph;
     final ObjectMapper objectMapper = new ObjectMapper();
     final InitData initData;
@@ -324,7 +346,7 @@ class GraphInitServlet extends HttpServlet {
 
         String resultJson = objectMapper.writeValueAsString(initData);
 
-        LangGraphStreamingServer.log.trace( "{}", resultJson);
+        log.trace( "{}", resultJson);
 
         // Start asynchronous processing
         final PrintWriter writer = response.getWriter();
