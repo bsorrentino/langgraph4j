@@ -431,6 +431,7 @@ public class CompiledGraph<State extends AgentState> {
                 });
             }
             catch( Exception e ) {
+                log.error( e.getMessage(), e );
                 future.completeExceptionally(e);
             }
             return Data.of(future);
