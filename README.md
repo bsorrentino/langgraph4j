@@ -1,7 +1,7 @@
 
 # 🦜🕸️ LangGraph for Java
 
-[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.0--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core-jdk8.svg)]()
+[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.0--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core-jdk8.svg)][releases]
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
@@ -285,3 +285,4 @@ server.start().join();
 
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/langgraph4j-jdk8/1.0-SNAPSHOT
+[releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
