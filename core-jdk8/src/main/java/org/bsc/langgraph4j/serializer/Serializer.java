@@ -28,7 +28,7 @@ public interface Serializer<T> {
         return Optional.empty();
     }
 
-    static void writeUTFNullable(String object, ObjectOutput out) throws IOException {
+    default void writeUTFNullable(String object, ObjectOutput out) throws IOException {
         if( object == null ) {
             out.writeBoolean(false);
         } else {
@@ -36,7 +36,7 @@ public interface Serializer<T> {
             out.writeUTF(object);
         }
     }
-    static Optional<String> readUTFNullable(ObjectInput in) throws IOException {
+    default Optional<String> readUTFNullable(ObjectInput in) throws IOException {
         if( in.readBoolean() ) {
             return Optional.of(in.readUTF());
         }
