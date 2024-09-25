@@ -5,42 +5,43 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public abstract class BaseSerializer<T> implements Serializer<T> {
 
-    private static final Map<Class<?>, Serializer<?> > serializers = new HashMap<>();
+    private static final Map<Class<?>, Serializer<?> > _serializers = new HashMap<>();
 
-    public static <S> void register( Class<?> clazz, Serializer<S> serializer ) {
+    public static void register( Class<?> clazz, Serializer<?> serializer ) {
         Objects.requireNonNull( clazz, "Serializer's class cannot be null" );
         Objects.requireNonNull( serializer, "Serializer cannot be null" );
 
-        serializers.put( clazz, serializer );
+        _serializers.put(clazz, serializer);
+
     }
 
     public static <S> boolean unregister( Class<S> clazz ) {
         Objects.requireNonNull( clazz, "Serializer's class cannot be null" );
-        Serializer<?> serializer = serializers.remove( clazz );
-
+        Serializer<?> serializer = _serializers.remove( clazz );
         return serializer != null;
     }
 
-    protected static <S> Optional<Serializer<S>> getSerializer( Class<? extends S> clazz ) {
+    protected static Optional<Serializer<Object>> getSerializer( Class<?> clazz ) {
         Objects.requireNonNull( clazz, "Serializer's class cannot be null" );
-        Serializer<?> result = serializers.get( clazz );
+        Serializer<?> result = _serializers.get( clazz );
 
         if( result != null ) {
-            return Optional.of((Serializer<S>)result);
+            return Optional.of((Serializer<Object>)result);
         }
 
-        return serializers.entrySet().stream()
+        return _serializers.entrySet().stream()
                 .filter( e -> e.getKey().isAssignableFrom(clazz) )
-                .map( e -> (Serializer<S>)e.getValue() )
-                .findFirst();
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .map( s -> (Serializer<Object>)s )
+                ;
 
     }
 
-    protected static <S> void writeObjectWithSerializer(S value, ObjectOutput out) throws IOException {
+    protected void writeObjectWithSerializer(Object value, ObjectOutput out) throws IOException {
         Optional<Serializer<Object>> serializer = (value != null) ?
                 getSerializer(value.getClass()) :
                 Optional.empty();
@@ -55,7 +56,7 @@ public abstract class BaseSerializer<T> implements Serializer<T> {
         out.flush();
     }
 
-    protected static <S> S readObjectWithSerializer(ObjectInput in ) throws IOException, ClassNotFoundException {
+    protected <S> S readObjectWithSerializer(ObjectInput in ) throws IOException, ClassNotFoundException {
         Object value = in.readObject();
         // check if it's a serializer
         if( value instanceof Class<?>) {
