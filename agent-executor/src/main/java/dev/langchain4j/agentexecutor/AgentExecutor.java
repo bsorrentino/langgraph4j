@@ -1,22 +1,28 @@
 package dev.langchain4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.agentexecutor.serializer.AgentActionSerializer;
+import dev.langchain4j.agentexecutor.serializer.AgentFinishSerializer;
+import dev.langchain4j.agentexecutor.serializer.AgentOutcomeSerializer;
+import dev.langchain4j.agentexecutor.serializer.IntermediateStepSerializer;
+import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import lombok.var;
 import org.bsc.langgraph4j.*;
+import org.bsc.langgraph4j.serializer.BaseSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
+import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
 public class AgentExecutor {
 
@@ -38,11 +44,9 @@ public class AgentExecutor {
             Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
 
 
-            var toolInfoList = ToolInfo.fromList( objectsWithTools );
+            var toolNode = ToolNode.of( objectsWithTools );
 
-            final List<ToolSpecification> toolSpecifications = toolInfoList.stream()
-                    .map(ToolInfo::specification)
-                    .collect(Collectors.toList());
+            final List<ToolSpecification> toolSpecifications = toolNode.toolSpecifications();
 
             var agentRunnable = Agent.builder()
                     .chatLanguageModel(chatLanguageModel)
@@ -56,7 +60,7 @@ public class AgentExecutor {
                             runAgent(agentRunnable, state))
                     )
                     .addNode( "action", node_async( state ->
-                            executeTools(toolInfoList, state))
+                            executeTools(toolNode, state))
                     )
                     .addConditionalEdges(
                             "agent",
@@ -67,6 +71,13 @@ public class AgentExecutor {
                     ;
 
         }
+    }
+
+    public AgentExecutor() {
+        BaseSerializer.register(IntermediateStep.class, new IntermediateStepSerializer());
+        BaseSerializer.register(AgentAction.class, new AgentActionSerializer());
+        BaseSerializer.register(AgentFinish.class, new AgentFinishSerializer());
+        BaseSerializer.register(AgentOutcome.class, new AgentOutcomeSerializer());
     }
 
     public final GraphBuilder graphBuilder() {
@@ -119,7 +130,7 @@ public class AgentExecutor {
         }
 
     }
-    Map<String,Object> executeTools( List<ToolInfo> toolInfoList, State state ) throws Exception {
+    Map<String,Object> executeTools( ToolNode toolNode, State state ) throws Exception {
 
         var agentOutcome = state.agentOutcome().orElseThrow(() -> new IllegalArgumentException("no agentOutcome provided!"));
 
@@ -129,12 +140,9 @@ public class AgentExecutor {
 
         var toolExecutionRequest = agentOutcome.action().toolExecutionRequest();
 
-        var tool = toolInfoList.stream()
-                            .filter( v -> v.specification().name().equals(toolExecutionRequest.name()))
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalStateException("no tool found for: " + toolExecutionRequest.name()));
-
-        var result = tool.executor().execute( toolExecutionRequest, null );
+        var result = toolNode.execute( toolExecutionRequest )
+                .map( ToolExecutionResultMessage::text )
+                .orElseThrow(() -> new IllegalStateException("no tool found for: " + toolExecutionRequest.name()));;
 
         return mapOf("intermediate_steps", new IntermediateStep( agentOutcome.action(), result ) );
 
