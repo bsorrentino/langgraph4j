@@ -2,7 +2,6 @@ package org.bsc.langgraph4j.serializer;
 
 import java.io.*;
 import java.util.Objects;
-import java.util.Optional;
 
 public interface Serializer<T> {
 
@@ -11,36 +10,6 @@ public interface Serializer<T> {
 
     default String mimeType() {
         return "application/octet-stream";
-    }
-
-    default void writeObjectNullable(T object, ObjectOutput out) throws IOException {
-        if( object == null ) {
-            out.writeBoolean(false);
-        } else {
-            out.writeBoolean(true);
-            write(object, out);
-        }
-    }
-    default Optional<T> readObjectNullable(ObjectInput in) throws IOException, ClassNotFoundException {
-        if( in.readBoolean() ) {
-            return Optional.ofNullable(read(in));
-        }
-        return Optional.empty();
-    }
-
-    default void writeUTFNullable(String object, ObjectOutput out) throws IOException {
-        if( object == null ) {
-            out.writeBoolean(false);
-        } else {
-            out.writeBoolean(true);
-            out.writeUTF(object);
-        }
-    }
-    default Optional<String> readUTFNullable(ObjectInput in) throws IOException {
-        if( in.readBoolean() ) {
-            return Optional.of(in.readUTF());
-        }
-        return Optional.empty();
     }
 
     default byte[] writeObject(T object) throws IOException {
@@ -68,5 +37,6 @@ public interface Serializer<T> {
         Objects.requireNonNull( object, "object cannot be null" );
         return readObject(writeObject(object));
     }
+
 
 }

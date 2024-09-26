@@ -43,7 +43,6 @@ public class CompiledGraph<State extends AgentState> {
 
     private int maxIterations = 25;
     private final CompileConfig compileConfig;
-    private final StateSerializer stateSerializer = StateSerializer.of();
 
     /**
      * Constructs a CompiledGraph with the given StateGraph.
@@ -216,7 +215,7 @@ public class CompiledGraph<State extends AgentState> {
 
     State cloneState( Map<String,Object> data ) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        Map<String,Object> newData = stateSerializer.cloneObject(data);
+        Map<String,Object> newData = compileConfig.getStateSerializer().cloneObject(data);
 
         return stateGraph.getStateFactory().apply(newData);
     }

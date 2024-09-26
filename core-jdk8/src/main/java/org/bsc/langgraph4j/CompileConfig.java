@@ -2,7 +2,10 @@ package org.bsc.langgraph4j;
 
 import lombok.Getter;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
+import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.StateSerializer;
 
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -13,6 +16,8 @@ public class CompileConfig {
     private String[] interruptBefore = {};
     @Getter
     private String[] interruptAfter = {};
+    @Getter
+    private Serializer<Map<String,Object>> stateSerializer;
 
     public Optional<BaseCheckpointSaver> checkpointSaver() { return Optional.ofNullable(checkpointSaver); }
 
@@ -35,7 +40,14 @@ public class CompileConfig {
             this.config.interruptAfter = interruptAfter;
             return this;
         }
+        public Builder stateSerializer(Serializer<Map<String,Object>> stateSerializer) {
+            this.config.stateSerializer = stateSerializer;
+            return this;
+        }
         public CompileConfig build() {
+            if( config.stateSerializer == null ) {
+                config.stateSerializer = StateSerializer.of();
+            }
             return config;
         }
     }

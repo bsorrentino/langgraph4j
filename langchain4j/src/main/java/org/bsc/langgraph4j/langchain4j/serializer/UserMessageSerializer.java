@@ -1,14 +1,13 @@
 package org.bsc.langgraph4j.langchain4j.serializer;
 
 import dev.langchain4j.data.message.UserMessage;
-import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.BaseSerializer;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Optional;
 
-class UserMessageSerializer implements Serializer<UserMessage> {
+class UserMessageSerializer extends BaseSerializer<UserMessage> {
     @Override
     public void write(UserMessage object, ObjectOutput out) throws IOException {
 
