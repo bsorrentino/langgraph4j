@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.0-20240924</version>
+  <version>1.0-20240926</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -36,7 +36,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <langchai4j.version>0.34.0</langchai4j.version>
+    <langchai4j.version>0.35.0</langchai4j.version>
   </properties>
 
   <distributionManagement>
@@ -157,6 +157,7 @@
         <module>agent-executor</module>
         <module>image-to-diagram</module>
         <module>adaptive-rag</module>
+        <module>langchain4j</module>
       </modules>
       <build>
 
