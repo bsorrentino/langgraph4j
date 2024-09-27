@@ -1,7 +1,6 @@
 import TWStyles from './twlit';
 
 import { html, css, LitElement } from 'lit';
-import '@alenaksu/json-viewer';
 
 /**
  * @typedef {Object} ResultData
@@ -154,32 +153,24 @@ export class LG4JResultElement extends LitElement {
 
   }
 
-
   /** 
    * Renders a result.
    * @param {ResultData} result - The result data to render.
    * @returns {import('lit').TemplateResult} The template for the result.
    */
   #renderResult(result, index) {
+
     return html`
     <div class="collapse collapse-arrow bg-base-200">
       <input type="radio" name="item-1" checked="checked" />
       <div class="collapse-title text-ml font-bold">${result.node}</div>
       <div class="collapse-content">
-      ${Object.entries(result.state).map(([key, value]) => html`
-          <div>
-              <h4 class="italic">${key}</h4>
-              <p class="my-3">
-                <json-viewer id="json${index}">
-                ${JSON.stringify(value)}
-                </json-viewer>
-              </p>
-            </div>
-        `)}
+        <lg4j-node-output>${JSON.stringify(result.state).trim()}</log4j-node-output>  
       </div>
     </div>
     `
   }
+
 
   #renderTabs() {
 
@@ -216,6 +207,35 @@ export class LG4JResultElement extends LitElement {
     `;
   }
 
+
+    /** 
+   * Renders a result.
+   * @param {ResultData} result - The result data to render.
+   * @returns {import('lit').TemplateResult} The template for the result.
+   * @deprecated
+   */
+    #renderResultDeprecated(result, index) {
+
+      return html`
+      <div class="collapse collapse-arrow bg-base-200">
+        <input type="radio" name="item-1" checked="checked" />
+        <div class="collapse-title text-ml font-bold">${result.node}</div>
+        <div class="collapse-content">
+        ${Object.entries(result.state).map(([key, value]) => html`
+            <div>
+                <h4 class="italic">${key}</h4>
+                <p class="my-3">
+                  <json-viewer id="json${index}">
+                    ${JSON.stringify(value)}
+                  </json-viewer>
+                </p>
+              </div>
+          `)}
+        </div>
+      </div>
+      `
+    }
+  
   // @deprecated
   #renderResultWithCard(result, index) {
     return html`

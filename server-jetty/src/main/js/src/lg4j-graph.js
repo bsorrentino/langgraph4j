@@ -173,6 +173,74 @@ export class LG4jMermaid extends HTMLElement {
 
   }
 
+  /**
+   * Handles the content event to update the diagram content.
+   *
+   * @param {CustomEvent} e - The event object containing the new content detail.
+   */
+  #onContent(e) {
+    const { detail: newContent } = e;
+
+    this._content = newContent;
+    this.#renderDiagram();
+  }
+
+  /**
+   * Handles the active class event to update the active class in the diagram.
+   *
+   * @param {CustomEvent} e - The event object containing the active class detail.
+   */
+  #onActive(e) {
+    const { detail: activeClass } = e;
+
+    this._activeClass = activeClass;
+    this.#renderDiagram();
+  }
+
+  /**
+   * Handles the resize event to re-render the diagram.
+   */
+  #resizeHandler = () => this.#renderDiagram();
+
+  /**
+   * Called when the element is connected to the document's DOM.
+   * Sets up event listeners for graph content and active class updates, and window resize.
+   */
+  connectedCallback() {
+    this.addEventListener('graph', this.#onContent);
+    this.addEventListener('graph-active', this.#onActive);
+    window.addEventListener('resize', this.#resizeHandler);
+  }
+
+  /**
+   * Called when the element is disconnected from the document's DOM.
+   * Cleans up event listeners for graph content and active class updates, and window resize.
+   */
+  disconnectedCallback() {
+    this.removeEventListener('graph', this.#onContent);
+    this.removeEventListener('graph-active', this.#onActive);
+    window.removeEventListener('resize', this.#resizeHandler);
+  }
+
+  /**
+   * Renders the diagram with the current content and runs the mermaid library.
+   * This method is deprecated and should not be used in new code.
+   *
+   * @deprecated
+   * @returns {Promise<void>} A promise that resolves when the diagram rendering and mermaid run are complete.
+   */
+  async #renderDiagramWithRun() {
+    const pres = this.shadowRoot.querySelectorAll('.mermaid');
+    pres[0].textContent = this.#textContent;
+
+    return mermaid.run({
+      nodes: pres,
+      suppressErrors: true
+    })
+    .then(() => console.debug("RUN COMPLETE"))
+    .then(() => this.#svgPanZoom())
+    .catch(e => console.error("RUN ERROR", e));
+  }
   #onContent(e) {
     const { detail: newContent } = e
 

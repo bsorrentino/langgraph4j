@@ -1,5 +1,5 @@
 {
-  "name": "lit-vite",
+  "name": "langgraph4j-frontend",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -12,11 +12,12 @@
   "dependencies": {
     "@alenaksu/json-viewer": "^2.0.1",
     "@lit/task": "^1.0.1",
-    "@types/bun": "^1.1.8",
+    "@microlink/react-json-view": "^1.23.3",
     "lit": "^3.2.0",
     "mermaid": "^10.9.1"
   },
   "devDependencies": {
+    "@types/bun": "^1.1.8",
     "@types/node": "^20.14.10",
     "autoprefixer": "^10.4.20",
     "crypto-browserify": "^3.12.0",
