@@ -159,7 +159,7 @@ class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
 
     @Override
     public void serialize(NodeOutput nodeOutput, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
-        log.trace( "NodeOutputSerializer start!" );
+        log.trace( "NodeOutputSerializer start! {}", nodeOutput.getClass() );
         gen.writeStartObject();
             gen.writeStringField("node", nodeOutput.node());
             gen.writeObjectField("state", nodeOutput.state());
