@@ -241,55 +241,6 @@ export class LG4jMermaid extends HTMLElement {
     .then(() => this.#svgPanZoom())
     .catch(e => console.error("RUN ERROR", e));
   }
-  #onContent(e) {
-    const { detail: newContent } = e
-
-    this._content = newContent
-    this.#renderDiagram()
-  }
-
-  #onActive(e) {
-    
-    const { detail: activeClass } = e
-    
-    this._activeClass = activeClass;
-    this.#renderDiagram()
-  }
-
-  #resizeHandler = () => this.#renderDiagram()
-
-  connectedCallback() {
-    
-    this.addEventListener('graph', this.#onContent)
-    this.addEventListener('graph-active', this.#onActive)
-    window.addEventListener('resize', this.#resizeHandler )
-
-  }
-
-  disconnectedCallback() {
-
-    this.removeEventListener('graph', this.#onContent)
-    this.removeEventListener('graph-active', this.#onActive)
-    window.removeEventListener('resize', this.#resizeHandler )
-  }
-
-  // @deprecated
-  async #renderDiagramWithRun( ) {
-
-    // console.debug( this.shadowRoot )
-    const pres = this.shadowRoot.querySelectorAll('.mermaid')
-    // console.debug( pres )
-    pres[0].textContent = this.#textContent ;
-
-    return mermaid.run( {
-          nodes:  pres , // this.shadowRoot.querySelectorAll('.mermaid'),
-          suppressErrors: true
-        })
-        .then( () => console.debug( "RUN COMPLETE") )
-        .then( () => this.#svgPanZoom() )
-        .catch( e => console.error( "RUN ERROR", e ) )
-
-  }
 
 
 }
