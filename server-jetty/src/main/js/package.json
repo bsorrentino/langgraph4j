@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "parcel index.html --no-cache",
     "parcel:build": "parcel build index.html --public-url '.'",
-    "build": "./build.ts",
-    "deploy": "./deploy.ts",
+    "build": "./build.sh",
+    "deploy": "./deploy.sh",
     "twget": "bun twgen.ts"
   },
   "dependencies": {
