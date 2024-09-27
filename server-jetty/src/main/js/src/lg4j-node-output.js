@@ -47,7 +47,9 @@ export class LG4JNodeOutput extends HTMLElement {
     
     }
 
-
+    get isCollapsed() {
+      this.getAttribute('collapsed') === 'true'
+    }
   /**
    * Represents an event triggered when an edit occurs.
    *
@@ -83,7 +85,7 @@ export class LG4JNodeOutput extends HTMLElement {
         enableClipboard: false,
         displayDataTypes: false,
         name: false,
-        collapsed: true,
+        collapsed: this.isCollapsed,
         theme: 'monokai',
         onEdit: e => this.#onEdit(e)
 
