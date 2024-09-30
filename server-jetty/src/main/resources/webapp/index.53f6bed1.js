@@ -6,7 +6,7 @@ var e=globalThis,t={},s={},a=e.parcelRequire0031;null==a&&((a=function(e){if(e i
       <input type="radio" name="item-1" checked="checked" />
       <div class="collapse-title text-ml font-bold">${e.node}</div>
       <div class="collapse-content">
-        <lg4j-node-output>${JSON.stringify(e.state).trim()}</log4j-node-output>  
+        <lg4j-node-output>${JSON.stringify(e).trim()}</log4j-node-output>  
       </div>
     </div>
     `}#d(){let e=[...this.threadMap.keys()];return(0,l.html)`
@@ -71,4 +71,4 @@ var e=globalThis,t={},s={},a=e.parcelRequire0031;null==a&&((a=function(e){if(e i
         </div>
     </div>
   </div>   `}}window.customElements.define("lg4j-result",d);
-//# sourceMappingURL=index.175e6703.js.map
+//# sourceMappingURL=index.53f6bed1.js.map
