@@ -165,7 +165,7 @@ export class LG4JResultElement extends LitElement {
       <input type="radio" name="item-1" checked="checked" />
       <div class="collapse-title text-ml font-bold">${result.node}</div>
       <div class="collapse-content">
-        <lg4j-node-output>${JSON.stringify(result.state).trim()}</log4j-node-output>  
+        <lg4j-node-output>${JSON.stringify(result).trim()}</log4j-node-output>  
       </div>
     </div>
     `

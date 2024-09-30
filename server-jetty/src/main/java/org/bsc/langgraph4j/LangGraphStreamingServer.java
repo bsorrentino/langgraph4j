@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.StateSnapshot;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Handler;
@@ -161,8 +162,15 @@ class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
     public void serialize(NodeOutput nodeOutput, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
         log.trace( "NodeOutputSerializer start! {}", nodeOutput.getClass() );
         gen.writeStartObject();
+            if( nodeOutput instanceof StateSnapshot<?> snapshot) {
+                var checkpoint = snapshot.config().checkPointId();
+                log.trace( "checkpoint: {}", checkpoint );
+                if( checkpoint.isPresent() ) {
+                    gen.writeStringField("checkpoint", checkpoint.get());
+                }
+            }
             gen.writeStringField("node", nodeOutput.node());
-            gen.writeObjectField("state", nodeOutput.state());
+            gen.writeObjectField("state", nodeOutput.state().data());
         gen.writeEndObject();
     }
 }

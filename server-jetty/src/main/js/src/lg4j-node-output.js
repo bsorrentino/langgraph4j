@@ -4,52 +4,53 @@ import ReactJson from '@microlink/react-json-view'
 
 export class LG4JNodeOutput extends HTMLElement {
     
-    static get observedAttributes() {
-        return ['value'];
-    }
+  static get observedAttributes() {
+      return ['value'];
+  }
 
-    constructor() {
-        super()
+  constructor() {
+      super()
 
-        const shadowRoot = this.attachShadow({ mode: "open" });
-        
-        const style = document.createElement("style");
-        style.textContent = `
-        <style>
-        </style>
-        `
-        
-        shadowRoot.appendChild(style);
+      const shadowRoot = this.attachShadow({ mode: "open" });
+      
+      const style = document.createElement("style");
+      style.textContent = `
+      <style>
+      </style>
+      `
+      
+      shadowRoot.appendChild(style);
 
-    }
+  }
 
-    attributeChangedCallback(name, oldValue, newValue) {
-        if (name === 'value') {
-          if (newValue !== null) {
-            console.debug( "attributeChangedCallback.value", newValue )
-          }
+  attributeChangedCallback(name, oldValue, newValue) {
+      if (name === 'value') {
+        if (newValue !== null) {
+          console.debug( "attributeChangedCallback.value", newValue )
         }
-    }
+      }
+  }
 
-    connectedCallback() {
+  connectedCallback() {
 
-        const value = this.textContent
-        
-        console.debug( "value", value )
+      const value = this.textContent
+      
+      console.debug( "value", value )
 
-        this.root = this.#createRoot( JSON.parse(value) )
-        
-    }
-    
-    disconnectedCallback() {
+      this.root = this.#createRoot( JSON.parse(value) )
+      
+  }
 
-      this.root?.unmount()
-    
-    }
+  disconnectedCallback() {
 
-    get isCollapsed() {
-      this.getAttribute('collapsed') === 'true'
-    }
+    this.root?.unmount()
+
+  }
+
+  get isCollapsed() {
+    this.getAttribute('collapsed') === 'true'
+  }
+
   /**
    * Represents an event triggered when an edit occurs.
    *
@@ -62,39 +63,38 @@ export class LG4JNodeOutput extends HTMLElement {
    * @property {Record<string, any>} updated_src - The updated source object after the edit.
    */
 
-    /**
-     * 
-     * @param {EditEvent} e
-     */
-    #onEdit( e ) {
-      
-      console.dir( e )
+  /**
+   * 
+   * @param {EditEvent} e
+   * @param {string} [checkpoint]
+   */
+  #onEdit( e, checkpoint ) {
+    console.debug( checkpoint )
+    console.dir( e )
+  }
 
-    }
+  #createRoot( value ) {
 
+    const mountPoint = document.createElement('span');
+    this.shadowRoot.appendChild(mountPoint);
 
-    #createRoot( value ) {
+    const root = ReactDOM.createRoot(mountPoint);
 
-      const mountPoint = document.createElement('span');
-      this.shadowRoot.appendChild(mountPoint);
-  
-      const root = ReactDOM.createRoot(mountPoint);
+    const component = React.createElement( ReactJson, { 
+      src: value.state,
+      enableClipboard: false,
+      displayDataTypes: false,
+      name: false,
+      collapsed: this.isCollapsed,
+      theme: 'monokai',
+      onEdit: e => this.#onEdit(e, value.checkpoint )
 
-      const component = React.createElement( ReactJson, { 
-        src: value,
-        enableClipboard: false,
-        displayDataTypes: false,
-        name: false,
-        collapsed: this.isCollapsed,
-        theme: 'monokai',
-        onEdit: e => this.#onEdit(e)
+    } )
+    
+    root.render( component )
 
-      } )
-      
-      root.render( component )
-
-      return root
-    }
+    return root
+  }
 }
 
 
