@@ -154,7 +154,7 @@
                     <execution>
                         <!--
                         exec:exec@adaptiverag
-                        mvn -pl server-jetty exec:java@test -Djava.util.logging.config.file=server-jetty/logging.properties
+                        mvn -pl server-jetty exec:java@adaptiverag -Djava.util.logging.config.file=server-jetty/logging.properties
                         -->
                         <id>adaptiverag</id>
                         <goals><goal>java</goal></goals>
