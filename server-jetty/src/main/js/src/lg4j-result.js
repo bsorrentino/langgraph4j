@@ -8,6 +8,14 @@ import { html, css, LitElement } from 'lit';
  * @property {Record<string, any>} state - The state associated with the node.
  */
 
+/**
+ * @typedef {Object} ResultData
+ * @property {string} node -
+ * @property {string} [checkpoint] -   
+ * @property {Record<string,any>} state - 
+ */
+
+
 
 export class LG4JResultElement extends LitElement {
 
@@ -18,9 +26,8 @@ export class LG4JResultElement extends LitElement {
 
   static properties = {}
 
-  
   /**
-   * @type {Map<string, Record<string, any[]>>}
+   * @type {Map<string, Record<string, ResultData[]>>}
    */
   threadMap = new Map()
   
@@ -36,7 +43,7 @@ export class LG4JResultElement extends LitElement {
   set selectedTab( thread ) {
     this.#selectedThread = thread
 
-    this.dispatchEvent( new CustomEvent( 'update-thread', { 
+    this.dispatchEvent( new CustomEvent( 'thread-updated', { 
       detail: thread ,
       bubbles: true,
       composed: true,
@@ -54,6 +61,7 @@ export class LG4JResultElement extends LitElement {
 
     this.addEventListener( 'result', this.#onResult )
     this.addEventListener( 'init-threads', this.#onInitThreads )
+    this.addEventListener( 'node-updated', this.#onNodeUpdated )
   }
 
   disconnectedCallback() {
@@ -61,6 +69,7 @@ export class LG4JResultElement extends LitElement {
 
     this.removeEventListener( 'result',  this.#onResult )
     this.removeEventListener( 'init-threads',  this.#onInitThreads )
+    this.removeEventListener( 'node-updated', this.#onNodeUpdated )
   }
 
   /**
@@ -72,7 +81,7 @@ export class LG4JResultElement extends LitElement {
   #onInitThreads = (e) => {
     const { detail: threads  = [] } = e 
 
-    console.debug( threads )
+    console.debug( 'threads', threads )
 
     this.threadMap = new Map( threads )
     
@@ -131,7 +140,6 @@ export class LG4JResultElement extends LitElement {
    * @param {Event} event - The event object.
    * @private
    */
-
   #onSelectTab( event ) {
 
     console.debug( event.target.id )
@@ -151,6 +159,16 @@ export class LG4JResultElement extends LitElement {
 
     this.requestUpdate();
 
+  }
+
+  /**
+   * 
+   * @param {CustomEvent<ResultData>} e - The event object containing the result data.
+   * @private
+   */
+
+  #onNodeUpdated( e ) {
+    console.debug( 'onNodeUpdated', e )
   }
 
   /** 

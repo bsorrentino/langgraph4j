@@ -31,6 +31,26 @@ async function* streamingResponse(response) {
   }
 }
 
+
+/**
+ * @typedef {Object} ResultData
+ * @property {string} node -
+ * @property {string} [checkpoint] -   
+ * @property {Record<string,any>} state - 
+ */
+
+/**
+ * @typedef {Object} Property
+ * @property {String | Boolean | Number} [type]
+ * @property {boolean} [state] - Set to true to declare the property as internal reactive state. Internal reactive state triggers updates like public reactive properties, 
+ *                               but Lit doesn't generate an attribute for it, and users shouldn't access it from outside the component
+ * @property {boolean} [attribute] - Whether the property is associated with an attribute, or a custom name for the associated attribute. Default: true. 
+ *                                   If attribute is false, the converter, reflect and type options are ignored.
+ * @property {boolean} [reflect] - Whether property value is reflected back to the associated attribute. Default: false.
+ */
+
+
+
 /**
  * LG4JInputElement is a custom web component that extends LitElement.
  * It provides a styled input container with a placeholder.
@@ -52,23 +72,70 @@ export class LG4JExecutorElement extends LitElement {
       flex-direction: column;
       row-gap: 10px;
     }
+
+    .commands {
+      display: flex;
+      flex-direction: row;
+      column-gap: 10px;
+    }
+
+    .item1 {
+      flex-grow: 2;
+    }
+    .item2 {
+      flex-grow: 2;
+    }
   `];
+
 
   /**
    * Properties of the component.
    * 
    * @static
-   * @type {Object}
+   * @type { Object.<string, Property> }
    */
   static properties = {
-    url: {},
-    test: { type: Boolean }
+    url: { type: String },
+    test: { type: Boolean },
+    _executing: { state: true }
+    
   }
 
   /**
-   * @type {string}
+   * current selected thread
+   * 
+   * @type {string|undefined} - thread id
    */
   #selectedThread
+
+  /**
+   * Represents an event triggered when an edit occurs.
+   *
+   * @typedef {Object} UpdatedState
+   * @property {string} checkpoint - checkpoint id.
+   * @property {Record<string, any>} data - the modified state.
+   */
+
+  /**
+   * current state for update 
+   * 
+   * @type {UpdatedState|undefined}
+   */
+  #updatedState
+
+  /**
+   * interrupt before this node 
+   * 
+   * @type {string|null}
+   */
+  #interruption = null
+
+  /**
+   * available interruptable nodes 
+   * 
+   * @type {string[]}
+   */
+  #nodes = []
 
   /**
    * Creates an instance of LG4JInputElement.
@@ -79,6 +146,8 @@ export class LG4JExecutorElement extends LitElement {
     super();
     this.test = false
     this.formMetaData = {}
+    this._executing = false
+    
   }
 
   /**
@@ -87,11 +156,19 @@ export class LG4JExecutorElement extends LitElement {
    * @param {CustomEvent} e - The event object containing the updated data.
    * @private
    */
-  #onUpdateThread( e ) {
-    console.debug( 'update-thread', e.detail )
+  #onThreadUpdated( e ) {
+    console.debug( 'thread-updated', e.detail )
     this.#selectedThread = e.detail
   }
 
+  /**
+   * 
+   * @param {CustomEvent<ResultData>} e - The event object containing the result data.
+   * @private
+   */
+  #onNodeUpdated( e ) {
+    console.debug( 'onNodeUpdated', e )
+  }
 
   /**
    * Lifecycle method called when the element is added to the document's DOM.
@@ -99,7 +176,8 @@ export class LG4JExecutorElement extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.addEventListener( "update-thread", this.#onUpdateThread );
+    this.addEventListener( "thread-updated", this.#onThreadUpdated );
+    this.addEventListener( 'node-updated', this.#onNodeUpdated )
 
     if(this.test ) {
       this.#init_test();
@@ -111,7 +189,10 @@ export class LG4JExecutorElement extends LitElement {
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback( "update-thread", this.#onUpdateThread );
+    super.disconnectedCallback();
+
+    this.removeEventListener( "thread-updated", this.#onThreadUpdated )
+    this.removeEventListener( 'node-updated', this.#onNodeUpdated )
 
   }
 
@@ -131,6 +212,7 @@ export class LG4JExecutorElement extends LitElement {
     }));
 
     this.formMetaData = initData.args
+    // this.#nodes = initData.nodes
     this.requestUpdate()
   }
 
@@ -141,61 +223,86 @@ export class LG4JExecutorElement extends LitElement {
    */
   render() {
 
-    console.debug( 'render', this.formMetaData )
-    
+    // console.debug( 'render', this.formMetaData )
     return html`
         <div class="container">
           ${ Object.entries(this.formMetaData).map( ([key,value]) => 
              html`<textarea id="${key}" class="textarea textarea-primary" placeholder="${key}"></textarea>`
           )}
-          <button @click="${this.#submit}" class="btn btn-primary">Submit</button>
+          <div class="commands">
+            <button id="submit" ?disabled=${this._executing} @click="${this.#submit}" class="btn btn-primary item1">Submit</button>
+            <button id="resume" ?disabled=${!this.#updatedState || this._executing} @click="${ () => {} }" class="btn btn-secondary item2">Resume</button>
+            <!--
+            <select ?disabled=${ this._executing } class="select select-bordered max-w-xl">              
+                  <option disabled ?selected=${this.#interruption === null}>select interruption</option>
+                  ${ this.#nodes.map( n =>   
+                      html`<option ?selected=${this.#interruption === n}>${n}</option>` )}
+            </select>
+            -->
+          </div>
         </div>
-    `;
+        `;
   }
-
 
 async #submit() {
-  
-  if(this.test ) {
-    await this.#submit_test();
-    return
+
+  this._executing = true
+  try {
+
+    if(this.test ) {
+      await this.#submitAction_test();
+      return
+    }
+
+    await this.#submitAction()
+    
   }
-  
-  const data = Object.keys(this.formMetaData).reduce( (acc, key) => {
-    acc[key] = this.shadowRoot.getElementById(key).value
-    return acc
-  }, {});
-
-  const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-  });
-
-  for await (let chunk of streamingResponse( execResponse )  ) {
-    console.debug( chunk )
-
-    this.dispatchEvent( new CustomEvent( 'result', { 
-      detail: JSON.parse(chunk),
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    } ) );
-
+  finally {
+    this._executing = false
   }
+}
+
+async #submitAction() {
+  
+    const data = Object.keys(this.formMetaData).reduce( (acc, key) => {
+      acc[key] = this.shadowRoot.getElementById(key).value
+      return acc
+    }, {});
+
+    const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+
+    for await (let chunk of streamingResponse( execResponse )  ) {
+      console.debug( chunk )
+
+      this.dispatchEvent( new CustomEvent( 'result', { 
+        detail: JSON.parse(chunk),
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      } ) );
+
+    }
+  
 }
   
 ////////////////////////////////////////////////////////
 // TEST
 ///////////////////////////////////////////////////////
 async #init_test() {
-        
+      
+  // this.#nodes = []
+
   await delay( 1000 );
   this.dispatchEvent( new CustomEvent( 'init', { 
     detail: { 
       threads: [ ['default', [] ] ],
+      nodes: this.#nodes,
       title: 'LangGraph4j : TEST',
       graph:`
 ---
@@ -235,13 +342,15 @@ flowchart TD
   }
 
 
-  async #submit_test( ) {
+  async #submitAction_test( ) {
 
     const thread = this.#selectedThread
+    
     const send = async ( nodeId ) => {
       await delay( 1000 );
       this.dispatchEvent( new CustomEvent( 'result', { 
         detail: [ thread, { 
+          checkpoint: ( nodeId==='start' || nodeId==='stop') ? undefined : `checkpoint-${nodeId}`,
           node: nodeId, 
           state: { 
             input: "this is input",

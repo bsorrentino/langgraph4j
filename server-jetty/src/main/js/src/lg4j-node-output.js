@@ -51,6 +51,14 @@ export class LG4JNodeOutput extends HTMLElement {
     this.getAttribute('collapsed') === 'true'
   }
 
+
+  /**
+   * @typedef {Object} ResultData
+   * @property {string} node -
+   * @property {string} [checkpoint] -   
+   * @property {Record<string,any>} state - 
+   */
+
   /**
    * Represents an event triggered when an edit occurs.
    *
@@ -63,16 +71,45 @@ export class LG4JNodeOutput extends HTMLElement {
    * @property {Record<string, any>} updated_src - The updated source object after the edit.
    */
 
+
   /**
    * 
    * @param {EditEvent} e
-   * @param {string} [checkpoint]
+   * @param {ResultData} result
    */
-  #onEdit( e, checkpoint ) {
-    console.debug( checkpoint )
-    console.dir( e )
+  #onEdit( e, result ) {
+
+    if( result.checkpoint ) {
+
+      /**
+       * @type {ResultData}
+       */
+      const detail = {
+        node: result.node,
+        checkpoint: result.checkpoint,
+        state: e.updated_src
+      }
+
+      this.dispatchEvent( new CustomEvent( 'node-updated', { 
+        detail,
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      }));
+      
+      return true;
+    }
+
+    return false;
   }
 
+
+
+  /**
+   * 
+   * @param {ResultData} value 
+   * @returns 
+   */
   #createRoot( value ) {
 
     const mountPoint = document.createElement('span');
@@ -87,7 +124,8 @@ export class LG4JNodeOutput extends HTMLElement {
       name: false,
       collapsed: this.isCollapsed,
       theme: 'monokai',
-      onEdit: e => this.#onEdit(e, value.checkpoint )
+      onEdit: e => this.#onEdit(e, value ),
+      validationMessage: 'Read only'
 
     } )
     

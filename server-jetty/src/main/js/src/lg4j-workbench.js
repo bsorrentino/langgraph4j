@@ -54,7 +54,6 @@ export class LG4JWorkbenchElement extends LitElement {
       }
   }
 
-  
   /**
    * Event handler for the 'updates' event.
    * 
@@ -69,19 +68,23 @@ export class LG4JWorkbenchElement extends LitElement {
   connectedCallback() {
     super.connectedCallback()
 
-    this.addEventListener( "update-thread", this.#routeUpdateEvent );
     this.addEventListener( "init", this.#routeInitEvent );
     this.addEventListener( "result", this.#routeEvent );
     this.addEventListener( "graph-active", this.#routeEvent );
+    this.addEventListener( "thread-updated", this.#routeUpdateEvent );
+    this.addEventListener( 'node-updated', this.#routeUpdateEvent )
+
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
 
-    this.removeEventListener( "update-thread", this.#routeUpdateEvent );
+    this.removeEventListener( 'node-updated', this.#routeUpdateEvent )
+    this.removeEventListener( "thread-updated", this.#routeUpdateEvent );
     this.removeEventListener( "init", this.#routeInitEvent );
     this.removeEventListener( "result", this.#routeEvent );
     this.removeEventListener( "graph-active", this.#routeEvent );
+
   }
 
   // firstUpdated() {
