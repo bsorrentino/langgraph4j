@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 /**
@@ -282,14 +283,14 @@ record ThreadEntry( String id, List<? extends NodeOutput<? extends AgentState>> 
 }
 
 record InitData(
-        String graph,
-        List<ThreadEntry> threads,
         String title,
-        Map<String, ArgumentMetadata> args
+        String graph,
+        Map<String, ArgumentMetadata> args,
+        List<ThreadEntry> threads
         ) {
 
-    public InitData( String graph, String title, Map<String, ArgumentMetadata> args) {
-        this(graph, Collections.singletonList( new ThreadEntry("default", Collections.emptyList())), title, args);
+    public InitData( String title, String graph, Map<String, ArgumentMetadata> args ) {
+        this( title, graph, args, Collections.singletonList( new ThreadEntry("default", Collections.emptyList())) );
     }
 }
 
@@ -308,6 +309,13 @@ class InitDataSerializer extends StdSerializer<InitData> {
             jsonGenerator.writeStringField("graph", initData.graph());
             jsonGenerator.writeStringField("title", initData.title());
             jsonGenerator.writeObjectField("args", initData.args());
+
+
+//            jsonGenerator.writeArrayFieldStart("nodes" );
+//            for( var node : initData.nodes() ) {
+//                jsonGenerator.writeString(node);
+//            }
+//            jsonGenerator.writeEndArray();
 
             jsonGenerator.writeArrayFieldStart("threads" );
             for( var thread : initData.threads() ) {
@@ -344,7 +352,7 @@ class GraphInitServlet extends HttpServlet {
 
         var graph = stateGraph.getGraph(GraphRepresentation.Type.MERMAID, title, false);
 
-        initData = new InitData( graph.getContent(), title, args);
+        initData = new InitData( title, graph.getContent(), args );
     }
 
     @Override
