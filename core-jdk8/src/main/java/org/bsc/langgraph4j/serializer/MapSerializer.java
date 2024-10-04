@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class MapSerialize extends BaseSerializer<Map<String,Object>> {
+public class MapSerializer extends BaseSerializer<Map<String,Object>> {
 
     public static Serializer<Map<String,Object>> of() {
-        return new MapSerialize();
+        return new MapSerializer();
     }
-    protected MapSerialize() {}
+    protected MapSerializer() {}
 
     @Override
     public void write(Map<String,Object> object, ObjectOutput out) throws IOException {

@@ -8,7 +8,6 @@ import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
-import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
 
@@ -69,17 +68,35 @@ public class CompiledGraph<State extends AgentState> {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * Same of {@link #stateOf(RunnableConfig)} but throws an IllegalStateException if checkpoint is not found.
+     *
+     * @param config the RunnableConfig
+     * @return the StateSnapshot of the given RunnableConfig
+     * @throws IllegalStateException if the saver is not defined, or no checkpoint is found
+     */
     public StateSnapshot<State> getState( RunnableConfig config ) {
-        var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
-
-        var checkpoint = saver.get(config).orElseThrow( () -> (new IllegalStateException("Missing Checkpoint!")) );
-
-        return StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() );
+        return stateOf(config).orElseThrow( () -> (new IllegalStateException("Missing Checkpoint!")) );
     }
 
 
     /**
-     * 
+     * Get the StateSnapshot of the given RunnableConfig.
+     *
+     * @param config the RunnableConfig
+     * @return an Optional of StateSnapshot of the given RunnableConfig
+     * @throws IllegalStateException if the saver is not defined
+     */
+    public Optional<StateSnapshot<State>> stateOf( RunnableConfig config ) {
+        var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
+
+        return saver.get(config)
+                .map( checkpoint -> StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() ) );
+
+    }
+
+    /**
      * Update the state of the graph with the given values.
      * If asNode is given, it will be used to determine the next node to run.
      * If not given, the next node will be determined by the state graph.
@@ -110,6 +127,19 @@ public class CompiledGraph<State extends AgentState> {
                                 .nextNode( nextNodeId )
                                 .build();
     }
+
+    /***
+     * Update the state of the graph with the given values.
+     *
+     * @param config the RunnableConfig containg the graph state
+     * @param values the values to be updated
+     * @return the updated RunnableConfig
+     * @throws Exception when something goes wrong
+     */
+    public RunnableConfig updateState( RunnableConfig config, Map<String,Object> values ) throws Exception {
+        return updateState(config, values, null);
+    }
+
     public EdgeValue<State> getEntryPoint() {
         return stateGraph.getEntryPoint();
     }
