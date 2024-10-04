@@ -3,7 +3,7 @@ package dev.langchain4j.agentexecutor;
 import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.FinishReason;
-import lombok.var;
+import org.bsc.langgraph4j.agentexecutor.Agent;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

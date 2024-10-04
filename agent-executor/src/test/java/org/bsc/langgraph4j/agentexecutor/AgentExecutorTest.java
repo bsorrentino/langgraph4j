@@ -2,8 +2,8 @@ package dev.langchain4j.agentexecutor;
 
 import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import lombok.var;
 import org.bsc.langgraph4j.*;
+import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;

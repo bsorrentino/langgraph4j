@@ -7,12 +7,11 @@ import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.output.Response;
 import lombok.Builder;
 import lombok.Singular;
-import lombok.var;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 @Builder
 public class Agent {
@@ -23,7 +22,7 @@ public class Agent {
 
     public Response<AiMessage> execute( String input, List<IntermediateStep> intermediateSteps ) {
         var userMessageTemplate = PromptTemplate.from( "{{input}}" )
-                                                    .apply( mapOf( "input", input));
+                                                    .apply(Map.of("input", input));
 
         var messages = new ArrayList<ChatMessage>();
 

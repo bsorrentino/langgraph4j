@@ -8,9 +8,8 @@ import dev.langchain4j.agentexecutor.serializer.IntermediateStepSerializer;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
-import lombok.var;
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.serializer.BaseSerializer;
+import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
@@ -74,10 +73,10 @@ public class AgentExecutor {
     }
 
     public AgentExecutor() {
-        BaseSerializer.register(IntermediateStep.class, new IntermediateStepSerializer());
-        BaseSerializer.register(AgentAction.class, new AgentActionSerializer());
-        BaseSerializer.register(AgentFinish.class, new AgentFinishSerializer());
-        BaseSerializer.register(AgentOutcome.class, new AgentOutcomeSerializer());
+        StateSerializer.register(IntermediateStep.class, new IntermediateStepSerializer());
+        StateSerializer.register(AgentAction.class, new AgentActionSerializer());
+        StateSerializer.register(AgentFinish.class, new AgentFinishSerializer());
+        StateSerializer.register(AgentOutcome.class, new AgentOutcomeSerializer());
     }
 
     public final GraphBuilder graphBuilder() {
@@ -105,7 +104,7 @@ public class AgentExecutor {
 
     }
 
-    Map<String,Object> runAgent( Agent agentRunnable, State state ) throws Exception {
+    Map<String,Object> runAgent( Agent agentRunnable, State state )  {
 
         var input = state.input()
                         .orElseThrow(() -> new IllegalArgumentException("no input provided!"));
@@ -130,7 +129,7 @@ public class AgentExecutor {
         }
 
     }
-    Map<String,Object> executeTools( ToolNode toolNode, State state ) throws Exception {
+    Map<String,Object> executeTools( ToolNode toolNode, State state )  {
 
         var agentOutcome = state.agentOutcome().orElseThrow(() -> new IllegalArgumentException("no agentOutcome provided!"));
 
@@ -144,7 +143,7 @@ public class AgentExecutor {
                 .map( ToolExecutionResultMessage::text )
                 .orElseThrow(() -> new IllegalStateException("no tool found for: " + toolExecutionRequest.name()));;
 
-        return mapOf("intermediate_steps", new IntermediateStep( agentOutcome.action(), result ) );
+        return Map.of("intermediate_steps", new IntermediateStep( agentOutcome.action(), result ) );
 
     }
 
