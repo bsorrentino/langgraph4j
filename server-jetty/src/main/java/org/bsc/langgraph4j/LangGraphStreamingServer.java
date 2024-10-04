@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
@@ -28,8 +29,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 
 /**
@@ -223,29 +227,72 @@ class GraphStreamServlet extends HttpServlet {
         var session = request.getSession(true);
         Objects.requireNonNull(session, "session cannot be null");
 
-        var threadId = request.getParameter("thread");
-        Objects.requireNonNull(threadId, "thread cannot be null");
+        var threadId = ofNullable(request.getParameter("thread"))
+                .orElseThrow(() -> new IllegalStateException("Missing thread id!"));
+
+        var resume = ofNullable(request.getParameter("resume"))
+                        .map(Boolean::parseBoolean).orElse(false);
+
 
         final PrintWriter writer = response.getWriter();
 
-        Map<String, Object> dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<Map<String, Object>>() {
-        });
 
         // Start asynchronous processing
         var asyncContext = request.startAsync();
 
         try {
 
-            var config = new PersistentConfig( session.getId(), threadId);
+            var dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<Map<String, Object>>() {
+            });
 
-            var compiledGraph =  graphCache.get(config);
-            if( compiledGraph == null ) {
-                compiledGraph = stateGraph.compile( compileConfig(config) );
-                graphCache.put( config, compiledGraph );
+            AsyncGenerator<? extends NodeOutput<? extends AgentState>> generator = null;
+
+            var persistentConfig = new PersistentConfig(session.getId(), threadId);
+
+            var compiledGraph = graphCache.get(persistentConfig);
+
+            if( resume ) {
+
+                log.trace( "RESUME REQUEST PREPARE" );
+
+                if (compiledGraph == null) {
+                    throw new IllegalStateException( "Missing CompiledGraph in session!" );
+                }
+
+                var checkpointId = ofNullable(request.getParameter("checkpoint"))
+                        .orElseThrow(() -> new IllegalStateException("Missing checkpoint id!"));
+
+                var config = RunnableConfig.builder()
+                                        .threadId(threadId)
+                                        .checkPointId(checkpointId)
+                                        .build();
+
+                var stateSnapshot = compiledGraph.getState(config);
+
+                config = stateSnapshot.config();
+
+                log.trace( "RESUME UPDATE STATE USING CONFIG {}\n{}", config, dataMap);
+
+                config = compiledGraph.updateState(config, dataMap );
+
+                log.trace( "RESUME REQUEST STREAM {}", config);
+
+                generator = compiledGraph.streamSnapshots(null, config);
+
+
+            }
+            else {
+
+
+                if (compiledGraph == null) {
+                    compiledGraph = stateGraph.compile(compileConfig(persistentConfig));
+                    graphCache.put(persistentConfig, compiledGraph);
+                }
+
+                generator = compiledGraph.streamSnapshots(dataMap, runnableConfig(persistentConfig));
             }
 
-            compiledGraph.streamSnapshots(dataMap, runnableConfig(config) )
-                    .forEachAsync(s -> {
+            generator.forEachAsync(s -> {
                         try {
                             try {
                                 writer.printf("[ \"%s\",", threadId);
@@ -259,7 +306,7 @@ class GraphStreamServlet extends HttpServlet {
                             writer.flush();
                             TimeUnit.SECONDS.sleep(1);
                         } catch ( InterruptedException e) {
-                            throw new RuntimeException(e);
+                            throw new CompletionException(e);
                         }
 
                     })
@@ -267,7 +314,8 @@ class GraphStreamServlet extends HttpServlet {
                     .thenAccept(v -> asyncContext.complete())
             ;
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            log.error("Error streaming", e);
             throw new ServletException(e);
         }
     }
