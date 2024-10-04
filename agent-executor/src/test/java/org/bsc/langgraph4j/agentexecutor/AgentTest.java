@@ -1,9 +1,8 @@
-package dev.langchain4j.agentexecutor;
+package org.bsc.langgraph4j.agentexecutor;
 
-import dev.langchain4j.DotEnvConfig;
+import org.bsc.langgraph4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.FinishReason;
-import org.bsc.langgraph4j.agentexecutor.Agent;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

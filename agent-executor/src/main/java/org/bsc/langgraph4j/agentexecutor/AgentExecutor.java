@@ -1,10 +1,10 @@
-package dev.langchain4j.agentexecutor;
+package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.agentexecutor.serializer.AgentActionSerializer;
-import dev.langchain4j.agentexecutor.serializer.AgentFinishSerializer;
-import dev.langchain4j.agentexecutor.serializer.AgentOutcomeSerializer;
-import dev.langchain4j.agentexecutor.serializer.IntermediateStepSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.AgentActionSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.AgentFinishSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.AgentOutcomeSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.IntermediateStepSerializer;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
@@ -16,11 +16,11 @@ import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
 
+import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
 public class AgentExecutor {
@@ -56,7 +56,7 @@ public class AgentExecutor {
             return new StateGraph<>(State.SCHEMA,State::new)
                     .addEdge(START,"agent")
                     .addNode( "agent", node_async( state ->
-                            runAgent(agentRunnable, state))
+                            callAgent(agentRunnable, state))
                     )
                     .addNode( "action", node_async( state ->
                             executeTools(toolNode, state))
@@ -64,7 +64,7 @@ public class AgentExecutor {
                     .addConditionalEdges(
                             "agent",
                             edge_async(AgentExecutor.this::shouldContinue),
-                            mapOf("continue", "action", "end", END)
+                            Map.of("continue", "action", "end", END)
                     )
                     .addEdge("action", "agent")
                     ;
@@ -84,7 +84,7 @@ public class AgentExecutor {
     }
 
     public static class State extends AgentState {
-        static Map<String, Channel<?>> SCHEMA = mapOf(
+        static Map<String, Channel<?>> SCHEMA = Map.of(
             "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
         );
 
@@ -104,7 +104,7 @@ public class AgentExecutor {
 
     }
 
-    Map<String,Object> runAgent( Agent agentRunnable, State state )  {
+    Map<String,Object> callAgent(Agent agentRunnable, State state )  {
 
         var input = state.input()
                         .orElseThrow(() -> new IllegalArgumentException("no input provided!"));
@@ -118,30 +118,29 @@ public class AgentExecutor {
             var toolExecutionRequests = response.content().toolExecutionRequests();
             var action = new AgentAction( toolExecutionRequests.get(0), "");
 
-            return mapOf("agent_outcome", new AgentOutcome( action, null ) );
+            return Map.of("agent_outcome", new AgentOutcome( action, null ) );
 
         }
         else {
             var result = response.content().text();
-            var finish = new AgentFinish( mapOf("returnValues", result), result );
+            var finish = new AgentFinish( Map.of("returnValues", result), result );
 
-            return mapOf("agent_outcome", new AgentOutcome( null, finish ) );
+            return Map.of("agent_outcome", new AgentOutcome( null, finish ) );
         }
 
     }
+
     Map<String,Object> executeTools( ToolNode toolNode, State state )  {
 
         var agentOutcome = state.agentOutcome().orElseThrow(() -> new IllegalArgumentException("no agentOutcome provided!"));
 
-        if (agentOutcome.action() == null) {
-            throw new IllegalStateException("no action provided!" );
-        }
-
-        var toolExecutionRequest = agentOutcome.action().toolExecutionRequest();
-
+        var toolExecutionRequest = ofNullable(agentOutcome.action())
+                                        .map(AgentAction::toolExecutionRequest)
+                                        .orElseThrow(() -> new IllegalStateException("no action provided!" ))
+                                        ;
         var result = toolNode.execute( toolExecutionRequest )
                 .map( ToolExecutionResultMessage::text )
-                .orElseThrow(() -> new IllegalStateException("no tool found for: " + toolExecutionRequest.name()));;
+                .orElseThrow(() -> new IllegalStateException("no tool found for: " + toolExecutionRequest.name()));
 
         return Map.of("intermediate_steps", new IntermediateStep( agentOutcome.action(), result ) );
 
@@ -149,10 +148,10 @@ public class AgentExecutor {
 
     String shouldContinue(State state) {
 
-        if (state.agentOutcome().map(AgentOutcome::finish).isPresent()) {
-            return "end";
-        }
-        return "continue";
+        return state.agentOutcome()
+                .map(AgentOutcome::finish)
+                .map( finish -> "end" )
+                .orElse("continue");
     }
 
 }

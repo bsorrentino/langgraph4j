@@ -1,4 +1,4 @@
-package dev.langchain4j.agentexecutor;
+package org.bsc.langgraph4j.agentexecutor;
 
 public record AgentOutcome(
     AgentAction action,

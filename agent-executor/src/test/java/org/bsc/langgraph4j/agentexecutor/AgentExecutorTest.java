@@ -1,9 +1,7 @@
-package dev.langchain4j.agentexecutor;
+package org.bsc.langgraph4j.agentexecutor;
 
-import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
@@ -11,14 +9,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AgentExecutorTest {
@@ -46,13 +44,13 @@ public class AgentExecutorTest {
 
         return agentExecutor.graphBuilder()
                 .chatLanguageModel(chatLanguageModel)
-                .objectsWithTools(listOf(new TestTool()))
+                .objectsWithTools(List.of(new TestTool()))
                 .build();
     }
 
     private List<AgentExecutor.State> executeAgent( String prompt )  throws Exception {
 
-        var iterator = newGraph().compile().stream( mapOf( "input", prompt ) );
+        var iterator = newGraph().compile().stream( Map.of( "input", prompt ) );
 
         return iterator.stream()
                 .peek( s -> System.out.println( s.node() ) )
@@ -60,7 +58,10 @@ public class AgentExecutorTest {
                 .collect(Collectors.toList());
     }
 
-    private List<AgentExecutor.State> executeAgent(String prompt, String threadId, BaseCheckpointSaver saver)  throws Exception {
+    private List<AgentExecutor.State> executeAgent( String prompt,
+                                                    String threadId,
+                                                    BaseCheckpointSaver saver)  throws Exception
+    {
 
         CompileConfig compileConfig = CompileConfig.builder()
                 .checkpointSaver( saver )
@@ -70,7 +71,7 @@ public class AgentExecutorTest {
 
         var graph = newGraph().compile( compileConfig );
 
-        var iterator = graph.stream( mapOf( "input", prompt ), config );
+        var iterator = graph.stream( Map.of( "input", prompt ), config );
 
         return iterator.stream()
                 .peek( s -> System.out.println( s.node() ) )
@@ -156,12 +157,12 @@ public class AgentExecutorTest {
 
         var app = new StateGraph<>(AgentState::new)
             .addEdge(START,"agent")
-            .addNode( "agent", node_async( state -> mapOf() ))
-            .addNode( "action", node_async( state -> mapOf() ))
+            .addNode( "agent", node_async( state -> Map.of() ))
+            .addNode( "action", node_async( state -> Map.of() ))
             .addConditionalEdges(
                     "agent",
                     edge_async(state -> ""),
-                    mapOf("continue", "action", "end", END)
+                    Map.of("continue", "action", "end", END)
             )
             .addEdge("action", "agent")
             .compile();

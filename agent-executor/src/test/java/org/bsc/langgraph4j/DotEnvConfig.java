@@ -1,4 +1,4 @@
-package dev.langchain4j;
+package org.bsc.langgraph4j;
 
 
 import java.io.FileReader;

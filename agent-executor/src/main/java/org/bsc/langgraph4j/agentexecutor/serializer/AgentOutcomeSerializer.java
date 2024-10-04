@@ -1,8 +1,8 @@
-package dev.langchain4j.agentexecutor.serializer;
+package org.bsc.langgraph4j.agentexecutor.serializer;
 
-import dev.langchain4j.agentexecutor.AgentAction;
-import dev.langchain4j.agentexecutor.AgentFinish;
-import dev.langchain4j.agentexecutor.AgentOutcome;
+import org.bsc.langgraph4j.agentexecutor.AgentAction;
+import org.bsc.langgraph4j.agentexecutor.AgentFinish;
+import org.bsc.langgraph4j.agentexecutor.AgentOutcome;
 import org.bsc.langgraph4j.serializer.BaseSerializer;
 
 import java.io.IOException;
