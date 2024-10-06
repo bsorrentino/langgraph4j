@@ -2,7 +2,7 @@ package org.bsc.langgraph4j;
 
 import java.io.*;
 
-public interface Utils {
+public interface SerializableUtils {
 
     static String toString( InputStream inputStream ) throws IOException {
         var stringBuilder = new StringBuilder();

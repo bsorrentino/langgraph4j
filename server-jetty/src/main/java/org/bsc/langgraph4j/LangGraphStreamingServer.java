@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
+import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
@@ -25,15 +26,14 @@ import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
+import static org.bsc.langgraph4j.SerializableUtils.toObjectInputStream;
 
 
 /**
@@ -59,6 +59,7 @@ public interface LangGraphStreamingServer {
         private ObjectMapper objectMapper;
         private BaseCheckpointSaver saver;
         private StateGraph<? extends AgentState>  stateGraph;
+        private Serializer<Map<String,Object>> stateSerializer; //<State>
 
         public Builder port(int port) {
             this.port = port;
@@ -95,6 +96,11 @@ public interface LangGraphStreamingServer {
             return this;
         }
 
+        public Builder stetSerialize(Serializer<Map<String,Object>> stateSerializer) {
+            this.stateSerializer = stateSerializer;
+            return this;
+        }
+
         public LangGraphStreamingServer build() throws Exception {
             Objects.requireNonNull( stateGraph, "stateGraph cannot be null");
 
@@ -126,12 +132,11 @@ public interface LangGraphStreamingServer {
 
             context.setSessionHandler(new org.eclipse.jetty.ee10.servlet.SessionHandler());
 
-
             context.addServlet(new ServletHolder(new GraphInitServlet(stateGraph, title, inputArgs)), "/init");
 
             // context.setContextPath("/");
             // Add the streaming servlet
-            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, objectMapper, saver)), "/stream");
+            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, objectMapper, saver, stateSerializer)), "/stream");
 
             var handlerList = new Handler.Sequence( resourceHandler, context);
 
@@ -194,8 +199,13 @@ class GraphStreamServlet extends HttpServlet {
     final StateGraph<? extends AgentState> stateGraph;
     final ObjectMapper objectMapper;
     final Map<PersistentConfig, CompiledGraph<? extends AgentState>> graphCache = new HashMap<>();
+    final Serializer<Map<String,Object>> stateSerializer;
 
-    public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph, ObjectMapper objectMapper, BaseCheckpointSaver saver) {
+    public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph,
+                              ObjectMapper objectMapper,
+                              BaseCheckpointSaver saver,
+                              Serializer<Map<String,Object>> stateSerializer) {
+
         Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
         this.stateGraph = stateGraph;
         this.objectMapper = objectMapper;
@@ -203,11 +213,13 @@ class GraphStreamServlet extends HttpServlet {
         module.addSerializer(NodeOutput.class, new NodeOutputSerializer());
         objectMapper.registerModule(module);
         this.saver = saver;
+        this.stateSerializer = stateSerializer;
     }
 
     private CompileConfig compileConfig(PersistentConfig config) {
         return CompileConfig.builder()
                 .checkpointSaver(saver)
+                //.stateSerializer(stateSerializer)
                 .build();
     }
 
@@ -216,7 +228,6 @@ class GraphStreamServlet extends HttpServlet {
                 .threadId(config.threadId())
                 .build();
     }
-
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -233,23 +244,29 @@ class GraphStreamServlet extends HttpServlet {
         var resume = ofNullable(request.getParameter("resume"))
                         .map(Boolean::parseBoolean).orElse(false);
 
-
         final PrintWriter writer = response.getWriter();
-
 
         // Start asynchronous processing
         var asyncContext = request.startAsync();
 
         try {
 
-            var dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<Map<String, Object>>() {
-            });
-
             AsyncGenerator<? extends NodeOutput<? extends AgentState>> generator = null;
 
             var persistentConfig = new PersistentConfig(session.getId(), threadId);
 
             var compiledGraph = graphCache.get(persistentConfig);
+
+            final Map<String,Object> dataMap;
+            if( resume && stateSerializer != null  ) {
+
+                dataMap = stateSerializer.read( toObjectInputStream(request.getInputStream()) );
+            }
+            else {
+
+                dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<>() {
+                });
+            }
 
             if( resume ) {
 
@@ -279,10 +296,10 @@ class GraphStreamServlet extends HttpServlet {
 
                 generator = compiledGraph.streamSnapshots(null, config);
 
-
             }
             else {
 
+                log.trace( "dataMap: {}", dataMap );
 
                 if (compiledGraph == null) {
                     compiledGraph = stateGraph.compile(compileConfig(persistentConfig));
@@ -312,6 +329,12 @@ class GraphStreamServlet extends HttpServlet {
                     })
                     .thenAccept(v -> writer.close())
                     .thenAccept(v -> asyncContext.complete())
+                    .exceptionally(e -> {
+                        log.error("Error streaming", e);
+                        writer.close();
+                        asyncContext.complete();
+                        return null;
+                    })
             ;
 
         } catch (Throwable e) {
