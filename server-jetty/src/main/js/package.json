@@ -2,6 +2,7 @@
   "name": "langgraph4j-frontend",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "parcel index.html --no-cache",
     "parcel:build": "parcel build index.html --public-url '.'",
@@ -18,7 +19,10 @@
   },
   "devDependencies": {
     "@types/bun": "^1.1.8",
+    "@types/d3": "^7.4.3",
     "@types/node": "^20.14.10",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
     "crypto-browserify": "^3.12.0",
     "daisyui": "^4.12.2",

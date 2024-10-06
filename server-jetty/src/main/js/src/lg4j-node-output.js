@@ -2,6 +2,22 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'; 
 import ReactJson from '@microlink/react-json-view'
 
+
+/**
+ * @file
+ * @typedef {import('./types.js').ResultData} ResultData * 
+ */
+
+/**
+ * @file
+ * @typedef {import('./types.js').EditEvent} EditEvent
+ */
+
+/**
+ * @file
+ * @typedef {import('./types.js').UpdatedState} UpdatedState
+ */
+
 export class LG4JNodeOutput extends HTMLElement {
     
   static get observedAttributes() {
@@ -23,6 +39,11 @@ export class LG4JNodeOutput extends HTMLElement {
 
   }
 
+  /**
+   * @param {string} name
+   * @param {any} oldValue
+   * @param {any} newValue
+   */
   attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'value') {
         if (newValue !== null) {
@@ -33,7 +54,7 @@ export class LG4JNodeOutput extends HTMLElement {
 
   connectedCallback() {
 
-      const value = this.textContent
+      const value = this.textContent ?? '{}'
       
       console.debug( "value", value )
 
@@ -48,28 +69,10 @@ export class LG4JNodeOutput extends HTMLElement {
   }
 
   get isCollapsed() {
-    this.getAttribute('collapsed') === 'true'
+    return this.getAttribute('collapsed') === 'true'
   }
 
 
-  /**
-   * @typedef {Object} ResultData
-   * @property {string} node -
-   * @property {string} [checkpoint] -   
-   * @property {Record<string,any>} state - 
-   */
-
-  /**
-   * Represents an event triggered when an edit occurs.
-   *
-   * @typedef {Object} EditEvent
-   * @property {Record<string, any>} existing_src - The original source object before the edit.
-   * @property {any} existing_value - The original value before the edit.
-   * @property {string} name - The name of the field that was edited.
-   * @property {string[]} namespace - The namespace path indicating where the edit occurred.
-   * @property {any} new_value - The new value after the edit.
-   * @property {Record<string, any>} updated_src - The updated source object after the edit.
-   */
 
 
   /**
@@ -82,12 +85,12 @@ export class LG4JNodeOutput extends HTMLElement {
     if( result.checkpoint ) {
 
       /**
-       * @type {ResultData}
+       * @type {UpdatedState}
        */
       const detail = {
         node: result.node,
         checkpoint: result.checkpoint,
-        state: e.updated_src
+        data: e.updated_src
       }
 
       this.dispatchEvent( new CustomEvent( 'node-updated', { 
@@ -113,10 +116,11 @@ export class LG4JNodeOutput extends HTMLElement {
   #createRoot( value ) {
 
     const mountPoint = document.createElement('span');
-    this.shadowRoot.appendChild(mountPoint);
+    this.shadowRoot?.appendChild(mountPoint);
 
     const root = ReactDOM.createRoot(mountPoint);
 
+    // @ts-ignore
     const component = React.createElement( ReactJson, { 
       src: value.state,
       enableClipboard: false,
@@ -124,7 +128,7 @@ export class LG4JNodeOutput extends HTMLElement {
       name: false,
       collapsed: this.isCollapsed,
       theme: 'monokai',
-      onEdit: e => this.#onEdit(e, value ),
+      onEdit: (/** @type {any} */ e) => this.#onEdit(e, value ),
       validationMessage: 'Read only'
 
     } )

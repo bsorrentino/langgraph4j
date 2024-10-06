@@ -1,6 +1,21 @@
-import TWStyles from './twlit';
+import TWStyles from './twlit.js';
 
-import { html, css, LitElement } from 'lit';
+import { html, css, LitElement, CSSResult } from 'lit';
+
+/**
+ * @file
+ * @typedef {import('./types.js').ResultData} ResultData * 
+ */
+
+/**
+ * @file
+ * @typedef {import('./types.js').EditEvent} EditEvent
+ */
+
+/**
+ * @file
+ * @typedef {import('./types.js').UpdatedState} UpdatedState
+ */
 
 /**
  * Asynchronously waits for a specified number of milliseconds.
@@ -12,16 +27,16 @@ const delay = async (ms) => (new Promise(resolve => setTimeout(resolve, ms)));
 
 /**
  * Asynchronously fetches data from a given fetch call and yields the data in chunks.
- * 
  * @async
  * @generator
- * @param Response - Response object to stream.
+ * @param {Response} response
  * @yields {Promise<string>} The decoded text chunk from the response stream.
  */
 async function* streamingResponse(response) {
   // Attach Reader
-  const reader = response.body.getReader();
-  while (true) {
+  const reader = response.body?.getReader();
+
+  while (true && reader) {
     // wait for next encoded chunk
     const { done, value } = await reader.read();
     // check if stream is done
@@ -30,26 +45,6 @@ async function* streamingResponse(response) {
     yield (new TextDecoder().decode(value));
   }
 }
-
-
-/**
- * @typedef {Object} ResultData
- * @property {string} node -
- * @property {string} [checkpoint] -   
- * @property {Record<string,any>} state - 
- */
-
-/**
- * @typedef {Object} Property
- * @property {String | Boolean | Number} [type]
- * @property {boolean} [state] - Set to true to declare the property as internal reactive state. Internal reactive state triggers updates like public reactive properties, 
- *                               but Lit doesn't generate an attribute for it, and users shouldn't access it from outside the component
- * @property {boolean} [attribute] - Whether the property is associated with an attribute, or a custom name for the associated attribute. Default: true. 
- *                                   If attribute is false, the converter, reflect and type options are ignored.
- * @property {boolean} [reflect] - Whether property value is reflected back to the associated attribute. Default: false.
- */
-
-
 
 /**
  * LG4JInputElement is a custom web component that extends LitElement.
@@ -64,7 +59,7 @@ export class LG4JExecutorElement extends LitElement {
    * Styles applied to the component.
    * 
    * @static
-   * @type {Array}
+   * @type {Array<CSSResult>}
    */
   static styles = [TWStyles, css`
     .container {
@@ -92,14 +87,19 @@ export class LG4JExecutorElement extends LitElement {
    * Properties of the component.
    * 
    * @static
-   * @type { Object.<string, Property> }
+   * @type { import('lit').PropertyDeclarations }
    */
   static properties = {
-    url: { type: String },
-    test: { type: Boolean },
+    url: { type: String, reflect: true  },
+    test: { type: Boolean, reflect: true },
     _executing: { state: true }
     
   }
+
+  /**
+   * @type {string | null }
+   */
+  url = null
 
   /**
    * current selected thread
@@ -109,33 +109,12 @@ export class LG4JExecutorElement extends LitElement {
   #selectedThread
 
   /**
-   * Represents an event triggered when an edit occurs.
-   *
-   * @typedef {Object} UpdatedState
-   * @property {string} checkpoint - checkpoint id.
-   * @property {Record<string, any>} data - the modified state.
-   */
-
-  /**
    * current state for update 
    * 
-   * @type {UpdatedState|undefined}
+   * @type {UpdatedState|null}
    */
-  #updatedState
+  #updatedState = null
 
-  /**
-   * interrupt before this node 
-   * 
-   * @type {string|null}
-   */
-  #interruption = null
-
-  /**
-   * available interruptable nodes 
-   * 
-   * @type {string[]}
-   */
-  #nodes = []
 
   /**
    * Creates an instance of LG4JInputElement.
@@ -153,21 +132,23 @@ export class LG4JExecutorElement extends LitElement {
   /**
    * Event handler for the 'update slected thread' event.
    * 
-   * @param {CustomEvent} e - The event object containing the updated data.
-   * @private
+   * @param {CustomEvent<string>} e - The event object containing the updated data.
    */
   #onThreadUpdated( e ) {
     console.debug( 'thread-updated', e.detail )
     this.#selectedThread = e.detail
+    this.#updatedState = null
+    this.requestUpdate()
   }
 
   /**
    * 
-   * @param {CustomEvent<ResultData>} e - The event object containing the result data.
-   * @private
+   * @param {CustomEvent<UpdatedState>} e - The event object containing the result data.
    */
   #onNodeUpdated( e ) {
     console.debug( 'onNodeUpdated', e )
+    this.#updatedState = e.detail
+    this.requestUpdate()
   }
 
   /**
@@ -176,27 +157,54 @@ export class LG4JExecutorElement extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
+    // @ts-ignore
     this.addEventListener( "thread-updated", this.#onThreadUpdated );
+    // @ts-ignore
     this.addEventListener( 'node-updated', this.#onNodeUpdated )
 
     if(this.test ) {
-      this.#init_test();
+      this.#_test_callInit();
       return
     }
 
-    this.#init()
+    this.#callInit()
 
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
 
+    // @ts-ignore
     this.removeEventListener( "thread-updated", this.#onThreadUpdated )
+    // @ts-ignore
     this.removeEventListener( 'node-updated', this.#onNodeUpdated )
 
   }
 
-  async #init() {
+  /**
+   * Renders the HTML template for the component.
+   * 
+   * @returns The rendered HTML template.
+   */
+  render() {
+
+    // console.debug( 'render', this.formMetaData )
+    return html`
+        <div class="container">
+          ${ Object.entries(this.formMetaData).map( ([key, _]) => 
+             html`<textarea id="${key}" class="textarea textarea-primary" placeholder="${key}"></textarea>`
+          )}
+          <div class="commands">
+            <button id="submit" ?disabled=${this._executing} @click="${this.#callSubmit}" class="btn btn-primary item1">Submit</button>
+            <button id="resume" ?disabled=${!this.#updatedState || this._executing} @click="${this.#callResume}" class="btn btn-secondary item2">
+            Resume ${ this.#updatedState ? '(from ' + this.#updatedState?.node + ')' : '' }
+            </button>
+          </div>
+        </div>
+        `;
+  }
+
+  async #callInit() {
 
     const initResponse = await fetch( `${this.url}/init` )
 
@@ -216,45 +224,64 @@ export class LG4JExecutorElement extends LitElement {
     this.requestUpdate()
   }
 
-  /**
-   * Renders the HTML template for the component.
-   * 
-   * @returns {TemplateResult} The rendered HTML template.
-   */
-  render() {
 
-    // console.debug( 'render', this.formMetaData )
-    return html`
-        <div class="container">
-          ${ Object.entries(this.formMetaData).map( ([key,value]) => 
-             html`<textarea id="${key}" class="textarea textarea-primary" placeholder="${key}"></textarea>`
-          )}
-          <div class="commands">
-            <button id="submit" ?disabled=${this._executing} @click="${this.#submit}" class="btn btn-primary item1">Submit</button>
-            <button id="resume" ?disabled=${!this.#updatedState || this._executing} @click="${ () => {} }" class="btn btn-secondary item2">Resume</button>
-            <!--
-            <select ?disabled=${ this._executing } class="select select-bordered max-w-xl">              
-                  <option disabled ?selected=${this.#interruption === null}>select interruption</option>
-                  ${ this.#nodes.map( n =>   
-                      html`<option ?selected=${this.#interruption === n}>${n}</option>` )}
-            </select>
-            -->
-          </div>
-        </div>
-        `;
+async #callResume() {
+  this._executing = true
+  try {
+
+    if(this.test ) {
+      await this.#_test_callSubmitAction();
+      return
+    }
+
+    await this.#callResumeAction()
+    
+    
+  }
+  finally {
+    this._executing = false
   }
 
-async #submit() {
+}  
+
+async #callResumeAction() {
+
+  const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}&resume=true&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(this.#updatedState?.data)
+  });
+
+  this.#updatedState = null
+
+  for await (let chunk of streamingResponse( execResponse )  ) {
+    console.debug( chunk )
+
+    this.dispatchEvent( new CustomEvent( 'result', { 
+      detail: JSON.parse(chunk),
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    } ) );
+
+  }
+
+
+}
+
+async #callSubmit() {
 
   this._executing = true
   try {
 
     if(this.test ) {
-      await this.#submitAction_test();
+      await this.#_test_callSubmitAction();
       return
     }
 
-    await this.#submitAction()
+    await this.#callSubmitAction()
     
   }
   finally {
@@ -262,10 +289,15 @@ async #submit() {
   }
 }
 
-async #submitAction() {
+async #callSubmitAction() {
   
+    // Get input as object
+    /**
+     * @type { Record<string,any> } data
+     */
     const data = Object.keys(this.formMetaData).reduce( (acc, key) => {
-      acc[key] = this.shadowRoot.getElementById(key).value
+      // @ts-ignore
+      acc[key] = this.shadowRoot?.getElementById(key)?.value
       return acc
     }, {});
 
@@ -294,17 +326,15 @@ async #submitAction() {
 ////////////////////////////////////////////////////////
 // TEST
 ///////////////////////////////////////////////////////
-async #init_test() {
-      
-  // this.#nodes = []
 
-  await delay( 1000 );
-  this.dispatchEvent( new CustomEvent( 'init', { 
-    detail: { 
-      threads: [ ['default', [] ] ],
-      nodes: this.#nodes,
-      title: 'LangGraph4j : TEST',
-      graph:`
+  async #_test_callInit() {
+      
+    await delay( 1000 );
+    this.dispatchEvent( new CustomEvent( 'init', { 
+      detail: { 
+        threads: [ ['default', [] ] ],
+        title: 'LangGraph4j : TEST',
+        graph:`
 ---
 title: TEST
 ---        
@@ -342,11 +372,11 @@ flowchart TD
   }
 
 
-  async #submitAction_test( ) {
+  async #_test_callSubmitAction( ) {
 
     const thread = this.#selectedThread
     
-    const send = async ( nodeId ) => {
+    const send = async ( /** @type {string} */ nodeId ) => {
       await delay( 1000 );
       this.dispatchEvent( new CustomEvent( 'result', { 
         detail: [ thread, { 

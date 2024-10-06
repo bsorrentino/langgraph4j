@@ -23,6 +23,7 @@ export class LG4jMermaid extends HTMLElement {
 
     this._content = null
     this._activeClass = null
+    // @ts-ignore
     this._lastTransform = null
 
 
@@ -80,7 +81,6 @@ export class LG4jMermaid extends HTMLElement {
   
   /**
    * @returns {ChildNode[]}
-   * @private
    */
   get #textNodes() {
     return Array.from(this.childNodes).filter(
@@ -90,7 +90,6 @@ export class LG4jMermaid extends HTMLElement {
 
   /**
    * @returns {string}
-   * @private
    */
   get #textContent() {
     
@@ -111,7 +110,12 @@ export class LG4jMermaid extends HTMLElement {
 
 
   async #renderDiagram( ) {
-    const svgContainer = this.shadowRoot.querySelector('.mermaid')
+    const svgContainer = this.shadowRoot?.querySelector('.mermaid')
+
+    if( !svgContainer ) {
+      console.error( 'svgcontainer not found!')
+      return
+    } 
 
     // console.debug( svgContainer );
     return mermaid.render( 'graph', this.#textContent )
@@ -141,6 +145,8 @@ export class LG4jMermaid extends HTMLElement {
   #svgPanZoom() {
 
     console.debug( '_lastTransform', this._lastTransform )
+
+    // @ts-ignore
     const svgs = d3.select( this.shadowRoot ).select(".mermaid svg");
     // console.debug( 'svgs', svgs )
 
@@ -161,11 +167,13 @@ export class LG4jMermaid extends HTMLElement {
           self._lastTransform = event.transform;
         }); 
       
+      // @ts-ignore
       const selection = svg.call(zoom);
 
       if( self._lastTransform !== null ) {
         inner.attr("transform", self._lastTransform)
         // [D3.js Set initial zoom level](https://stackoverflow.com/a/46437252/521197)
+        // @ts-ignore
         selection.call(zoom.transform, self._lastTransform);
       }  
 
@@ -207,7 +215,9 @@ export class LG4jMermaid extends HTMLElement {
    * Sets up event listeners for graph content and active class updates, and window resize.
    */
   connectedCallback() {
+    // @ts-ignore
     this.addEventListener('graph', this.#onContent);
+    // @ts-ignore
     this.addEventListener('graph-active', this.#onActive);
     window.addEventListener('resize', this.#resizeHandler);
   }
@@ -217,7 +227,9 @@ export class LG4jMermaid extends HTMLElement {
    * Cleans up event listeners for graph content and active class updates, and window resize.
    */
   disconnectedCallback() {
+    // @ts-ignore
     this.removeEventListener('graph', this.#onContent);
+    // @ts-ignore
     this.removeEventListener('graph-active', this.#onActive);
     window.removeEventListener('resize', this.#resizeHandler);
   }
@@ -229,11 +241,15 @@ export class LG4jMermaid extends HTMLElement {
    * @deprecated
    * @returns {Promise<void>} A promise that resolves when the diagram rendering and mermaid run are complete.
    */
+  // @ts-ignore
   async #renderDiagramWithRun() {
-    const pres = this.shadowRoot.querySelectorAll('.mermaid');
+    const pres = this.shadowRoot?.querySelectorAll('.mermaid');
+    
+    // @ts-ignore
     pres[0].textContent = this.#textContent;
 
     return mermaid.run({
+      // @ts-ignore
       nodes: pres,
       suppressErrors: true
     })

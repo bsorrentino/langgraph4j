@@ -41,7 +41,7 @@ public class AgentExecutorStreamingServer {
                 .objectMapper(objectMapper)
                 .title("AGENT EXECUTOR")
                 .addInputStringArg("input")
-                .stetSerialize( JSONStateSerializer.of(objectMapper) )
+                .stateSerialize( JSONStateSerializer.of(objectMapper) )
                 .stateGraph(app)
                 .build();
 

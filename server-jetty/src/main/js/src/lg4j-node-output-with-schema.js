@@ -1,6 +1,7 @@
+// @ts-nocheck
 import { JSONEditor } from '@json-editor/json-editor'
 
-export class LG4JNodeOutput extends HTMLElement {
+export class LG4JNodeOutputWithSchema extends HTMLElement {
     
     static get observedAttributes() {
         return ['value'];
@@ -121,4 +122,4 @@ export class LG4JNodeOutput extends HTMLElement {
 }
 
 
-window.customElements.define('lg4j-node-output', LG4JNodeOutput);
+window.customElements.define('lg4j-node-output', LG4JNodeOutputWithSchema);

@@ -1,22 +1,15 @@
-import TWStyles from './twlit';
+import TWStyles from './twlit.js';
+
 
 import { html, css, LitElement } from 'lit';
 
 /**
- * @typedef {Object} ResultData
- * @property {string} node - The node identifier.
- * @property {Record<string, any>} state - The state associated with the node.
- */
-
-/**
- * @typedef {Object} ResultData
- * @property {string} node -
- * @property {string} [checkpoint] -   
- * @property {Record<string,any>} state - 
+ * @file
+ * @typedef {import('./types.js').ResultData} ResultData * 
  */
 
 
-
+// @ts-ignore
 export class LG4JResultElement extends LitElement {
 
   static styles = [TWStyles, css`
@@ -34,6 +27,7 @@ export class LG4JResultElement extends LitElement {
   /*
    * @type {string}
    */
+  // @ts-ignore
   #selectedThread;
 
   get selectedTab() {
@@ -59,16 +53,22 @@ export class LG4JResultElement extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
+    // @ts-ignore
     this.addEventListener( 'result', this.#onResult )
+    // @ts-ignore
     this.addEventListener( 'init-threads', this.#onInitThreads )
+    // @ts-ignore
     this.addEventListener( 'node-updated', this.#onNodeUpdated )
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
 
+    // @ts-ignore
     this.removeEventListener( 'result',  this.#onResult )
+    // @ts-ignore
     this.removeEventListener( 'init-threads',  this.#onInitThreads )
+    // @ts-ignore
     this.removeEventListener( 'node-updated', this.#onNodeUpdated )
   }
 
@@ -76,7 +76,7 @@ export class LG4JResultElement extends LitElement {
    * Event handler for the 'init threads' event.
    * 
    * @param {CustomEvent} e - The event object containing the result data.
-   * @private
+   * 
    */
   #onInitThreads = (e) => {
     const { detail: threads  = [] } = e 
@@ -96,7 +96,7 @@ export class LG4JResultElement extends LitElement {
    * Event handler for the 'result' event.
    * 
    * @param {CustomEvent} e - The event object containing the result data.
-   * @private
+   * 
    */
   #onResult = (e) => {
 
@@ -111,8 +111,10 @@ export class LG4JResultElement extends LitElement {
 
     let results = this.threadMap.get( thread )
     // TODO: validate e.detail
+    // @ts-ignore
     const index = results.push( result )
 
+    // @ts-ignore
     this.threadMap.set( thread, results );
 
     this.dispatchEvent( new CustomEvent( 'graph-active', { 
@@ -126,9 +128,11 @@ export class LG4JResultElement extends LitElement {
     
     this.updateComplete.then(() => {
       const id = `#json${index-1}`
+      // @ts-ignore
       const elems = this.shadowRoot.querySelectorAll(id);
       console.debug( id, elems );
       for (const elem of elems) {
+        // @ts-ignore
         elem.expandAll()
       }
     });
@@ -138,21 +142,25 @@ export class LG4JResultElement extends LitElement {
    * Event handler select tab.
    * 
    * @param {Event} event - The event object.
-   * @private
+   * 
    */
   #onSelectTab( event ) {
 
+    // @ts-ignore
     console.debug( event.target.id )
+    // @ts-ignore
     this.selectedTab = event.target.id
 
     this.requestUpdate();
   }
 
+  // @ts-ignore
   #onNewTab(event) {
     console.debug( "NEW TAB", event)
 
     const threadId = `Thread-${this.threadMap.size+1}`
 
+    // @ts-ignore
     this.threadMap.set( threadId, [] );
 
     this.selectedTab = threadId
@@ -164,7 +172,7 @@ export class LG4JResultElement extends LitElement {
   /**
    * 
    * @param {CustomEvent<ResultData>} e - The event object containing the result data.
-   * @private
+   * 
    */
 
   #onNodeUpdated( e ) {
@@ -174,8 +182,9 @@ export class LG4JResultElement extends LitElement {
   /** 
    * Renders a result.
    * @param {ResultData} result - The result data to render.
-   * @returns {import('lit').TemplateResult} The template for the result.
+   * @returns The template for the result.
    */
+  // @ts-ignore
   #renderResult(result, index) {
 
     return html`
@@ -216,7 +225,9 @@ export class LG4JResultElement extends LitElement {
             <div class="max-h-[95%] overflow-x-auto bg-slate-500">
               <table class="table table-pin-rows">
                 <tbody>
-                    ${this.threadMap.get(this.selectedTab)?.map( (result, index) => html`<tr><td>${this.#renderResult(result, index)}</td></tr>`) }
+                    ${this.threadMap.get(this.selectedTab)?.
+// @ts-ignore
+                    map( (result, index) => html`<tr><td>${this.#renderResult(result, index)}</td></tr>`) }
                 </tbody>
               </table>
             </div>
@@ -229,9 +240,10 @@ export class LG4JResultElement extends LitElement {
     /** 
    * Renders a result.
    * @param {ResultData} result - The result data to render.
-   * @returns {import('lit').TemplateResult} The template for the result.
+   * @returns The template for the result.
    * @deprecated
    */
+    // @ts-ignore
     #renderResultDeprecated(result, index) {
 
       return html`
@@ -239,7 +251,9 @@ export class LG4JResultElement extends LitElement {
         <input type="radio" name="item-1" checked="checked" />
         <div class="collapse-title text-ml font-bold">${result.node}</div>
         <div class="collapse-content">
-        ${Object.entries(result.state).map(([key, value]) => html`
+        ${Object.entries(result.
+// @ts-ignore
+        state).map(([key, value]) => html`
             <div>
                 <h4 class="italic">${key}</h4>
                 <p class="my-3">
@@ -255,6 +269,7 @@ export class LG4JResultElement extends LitElement {
     }
   
   // @deprecated
+  // @ts-ignore
   #renderResultWithCard(result, index) {
     return html`
     <div class="card bg-neutral text-neutral-content">

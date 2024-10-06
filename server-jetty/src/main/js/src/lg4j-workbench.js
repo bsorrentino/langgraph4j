@@ -1,4 +1,4 @@
-import TWStyles from './twlit';
+import TWStyles from './twlit.js';
 
 import { html, css, LitElement } from 'lit';
 
@@ -14,6 +14,10 @@ export class LG4JWorkbenchElement extends LitElement {
     super();
   }
 
+  /**
+   * @param {CustomEvent} e 
+   * @param {string} [slot]
+   */
   #routeEvent( e, slot ) {
     
     const { type, detail } = e
@@ -39,9 +43,7 @@ export class LG4JWorkbenchElement extends LitElement {
    * Event handler for the 'init' event.
    * 
    * @param {CustomEvent} e - The event object containing init data.
-   * @private
    */
-
   #routeInitEvent( e ) {
       const { graph, title, threads  } = e.detail 
 
@@ -58,20 +60,24 @@ export class LG4JWorkbenchElement extends LitElement {
    * Event handler for the 'updates' event.
    * 
    * @param {CustomEvent} e - The event object containing the updated data.
-   * @private
    */
   #routeUpdateEvent( e ) {
     console.debug( 'got updated event', e );
     this.#routeEvent( new CustomEvent( `${e.type}`, { detail: e.detail }), 'executor');
   }
 
-  connectedCallback() {
+    connectedCallback() {
     super.connectedCallback()
 
+    // @ts-ignore
     this.addEventListener( "init", this.#routeInitEvent );
+    // @ts-ignore
     this.addEventListener( "result", this.#routeEvent );
+    // @ts-ignore
     this.addEventListener( "graph-active", this.#routeEvent );
+    // @ts-ignore
     this.addEventListener( "thread-updated", this.#routeUpdateEvent );
+    // @ts-ignore
     this.addEventListener( 'node-updated', this.#routeUpdateEvent )
 
   }
@@ -79,10 +85,15 @@ export class LG4JWorkbenchElement extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback()
 
+    // @ts-ignore
     this.removeEventListener( 'node-updated', this.#routeUpdateEvent )
+    // @ts-ignore
     this.removeEventListener( "thread-updated", this.#routeUpdateEvent );
+    // @ts-ignore
     this.removeEventListener( "init", this.#routeInitEvent );
+    // @ts-ignore
     this.removeEventListener( "result", this.#routeEvent );
+    // @ts-ignore
     this.removeEventListener( "graph-active", this.#routeEvent );
 
   }

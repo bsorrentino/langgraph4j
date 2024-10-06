@@ -96,7 +96,7 @@ public interface LangGraphStreamingServer {
             return this;
         }
 
-        public Builder stetSerialize(Serializer<Map<String,Object>> stateSerializer) {
+        public Builder stateSerialize(Serializer<Map<String,Object>> stateSerializer) {
             this.stateSerializer = stateSerializer;
             return this;
         }
