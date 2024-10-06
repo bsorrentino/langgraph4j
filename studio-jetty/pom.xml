@@ -6,14 +6,14 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-20241006</version>
     </parent>
 
-    <artifactId>langgraph4j-server-jetty</artifactId>
+    <artifactId>langgraph4j-studio-jetty</artifactId>
 
     <packaging>jar</packaging>
-    <name>langgraph4j::server::jetty</name>
-    <description>an **embed playground webapp** able to run a Langgraph4j workflow in visual way</description>
+    <name>langgraph4j::studio::jetty</name>
+    <description>an **embed playground webapp** to run a Langgraph4j workflow in visual way</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

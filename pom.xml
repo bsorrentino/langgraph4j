@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-20241006</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -169,7 +169,7 @@
       </activation>
       <modules>
         <module>agent-executor</module>
-        <module>server-jetty</module>
+        <module>studio-jetty</module>
       </modules>
       <build>
       </build>
