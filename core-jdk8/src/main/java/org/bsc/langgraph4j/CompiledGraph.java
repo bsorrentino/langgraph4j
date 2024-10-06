@@ -353,7 +353,7 @@ public class CompiledGraph<State extends AgentState> {
         int iteration = 0;
         RunnableConfig config;
 
-        protected AsyncNodeGenerator(Map<String,Object> inputs, RunnableConfig config) throws Exception {
+        protected AsyncNodeGenerator(Map<String,Object> inputs, RunnableConfig config ) throws Exception {
             final boolean isResumeRequest =  (inputs == null);
 
             if( isResumeRequest ) {
@@ -367,11 +367,8 @@ public class CompiledGraph<State extends AgentState> {
 
                 this.currentState = startCheckpoint.getState();
 
-
                 // Reset checkpoint id
-                this.config = RunnableConfig.builder(config)
-                        .checkPointId(null)
-                        .build();
+                this.config = config.withCheckPointId( null );
 
 
                 this.nextNodeId = startCheckpoint.getNextNodeId();
@@ -420,7 +417,6 @@ public class CompiledGraph<State extends AgentState> {
                     currentNodeId = nextNodeId;
                     addCheckpoint( config, START, currentState, nextNodeId );
                     return Data.of( buildNodeOutput( START ) );
-
                 }
 
                 if( END.equals(nextNodeId) ) {
@@ -480,15 +476,7 @@ public class CompiledGraph<State extends AgentState> {
     public AsyncGenerator<NodeOutput<State>> streamSnapshots( Map<String,Object> inputs, RunnableConfig config ) throws Exception {
         Objects.requireNonNull(config, "config cannot be null");
 
-        RunnableConfig newConfig = new RunnableConfig(config) {
-
-            @Override
-            public StreamMode streamMode() {
-                return StreamMode.SNAPSHOTS;
-            }
-        };
-
-        return new AsyncNodeGenerator<>( inputs, newConfig );
+        return new AsyncNodeGenerator<>( inputs, config.withStreamMode(StreamMode.SNAPSHOTS) );
     }
 
 
