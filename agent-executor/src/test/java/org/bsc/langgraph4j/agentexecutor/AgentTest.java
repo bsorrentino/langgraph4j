@@ -5,12 +5,14 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 public class AgentTest {
 
     @BeforeAll

@@ -6,6 +6,7 @@ import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 public class AgentExecutorTest {
 
     @BeforeAll

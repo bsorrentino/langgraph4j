@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
+import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.agentexecutor.serializer.AgentActionSerializer;
 import org.bsc.langgraph4j.agentexecutor.serializer.AgentFinishSerializer;
 import org.bsc.langgraph4j.agentexecutor.serializer.AgentOutcomeSerializer;
@@ -23,6 +24,7 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
+@Slf4j
 public class AgentExecutor {
 
     public class GraphBuilder {
@@ -105,7 +107,7 @@ public class AgentExecutor {
     }
 
     Map<String,Object> callAgent(Agent agentRunnable, State state )  {
-
+        log.trace( "callAgent" );
         var input = state.input()
                         .orElseThrow(() -> new IllegalArgumentException("no input provided!"));
 
@@ -131,6 +133,7 @@ public class AgentExecutor {
     }
 
     Map<String,Object> executeTools( ToolNode toolNode, State state )  {
+        log.trace( "executeTools" );
 
         var agentOutcome = state.agentOutcome().orElseThrow(() -> new IllegalArgumentException("no agentOutcome provided!"));
 
