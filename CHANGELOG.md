@@ -2,6 +2,200 @@
 
 
 
+<!-- "name: v1.0-20241006" is a release tag -->
+
+## [v1.0-20241006](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241006) (2024-10-06)
+
+### Features
+
+ *  **frondend**  add support for resume action ([1a4125dc08d1e41](https://github.com/bsorrentino/langgraph4j/commit/1a4125dc08d1e41c99c7467315dd439d101b341c))
+     > solve #34
+   
+ *  **server**  add support for JSON deserialization ([817efeaeff620cc](https://github.com/bsorrentino/langgraph4j/commit/817efeaeff620cc07a05e3cc290384d69bba75e7))
+     > work on #34
+   
+ *  **ToolNode**  add logging support ([5a982f426207881](https://github.com/bsorrentino/langgraph4j/commit/5a982f426207881ccf51148078a72f596ce1df6a))
+   
+ *  improve streammode management ([fcd5d6790208aca](https://github.com/bsorrentino/langgraph4j/commit/fcd5d6790208aca538b1a7da17c771a21fc87325))
+     > work on #34
+   
+ *  **agentexecutor**  add JSON serialization support ([16d01791530f046](https://github.com/bsorrentino/langgraph4j/commit/16d01791530f0468e28ade34a1e8d28488fe62b6))
+     > work on #34
+   
+ *  **agentexecutor**  add JSON serialization support ([3fa5ec0207f9315](https://github.com/bsorrentino/langgraph4j/commit/3fa5ec0207f9315277fbf2bcc4315c5f82bc0e29))
+     > work on #34
+   
+ *  move agent-executor to jdk17 modules ([a7ca4d7aabb4c0c](https://github.com/bsorrentino/langgraph4j/commit/a7ca4d7aabb4c0c6a69c4cff152cde105cb5989b))
+   
+ *  **server**  add resume management ([bf030a74a9863f4](https://github.com/bsorrentino/langgraph4j/commit/bf030a74a9863f4526f09c4cf487f9a61a112077))
+     > work on #34
+   
+ *  add agentexecutor notebook ([1465519e3309fb1](https://github.com/bsorrentino/langgraph4j/commit/1465519e3309fb1bf58d67ae76565d2ab31e1346))
+   
+ *  **frontend**  add support for state update ([4cfa9c1e9d3bfee](https://github.com/bsorrentino/langgraph4j/commit/4cfa9c1e9d3bfee5c207ee9f531114b33ca24ac4))
+     > work on #34
+   
+ *  **frontend**  add support for checkpoint ([1c86f6852e6ab64](https://github.com/bsorrentino/langgraph4j/commit/1c86f6852e6ab645c52e7f8643a8852e10bb0cf2))
+     > work #34
+   
+ *  **frontend**  parametrize 'collapsed' in NodeOutput ([78e453ee918b361](https://github.com/bsorrentino/langgraph4j/commit/78e453ee918b36180daa51200516137b9135d73d))
+     > work on #34
+   
+ *  **frontend**  add support for state editing ([ccbe25383b0ef74](https://github.com/bsorrentino/langgraph4j/commit/ccbe25383b0ef74fa142b57b233bd562d8cc2e64))
+     > add react component @microlink/react-json-view
+     > work on #34
+   
+ *  allow customize Serializer using CompileConfig ([af0d3d65d51d047](https://github.com/bsorrentino/langgraph4j/commit/af0d3d65d51d0473a7c368be748968eb965955a8))
+   
+
+### Bug Fixes
+
+ -  **frontend**  remove method duplication ([6768dcaca7b2a43](https://github.com/bsorrentino/langgraph4j/commit/6768dcaca7b2a438ea82193db6e3808b300ca7c9))
+     > work on #24
+
+ -  update scripts ([bae7e1a82bb9f32](https://github.com/bsorrentino/langgraph4j/commit/bae7e1a82bb9f32b505d203abeed874e9fc363b6))
+
+
+### Documentation
+
+ -  update readme ([d7dd7e77e2e6e83](https://github.com/bsorrentino/langgraph4j/commit/d7dd7e77e2e6e8358a1626cf24eac232dbcf4b31))
+
+ -  add readme ([2456df4a7c24835](https://github.com/bsorrentino/langgraph4j/commit/2456df4a7c2483545f658f8373a42520f6932f58))
+
+ -  add readme ([19dc1a5a3469b90](https://github.com/bsorrentino/langgraph4j/commit/19dc1a5a3469b90cd642b304fbdbb3c022280ef5))
+
+ -  update comments ([b55692d98b1da2a](https://github.com/bsorrentino/langgraph4j/commit/b55692d98b1da2ab76501f1614bbef58bf5bac0d))
+
+
+### Refactor
+
+ -  rebrand from server to studio ([cd14b6e0f4d8052](https://github.com/bsorrentino/langgraph4j/commit/cd14b6e0f4d80527fb1823e5098b05ce3d554a0b))
+   
+ -  **agentexecutor**  rename package ([b158f62bc1ee716](https://github.com/bsorrentino/langgraph4j/commit/b158f62bc1ee71629ca3cb169a23e8357f0adaaa))
+   
+ -  rename MapSerialize to MapSerializer ([a60a78bcb600e46](https://github.com/bsorrentino/langgraph4j/commit/a60a78bcb600e465037926e2981f53176b26cb6a))
+   
+ -  **agentexecutor**  rename package ([5a2a50dec339fad](https://github.com/bsorrentino/langgraph4j/commit/5a2a50dec339fada133cce4fce5f45f320581705))
+   
+ -  **agentexecutor**  rename package ([0edb34814d505ab](https://github.com/bsorrentino/langgraph4j/commit/0edb34814d505aba273294112ec1f1c414859464))
+   
+ -  **server**  remove nodes from initialization ([1cf01acd23da255](https://github.com/bsorrentino/langgraph4j/commit/1cf01acd23da255fb922c1d4180ca214d9261e5e))
+    > work on #34
+
+
+### ALM 
+
+ -  bump new intermediate version ([a2bf300573a929e](https://github.com/bsorrentino/langgraph4j/commit/a2bf300573a929edd7124cb932087dd8fc4c46f5))
+   
+ -  update frontend dist ([c6fc457ad3749fd](https://github.com/bsorrentino/langgraph4j/commit/c6fc457ad3749fd013cb8909120cd84bac151196))
+    > work on #34
+
+ -  update frontend dist ([ab51fbe2eae4243](https://github.com/bsorrentino/langgraph4j/commit/ab51fbe2eae424392da839a2c6c0cfb23e8b5577))
+    > work on #34
+
+ -  update frontend dist ([348c1421e9207b0](https://github.com/bsorrentino/langgraph4j/commit/348c1421e9207b01b5b5f5a6c7b796bedc81f820))
+    > work on #34
+
+ -  update frontend dist ([e02ea9bfb4a5b03](https://github.com/bsorrentino/langgraph4j/commit/e02ea9bfb4a5b03aef8577c08e3ebe5cb44a4b21))
+    > work on #34
+
+ -  update frontend dist ([ba1060a379d0a6a](https://github.com/bsorrentino/langgraph4j/commit/ba1060a379d0a6acbaaa54f6f28a60695423cbca))
+    > work on #34
+
+ -  update frontend dist ([d1a49576c8009ff](https://github.com/bsorrentino/langgraph4j/commit/d1a49576c8009ff99b8c176a5b29c7e2f1ab7f58))
+    > work on #34
+
+ -  bump to SNAPSHOT ([4b2e260aea75814](https://github.com/bsorrentino/langgraph4j/commit/4b2e260aea75814fb8442f7004d18e8740f07570))
+   
+
+
+
+
+
+<!-- "name: v1.0-20240926" is a release tag -->
+
+## [v1.0-20240926](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240926) (2024-09-26)
+
+### Features
+
+ *  improve logging ([ec148d763587456](https://github.com/bsorrentino/langgraph4j/commit/ec148d76358745683711b496f7e55df2f1724c83))
+   
+ *  add module with langchain4j integration utility ([769887576ec20f0](https://github.com/bsorrentino/langgraph4j/commit/769887576ec20f028907e730c8e71d0a6ddda9ce))
+     > - Add Message Serializers
+     > - Add ToolExecutionRequestSerializer
+     > - Add ToolNode utility
+     > resolve #26
+   
+
+
+### Documentation
+
+ -  update readme ([19c3ad0253ff1d4](https://github.com/bsorrentino/langgraph4j/commit/19c3ad0253ff1d45e428dd7dac9169d4b9858cfa))
+
+
+### Refactor
+
+ -  **serializer**  move from static to instance methods ([4870289cc21587c](https://github.com/bsorrentino/langgraph4j/commit/4870289cc21587c493386c34d41ed2b9297c8b4a))
+   
+ -  **how-ts**  use of new langchain4j integration module ([ed2163bf7c62789](https://github.com/bsorrentino/langgraph4j/commit/ed2163bf7c6278960846ead490e13a0bed32c334))
+    > work on #26
+
+ -  **AgentExecutor**  use onf new langchain4j integration module ([369ef5d06277ba9](https://github.com/bsorrentino/langgraph4j/commit/369ef5d06277ba98ab2400d5ef7c9afd5182c565))
+    > work on #26
+
+ -  **adaptiverag**  update system prompt ([6ec6ab67f85ef14](https://github.com/bsorrentino/langgraph4j/commit/6ec6ab67f85ef14be4852325fba68567dc009f5c))
+    > work on #32
+
+ -  update adaptiverag notebook ([40f78ac94728ebf](https://github.com/bsorrentino/langgraph4j/commit/40f78ac94728ebfc8cfd66e0e65f879a1f515ea8))
+   
+
+### ALM 
+
+ -  bump to intermediate version ([94a2de96aa7c3ca](https://github.com/bsorrentino/langgraph4j/commit/94a2de96aa7c3ca9624330e5a3b8ea8124153ddb))
+   
+ -  bump to new version of langchain4j 0.35.0 ([cee29a8b0a9e137](https://github.com/bsorrentino/langgraph4j/commit/cee29a8b0a9e137d3dc927ead21bfde1e378c448))
+   
+ -  bump to SNAPSHOT ([3225dd47184425f](https://github.com/bsorrentino/langgraph4j/commit/3225dd47184425f37fa38ce7b1542514a9179c58))
+   
+
+
+
+
+
+<!-- "name: v1.0-20240924" is a release tag -->
+
+## [v1.0-20240924](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240924) (2024-09-24)
+
+
+### Bug Fixes
+
+ -  **AnswerGrader**  update prompt pattern ([af72f94b8710f1c](https://github.com/bsorrentino/langgraph4j/commit/af72f94b8710f1c3e7359b94993a97c67c9b7337))
+     > solve #32
+
+
+### Documentation
+
+ -  update readme ([cb806a45c87a0ed](https://github.com/bsorrentino/langgraph4j/commit/cb806a45c87a0edad3a7393a44fb0adfc88eaa86))
+
+ -  update readme ([3cc326f6034cd29](https://github.com/bsorrentino/langgraph4j/commit/3cc326f6034cd29cef792bc92084ba383c5a6dda))
+
+ -  update changeme ([8fcaabafda3ebf3](https://github.com/bsorrentino/langgraph4j/commit/8fcaabafda3ebf3d428bb1ed6c428b3d8f25d784))
+
+
+
+### ALM 
+
+ -  bump to SNAPSHOT version ([e009e33b2149ab6](https://github.com/bsorrentino/langgraph4j/commit/e009e33b2149ab6a747565aa4d9b45cca088ac69))
+   
+
+### Continuous Integration
+
+ -  bump to develop version ([b547c0563bd9658](https://github.com/bsorrentino/langgraph4j/commit/b547c0563bd9658c1f43b1ba3fb9b5f665159194))
+   
+
+
+
+
 <!-- "name: v1.0-beta5" is a release tag -->
 
 ## [v1.0-beta5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-beta5) (2024-09-24)
