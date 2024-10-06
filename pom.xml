@@ -169,7 +169,7 @@
       </activation>
       <modules>
         <module>agent-executor</module>
-        <module>server-jetty</module>
+        <module>studio-jetty</module>
       </modules>
       <build>
       </build>
