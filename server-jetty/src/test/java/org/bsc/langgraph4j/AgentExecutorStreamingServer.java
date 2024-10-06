@@ -3,8 +3,9 @@ package org.bsc.langgraph4j;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.langchain4j.agentexecutor.AgentExecutor;
+import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import org.bsc.langgraph4j.agentexecutor.serializer.JSONStateSerializer;
 
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 
@@ -40,6 +41,7 @@ public class AgentExecutorStreamingServer {
                 .objectMapper(objectMapper)
                 .title("AGENT EXECUTOR")
                 .addInputStringArg("input")
+                .stateSerialize( JSONStateSerializer.of(objectMapper) )
                 .stateGraph(app)
                 .build();
 

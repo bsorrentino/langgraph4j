@@ -154,7 +154,6 @@
       </activation>
       <modules>
         <module>core-jdk8</module>
-        <module>agent-executor</module>
         <module>image-to-diagram</module>
         <module>adaptive-rag</module>
         <module>langchain4j</module>
@@ -169,6 +168,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
+        <module>agent-executor</module>
         <module>server-jetty</module>
       </modules>
       <build>

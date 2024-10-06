@@ -22,6 +22,7 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -243,7 +244,7 @@ public class StateGraphPersistenceTest
                     throw new IllegalStateException( "unknown message!" );
                 }))
                 .addNode("tools", node_async( state ->
-                    mapOf( "messages", "temperature in Napoli is 30 degree" )
+                    mapOf( "messages", "temperature in Napoli is 30 degree")
                 ))
                 .addEdge(START, "agent")
                 .addConditionalEdges("agent", edge_async( state ->
@@ -260,7 +261,7 @@ public class StateGraphPersistenceTest
 
         var app = workflow.compile( compileConfig );
 
-        Map<String, Object> inputs = mapOf( "messages", "whether in Naples?" );
+        Map<String, Object> inputs = mapOf( "messages", "whether in Naples?") ;
 
         var runnableConfig = RunnableConfig.builder()
                 .threadId("thread_1")
@@ -307,7 +308,7 @@ public class StateGraphPersistenceTest
 
         var toReplay = firstSnapshot.get().config();
 
-        toReplay = app.updateState( toReplay, mapOf( "messages", "i'm bartolo"), null );
+        toReplay = app.updateState( toReplay, mapOf( "messages", "i'm bartolo") );
         results = app.stream( null, toReplay ).stream().collect( Collectors.toList() );
 
         assertNotNull( results );
@@ -340,7 +341,7 @@ public class StateGraphPersistenceTest
                     throw new IllegalStateException( "unknown message!" );
                 }))
                 .addNode("tools", node_async( state ->
-                        mapOf( "messages", "temperature in Napoli is 30 degree" )
+                        mapOf( "messages", "temperature in Napoli is 30 degree")
                 ))
                 .addEdge(START, "agent")
                 .addConditionalEdges("agent", edge_async( state ->
@@ -362,7 +363,7 @@ public class StateGraphPersistenceTest
                 .threadId("thread_1")
                 .build();
 
-        Map<String,Object> inputs = mapOf( "messages","whether in Naples?" ) ;
+        Map<String,Object> inputs = mapOf( "messages", "whether in Naples?")  ;
         var results = app.stream( inputs, runnableConfig ).stream().collect(Collectors.toList());
         results.forEach( System.out::println);
         assertNotNull( results );

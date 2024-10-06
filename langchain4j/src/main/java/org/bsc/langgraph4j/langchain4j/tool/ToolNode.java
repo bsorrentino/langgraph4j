@@ -11,12 +11,13 @@ import static dev.langchain4j.agent.tool.ToolSpecifications.toolSpecificationFro
 import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 public final class ToolNode {
 
     @Value
@@ -69,6 +70,8 @@ public final class ToolNode {
     }
 
     public Optional<ToolExecutionResultMessage> execute( @NonNull ToolExecutionRequest request, Object memoryId ) {
+        log.trace( "execute: {}", request.name() );
+
         return entries.stream()
                 .filter( v -> v.value().name().equals(request.name()))
                 .findFirst()

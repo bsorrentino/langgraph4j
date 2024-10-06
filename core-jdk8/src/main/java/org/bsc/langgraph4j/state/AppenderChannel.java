@@ -2,9 +2,8 @@ package org.bsc.langgraph4j.state;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static java.util.Optional.ofNullable;
@@ -53,14 +52,33 @@ public class AppenderChannel<T> implements Channel<List<T>> {
     }
 
     public Object update( String key, Object oldValue, Object newValue) {
+
+        if( newValue == null ) {
+            return oldValue;
+        }
         try {
-            try { // this is to allow single value other than
-                T typedValue = (T) newValue;
+            List<?> list = null;
+            if (newValue instanceof List) {
+                list = (List<?>) newValue;
+            } else if (newValue.getClass().isArray()) {
+                list = Arrays.asList((Object[]) newValue);
+            }
+            if (list != null) {
+                if (list.isEmpty()) {
+                    return oldValue;
+                }
+                return Channel.super.update(key, oldValue, list);
+            }
+            // this is to allow single value other than List or Array
+            try {
+                T typedValue = (T)newValue;
                 return Channel.super.update(key, oldValue, listOf(typedValue));
             } catch (ClassCastException e) {
-                return Channel.super.update(key, oldValue, newValue);
+                log.error("Unsupported content type: {}", newValue.getClass());
+                throw e;
             }
-        } catch (UnsupportedOperationException ex) {
+        }
+        catch (UnsupportedOperationException ex) {
             log.error("Unsupported operation: probably because the appendable channel has been initialized with a immutable List. Check please !");
             throw ex;
         }

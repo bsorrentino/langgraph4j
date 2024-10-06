@@ -16,6 +16,7 @@ import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.*;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -140,12 +141,12 @@ public class StateGraphTest
                 }))
                 .addNode("agent_2", node_async( state -> {
                     System.out.println( "agent_2" );
-                    return mapOf( "messages", "message2");
+                    return mapOf( "messages", new String[]{ "message2" });
                 }))
                 .addNode("agent_3", node_async( state -> {
                     System.out.println( "agent_3" );
                     var steps = state.messages().size() +1 ;
-                    return mapOf("messages", "message3","steps", steps);
+                    return mapOf("messages", "message3","steps", steps );
                 }))
                 .addEdge("agent_1", "agent_2")
                 .addEdge( "agent_2", "agent_3")

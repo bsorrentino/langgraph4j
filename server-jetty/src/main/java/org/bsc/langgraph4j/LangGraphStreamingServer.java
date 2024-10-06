@@ -10,9 +10,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
+import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.StateSnapshot;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Handler;
@@ -23,11 +26,14 @@ import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.Optional.ofNullable;
+import static org.bsc.langgraph4j.SerializableUtils.toObjectInputStream;
 
 
 /**
@@ -53,6 +59,7 @@ public interface LangGraphStreamingServer {
         private ObjectMapper objectMapper;
         private BaseCheckpointSaver saver;
         private StateGraph<? extends AgentState>  stateGraph;
+        private Serializer<Map<String,Object>> stateSerializer; //<State>
 
         public Builder port(int port) {
             this.port = port;
@@ -89,6 +96,11 @@ public interface LangGraphStreamingServer {
             return this;
         }
 
+        public Builder stateSerialize(Serializer<Map<String,Object>> stateSerializer) {
+            this.stateSerializer = stateSerializer;
+            return this;
+        }
+
         public LangGraphStreamingServer build() throws Exception {
             Objects.requireNonNull( stateGraph, "stateGraph cannot be null");
 
@@ -120,12 +132,11 @@ public interface LangGraphStreamingServer {
 
             context.setSessionHandler(new org.eclipse.jetty.ee10.servlet.SessionHandler());
 
-
             context.addServlet(new ServletHolder(new GraphInitServlet(stateGraph, title, inputArgs)), "/init");
 
             // context.setContextPath("/");
             // Add the streaming servlet
-            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, objectMapper, saver)), "/stream");
+            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, objectMapper, saver, stateSerializer)), "/stream");
 
             var handlerList = new Handler.Sequence( resourceHandler, context);
 
@@ -159,10 +170,17 @@ class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
 
     @Override
     public void serialize(NodeOutput nodeOutput, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
-        log.trace( "NodeOutputSerializer start!" );
+        log.trace( "NodeOutputSerializer start! {}", nodeOutput.getClass() );
         gen.writeStartObject();
+            if( nodeOutput instanceof StateSnapshot<?> snapshot) {
+                var checkpoint = snapshot.config().checkPointId();
+                log.trace( "checkpoint: {}", checkpoint );
+                if( checkpoint.isPresent() ) {
+                    gen.writeStringField("checkpoint", checkpoint.get());
+                }
+            }
             gen.writeStringField("node", nodeOutput.node());
-            gen.writeObjectField("state", nodeOutput.state());
+            gen.writeObjectField("state", nodeOutput.state().data());
         gen.writeEndObject();
     }
 }
@@ -181,8 +199,13 @@ class GraphStreamServlet extends HttpServlet {
     final StateGraph<? extends AgentState> stateGraph;
     final ObjectMapper objectMapper;
     final Map<PersistentConfig, CompiledGraph<? extends AgentState>> graphCache = new HashMap<>();
+    final Serializer<Map<String,Object>> stateSerializer;
 
-    public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph, ObjectMapper objectMapper, BaseCheckpointSaver saver) {
+    public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph,
+                              ObjectMapper objectMapper,
+                              BaseCheckpointSaver saver,
+                              Serializer<Map<String,Object>> stateSerializer) {
+
         Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
         this.stateGraph = stateGraph;
         this.objectMapper = objectMapper;
@@ -190,11 +213,13 @@ class GraphStreamServlet extends HttpServlet {
         module.addSerializer(NodeOutput.class, new NodeOutputSerializer());
         objectMapper.registerModule(module);
         this.saver = saver;
+        this.stateSerializer = stateSerializer;
     }
 
     private CompileConfig compileConfig(PersistentConfig config) {
         return CompileConfig.builder()
                 .checkpointSaver(saver)
+                //.stateSerializer(stateSerializer)
                 .build();
     }
 
@@ -203,7 +228,6 @@ class GraphStreamServlet extends HttpServlet {
                 .threadId(config.threadId())
                 .build();
     }
-
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -214,29 +238,78 @@ class GraphStreamServlet extends HttpServlet {
         var session = request.getSession(true);
         Objects.requireNonNull(session, "session cannot be null");
 
-        var threadId = request.getParameter("thread");
-        Objects.requireNonNull(threadId, "thread cannot be null");
+        var threadId = ofNullable(request.getParameter("thread"))
+                .orElseThrow(() -> new IllegalStateException("Missing thread id!"));
+
+        var resume = ofNullable(request.getParameter("resume"))
+                        .map(Boolean::parseBoolean).orElse(false);
 
         final PrintWriter writer = response.getWriter();
-
-        Map<String, Object> dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<Map<String, Object>>() {
-        });
 
         // Start asynchronous processing
         var asyncContext = request.startAsync();
 
         try {
 
-            var config = new PersistentConfig( session.getId(), threadId);
+            AsyncGenerator<? extends NodeOutput<? extends AgentState>> generator = null;
 
-            var compiledGraph =  graphCache.get(config);
-            if( compiledGraph == null ) {
-                compiledGraph = stateGraph.compile( compileConfig(config) );
-                graphCache.put( config, compiledGraph );
+            var persistentConfig = new PersistentConfig(session.getId(), threadId);
+
+            var compiledGraph = graphCache.get(persistentConfig);
+
+            final Map<String,Object> dataMap;
+            if( resume && stateSerializer != null  ) {
+
+                dataMap = stateSerializer.read( toObjectInputStream(request.getInputStream()) );
+            }
+            else {
+
+                dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<>() {
+                });
             }
 
-            compiledGraph.streamSnapshots(dataMap, runnableConfig(config) )
-                    .forEachAsync(s -> {
+            if( resume ) {
+
+                log.trace( "RESUME REQUEST PREPARE" );
+
+                if (compiledGraph == null) {
+                    throw new IllegalStateException( "Missing CompiledGraph in session!" );
+                }
+
+                var checkpointId = ofNullable(request.getParameter("checkpoint"))
+                        .orElseThrow(() -> new IllegalStateException("Missing checkpoint id!"));
+
+                var config = RunnableConfig.builder()
+                                        .threadId(threadId)
+                                        .checkPointId(checkpointId)
+                                        .build();
+
+                var stateSnapshot = compiledGraph.getState(config);
+
+                config = stateSnapshot.config();
+
+                log.trace( "RESUME UPDATE STATE USING CONFIG {}\n{}", config, dataMap);
+
+                config = compiledGraph.updateState(config, dataMap );
+
+                log.trace( "RESUME REQUEST STREAM {}", config);
+
+                generator = compiledGraph.streamSnapshots(null, config);
+
+            }
+            else {
+
+                log.trace( "dataMap: {}", dataMap );
+
+                if (compiledGraph == null) {
+                    compiledGraph = stateGraph.compile(compileConfig(persistentConfig));
+                    graphCache.put(persistentConfig, compiledGraph);
+                }
+
+                generator = compiledGraph.streamSnapshots(dataMap, runnableConfig(persistentConfig));
+            }
+
+            generator.forEachAsync(s -> {
                         try {
                             try {
                                 writer.printf("[ \"%s\",", threadId);
@@ -250,15 +323,22 @@ class GraphStreamServlet extends HttpServlet {
                             writer.flush();
                             TimeUnit.SECONDS.sleep(1);
                         } catch ( InterruptedException e) {
-                            throw new RuntimeException(e);
+                            throw new CompletionException(e);
                         }
 
                     })
                     .thenAccept(v -> writer.close())
                     .thenAccept(v -> asyncContext.complete())
+                    .exceptionally(e -> {
+                        log.error("Error streaming", e);
+                        writer.close();
+                        asyncContext.complete();
+                        return null;
+                    })
             ;
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            log.error("Error streaming", e);
             throw new ServletException(e);
         }
     }
@@ -274,14 +354,14 @@ record ThreadEntry( String id, List<? extends NodeOutput<? extends AgentState>> 
 }
 
 record InitData(
-        String graph,
-        List<ThreadEntry> threads,
         String title,
-        Map<String, ArgumentMetadata> args
+        String graph,
+        Map<String, ArgumentMetadata> args,
+        List<ThreadEntry> threads
         ) {
 
-    public InitData( String graph, String title, Map<String, ArgumentMetadata> args) {
-        this(graph, Collections.singletonList( new ThreadEntry("default", Collections.emptyList())), title, args);
+    public InitData( String title, String graph, Map<String, ArgumentMetadata> args ) {
+        this( title, graph, args, Collections.singletonList( new ThreadEntry("default", Collections.emptyList())) );
     }
 }
 
@@ -300,6 +380,13 @@ class InitDataSerializer extends StdSerializer<InitData> {
             jsonGenerator.writeStringField("graph", initData.graph());
             jsonGenerator.writeStringField("title", initData.title());
             jsonGenerator.writeObjectField("args", initData.args());
+
+
+//            jsonGenerator.writeArrayFieldStart("nodes" );
+//            for( var node : initData.nodes() ) {
+//                jsonGenerator.writeString(node);
+//            }
+//            jsonGenerator.writeEndArray();
 
             jsonGenerator.writeArrayFieldStart("threads" );
             for( var thread : initData.threads() ) {
@@ -336,7 +423,7 @@ class GraphInitServlet extends HttpServlet {
 
         var graph = stateGraph.getGraph(GraphRepresentation.Type.MERMAID, title, false);
 
-        initData = new InitData( graph.getContent(), title, args);
+        initData = new InitData( title, graph.getContent(), args );
     }
 
     @Override
