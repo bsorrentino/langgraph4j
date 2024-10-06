@@ -6,23 +6,47 @@ import java.util.Objects;
 import java.util.Optional;
 
 @ToString
-public class RunnableConfig {
+public final class RunnableConfig {
     private String threadId;
     private String checkPointId;
     private String nextNode;
+    private CompiledGraph.StreamMode streamMode = CompiledGraph.StreamMode.VALUES;
 
     public CompiledGraph.StreamMode streamMode() {
-        return CompiledGraph.StreamMode.VALUES;
+        return streamMode;
     }
-
-    public final Optional<String> threadId() {
+    public Optional<String> threadId() {
         return Optional.ofNullable(threadId);
     }
-    public final Optional<String> checkPointId() {
+    public Optional<String> checkPointId() {
         return Optional.ofNullable(checkPointId);
     }
-    public final Optional<String> nextNode() {
+    public Optional<String> nextNode() {
         return Optional.ofNullable(nextNode);
+    }
+
+    /**
+     * Create a new RunnableConfig with the same attributes as this one
+     * but with a different {@link CompiledGraph.StreamMode}.
+     * @param streamMode the new stream mode
+     * @return a new RunnableConfig with the updated stream mode
+     */
+    public RunnableConfig withStreamMode(CompiledGraph.StreamMode streamMode) {
+        if( this.streamMode == streamMode ) {
+            return this;
+        }
+        RunnableConfig newConfig = new RunnableConfig(this);
+        newConfig.streamMode = streamMode;
+        return newConfig;
+    }
+
+    public RunnableConfig withCheckPointId( String checkPointId ) {
+        if( Objects.equals(this.checkPointId, checkPointId ) ) {
+            return this;
+        }
+        RunnableConfig newConfig = new RunnableConfig(this);
+        newConfig.checkPointId = checkPointId;
+        return newConfig;
     }
 
     public static Builder builder() {
@@ -51,17 +75,21 @@ public class RunnableConfig {
             this.config.nextNode = nextNode;
             return this;
         }
-
+        public Builder streamMode(CompiledGraph.StreamMode streamMode) {
+            this.config.streamMode = streamMode;
+            return this;
+        }
         public RunnableConfig build() {
             return config;
         }
     }
 
-    protected RunnableConfig( RunnableConfig config ) {
+    private RunnableConfig( RunnableConfig config ) {
         Objects.requireNonNull( config, "config cannot be null" );
         this.threadId = config.threadId;
         this.checkPointId = config.checkPointId;
         this.nextNode = config.nextNode;
+        this.streamMode = config.streamMode;
     }
     private RunnableConfig() {}
 
