@@ -1,7 +1,7 @@
 package org.bsc.langgraph4j;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
+
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppendableValue;
 import org.bsc.langgraph4j.state.AppenderChannel;
@@ -33,8 +33,8 @@ public class StateGraphTest
     @Test
     void testValidation() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new);
-        var exception = assertThrows(GraphStateException.class, workflow::compile);
+        StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new);
+        GraphStateException exception = assertThrows(GraphStateException.class, workflow::compile);
         System.out.println(exception.getMessage());
         assertEquals( "missing Entry Point", exception.getMessage());
 
@@ -87,7 +87,7 @@ public class StateGraphTest
     @Test
     public void testRunningOneNode() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new)
+        StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
             .addEdge( START,"agent_1")
             .addNode("agent_1", node_async( state -> {
                 System.out.print( "agent_1");
@@ -97,12 +97,12 @@ public class StateGraphTest
             .addEdge( "agent_1",  END)
             ;
 
-        var app = workflow.compile();
+        CompiledGraph<AgentState> app = workflow.compile();
 
-        var result = app.invoke( mapOf( "input", "test1") );
+        Optional<AgentState> result = app.invoke( mapOf( "input", "test1") );
         assertTrue( result.isPresent() );
 
-        var  expected = mapOf("input", "test1","prop1","test");
+        Map<String, String> expected = mapOf("input", "test1","prop1","test");
 
         assertIterableEquals( sortMap(expected), sortMap(result.get().data()) );
         //assertDictionaryOfAnyEqual( expected, result.data )
@@ -134,7 +134,7 @@ public class StateGraphTest
     @Test
     void testWithAppender() throws Exception {
 
-        var workflow = new StateGraph<>( MessagesState.SCHEMA, MessagesState::new)
+        StateGraph<MessagesState> workflow = new StateGraph<>( MessagesState.SCHEMA, MessagesState::new)
                 .addNode("agent_1", node_async( state -> {
                     System.out.println( "agent_1" );
                     return mapOf("messages", "message1");
@@ -145,7 +145,7 @@ public class StateGraphTest
                 }))
                 .addNode("agent_3", node_async( state -> {
                     System.out.println( "agent_3" );
-                    var steps = state.messages().size() +1 ;
+                    int steps = state.messages().size() +1 ;
                     return mapOf("messages", "message3","steps", steps );
                 }))
                 .addEdge("agent_1", "agent_2")
@@ -153,7 +153,7 @@ public class StateGraphTest
                 .addEdge( START, "agent_1")
                 .addEdge( "agent_3", END);
 
-        var app = workflow.compile();
+        CompiledGraph<MessagesState> app = workflow.compile();
 
         Optional<MessagesState> result = app.invoke( mapOf() );
 
@@ -185,7 +185,7 @@ public class StateGraphTest
     @Test
     void testWithAppenderDeprecated() throws Exception {
 
-        var workflow = new StateGraph<>(MessagesStateDeprecated::new)
+        StateGraph<MessagesStateDeprecated> workflow = new StateGraph<>(MessagesStateDeprecated::new)
                 .addNode("agent_1", node_async( state -> {
                     System.out.println( "agent_1" );
                     return mapOf("messages", "message1");
@@ -196,8 +196,8 @@ public class StateGraphTest
                 }))
                 .addNode("agent_3", node_async( state -> {
                     System.out.println( "agent_3" );
-                    var messages = state.messages();
-                    var steps = messages.size() +1 ;
+                    AppendableValue<String> messages = state.messages();
+                    int steps = messages.size() +1 ;
                     return mapOf("messages", "message3","steps", steps);
                 }))
                 .addEdge("agent_1", "agent_2")
@@ -205,7 +205,7 @@ public class StateGraphTest
                 .addEdge( START, "agent_1")
                 .addEdge( "agent_3", END);
 
-        var app = workflow.compile();
+        CompiledGraph<MessagesStateDeprecated> app = workflow.compile();
 
         Optional<MessagesStateDeprecated> result = app.invoke( mapOf() );
 

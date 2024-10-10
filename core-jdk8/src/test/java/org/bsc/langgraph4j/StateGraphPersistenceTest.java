@@ -1,7 +1,7 @@
 package org.bsc.langgraph4j;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
+
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
@@ -65,7 +65,7 @@ public class StateGraphPersistenceTest
     @Test
     public void testCheckpointInitialState() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new)
+        StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
             .addEdge( START,"agent_1")
             .addNode("agent_1", node_async( state -> {
                 log.info( "agent_1");
@@ -74,16 +74,16 @@ public class StateGraphPersistenceTest
             .addEdge( "agent_1",  END)
         ;
 
-        var saver = new MemorySaver();
+        MemorySaver saver = new MemorySaver();
 
-        var compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
+        CompileConfig compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
 
-        var runnableConfig = RunnableConfig.builder().build();
-        var app = workflow.compile( compileConfig );
+        RunnableConfig runnableConfig = RunnableConfig.builder().build();
+        CompiledGraph<AgentState> app = workflow.compile( compileConfig );
 
         Map<String, Object> inputs = mapOf( "input", "test1");
 
-        var initState = app.cloneState( app.getInitialState( inputs, runnableConfig ) );
+        AgentState initState = app.cloneState( app.getInitialState( inputs, runnableConfig ) );
 
         assertEquals( 1, initState.data().size() );
         assertTrue(  initState.value("input").isPresent() );
@@ -92,7 +92,7 @@ public class StateGraphPersistenceTest
         //
         // Test checkpoint not override inputs
         //
-        var newState = new AgentState( mapOf( "input", "test2") );
+        AgentState newState = new AgentState( mapOf( "input", "test2") );
 
         saver.put( runnableConfig, Checkpoint.builder()
                 .state( newState.data() )
@@ -123,9 +123,9 @@ public class StateGraphPersistenceTest
         assertTrue(  initState.value("agent_1:prop1").isPresent() );
         assertEquals( "agent_1:test", initState.value("agent_1:prop1").get() );
 
-        var checkpoints = saver.list(runnableConfig);
+        java.util.Collection<Checkpoint> checkpoints = saver.list(runnableConfig);
         assertEquals( 2, checkpoints.size() );
-        var last = saver.get(runnableConfig);
+        Optional<Checkpoint> last = saver.get(runnableConfig);
         assertTrue( last.isPresent() );
         assertEquals( "agent_1", last.get().getNodeId() );
         assertNotNull( last.get().getState().get("agent_1:prop1") );
@@ -138,12 +138,12 @@ public class StateGraphPersistenceTest
         return new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
                 .addEdge(START, "agent_1")
                 .addNode("agent_1", node_async( state -> {
-                    var steps = state.steps() + 1;
+                    int steps = state.steps() + 1;
                     log.info( "agent_1: step: {}", steps );
                     return mapOf("steps", steps, "messages", format( "agent_1:step %d", steps ));
                 }))
                 .addConditionalEdges( "agent_1", edge_async( state -> {
-                    var steps = state.steps();
+                    int steps = state.steps();
                     if( steps >= expectedSteps) {
                         return "exit";
                     }
@@ -155,29 +155,30 @@ public class StateGraphPersistenceTest
 
     @Test
     public void testCheckpointSaverResubmit() throws Exception {
-        var expectedSteps = 5;
+        int expectedSteps = 5;
 
-        var workflow = workflow01( expectedSteps );
+        StateGraph<MessagesState> workflow = workflow01( expectedSteps );
 
-        var saver = new MemorySaver();
+        MemorySaver saver = new MemorySaver();
 
-        var compileConfig = CompileConfig.builder()
+        CompileConfig compileConfig = CompileConfig.builder()
                 .checkpointSaver(saver)
                 .build();
 
-        var app = workflow.compile( compileConfig );
+        CompiledGraph<MessagesState> app = workflow.compile( compileConfig );
 
         Map<String, Object> inputs = mapOf( "steps", 0 );
 
-        var runnableConfig = RunnableConfig.builder()
-                                    .threadId("thread_1").build();
+        RunnableConfig runnableConfig = RunnableConfig.builder()
+                                    .threadId("thread_1")
+                                    .build();
 
-        var state = app.invoke( inputs, runnableConfig );
+        Optional<MessagesState> state = app.invoke( inputs, runnableConfig );
 
         assertTrue( state.isPresent() );
         assertEquals( expectedSteps, state.get().steps() );
 
-        var messages = state.get().messages();
+        List<String> messages = state.get().messages();
         assertFalse( messages.isEmpty() );
 
         log.info( "{}", messages );
@@ -187,7 +188,7 @@ public class StateGraphPersistenceTest
             assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
         }
 
-        var snapshot = app.getState(runnableConfig);
+        StateSnapshot<MessagesState> snapshot = app.getState(runnableConfig);
 
         assertNotNull( snapshot );
         log.info( "SNAPSHOT:\n{}\n", snapshot );
@@ -225,7 +226,7 @@ public class StateGraphPersistenceTest
     @Test
     public void testViewAndUpdatePastGraphState() throws Exception {
 
-        var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        StateGraph<MessagesState> workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
                 .addNode("agent", node_async( state -> {
                     String lastMessage = state.lastMessage().orElseThrow( () -> new IllegalStateException("No last message!") );
 
@@ -253,21 +254,21 @@ public class StateGraphPersistenceTest
                 .addEdge("tools", "agent");
 
 
-        var saver = new MemorySaver();
+        MemorySaver saver = new MemorySaver();
 
-        var compileConfig = CompileConfig.builder()
+        CompileConfig compileConfig = CompileConfig.builder()
                 .checkpointSaver(saver)
                 .build();
 
-        var app = workflow.compile( compileConfig );
+        CompiledGraph<MessagesState> app = workflow.compile( compileConfig );
 
         Map<String, Object> inputs = mapOf( "messages", "whether in Naples?") ;
 
-        var runnableConfig = RunnableConfig.builder()
+        RunnableConfig runnableConfig = RunnableConfig.builder()
                 .threadId("thread_1")
                 .build();
 
-        var results = app.streamSnapshots( inputs, runnableConfig ).stream().collect( Collectors.toList() );
+        List<NodeOutput<MessagesState>> results = app.streamSnapshots( inputs, runnableConfig ).stream().collect( Collectors.toList() );
 
         results.forEach( r -> log.info( "{}: Node: {} - {}", r.getClass().getSimpleName(), r.node(), r.state().messages() ) );
 
@@ -278,18 +279,18 @@ public class StateGraphPersistenceTest
         assertInstanceOf( StateSnapshot.class, results.get(3) );
         assertInstanceOf( NodeOutput.class, results.get(4) );
 
-        var snapshot = app.getState(runnableConfig);
+        StateSnapshot<MessagesState> snapshot = app.getState(runnableConfig);
         assertNotNull( snapshot );
         assertEquals( END, snapshot.next() );
 
         log.info( "LAST SNAPSHOT:\n{}\n", snapshot );
 
-        var stateHistory = app.getStateHistory( runnableConfig );
+        java.util.Collection<StateSnapshot<MessagesState>> stateHistory = app.getStateHistory( runnableConfig );
         stateHistory.forEach( state -> log.info( "SNAPSHOT HISTORY:\n{}\n", state ) );
         assertNotNull( stateHistory );
         assertEquals( 4, stateHistory.size() );
 
-        for( var s : stateHistory ) {
+        for( StateSnapshot<MessagesState> s : stateHistory ) {
             log.info( "SNAPSHOT HISTORY:\n{}\n", s );
         }
 
@@ -301,12 +302,12 @@ public class StateGraphPersistenceTest
         assertTrue( results.get(0).state().lastMessage().isPresent() );
         assertEquals( "whether in Naples is sunny", results.get(0).state().lastMessage().get() );
 
-        var firstSnapshot = stateHistory.stream().reduce( (first, second) -> second); // take the last
+        Optional<StateSnapshot<MessagesState>> firstSnapshot = stateHistory.stream().reduce( (first, second) -> second); // take the last
         assertTrue( firstSnapshot.isPresent() );
         assertTrue( firstSnapshot.get().state().lastMessage().isPresent() );
         assertEquals( "whether in Naples?", firstSnapshot.get().state().lastMessage().get() );
 
-        var toReplay = firstSnapshot.get().config();
+        RunnableConfig toReplay = firstSnapshot.get().config();
 
         toReplay = app.updateState( toReplay, mapOf( "messages", "i'm bartolo") );
         results = app.stream( null, toReplay ).stream().collect( Collectors.toList() );
@@ -322,7 +323,7 @@ public class StateGraphPersistenceTest
 
     @Test
     public void testPauseAndUpdatePastGraphState() throws Exception {
-        var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        StateGraph<MessagesState> workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
                 .addNode("agent", node_async( state -> {
                     String lastMessage = state.lastMessage().orElseThrow( () -> new IllegalStateException("No last message!") );
 
@@ -350,21 +351,21 @@ public class StateGraphPersistenceTest
                 .addEdge("tools", "agent");
 
 
-        var saver = new MemorySaver();
+        MemorySaver saver = new MemorySaver();
 
-        var compileConfig = CompileConfig.builder()
+        CompileConfig compileConfig = CompileConfig.builder()
                 .checkpointSaver(saver)
                 .interruptBefore("tools")
                 .build();
 
-        var app = workflow.compile( compileConfig );
+        CompiledGraph<MessagesState> app = workflow.compile( compileConfig );
 
-        var runnableConfig = RunnableConfig.builder()
+        RunnableConfig runnableConfig = RunnableConfig.builder()
                 .threadId("thread_1")
                 .build();
 
         Map<String,Object> inputs = mapOf( "messages", "whether in Naples?")  ;
-        var results = app.stream( inputs, runnableConfig ).stream().collect(Collectors.toList());
+        List<NodeOutput<MessagesState>> results = app.stream( inputs, runnableConfig ).stream().collect(Collectors.toList());
         results.forEach( System.out::println);
         assertNotNull( results );
         assertEquals( 2, results.size() );
@@ -372,7 +373,7 @@ public class StateGraphPersistenceTest
         assertEquals( "agent", results.get(1).node() );
         assertTrue( results.get(1).state().lastMessage().isPresent() );
 
-        var state = app.getState(runnableConfig);
+        StateSnapshot<MessagesState> state = app.getState(runnableConfig);
 
         assertNotNull( state );
         assertEquals( "tools", state.next() );

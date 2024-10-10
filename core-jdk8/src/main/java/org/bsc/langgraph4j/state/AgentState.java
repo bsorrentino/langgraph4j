@@ -1,6 +1,6 @@
 package org.bsc.langgraph4j.state;
 
-import lombok.var;
+
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -122,9 +122,9 @@ public class AgentState {
         }
         return partialState.entrySet().stream().map( entry -> {
 
-            var channel = channels.get(entry.getKey());
+            Channel<?> channel = channels.get(entry.getKey());
             if (channel != null) {
-                var newValue = channel.update( entry.getKey(), state.get(entry.getKey()), entry.getValue());
+                Object newValue = channel.update( entry.getKey(), state.get(entry.getKey()), entry.getValue());
                 return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), newValue);
             }
 
@@ -148,7 +148,7 @@ public class AgentState {
             return state;
         }
 
-        var updatedPartialState = updatePartialStateFromSchema(state, partialState, channels);
+        Map<String, Object> updatedPartialState = updatePartialStateFromSchema(state, partialState, channels);
 
         return Stream.concat(state.entrySet().stream(), updatedPartialState.entrySet().stream())
                 .collect(Collectors.toMap(
