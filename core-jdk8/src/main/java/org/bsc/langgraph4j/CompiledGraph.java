@@ -3,7 +3,7 @@ package org.bsc.langgraph4j;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
+
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
@@ -61,7 +61,7 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     public Collection<StateSnapshot<State>> getStateHistory( RunnableConfig config ) {
-        var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
+        BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
         return saver.list(config).stream()
                 .map( checkpoint -> StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() ) )
@@ -89,7 +89,7 @@ public class CompiledGraph<State extends AgentState> {
      * @throws IllegalStateException if the saver is not defined
      */
     public Optional<StateSnapshot<State>> stateOf( RunnableConfig config ) {
-        var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
+        BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
         return saver.get(config)
                 .map( checkpoint -> StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() ) );
@@ -108,10 +108,10 @@ public class CompiledGraph<State extends AgentState> {
      * @throws Exception when something goes wrong
      */
     public RunnableConfig updateState( RunnableConfig config, Map<String,Object> values, String asNode ) throws Exception {
-        var saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
+        BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
         // merge values with checkpoint values
-        var updatedCheckpoint = saver.get(config)
+        Checkpoint updatedCheckpoint = saver.get(config)
                             .map( cp -> cp.updateState(values, stateGraph.getChannels()) )
                             .orElseThrow( () -> (new IllegalStateException("Missing Checkpoint!")) );
 
@@ -120,7 +120,7 @@ public class CompiledGraph<State extends AgentState> {
             nextNodeId = nextNodeId( asNode, updatedCheckpoint.getState() );
         }
         // update checkpoint in saver
-        var newConfig = saver.put( config, updatedCheckpoint );
+        RunnableConfig newConfig = saver.put( config, updatedCheckpoint );
 
         return RunnableConfig.builder(newConfig)
                                 .checkPointId( updatedCheckpoint.getId() )
@@ -170,10 +170,10 @@ public class CompiledGraph<State extends AgentState> {
             return route.id();
         }
         if( route.value() != null ) {
-            var derefState = stateGraph.getStateFactory().apply(state);
-            var condition = route.value().action();
-            var newRoute = condition.apply(derefState).get();
-            var result = route.value().mappings().get(newRoute);
+            State derefState = stateGraph.getStateFactory().apply(state);
+            org.bsc.langgraph4j.action.AsyncEdgeAction<State> condition = route.value().action();
+            String newRoute = condition.apply(derefState).get();
+            String result = route.value().mappings().get(newRoute);
             if( result == null ) {
                 throw StateGraph.RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
             }
@@ -285,9 +285,9 @@ public class CompiledGraph<State extends AgentState> {
      */
     public Optional<State> invoke(Map<String,Object> inputs, RunnableConfig config ) throws Exception {
 
-        var sourceIterator = stream(inputs, config).iterator();
+        Iterator<NodeOutput<State>> sourceIterator = stream(inputs, config).iterator();
 
-        var result = StreamSupport.stream(
+        java.util.stream.Stream<NodeOutput<State>> result = StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
                 false);
 

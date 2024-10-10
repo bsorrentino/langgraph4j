@@ -1,6 +1,6 @@
 package org.bsc.langgraph4j;
 
-import lombok.var;
+
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.state.AgentState;
@@ -172,7 +172,7 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
-        var node = new Node<State>(id, action);
+        Node<State> node = new Node<State>(id, action);
 
         if (nodes.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -199,7 +199,7 @@ public class StateGraph<State extends AgentState> {
             return this;
         }
 
-        var edge = new Edge<State>(sourceId, new EdgeValue<>(targetId, null));
+        Edge<State> edge = new Edge<State>(sourceId, new EdgeValue<>(targetId, null));
 
         if (edges.contains(edge)) {
             throw Errors.duplicateEdgeError.exception(sourceId);
@@ -230,7 +230,7 @@ public class StateGraph<State extends AgentState> {
             return this;
         }
 
-        var edge = new Edge<State>(sourceId, new EdgeValue<>(null, new EdgeCondition<>(condition, mappings)));
+        Edge<State> edge = new Edge<State>(sourceId, new EdgeValue<>(null, new EdgeCondition<>(condition, mappings)));
 
         if (edges.contains(edge)) {
             throw Errors.duplicateEdgeError.exception(sourceId);

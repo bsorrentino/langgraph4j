@@ -1,6 +1,6 @@
 package org.bsc.langgraph4j;
 
-import lombok.var;
+
 import org.bsc.langgraph4j.state.AgentState;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ public class GraphTest {
     @Test
     public void testSimpleGraph() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new)
+        StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
             .addNode("agent_3", this::dummyNodeAction)
             .addNode("agent_1", this::dummyNodeAction)
             .addNode("agent_2", this::dummyNodeAction)
@@ -34,9 +34,9 @@ public class GraphTest {
             .addEdge( "agent_3",  "agent_2")
             ;
 
-        var app = workflow.compile();
+        CompiledGraph<AgentState> app = workflow.compile();
 
-        var result = app.getGraph(GraphRepresentation.Type.PLANTUML);
+        GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
         assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
@@ -66,7 +66,7 @@ public class GraphTest {
     @Test
     public void testCorrectionProcessGraph() throws Exception {
 
-        var workflow = new StateGraph<>(AgentState::new)
+        StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
             .addNode( "evaluate_result", this::dummyNodeAction)
             .addNode( "agent_review", this::dummyNodeAction )
             .addEdge( "agent_review", "evaluate_result" )
@@ -80,9 +80,9 @@ public class GraphTest {
             .addEdge( START, "evaluate_result")
                 ;
 
-        var app = workflow.compile();
+        CompiledGraph<AgentState> app = workflow.compile();
 
-        var result = app.getGraph(GraphRepresentation.Type.PLANTUML);
+        GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
         assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
@@ -118,7 +118,7 @@ public class GraphTest {
     }
     @Test
     public void GenerateAgentExecutorGraph() throws Exception {
-        var workflow = new StateGraph<>(AgentState::new)
+        StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
             .addNode( "agent", this::dummyNodeAction)
             .addNode( "action", this::dummyNodeAction)
             .addEdge(START, "agent")
@@ -130,9 +130,9 @@ public class GraphTest {
             .addEdge("action", "agent")
             ;
 
-        var app = workflow.compile();
+        CompiledGraph<AgentState> app = workflow.compile();
 
-        var result = app.getGraph(GraphRepresentation.Type.PLANTUML);
+        GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
         assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +
@@ -165,7 +165,7 @@ public class GraphTest {
 
     @Test
     public void GenerateImageToDiagramGraph() throws Exception {
-        var workflow = new StateGraph<>(AgentState::new)
+        StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
             .addNode("agent_describer", this::dummyNodeAction )
             .addNode("agent_sequence_plantuml", this::dummyNodeAction )
             .addNode("agent_generic_plantuml", this::dummyNodeAction )
@@ -182,9 +182,9 @@ public class GraphTest {
             .addEdge("evaluate_result", END)
         ;
 
-        var app = workflow.compile();
+        CompiledGraph<AgentState> app = workflow.compile();
 
-        var result = app.getGraph( GraphRepresentation.Type.PLANTUML);
+        GraphRepresentation result = app.getGraph( GraphRepresentation.Type.PLANTUML);
         assertEquals( GraphRepresentation.Type.PLANTUML, result.getType() );
 
         assertEquals( "@startuml unnamed.puml\n" +

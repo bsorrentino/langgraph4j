@@ -50,6 +50,10 @@
       <name>snapshots</name>
       <url>${snapshot.repo.url}</url>
     </snapshotRepository>
+    <site>
+      <id>${project.artifactId}-site</id>
+      <url>${project.baseUri}</url>
+    </site>
   </distributionManagement>
 
 
@@ -89,7 +93,22 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.3</version> <!-- Use the latest version -->
+        <version>3.10.1</version>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+          <reportSet>
+            <id>default</id>
+            <reports>
+              <report>javadoc</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
     </plugins>
   </reporting>
@@ -142,9 +161,17 @@
     </pluginManagement>
 
     <plugins>
-    </plugins>
-  </build>
+      <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-site-plugin</artifactId>
+      <version>4.0.0-M14</version>
+        <configuration>
+          <tempWebappDirectory>${project.build.directory}/staging</tempWebappDirectory>
+        </configuration>
+      </plugin>
 
+    </plugins>
+ </build>
 
   <profiles>
     <profile>

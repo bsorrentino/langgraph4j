@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
+
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
@@ -51,7 +51,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
     }
 
     public ImageToDiagramProcess(String resourceName ) throws  Exception {
-        var imageData = ImageLoader.loadImageAsBase64( resourceName );
+        String imageData = ImageLoader.loadImageAsBase64( resourceName );
         imageUrlOrData = ImageUrlOrData.of(imageData);
     }
 
@@ -66,49 +66,49 @@ public class ImageToDiagramProcess implements ImageToDiagram {
 
     private Map<String,Object> describeDiagramImage(ChatLanguageModel visionModel, ImageUrlOrData imageUrlOrData, State state) throws Exception {
 
-        var systemPrompt = loadPromptTemplate( "describe_diagram_image.txt" )
+        dev.langchain4j.model.input.Prompt systemPrompt = loadPromptTemplate( "describe_diagram_image.txt" )
                                 .apply( mapOf() );
 
-        var imageContent = (imageUrlOrData.url()!=null) ?
+        ImageContent imageContent = (imageUrlOrData.url()!=null) ?
                 ImageContent.from(imageUrlOrData.url(), ImageContent.DetailLevel.AUTO) :
                 ImageContent.from(imageUrlOrData.data(), "image/png", ImageContent.DetailLevel.AUTO);
-        var textContent = new TextContent(systemPrompt.text());
-        var message = UserMessage.from(textContent, imageContent);
+        TextContent textContent = new TextContent(systemPrompt.text());
+        UserMessage message = UserMessage.from(textContent, imageContent);
 
-        var response = visionModel.generate( message );
+        dev.langchain4j.model.output.Response<AiMessage> response = visionModel.generate( message );
 
-        var outputParser = new DiagramOutputParser();
+        DiagramOutputParser outputParser = new DiagramOutputParser();
 
-        var result = outputParser.parse( response.content().text() );
+        Diagram.Element result = outputParser.parse( response.content().text() );
 
         return mapOf( "diagram",result );
     }
 
     private Map<String,Object> translateGenericDiagramDescriptionToPlantUML( State state) throws Exception {
 
-        var diagram = state.diagram()
+        Diagram.Element diagram = state.diagram()
                 .orElseThrow(() -> new IllegalArgumentException("no diagram provided!"));
 
-        var systemPrompt = loadPromptTemplate( "convert_generic_diagram_to_plantuml.txt" )
+        dev.langchain4j.model.input.Prompt systemPrompt = loadPromptTemplate( "convert_generic_diagram_to_plantuml.txt" )
                 .apply( mapOf( "diagram_description", diagram));
 
-        var response = getLLM().generate( new SystemMessage(systemPrompt.text()) );
+        dev.langchain4j.model.output.Response<AiMessage> response = getLLM().generate( new SystemMessage(systemPrompt.text()) );
 
-        var result = response.content().text();
+        String result = response.content().text();
 
         return mapOf("diagramCode", result );
     }
     private Map<String,Object> translateSequenceDiagramDescriptionToPlantUML( State state) throws Exception {
 
-        var diagram = state.diagram()
+        Diagram.Element diagram = state.diagram()
                 .orElseThrow(() -> new IllegalArgumentException("no diagram provided!"));
 
-        var systemPrompt = loadPromptTemplate( "convert_sequence_diagram_to_plantuml.txt" )
+        dev.langchain4j.model.input.Prompt systemPrompt = loadPromptTemplate( "convert_sequence_diagram_to_plantuml.txt" )
                 .apply( mapOf( "diagram_description", diagram));
 
-        var response = getLLM().generate( new SystemMessage(systemPrompt.text()) );
+        dev.langchain4j.model.output.Response<AiMessage> response = getLLM().generate( new SystemMessage(systemPrompt.text()) );
 
-        var result = response.content().text();
+        String result = response.content().text();
 
         return mapOf("diagramCode", result );
     }
@@ -118,7 +118,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
     private final OpenAiChatModel LLM = newLLM();
 
     private OpenAiChatModel newLLM( ) {
-        var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
+        String openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
                 .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
 
         return OpenAiChatModel.builder()
@@ -136,9 +136,9 @@ public class ImageToDiagramProcess implements ImageToDiagram {
 
         CompletableFuture<Map<String,Object>> result = new CompletableFuture<>();
 
-        var diagramCorrectionProcess = new DiagramCorrectionProcess();
+        DiagramCorrectionProcess diagramCorrectionProcess = new DiagramCorrectionProcess();
 
-        var list = new ArrayList<NodeOutput<State>>();
+        ArrayList<NodeOutput<State>> list = new ArrayList<NodeOutput<State>>();
         try {
             return diagramCorrectionProcess.execute( state.data() )
                     .collectAsync(list, v -> log.info( v.toString() ) )
@@ -146,7 +146,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                         if( list.isEmpty() ) {
                             throw new RuntimeException("no results");
                         }
-                        var last = list.get( list.size() - 1 );
+                        NodeOutput<State> last = list.get( list.size() - 1 );
                         return last.state().data();
                     });
         } catch (Exception e) {
@@ -157,10 +157,10 @@ public class ImageToDiagramProcess implements ImageToDiagram {
 
     public AsyncGenerator<NodeOutput<State>> execute(  Map<String, Object> inputs ) throws Exception {
 
-        var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
+        String openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
                 .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
 
-        var llmVision = OpenAiChatModel.builder()
+        OpenAiChatModel llmVision = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-4-vision-preview" )
                 .timeout(Duration.ofMinutes(2))
@@ -171,7 +171,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .maxTokens(2000)
                 .build();
 
-        var app = new StateGraph<>(State::new)
+        org.bsc.langgraph4j.CompiledGraph<State> app = new StateGraph<>(State::new)
             .addNode("agent_describer", node_async( state ->
                     describeDiagramImage( llmVision, imageUrlOrData, state )) )
             .addNode("agent_sequence_plantuml",

@@ -16,7 +16,7 @@ It is available an **embed playground webapp** that is able to run a Langgraph4j
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>langgraph4j-server-jetty</artifactId>
+    <artifactId>langgraph4j-studio-jetty</artifactId>
     <version>_last_release_</version>
 <dependency>
 ```

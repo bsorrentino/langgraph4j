@@ -6,7 +6,7 @@ import dev.langchain4j.data.message.*;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
+
 import org.bsc.langgraph4j.NodeOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ public class ImageToDiagramTest {
             while ((line = reader.readLine()) != null) {
                 result.append(line).append('\n');
             }
-            var len = result.length();
+            int len = result.length();
             return (len>0) ? result.deleteCharAt(len - 1).toString() : "";
         }
     }
@@ -72,16 +72,16 @@ public class ImageToDiagramTest {
     public void parseDescription() throws Exception {
         String result = readTextResource("describe_result.txt");
 
-        var outputParser = new DiagramOutputParser();
+        DiagramOutputParser outputParser = new DiagramOutputParser();
         System.out.println( outputParser.parse( result ) );
     }
 
     @Test
     public void describeDiagramImage() throws Exception {
-        var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
+        String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
 
-        var chatLanguageModel = OpenAiChatModel.builder()
+        OpenAiChatModel chatLanguageModel = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-4-vision-preview" )
                 .timeout(Duration.ofMinutes(2))
@@ -92,29 +92,29 @@ public class ImageToDiagramTest {
                 .maxTokens(2000)
                 .build();
 
-        var template = readTextResource( "describe_diagram_image.txt" );
+        String template = readTextResource( "describe_diagram_image.txt" );
 
-        var systemPrompt = PromptTemplate.from(template).apply( mapOf());
+        dev.langchain4j.model.input.Prompt systemPrompt = PromptTemplate.from(template).apply( mapOf());
 
-        var imageData = ImageLoader.loadImageAsBase64( "supervisor-diagram.png" );
+        String imageData = ImageLoader.loadImageAsBase64( "supervisor-diagram.png" );
 
         System.out.println(imageData );
 
-        var imageUrlOrData = ImageToDiagramProcess.ImageUrlOrData.of( new URI("https://blog.langchain.dev/content/images/2024/01/supervisor-diagram.png")  );
+        ImageToDiagramProcess.ImageUrlOrData imageUrlOrData = ImageToDiagramProcess.ImageUrlOrData.of( new URI("https://blog.langchain.dev/content/images/2024/01/supervisor-diagram.png")  );
         // var imageUrlOrData = ImageToDiagram.ImageUrlOrData.of( imageData );
 
         ImageContent imageContent = (imageUrlOrData.url()!=null) ?
                 ImageContent.from(imageUrlOrData.url(), ImageContent.DetailLevel.AUTO) :
                 ImageContent.from(imageUrlOrData.data(), "image/png", ImageContent.DetailLevel.AUTO );
         TextContent textContent = new TextContent(systemPrompt.text());
-        var message = UserMessage.from(textContent, imageContent);
+        UserMessage message = UserMessage.from(textContent, imageContent);
 
         // var json = ChatMessageSerializer.messageToJson(message);
-        var response = chatLanguageModel.generate( message );
+        dev.langchain4j.model.output.Response<AiMessage> response = chatLanguageModel.generate( message );
 
-        var outputParser = new DiagramOutputParser();
+        DiagramOutputParser outputParser = new DiagramOutputParser();
 
-        var text = response.content().text();
+        String text = response.content().text();
 
         System.out.println( text );
 
@@ -126,12 +126,12 @@ public class ImageToDiagramTest {
     public void imageToDiagram() throws Exception {
 
         // var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
-        var agentExecutor = new ImageToDiagramProcess("LangChainAgents.png");
+        ImageToDiagramProcess agentExecutor = new ImageToDiagramProcess("LangChainAgents.png");
 
-        var result = agentExecutor.execute( mapOf() );
+        org.bsc.async.AsyncGenerator<NodeOutput<ImageToDiagram.State>> result = agentExecutor.execute( mapOf() );
 
         ImageToDiagramProcess.State state = null;
-        for( var r : result ) {
+        for( NodeOutput<ImageToDiagram.State> r : result ) {
             state = r.state();
             System.out.println( state.diagram() );
         }
@@ -149,19 +149,19 @@ public class ImageToDiagramTest {
 
         final DiagramCorrectionProcess process = new DiagramCorrectionProcess();
 
-        var list = new ArrayList<NodeOutput<ImageToDiagram.State>>();
-        var result = process.execute( mapOf( "diagramCode", diagramCode ) )
+        ArrayList<NodeOutput<ImageToDiagram.State>> list = new ArrayList<NodeOutput<ImageToDiagram.State>>();
+        ImageToDiagram.State result = process.execute( mapOf( "diagramCode", diagramCode ) )
                 .collectAsync( list, v -> log.trace(v.toString()) )
                 .thenApply( v -> {
                     if( list.isEmpty() ) {
                         throw new RuntimeException("no results");
                     }
-                    var last = list.get( list.size() - 1 );
+                    NodeOutput<ImageToDiagram.State> last = list.get( list.size() - 1 );
                     return last.state();
                 })
                 .join();
 
-        var code = last( result.diagramCode() );
+        java.util.Optional<String> code = last( result.diagramCode() );
         assertTrue( code.isPresent() );
         assertEquals( expectedCode, code.get().trim() );
 

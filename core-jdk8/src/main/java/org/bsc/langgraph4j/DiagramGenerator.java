@@ -1,6 +1,6 @@
 package org.bsc.langgraph4j;
 
-import lombok.var;
+
 import org.bsc.langgraph4j.state.AgentState;
 
 import static java.lang.String.format;
@@ -38,7 +38,7 @@ public abstract class DiagramGenerator {
         });
 
 
-        var entryPoint = compiledGraph.getEntryPoint();
+        EdgeValue<State> entryPoint = compiledGraph.getEntryPoint();
         if( entryPoint.id() != null  ) {
             start( sb, entryPoint.id() );
         }

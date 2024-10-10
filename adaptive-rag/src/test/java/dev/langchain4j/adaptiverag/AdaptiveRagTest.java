@@ -9,7 +9,6 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
-import lombok.var;
 import org.bsc.langgraph4j.GraphRepresentation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -127,7 +126,7 @@ public class AdaptiveRagTest {
         ChromaStore retriever = ChromaStore.of(getOpenAiKey());
 
         String question = "agent memory";
-        var relevantDocs = retriever.search(question);
+        EmbeddingSearchResult<TextSegment> relevantDocs = retriever.search(question);
 
         List<String> docs = relevantDocs.matches().stream()
                                 .map( m -> m.embedded().text() )
@@ -144,13 +143,13 @@ public class AdaptiveRagTest {
 
         AdaptiveRag adaptiveRag = new AdaptiveRag(getOpenAiKey(), getTavilyApiKey());
 
-        var graph = adaptiveRag.buildGraph();
+        org.bsc.langgraph4j.StateGraph<AdaptiveRag.State> graph = adaptiveRag.buildGraph();
 
-        var plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML, "Adaptive RAG" );
+        GraphRepresentation plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML, "Adaptive RAG" );
 
         System.out.println( plantUml.getContent() );
 
-        var mermaid = graph.getGraph( GraphRepresentation.Type.MERMAID, "Adaptive RAG" );
+        GraphRepresentation mermaid = graph.getGraph( GraphRepresentation.Type.MERMAID, "Adaptive RAG" );
 
         System.out.println( mermaid.getContent() );
     }
