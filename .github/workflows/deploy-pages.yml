@@ -33,18 +33,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Set up JDK 8
+      - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 17
       - name: Deploy site to Github pages
         run: |
-          mvn -B --projects core-jdk8 site
+          mvn -B -Pjdk-8,jdk-17 site:site site:stage
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: './core-jdk8/target/site'
+          path: './target/staging'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
