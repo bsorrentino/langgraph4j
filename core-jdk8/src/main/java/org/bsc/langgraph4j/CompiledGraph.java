@@ -111,19 +111,20 @@ public class CompiledGraph<State extends AgentState> {
         BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
         // merge values with checkpoint values
-        Checkpoint updatedCheckpoint = saver.get(config)
+        Checkpoint branchCheckpoint = saver.get(config)
+                            .map(Checkpoint::new)
                             .map( cp -> cp.updateState(values, stateGraph.getChannels()) )
                             .orElseThrow( () -> (new IllegalStateException("Missing Checkpoint!")) );
 
         String nextNodeId = null;
         if( asNode != null ) {
-            nextNodeId = nextNodeId( asNode, updatedCheckpoint.getState() );
+            nextNodeId = nextNodeId( asNode, branchCheckpoint.getState() );
         }
         // update checkpoint in saver
-        RunnableConfig newConfig = saver.put( config, updatedCheckpoint );
+        RunnableConfig newConfig = saver.put( config, branchCheckpoint );
 
         return RunnableConfig.builder(newConfig)
-                                .checkPointId( updatedCheckpoint.getId() )
+                                .checkPointId( branchCheckpoint.getId() )
                                 .nextNode( nextNodeId )
                                 .build();
     }

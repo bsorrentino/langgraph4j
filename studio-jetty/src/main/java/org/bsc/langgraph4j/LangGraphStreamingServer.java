@@ -270,6 +270,7 @@ class GraphStreamServlet extends HttpServlet {
                 var checkpointId = ofNullable(request.getParameter("checkpoint"))
                         .orElseThrow(() -> new IllegalStateException("Missing checkpoint id!"));
 
+                var node = request.getParameter("node");
                 var config = RunnableConfig.builder()
                                         .threadId(threadId)
                                         .checkPointId(checkpointId)
@@ -279,9 +280,9 @@ class GraphStreamServlet extends HttpServlet {
 
                 config = stateSnapshot.config();
 
-                log.trace( "RESUME UPDATE STATE USING CONFIG {}\n{}", config, dataMap);
+                log.trace( "RESUME UPDATE STATE FORM {} USING CONFIG {}\n{}", node, config, dataMap);
 
-                config = compiledGraph.updateState(config, dataMap );
+                config = compiledGraph.updateState(config, dataMap, node );
 
                 log.trace( "RESUME REQUEST STREAM {}", config);
 
