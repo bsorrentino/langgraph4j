@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-class UserMessageSerializer extends BaseSerializer<UserMessage> {
+public class UserMessageSerializer extends BaseSerializer<UserMessage> {
     @Override
     public void write(UserMessage object, ObjectOutput out) throws IOException {
 

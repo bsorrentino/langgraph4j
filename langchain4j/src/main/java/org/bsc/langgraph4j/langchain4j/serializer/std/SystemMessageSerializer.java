@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-class SystemMessageSerializer implements Serializer<SystemMessage> {
+public class SystemMessageSerializer implements Serializer<SystemMessage> {
     @Override
     public void write(SystemMessage object, ObjectOutput out) throws IOException {
         out.writeUTF( object.text() );

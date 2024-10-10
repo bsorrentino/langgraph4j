@@ -10,7 +10,7 @@ import dev.langchain4j.data.message.AiMessage;
 import org.bsc.langgraph4j.serializer.Serializer;
 
 
-class AiMessageSerializer implements Serializer<AiMessage> {
+public class AiMessageSerializer implements Serializer<AiMessage> {
     @Override
     public void write(AiMessage object, ObjectOutput out) throws IOException {
         boolean hasToolExecutionRequests = object.hasToolExecutionRequests();
