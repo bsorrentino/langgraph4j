@@ -11,7 +11,7 @@ import java.util.*;
 @Slf4j
 public class ObjectStreamStateSerializer implements Serializer<Map<String,Object>> {
 
-    static class ListSerializer extends BaseSerializer<List<Object>> {
+    static class ListSerializer implements Serializer<List<Object>> {
 
         @Override
         public void write(List<Object> object, ObjectOutput out) throws IOException {

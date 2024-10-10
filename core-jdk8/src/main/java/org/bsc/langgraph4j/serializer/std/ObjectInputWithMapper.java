@@ -26,7 +26,7 @@ public class ObjectInputWithMapper implements ObjectInput {
             Serializer<?> serializer = mapper.getSerializer( serializerClass )
                     .orElseThrow( () -> new IllegalArgumentException( "No serializer found for class " + serializerClass ) );
 
-            value = serializer.read(in);
+            value = serializer.read(this);
         }
         return value;
     }

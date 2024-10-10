@@ -1,12 +1,14 @@
 package org.bsc.langgraph4j.serializer.std;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.Serializer;
 
 import java.io.IOException;
 import java.io.ObjectOutput;
 import java.util.Optional;
 
+@Slf4j
 class ObjectOutputWithMapper implements ObjectOutput {
 
     private final ObjectOutput out;
@@ -19,15 +21,19 @@ class ObjectOutputWithMapper implements ObjectOutput {
 
     @Override
     public void writeObject(Object obj) throws IOException {
+        log.trace( "{}", (obj != null) ? obj.getClass() : "NULL" );
+
         Optional<Serializer<Object>> serializer = (obj != null) ?
                 mapper.getSerializer(obj.getClass()) :
                 Optional.empty();
         // check if written by serializer
         if (serializer.isPresent()) {
+            log.trace( "use serializer {}", serializer.get().getClass().getSimpleName() );
             out.writeObject(obj.getClass());
-            serializer.get().write(obj, out);
+            serializer.get().write(obj, this);
         }
         else {
+            log.trace( "no serializer found!" );
             out.writeObject(obj);
         }
         out.flush();
