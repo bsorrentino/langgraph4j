@@ -2,7 +2,7 @@ package org.bsc.langgraph4j;
 
 import lombok.ToString;
 import org.bsc.langgraph4j.serializer.Serializer;
-import org.bsc.langgraph4j.serializer.StateSerializer;
+import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -12,14 +12,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SerializeTest {
-    private final StateSerializer stateSerializer = StateSerializer.of();
+    private final ObjectStreamStateSerializer stateSerializer = new ObjectStreamStateSerializer();
 
     private byte[] serializeState(Map<String,Object> state) throws Exception {
-        try( ByteArrayOutputStream baos = new ByteArrayOutputStream() ) {
-            ObjectOutputStream oas = new ObjectOutputStream(baos);
+        try( ByteArrayOutputStream bytesStream = new ByteArrayOutputStream() ) {
+            ObjectOutputStream oas = new ObjectOutputStream(bytesStream);
             stateSerializer.write(state, oas);
             oas.flush();
-            return baos.toByteArray();
+            return bytesStream.toByteArray();
         }
     }
     private Map<String,Object> deserializeState( byte[] bytes ) throws Exception {
@@ -77,7 +77,7 @@ public class SerializeTest {
     @Test
     public void customSerializeStateTest() throws Exception {
 
-        StateSerializer.register(NonSerializableElement.class, new Serializer<NonSerializableElement>() {
+        stateSerializer.mapper().register(NonSerializableElement.class, new Serializer<NonSerializableElement>() {
 
             @Override
             public void write(NonSerializableElement object, ObjectOutput out) throws IOException {

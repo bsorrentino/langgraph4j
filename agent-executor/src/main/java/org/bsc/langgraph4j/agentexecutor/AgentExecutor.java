@@ -2,15 +2,17 @@ package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import lombok.extern.slf4j.Slf4j;
-import org.bsc.langgraph4j.agentexecutor.serializer.AgentActionSerializer;
-import org.bsc.langgraph4j.agentexecutor.serializer.AgentFinishSerializer;
-import org.bsc.langgraph4j.agentexecutor.serializer.AgentOutcomeSerializer;
-import org.bsc.langgraph4j.agentexecutor.serializer.IntermediateStepSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.std.AgentActionSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.std.AgentFinishSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.std.AgentOutcomeSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.std.IntermediateStepSerializer;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.serializer.StateSerializer;
+import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionResultMessageSerializer;
+import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
@@ -30,6 +32,7 @@ public class AgentExecutor {
     public class GraphBuilder {
         private ChatLanguageModel chatLanguageModel;
         private List<Object> objectsWithTools;
+        private Serializer<Map<String,Object>> stateSerializer;
 
         public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
             this.chatLanguageModel = chatLanguageModel;
@@ -40,10 +43,14 @@ public class AgentExecutor {
             return this;
         }
 
+        public GraphBuilder stateSerializer( Serializer<Map<String,Object>> stateSerializer) {
+            this.stateSerializer = stateSerializer;
+            return this;
+        }
+
         public StateGraph<State> build() throws GraphStateException {
             Objects.requireNonNull(objectsWithTools, "objectsWithTools is required!");
             Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
-
 
             var toolNode = ToolNode.of( objectsWithTools );
 
@@ -54,8 +61,17 @@ public class AgentExecutor {
                     .tools( toolSpecifications )
                     .build();
 
+            if( stateSerializer == null ) {
+                var stateSerializer = new ObjectStreamStateSerializer();
+                stateSerializer.mapper()
+                        .register(IntermediateStep.class, new IntermediateStepSerializer())
+                        .register(AgentAction.class, new AgentActionSerializer())
+                        .register(AgentFinish.class, new AgentFinishSerializer())
+                        .register(AgentOutcome.class, new AgentOutcomeSerializer())
+                        .register(ToolExecutionResultMessage.class, new ToolExecutionResultMessageSerializer());
+            }
 
-            return new StateGraph<>(State.SCHEMA,State::new)
+            return new StateGraph<>(State.SCHEMA,State::new, stateSerializer)
                     .addEdge(START,"agent")
                     .addNode( "agent", node_async( state ->
                             callAgent(agentRunnable, state))
@@ -72,13 +88,6 @@ public class AgentExecutor {
                     ;
 
         }
-    }
-
-    public AgentExecutor() {
-        StateSerializer.register(IntermediateStep.class, new IntermediateStepSerializer());
-        StateSerializer.register(AgentAction.class, new AgentActionSerializer());
-        StateSerializer.register(AgentFinish.class, new AgentFinishSerializer());
-        StateSerializer.register(AgentOutcome.class, new AgentOutcomeSerializer());
     }
 
     public final GraphBuilder graphBuilder() {

@@ -14,6 +14,7 @@ import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
@@ -33,7 +34,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Optional.ofNullable;
-import static org.bsc.langgraph4j.SerializableUtils.toObjectInputStream;
 
 
 /**
@@ -59,7 +59,6 @@ public interface LangGraphStreamingServer {
         private ObjectMapper objectMapper;
         private BaseCheckpointSaver saver;
         private StateGraph<? extends AgentState>  stateGraph;
-        private Serializer<Map<String,Object>> stateSerializer; //<State>
 
         public Builder port(int port) {
             this.port = port;
@@ -93,11 +92,6 @@ public interface LangGraphStreamingServer {
 
         public <State extends AgentState> Builder stateGraph(StateGraph<State> stateGraph) {
             this.stateGraph = stateGraph;
-            return this;
-        }
-
-        public Builder stateSerialize(Serializer<Map<String,Object>> stateSerializer) {
-            this.stateSerializer = stateSerializer;
             return this;
         }
 
@@ -136,7 +130,7 @@ public interface LangGraphStreamingServer {
 
             // context.setContextPath("/");
             // Add the streaming servlet
-            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, objectMapper, saver, stateSerializer)), "/stream");
+            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, objectMapper, saver)), "/stream");
 
             var handlerList = new Handler.Sequence( resourceHandler, context);
 
@@ -199,12 +193,10 @@ class GraphStreamServlet extends HttpServlet {
     final StateGraph<? extends AgentState> stateGraph;
     final ObjectMapper objectMapper;
     final Map<PersistentConfig, CompiledGraph<? extends AgentState>> graphCache = new HashMap<>();
-    final Serializer<Map<String,Object>> stateSerializer;
 
     public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph,
                               ObjectMapper objectMapper,
-                              BaseCheckpointSaver saver,
-                              Serializer<Map<String,Object>> stateSerializer) {
+                              BaseCheckpointSaver saver) {
 
         Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
         this.stateGraph = stateGraph;
@@ -213,7 +205,6 @@ class GraphStreamServlet extends HttpServlet {
         module.addSerializer(NodeOutput.class, new NodeOutputSerializer());
         objectMapper.registerModule(module);
         this.saver = saver;
-        this.stateSerializer = stateSerializer;
     }
 
     private CompileConfig compileConfig(PersistentConfig config) {
@@ -258,9 +249,9 @@ class GraphStreamServlet extends HttpServlet {
             var compiledGraph = graphCache.get(persistentConfig);
 
             final Map<String,Object> dataMap;
-            if( resume && stateSerializer != null  ) {
+            if( resume && stateGraph.getStateSerializer() instanceof PlainTextStateSerializer textSerializer  ) {
 
-                dataMap = stateSerializer.read( toObjectInputStream(request.getInputStream()) );
+                dataMap = textSerializer.read( new InputStreamReader(request.getInputStream()) );
             }
             else {
 

@@ -245,7 +245,7 @@ public class CompiledGraph<State extends AgentState> {
 
     State cloneState( Map<String,Object> data ) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
-        Map<String,Object> newData = compileConfig.getStateSerializer().cloneObject(data);
+        Map<String,Object> newData = stateGraph.getStateSerializer().cloneObject(data);
 
         return stateGraph.getStateFactory().apply(newData);
     }

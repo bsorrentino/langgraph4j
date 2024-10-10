@@ -1,8 +1,11 @@
 package org.bsc.langgraph4j;
 
 
+import lombok.Getter;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 import org.bsc.langgraph4j.state.Channel;
@@ -87,8 +90,37 @@ public class StateGraph<State extends AgentState> {
     private EdgeValue<State> entryPoint;
     private String finishPoint;
 
-    private final AgentStateFactory<State> stateFactory;
     private final Map<String, Channel<?>> channels;
+
+    @Getter
+    private final AgentStateFactory<State> stateFactory;
+
+    @Getter
+    private final Serializer<Map<String,Object>> stateSerializer;
+
+    /**
+     *
+     * @param channels the state's schema of the graph
+     * @param stateFactory the factory to create agent states
+     * @param stateSerializer the serializer to serialize the state
+     */
+    public StateGraph(Map<String, Channel<?>> channels,
+                      AgentStateFactory<State> stateFactory,
+                      Serializer<Map<String,Object>> stateSerializer) {
+        this.channels = channels;
+        this.stateFactory = stateFactory;
+        this.stateSerializer = ( stateSerializer == null ) ? new ObjectStreamStateSerializer() : stateSerializer;
+    }
+
+    /**
+     * Constructs a new StateGraph with the specified state factory.
+     *
+     * @param stateFactory the factory to create agent states
+     */
+    public StateGraph(AgentStateFactory<State> stateFactory, Serializer<Map<String,Object>> stateSerializer) {
+        this( mapOf(), stateFactory, stateSerializer );
+
+    }
 
     /**
      * Constructs a new StateGraph with the specified state factory.
@@ -96,7 +128,7 @@ public class StateGraph<State extends AgentState> {
      * @param stateFactory the factory to create agent states
      */
     public StateGraph(AgentStateFactory<State> stateFactory) {
-        this( mapOf(), stateFactory );
+        this( mapOf(), stateFactory, null );
 
     }
 
@@ -106,22 +138,20 @@ public class StateGraph<State extends AgentState> {
      * @param stateFactory the factory to create agent states
      */
     public StateGraph(Map<String, Channel<?>> channels, AgentStateFactory<State> stateFactory) {
-        this.stateFactory = stateFactory;
-        this.channels = channels;
+        this( channels, stateFactory, null );
     }
 
-    public AgentStateFactory<State> getStateFactory() {
-        return stateFactory;
-    }
 
     public Map<String, Channel<?>> getChannels() {
         return unmodifiableMap(channels);
     }
 
+    @Deprecated
     public EdgeValue<State> getEntryPoint() {
         return entryPoint;
     }
 
+    @Deprecated
     public String getFinishPoint() {
         return finishPoint;
     }

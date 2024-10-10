@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.langchain4j.serializer;
+package org.bsc.langgraph4j.langchain4j.serializer.std;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import org.bsc.langgraph4j.serializer.Serializer;

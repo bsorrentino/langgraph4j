@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.agentexecutor.serializer;
+package org.bsc.langgraph4j.agentexecutor.serializer.json;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -10,13 +10,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import org.bsc.langgraph4j.agentexecutor.*;
-import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 
 class IntermediateStepDeserializer extends  JsonDeserializer<IntermediateStep> {
@@ -67,10 +64,23 @@ class AgentFinishDeserializer extends  JsonDeserializer<AgentFinish> {
     @Override
     public AgentFinish deserialize(JsonParser parser, DeserializationContext ctx) throws IOException, JacksonException {
         JsonNode node = parser.getCodec().readTree(parser);
-        var returnValuesNode = node.get("returnValues");
-        var returnValues = ctx.readValue(returnValuesNode.traverse(parser.getCodec()), Map.class);
         var log = node.get("log").asText();
-        return new AgentFinish(returnValues, log);
+
+        var returnValuesNode = node.get("returnValues");
+
+        if (returnValuesNode == null || returnValuesNode.isNull()) {
+            return new AgentFinish(null, log);
+        }
+
+        if (returnValuesNode.isObject()) { // GUARD
+            Map<String, Object> returnValues = new HashMap<>();
+            for (var entries = returnValuesNode.fields(); entries.hasNext(); ) {
+                var entry = entries.next();
+                returnValues.put(entry.getKey(), entry.getValue());
+            }
+            return new AgentFinish(returnValues, log);
+        }
+        throw new IOException("Unsupported return values Node: " + returnValuesNode.getNodeType());
     }
 }
 
@@ -102,9 +112,10 @@ class StateDeserializer extends JsonDeserializer<AgentExecutor.State> {
 
         Map<String,Object> data = new HashMap<>();
 
-        data.put( "input", node.get("input").asText() );
+        var dataNode = node.has("data") ? node.get("data") : node;
+        data.put( "input", dataNode.get("input").asText() );
 
-        var intermediateStepsNode = node.get("intermediate_steps");
+        var intermediateStepsNode = dataNode.get("intermediate_steps");
 
         if( intermediateStepsNode == null || intermediateStepsNode.isNull() ) { // GUARD
             throw new IOException("intermediate_steps must not be null!");
@@ -120,16 +131,16 @@ class StateDeserializer extends JsonDeserializer<AgentExecutor.State> {
         }
         data.put("intermediate_steps", intermediateStepList);
 
-        var agentOutcomeNode = node.get("agent_outcome");
-        var agentOutcome = ctx.readValue(agentOutcomeNode.traverse(parser.getCodec()), AgentOutcome.class);
-
-        data.put("agent_outcome", agentOutcome);
-
+        var agentOutcomeNode = dataNode.get("agent_outcome");
+        if( agentOutcomeNode != null && !agentOutcomeNode.isNull() ) { // GUARD
+            var agentOutcome = ctx.readValue(agentOutcomeNode.traverse(parser.getCodec()), AgentOutcome.class);
+            data.put("agent_outcome", agentOutcome);
+        }
         return new AgentExecutor.State( data );
     }
 }
 
-public class JSONStateSerializer implements Serializer<Map<String,Object>> {
+public class JSONStateSerializer extends PlainTextStateSerializer {
 
     final ObjectMapper objectMapper;
 
@@ -167,7 +178,6 @@ public class JSONStateSerializer implements Serializer<Map<String,Object>> {
     @Override
     public Map<String,Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
         var json = in.readUTF();
-        System.out.println( json );
         return objectMapper.readValue(json, AgentExecutor.State.class).data();
     }
 

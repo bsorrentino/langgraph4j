@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.agentexecutor.serializer;
+package org.bsc.langgraph4j.agentexecutor.serializer.std;
 
 import org.bsc.langgraph4j.agentexecutor.AgentFinish;
 import org.bsc.langgraph4j.serializer.Serializer;

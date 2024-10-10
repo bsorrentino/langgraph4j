@@ -1,7 +1,7 @@
-package org.bsc.langgraph4j.langchain4j.serializer;
+package org.bsc.langgraph4j.langchain4j.serializer.std;
 
 import dev.langchain4j.data.message.UserMessage;
-import org.bsc.langgraph4j.serializer.BaseSerializer;
+import org.bsc.langgraph4j.serializer.std.BaseSerializer;
 
 import java.io.IOException;
 import java.io.ObjectInput;
