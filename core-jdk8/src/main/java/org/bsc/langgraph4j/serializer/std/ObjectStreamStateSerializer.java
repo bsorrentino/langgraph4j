@@ -2,6 +2,9 @@ package org.bsc.langgraph4j.serializer.std;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.StateSerializer;
+import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.AgentStateFactory;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -9,7 +12,7 @@ import java.io.ObjectOutput;
 import java.util.*;
 
 @Slf4j
-public class ObjectStreamStateSerializer implements Serializer<Map<String,Object>> {
+public class ObjectStreamStateSerializer<State extends AgentState> extends StateSerializer<State> {
 
     static class ListSerializer implements Serializer<List<Object>> {
 
@@ -92,8 +95,8 @@ public class ObjectStreamStateSerializer implements Serializer<Map<String,Object
     private final SerializerMapper mapper = new SerializerMapper();
     private final MapSerializer mapSerializer = new MapSerializer();
 
-    public ObjectStreamStateSerializer() {
-        super();
+    public ObjectStreamStateSerializer( AgentStateFactory<State> stateFactory ) {
+        super(stateFactory);
         mapper.register( Collection.class, new ListSerializer() );
         mapper.register( Map.class, new MapSerializer() );
     }
@@ -103,12 +106,12 @@ public class ObjectStreamStateSerializer implements Serializer<Map<String,Object
     }
 
     @Override
-    public void write(Map<String, Object> object, ObjectOutput out) throws IOException {
-        mapSerializer.write(object, mapper.objectOutputWithMapper(out));
+    public void write(State object, ObjectOutput out) throws IOException {
+        mapSerializer.write(object.data(), mapper.objectOutputWithMapper(out));
     }
 
     @Override
-    public final Map<String, Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
-        return Collections.unmodifiableMap(mapSerializer.read( mapper.objectOutputWithMapper(in) ));
+    public final State read(ObjectInput in) throws IOException, ClassNotFoundException {
+        return stateFactory().apply(mapSerializer.read( mapper.objectOutputWithMapper(in) ));
     }
 }

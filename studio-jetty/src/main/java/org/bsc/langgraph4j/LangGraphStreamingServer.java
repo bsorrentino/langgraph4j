@@ -249,9 +249,9 @@ class GraphStreamServlet extends HttpServlet {
             var compiledGraph = graphCache.get(persistentConfig);
 
             final Map<String,Object> dataMap;
-            if( resume && stateGraph.getStateSerializer() instanceof PlainTextStateSerializer textSerializer  ) {
+            if( resume && stateGraph.getStateSerializer() instanceof PlainTextStateSerializer<? extends AgentState> textSerializer  ) {
 
-                dataMap = textSerializer.read( new InputStreamReader(request.getInputStream()) );
+                dataMap = textSerializer.read( new InputStreamReader(request.getInputStream()) ).data();
             }
             else {
 

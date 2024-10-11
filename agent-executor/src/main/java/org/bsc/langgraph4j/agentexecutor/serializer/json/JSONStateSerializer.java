@@ -9,8 +9,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import lombok.NonNull;
 import org.bsc.langgraph4j.agentexecutor.*;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
+import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.AgentStateFactory;
 
 import java.io.*;
 import java.util.*;
@@ -140,7 +143,7 @@ class StateDeserializer extends JsonDeserializer<AgentExecutor.State> {
     }
 }
 
-public class JSONStateSerializer extends PlainTextStateSerializer {
+public class JSONStateSerializer extends PlainTextStateSerializer<AgentExecutor.State> {
 
     final ObjectMapper objectMapper;
 
@@ -148,8 +151,8 @@ public class JSONStateSerializer extends PlainTextStateSerializer {
         return new JSONStateSerializer(objectMapper);
     }
 
-    private JSONStateSerializer(ObjectMapper objectMapper) {
-        Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
+    private JSONStateSerializer(  @NonNull ObjectMapper objectMapper) {
+        super( AgentExecutor.State::new );
         this.objectMapper = objectMapper;
 
         var module = new SimpleModule();
@@ -169,16 +172,15 @@ public class JSONStateSerializer extends PlainTextStateSerializer {
     }
 
     @Override
-    public void write(Map<String,Object> object, ObjectOutput out) throws IOException {
-        var state = new AgentExecutor.State( object );
-        var json = objectMapper.writeValueAsString(state);
+    public void write(AgentExecutor.State object, ObjectOutput out) throws IOException {
+        var json = objectMapper.writeValueAsString(object);
         out.writeUTF(json);
     }
 
     @Override
-    public Map<String,Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
+    public AgentExecutor.State read(ObjectInput in) throws IOException, ClassNotFoundException {
         var json = in.readUTF();
-        return objectMapper.readValue(json, AgentExecutor.State.class).data();
+        return objectMapper.readValue(json, AgentExecutor.State.class);
     }
 
 }

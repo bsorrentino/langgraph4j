@@ -2,9 +2,11 @@ package org.bsc.langgraph4j;
 
 
 import lombok.Getter;
+import lombok.NonNull;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -93,32 +95,26 @@ public class StateGraph<State extends AgentState> {
     private final Map<String, Channel<?>> channels;
 
     @Getter
-    private final AgentStateFactory<State> stateFactory;
-
-    @Getter
-    private final Serializer<Map<String,Object>> stateSerializer;
+    private final StateSerializer<State> stateSerializer;
 
     /**
      *
      * @param channels the state's schema of the graph
-     * @param stateFactory the factory to create agent states
      * @param stateSerializer the serializer to serialize the state
      */
     public StateGraph(Map<String, Channel<?>> channels,
-                      AgentStateFactory<State> stateFactory,
-                      Serializer<Map<String,Object>> stateSerializer) {
+                      StateSerializer<State> stateSerializer) {
         this.channels = channels;
-        this.stateFactory = stateFactory;
-        this.stateSerializer = ( stateSerializer == null ) ? new ObjectStreamStateSerializer() : stateSerializer;
+        this.stateSerializer = stateSerializer;
     }
 
     /**
-     * Constructs a new StateGraph with the specified state factory.
+     * Constructs a new StateGraph with the specified serializer.
      *
-     * @param stateFactory the factory to create agent states
+     * @param stateSerializer the serializer to serialize the state
      */
-    public StateGraph(AgentStateFactory<State> stateFactory, Serializer<Map<String,Object>> stateSerializer) {
-        this( mapOf(), stateFactory, stateSerializer );
+    public StateGraph(@NonNull StateSerializer<State> stateSerializer) {
+        this( mapOf(), stateSerializer );
 
     }
 
@@ -128,7 +124,7 @@ public class StateGraph<State extends AgentState> {
      * @param stateFactory the factory to create agent states
      */
     public StateGraph(AgentStateFactory<State> stateFactory) {
-        this( mapOf(), stateFactory, null );
+        this( mapOf(), stateFactory);
 
     }
 
@@ -138,9 +134,12 @@ public class StateGraph<State extends AgentState> {
      * @param stateFactory the factory to create agent states
      */
     public StateGraph(Map<String, Channel<?>> channels, AgentStateFactory<State> stateFactory) {
-        this( channels, stateFactory, null );
+        this( channels, new ObjectStreamStateSerializer<>(stateFactory) );
     }
 
+    public final AgentStateFactory<State> getStateFactory() {
+        return stateSerializer.stateFactory();
+    }
 
     public Map<String, Channel<?>> getChannels() {
         return unmodifiableMap(channels);

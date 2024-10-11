@@ -38,13 +38,15 @@ public class SerializableTest {
         var state = serializer.read(data);
 
         assertNotNull(state);
-        assertEquals("perform test twice", state.get("input") );
-        assertNotNull(state.get("intermediate_steps") );
-        assertInstanceOf( List.class, state.get("intermediate_steps") );
-        var intermediateSteps = (List<IntermediateStep>)state.get("intermediate_steps");
+        assertTrue(state.input().isPresent());
+        assertEquals("perform test twice", state.input().get() );
+        assertNotNull(state.intermediateSteps());
+        assertInstanceOf( List.class, state.intermediateSteps() );
+        var intermediateSteps = state.intermediateSteps();
         assertTrue(intermediateSteps.isEmpty());
-        assertInstanceOf( AgentOutcome.class, state.get("agent_outcome") );
-        var agentOutcome = (AgentOutcome)state.get("agent_outcome");
+        assertTrue( state.agentOutcome().isPresent());
+        assertInstanceOf( AgentOutcome.class, state.agentOutcome().get() );
+        var agentOutcome = state.agentOutcome().get();
         assertNotNull(agentOutcome);
         var action = agentOutcome.action();
         assertNotNull(action);
@@ -89,16 +91,18 @@ public class SerializableTest {
         var state = serializer.read(data);
 
         assertNotNull(state);
-        assertEquals("perform test another time", state.get("input") );
-        assertNotNull(state.get("intermediate_steps") );
-        assertInstanceOf( List.class, state.get("intermediate_steps") );
-        var intermediateSteps = (List<IntermediateStep>)state.get("intermediate_steps");
+        assertTrue(state.input().isPresent());
+        assertEquals("perform test another time", state.input().get() );
+        assertNotNull(state.intermediateSteps() );
+        assertInstanceOf( List.class, state.intermediateSteps() );
+        var intermediateSteps =state.intermediateSteps();
         assertEquals(1,intermediateSteps.size());
         var intermediateStep = intermediateSteps.get(0);
         assertNotNull(intermediateStep);
         assertEquals("test tool executed: perform test once", intermediateStep.observation() );
-        assertInstanceOf( AgentOutcome.class, state.get("agent_outcome") );
-        var agentOutcome = (AgentOutcome)state.get("agent_outcome");
+        assertTrue(state.agentOutcome().isPresent());
+        assertInstanceOf( AgentOutcome.class, state.agentOutcome().get() );
+        var agentOutcome = state.agentOutcome().get();
         assertNotNull(agentOutcome);
         var action = agentOutcome.action();
         assertNotNull(action);

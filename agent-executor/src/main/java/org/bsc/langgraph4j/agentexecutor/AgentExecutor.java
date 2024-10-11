@@ -12,6 +12,7 @@ import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionResultMessageSerializer;
 import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
@@ -32,7 +33,7 @@ public class AgentExecutor {
     public class GraphBuilder {
         private ChatLanguageModel chatLanguageModel;
         private List<Object> objectsWithTools;
-        private Serializer<Map<String,Object>> stateSerializer;
+        private StateSerializer<State> stateSerializer;
 
         public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
             this.chatLanguageModel = chatLanguageModel;
@@ -43,7 +44,7 @@ public class AgentExecutor {
             return this;
         }
 
-        public GraphBuilder stateSerializer( Serializer<Map<String,Object>> stateSerializer) {
+        public GraphBuilder stateSerializer( StateSerializer<State> stateSerializer) {
             this.stateSerializer = stateSerializer;
             return this;
         }
@@ -62,16 +63,18 @@ public class AgentExecutor {
                     .build();
 
             if( stateSerializer == null ) {
-                var stateSerializer = new ObjectStreamStateSerializer();
-                stateSerializer.mapper()
+                var serializer = new ObjectStreamStateSerializer<>(State::new);
+                serializer.mapper()
                         .register(IntermediateStep.class, new IntermediateStepSerializer())
                         .register(AgentAction.class, new AgentActionSerializer())
                         .register(AgentFinish.class, new AgentFinishSerializer())
                         .register(AgentOutcome.class, new AgentOutcomeSerializer())
                         .register(ToolExecutionResultMessage.class, new ToolExecutionResultMessageSerializer());
+
+                stateSerializer = serializer;
             }
 
-            return new StateGraph<>(State.SCHEMA,State::new, stateSerializer)
+            return new StateGraph<>(State.SCHEMA, stateSerializer)
                     .addEdge(START,"agent")
                     .addNode( "agent", node_async( state ->
                             callAgent(agentRunnable, state))

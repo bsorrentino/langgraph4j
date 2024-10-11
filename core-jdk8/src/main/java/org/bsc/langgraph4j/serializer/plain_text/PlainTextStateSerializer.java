@@ -1,17 +1,24 @@
 package org.bsc.langgraph4j.serializer.plain_text;
 
-import org.bsc.langgraph4j.serializer.Serializer;
+import lombok.NonNull;
+import org.bsc.langgraph4j.serializer.StateSerializer;
+import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.AgentStateFactory;
 
 import java.io.*;
-import java.util.Map;
 
-public abstract class PlainTextStateSerializer implements Serializer<Map<String,Object>> {
+public abstract class PlainTextStateSerializer<State extends AgentState> extends StateSerializer<State> {
+
+    protected PlainTextStateSerializer(@NonNull AgentStateFactory<State> stateFactory) {
+        super(stateFactory);
+    }
+
     @Override
     public String mimeType() {
         return "plain/text";
     }
 
-    public Map<String,Object> read( String data ) throws IOException, ClassNotFoundException {
+    public State read( String data ) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream bytesStream =  new ByteArrayOutputStream();
 
         try(ObjectOutputStream out = new ObjectOutputStream( bytesStream )) {
@@ -25,7 +32,7 @@ public abstract class PlainTextStateSerializer implements Serializer<Map<String,
 
     }
 
-    public Map<String,Object> read( Reader reader ) throws IOException, ClassNotFoundException {
+    public State read( Reader reader ) throws IOException, ClassNotFoundException {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader bufferedReader = new BufferedReader(reader)) {
             String line;

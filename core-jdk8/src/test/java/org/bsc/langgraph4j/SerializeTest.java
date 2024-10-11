@@ -3,28 +3,30 @@ package org.bsc.langgraph4j;
 import lombok.ToString;
 import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
+import org.bsc.langgraph4j.state.AgentState;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
 
+import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SerializeTest {
-    private final ObjectStreamStateSerializer stateSerializer = new ObjectStreamStateSerializer();
 
-    private byte[] serializeState(Map<String,Object> state) throws Exception {
-        try( ByteArrayOutputStream bytesStream = new ByteArrayOutputStream() ) {
-            ObjectOutputStream oas = new ObjectOutputStream(bytesStream);
+    private final ObjectStreamStateSerializer<AgentState> stateSerializer = new ObjectStreamStateSerializer<>( AgentState::new );
+
+    private byte[] serializeState(AgentState state) throws Exception {
+        try( ByteArrayOutputStream stream = new ByteArrayOutputStream() ) {
+            ObjectOutputStream oas = new ObjectOutputStream(stream);
             stateSerializer.write(state, oas);
             oas.flush();
-            return bytesStream.toByteArray();
+            return stream.toByteArray();
         }
     }
-    private Map<String,Object> deserializeState( byte[] bytes ) throws Exception {
-        try(ByteArrayInputStream bais = new ByteArrayInputStream( bytes ) ) {
-            ObjectInputStream ois = new ObjectInputStream( bais );
+    private AgentState deserializeState( byte[] bytes ) throws Exception {
+        try(ByteArrayInputStream stream = new ByteArrayInputStream( bytes ) ) {
+            ObjectInputStream ois = new ObjectInputStream( stream );
             return stateSerializer.read( ois );
         }
     }
@@ -32,15 +34,16 @@ public class SerializeTest {
     @Test
     public void serializeStateTest() throws Exception {
 
-        Map<String,Object> data = new HashMap<>();
-        data.put("a", "b");
-        data.put("f", null );
-        data.put("c", "d");
+        AgentState state = stateSerializer.stateOf(mapOf(
+            "a", "b",
+            "f", null,
+            "c", "d"
+        ));
 
-        byte[] bytes = serializeState(data);
+        byte[] bytes = serializeState( state );
 
         assertNotNull(bytes);
-        Map<String,Object> deserializeState = deserializeState( bytes );
+        Map<String,Object> deserializeState = deserializeState( bytes ).data();
 
         assertEquals( 3, deserializeState.size() );
         assertEquals( "b", deserializeState.get("a") );
@@ -63,13 +66,14 @@ public class SerializeTest {
     @Test
     public void partiallySerializeStateTest() throws Exception {
 
-        Map<String,Object> data = new HashMap<>();
-        data.put("a", "b");
-        data.put("f", new NonSerializableElement("I'M NOT SERIALIZABLE") );
-        data.put("c", "d");
+        AgentState state = stateSerializer.stateOf(mapOf(
+            "a", "b",
+            "f", new NonSerializableElement("I'M NOT SERIALIZABLE") ,
+            "c", "d"
+        ));
 
         assertThrows(java.io.NotSerializableException.class, () -> {
-                serializeState(data);
+                serializeState( state );
         });
 
     }
@@ -90,20 +94,20 @@ public class SerializeTest {
             }
         });
 
-        Map<String,Object> data = new HashMap<>();
-        data.put("a", "b");
-        data.put("x", new NonSerializableElement("I'M NOT SERIALIZABLE 2") );
-        data.put("f", 'H' );
-        data.put("c", "d");
+        AgentState state = stateSerializer.stateOf(mapOf(
+            "a", "b",
+            "x", new NonSerializableElement("I'M NOT SERIALIZABLE") ,
+            "f", "H",
+            "c", "d"));
 
-        System.out.println( data );
+        System.out.println( state );
 
-        byte[] bytes = serializeState(data);
+        byte[] bytes = serializeState(state);
 
         assertNotNull(bytes);
         assertTrue(bytes.length > 0);
 
-        Map<String,Object> deserializedData = deserializeState( bytes );
+        Map<String,Object> deserializedData = deserializeState( bytes ).data();
 
         assertNotNull(deserializedData);
 
