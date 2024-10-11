@@ -2,12 +2,14 @@ package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.studio.LangGraphStreamingServerJetty;
+
+import java.util.Map;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 public class LangGraphStreamingServerTest {
 
@@ -21,31 +23,34 @@ public class LangGraphStreamingServerTest {
                     steps = 0;
                     return "end";
                 }
-                return "a2";
+                return "next";
             }
         };
 
 
         StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
-            .addNode("agent_1", node_async((state ) -> {
-                System.out.println("agent_1 ");
+            .addNode("agent", node_async((state ) -> {
+                System.out.println("agent ");
                 System.out.println(state);
-                return mapOf("prop1", "value1");
+                if( state.value( "action_response").isPresent() ) {
+                    return Map.of("agent_summary", "This is just a DEMO summary");
+                }
+                return Map.of("agent_response", "This is an Agent DEMO response");
             }) )
-            .addNode("agent_2", node_async( state  -> {
-                System.out.print( "agent_2: ");
+            .addNode("action", node_async( state  -> {
+                System.out.print( "action: ");
                 System.out.println( state );
-                return mapOf("prop2", "value2");
+                return Map.of("action_response", "This is an Action DEMO response");
             }))
-            .addEdge(START, "agent_1")
-            .addEdge("agent_2", "agent_1" )
-            .addConditionalEdges("agent_1",
-                    edge_async(conditionalAge), mapOf( "a2", "agent_2", "end", END ) )
+            .addEdge(START, "agent")
+            .addEdge("action", "agent" )
+            .addConditionalEdges("agent",
+                    edge_async(conditionalAge), Map.of( "next", "action", "end", END ) )
             ;
 
-        var server = LangGraphStreamingServer.builder()
+        var server = LangGraphStreamingServerJetty.builder()
                                                 .port(8080)
-                                                .title("LANGGRAPH4j - TEST")
+                                                .title("LANGGRAPH4j STUDIO - DEMO")
                                                 .addInputStringArg("input")
                                                 .stateGraph(workflow)
                                                 .build();

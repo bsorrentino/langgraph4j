@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j;
+package org.bsc.langgraph4j.studio;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.bsc.async.AsyncGenerator;
+import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
@@ -41,9 +42,9 @@ import static java.util.Optional.ofNullable;
  * Implementations of this interface can be used to create a web server
  * that exposes an API for interacting with compiled language graphs.
  */
-public interface LangGraphStreamingJettyServer {
+public interface LangGraphStreamingServerJetty {
 
-    Logger log = LoggerFactory.getLogger(LangGraphStreamingJettyServer.class);
+    Logger log = LoggerFactory.getLogger(LangGraphStreamingServerJetty.class);
 
     CompletableFuture<Void> start() throws Exception;
 
@@ -57,7 +58,7 @@ public interface LangGraphStreamingJettyServer {
         private String title = null;
         private ObjectMapper objectMapper;
         private BaseCheckpointSaver saver;
-        private StateGraph<? extends AgentState>  stateGraph;
+        private StateGraph<? extends AgentState> stateGraph;
 
         public Builder port(int port) {
             this.port = port;
@@ -94,7 +95,7 @@ public interface LangGraphStreamingJettyServer {
             return this;
         }
 
-        public LangGraphStreamingJettyServer build() throws Exception {
+        public LangGraphStreamingServerJetty build() throws Exception {
             Objects.requireNonNull( stateGraph, "stateGraph cannot be null");
 
 //            Objects.requireNonNull( saver, "checkpoint saver cannot be null");
@@ -135,7 +136,7 @@ public interface LangGraphStreamingJettyServer {
 
             server.setHandler(handlerList);
 
-            return new LangGraphStreamingServer() {
+            return new LangGraphStreamingServerJetty() {
                 @Override
                 public CompletableFuture<Void> start() throws Exception {
                     return CompletableFuture.runAsync(() -> {
@@ -155,7 +156,7 @@ public interface LangGraphStreamingJettyServer {
 
 
 class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
-    Logger log = LangGraphStreamingServer.log;
+    Logger log = LangGraphStreamingServerJetty.log;
 
     protected NodeOutputSerializer() {
         super( NodeOutput.class );
@@ -186,7 +187,7 @@ record PersistentConfig(String sessionId, String threadId) {
 }
 
 class GraphStreamServlet extends HttpServlet {
-    Logger log = LangGraphStreamingServer.log;
+    Logger log = LangGraphStreamingServerJetty.log;
     final BaseCheckpointSaver saver;
 
     final StateGraph<? extends AgentState> stateGraph;
@@ -213,7 +214,7 @@ class GraphStreamServlet extends HttpServlet {
                 .build();
     }
 
-    RunnableConfig runnableConfig( PersistentConfig config ) {
+    RunnableConfig runnableConfig(PersistentConfig config ) {
         return RunnableConfig.builder()
                 .threadId(config.threadId())
                 .build();
@@ -357,7 +358,7 @@ record InitData(
 }
 
 class InitDataSerializer extends StdSerializer<InitData> {
-    Logger log = LangGraphStreamingServer.log;
+    Logger log = LangGraphStreamingServerJetty.log;
 
     protected InitDataSerializer(Class<InitData> t) {
         super(t);
@@ -398,7 +399,7 @@ class InitDataSerializer extends StdSerializer<InitData> {
  */
 class GraphInitServlet extends HttpServlet {
 
-    Logger log = LangGraphStreamingServer.log;
+    Logger log = LangGraphStreamingServerJetty.log;
 
     final StateGraph<? extends AgentState> stateGraph;
     final ObjectMapper objectMapper = new ObjectMapper();

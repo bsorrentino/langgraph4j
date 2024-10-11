@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
+import org.bsc.langgraph4j.studio.LangGraphStreamingServerJetty;
 
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 
@@ -38,7 +39,7 @@ public class AgentExecutorStreamingServer {
                 .build();
 
 
-        var server = LangGraphStreamingServer.builder()
+        var server = LangGraphStreamingServerJetty.builder()
                 .port(8080)
                 .objectMapper(objectMapper)
                 .title("AGENT EXECUTOR")
