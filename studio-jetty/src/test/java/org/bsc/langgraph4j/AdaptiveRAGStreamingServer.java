@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j;
 
 import dev.langchain4j.adaptiverag.AdaptiveRag;
+import org.bsc.langgraph4j.studio.LangGraphStreamingServerJetty;
 
 public class AdaptiveRAGStreamingServer {
 
@@ -26,7 +27,7 @@ public class AdaptiveRAGStreamingServer {
                         .getContent()
         );
 
-        var server = LangGraphStreamingServer.builder()
+        var server = LangGraphStreamingServerJetty.builder()
                 .port(8080)
                 //.objectMapper(objectMapper)
                 .title("ADAPTIVE RAG EXECUTOR")

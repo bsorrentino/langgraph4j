@@ -1,8 +1,6 @@
 package dev.langchain4j.image_to_diagram;
 
 import com.google.gson.Gson;
-import lombok.var;
-
 import java.util.regex.Pattern;
 
 public class DiagramOutputParser {
@@ -11,17 +9,17 @@ public class DiagramOutputParser {
         String pattern = "```json\n(.*?)\n```";
 
         // Create a Pattern object
-        var jsonPattern = Pattern.compile(pattern, Pattern.DOTALL | Pattern.MULTILINE);
+        Pattern jsonPattern = Pattern.compile(pattern, Pattern.DOTALL | Pattern.MULTILINE);
 
         // Create a Matcher object
-        var matcher = jsonPattern.matcher(s);
+        java.util.regex.Matcher matcher = jsonPattern.matcher(s);
 
         // Check if a match is found
         if (!matcher.find()) {
             throw new IllegalArgumentException("no diagram provided! in text\n" + s);
         }
 
-        var gson = new Gson();
+        Gson gson = new Gson();
         return gson.fromJson(matcher.group(1), Diagram.Element.class);
     }
 }

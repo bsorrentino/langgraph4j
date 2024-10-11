@@ -233,7 +233,7 @@ It is available an **embed playground webapp** able to run a Langgraph4j workflo
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>langgraph4j-server-jetty</artifactId>
+    <artifactId>langgraph4j-studio-jetty</artifactId>
     <version>1.0-beta5</version>
 <dependency>
 ```
@@ -250,7 +250,7 @@ StateGraph<AgentState> workflow = new StateGraph<>( AgentState::new );
 
 var saver = new MemorySaver();
 // connect playgroud webapp to workflow
-var server = LangGraphStreamingServer.builder()
+var server = LangGraphStreamingServerJetty.builder()
                                       .port(8080)
                                       .title("LANGGRAPH4j - TEST")
                                       .stateGraph( workflow )
@@ -262,7 +262,7 @@ server.start().join();
 
 ```
 ### Demo
-![result](assets/playground-demo.gif)
+![result](assets/studio-demo.gif)
 
 # References
 

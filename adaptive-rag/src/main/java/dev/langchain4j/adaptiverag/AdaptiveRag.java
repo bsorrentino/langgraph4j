@@ -4,7 +4,7 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
+
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.state.AgentState;
@@ -125,7 +125,7 @@ public class AdaptiveRag {
 
         List<String> filteredDocs =  documents.stream()
                 .filter( d -> {
-                    var score = grader.apply( RetrievalGrader.Arguments.of(question, d ));
+                    RetrievalGrader.Score score = grader.apply( RetrievalGrader.Arguments.of(question, d ));
                     boolean relevant = score.binaryScore.equals("yes");
                     if( relevant ) {
                         log.debug("---GRADE: DOCUMENT RELEVANT---");
@@ -165,9 +165,9 @@ public class AdaptiveRag {
 
         String question = state.question();
 
-        var result = WebSearchTool.of( tavilyApiKey ).apply(question);
+        List<dev.langchain4j.rag.content.Content> result = WebSearchTool.of( tavilyApiKey ).apply(question);
 
-        var webResult = result.stream()
+        String webResult = result.stream()
                             .map( content -> content.textSegment().text() )
                             .collect(Collectors.joining("\n"));
 
@@ -184,7 +184,7 @@ public class AdaptiveRag {
 
         String question = state.question();
 
-        var source = QuestionRouter.of( openApiKey ).apply( question );
+        QuestionRouter.Type source = QuestionRouter.of( openApiKey ).apply( question );
         if( source == QuestionRouter.Type.web_search ) {
             log.debug("---ROUTE QUESTION TO WEB SEARCH---");
         }
@@ -290,13 +290,13 @@ public class AdaptiveRag {
 
         AdaptiveRag adaptiveRagTest = new AdaptiveRag( System.getenv("OPENAI_API_KEY"), System.getenv("TAVILY_API_KEY"));
 
-        var graph = adaptiveRagTest.buildGraph().compile();
+        CompiledGraph<State> graph = adaptiveRagTest.buildGraph().compile();
 
-        var result = graph.stream( mapOf( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
+        org.bsc.async.AsyncGenerator<org.bsc.langgraph4j.NodeOutput<State>> result = graph.stream( mapOf( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
         // var result = graph.stream( mapOf( "question", "What kind the agent memory do iu know?" ) );
 
         String generation = "";
-        for( var r : result ) {
+        for( org.bsc.langgraph4j.NodeOutput<State> r : result ) {
             System.out.printf( "Node: '%s':\n", r.node() );
 
             generation = r.state().generation().orElse( "")

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<site xmlns="http://maven.apache.org/SITE/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/SITE/2.0.0 https://maven.apache.org/xsd/site-2.0.0.xsd"
+      name="LangGraph4j">
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>2.0.0-M11</version>
+    </skin>
+    <custom>
+        <fluidoSkin>
+            <sideBarEnabled>true</sideBarEnabled>
+        </fluidoSkin>
+    </custom>
+
+    <bannerLeft href="/">
+        <image src="langgraph4j.png"/>
+    </bannerLeft>
+    <bannerRight>
+    </bannerRight>
+    <body>
+
+        <head>
+            <!--
+            Workaround by https://shred.zone/cilla/page/431/fluido-skin-and-markdown-syntax-highlighting.html
+            -->
+            <![CDATA[<script type="text/javascript">
+                    $(document).ready(function () {
+                        $(".language-java").addClass("prettyprint");
+                        prettyPrint();
+                    });
+            </script>]]>
+        </head>
+
+        <menu name="Modules">
+            <item name="Core module" href="core-jdk8/langgraph4j-core-jdk8/index.html"/>
+            <item name="Langchain4j integration module" href="langchain4j/langgraph4j-langchain4j/index.html"/>
+            <item name="Studio (jetty implementation)" href="studio-jetty/langgraph4j-studio-jetty/index.html"/>
+        </menu>
+        <menu name="References">
+            <item name="How To(s)" href="how-tos/langgraph4j-howtos/index.html"/>
+            <item name="JavaDocs" href="apidocs/index.html"/>
+        </menu>
+    </body>
+</site>

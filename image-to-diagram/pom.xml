@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.0-20241006</version>
+        <version>1.0-20241011</version>
     </parent>
 
     <artifactId>langgraph4j-image-to-diagram</artifactId>
@@ -65,24 +65,14 @@
 
     <build>
         <plugins>
-            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>default-package-jdk8</id>
-                    <phase>package</phase>
-                    <goals>
-                      <goal>jar</goal>
-                    </goals>
-                    <configuration>
-                      <classifier>jdk8</classifier>
-                    </configuration>
-                  </execution>
-                </executions>
-              </plugin>
-              -->
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -102,21 +92,11 @@
             <plugin>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok-maven-plugin</artifactId>
-                <version>1.18.20.0</version>
                 <configuration>
                     <sourceDirectory>src/main/java</sourceDirectory>
                 </configuration>
-                <!--
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>delombok</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                -->
             </plugin>
+
         </plugins>
     </build>
 </project>

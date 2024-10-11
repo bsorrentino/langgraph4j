@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.0-20241006</version>
+        <version>1.0-20241011</version>
     </parent>
 
     <artifactId>langgraph4j-studio-jetty</artifactId>
@@ -130,7 +130,7 @@
                     <execution>
                         <!--
                         exec:java@test
-                        mvn -pl server-jetty exec:java@test -Djava.util.logging.config.file=server-jetty/logging.properties
+                        mvn -p studio-jetty exec:java@test -Djava.util.logging.config.file=studio-jetty/logging.properties
                         -->
                         <id>test</id>
                         <goals><goal>java</goal></goals>
@@ -142,7 +142,7 @@
                     <execution>
                         <!--
                         exec:java@agentexecutor
-                        mvn -pl server-jetty exec:java@agentexecutor -Djava.util.logging.config.file=server-jetty/logging.properties
+                        mvn -pl studio-jetty exec:java@agentexecutor -Djava.util.logging.config.file=studio-jetty/logging.properties
                         -->
                         <id>agentexecutor</id>
                         <goals><goal>java</goal></goals>
@@ -154,7 +154,7 @@
                     <execution>
                         <!--
                         exec:exec@adaptiverag
-                        mvn -pl server-jetty exec:java@adaptiverag -Djava.util.logging.config.file=server-jetty/logging.properties
+                        mvn -pl studio-jetty exec:java@adaptiverag -Djava.util.logging.config.file=studio-jetty/logging.properties
                         -->
                         <id>adaptiverag</id>
                         <goals><goal>java</goal></goals>

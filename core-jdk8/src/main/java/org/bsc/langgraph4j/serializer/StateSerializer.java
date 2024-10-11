@@ -1,23 +1,31 @@
 package org.bsc.langgraph4j.serializer;
 
+import lombok.NonNull;
+import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.AgentStateFactory;
+
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 
-public class StateSerializer extends MapSerializer {
+public abstract class StateSerializer<State extends AgentState> implements Serializer<State> {
 
-    public static StateSerializer of() {
-        return new StateSerializer();
+    private final AgentStateFactory<State> stateFactory;
+
+    protected StateSerializer( @NonNull  AgentStateFactory<State> stateFactory) {
+        this.stateFactory = stateFactory;
     }
 
-    private StateSerializer() {
-        super();
-        register( Collection.class, ListSerializer.of() );
-        register( Map.class, MapSerializer.of() );
+    public final AgentStateFactory<State> stateFactory() {
+        return stateFactory;
     }
 
-    @Override
-    public Map<String, Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
-        return Collections.unmodifiableMap(super.read(in));
+    public final State stateOf( @NonNull  Map<String,Object> data) {
+        return stateFactory.apply(data);
     }
+
+    public final State cloneObject( @NonNull  Map<String,Object> data) throws IOException, ClassNotFoundException {
+        return cloneObject( stateFactory().apply(data) );
+    }
+
 }

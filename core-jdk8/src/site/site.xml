@@ -6,13 +6,24 @@
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
-        <version>2.0.0-M8</version>
+        <version>2.0.0-M11</version>
     </skin>
     <custom>
         <fluidoSkin>
             <sideBarEnabled>true</sideBarEnabled>
         </fluidoSkin>
     </custom>
+    <!--
+    <bannerLeft>
+        <src>langgraph4j.png</src>
+        <href>/</href>
+        <name>langgraph4j</name>
+    </bannerLeft>
+    <bannerRight>
+        <src>langgraph4j.png</src>
+    </bannerRight>
+    -->
+
     <body>
 
         <head>
@@ -26,31 +37,20 @@
                     });
             </script>]]>
         </head>
-        <menu name="Overview">
+        <menu name="Project">
+            <item name="Home" href="index.html"/>
             <item name="Summary" href="summary.html"/>
             <item name="Dependencies" href="dependencies.html"/>
-            <!--
-            <item name="Usage" href="usage.html"/>
-            -->
+        </menu>
 
-
+        <menu name="Conceptual Guides">
+            <item name="Overview" href="concepts/index.html"/>
+            <item name="Low Level LangGraph Concepts" href="concepts/low_level.html"/>
+            <item name="FAQ" href="concepts/faq.html"/>
         </menu>
 
         <menu name="Reference">
             <item name="javadoc" href="apidocs/index.html"/>
-        </menu>
-        <menu name="Conceptual Guides">
-            <item name="Overview" href="concepts/index.html"/>
-            <!-- 
-            <item name="LangGraph4j for Agentic Applications" href="concepts/high_level.html"/>
-            <item name="Common Agentic Patterns" href="concepts/agentic_concepts.html"/>
-            -->
-            <item name="Low Level LangGraph Concepts" href="concepts/low_level.html"/>
-            <item name="FAQ" href="concepts/faq.html"/>
-        </menu>
-        <menu name="How To(s)">
-            <item name="Persistence" href="how-tos/persistence.html"/>
-            <item name="How to view and update past graph state" href="how-tos/time-travel.html"/>
         </menu>
     </body>
 </project>

@@ -29,7 +29,7 @@ public class Checkpoint {
     private Checkpoint() {
     }
 
-    private Checkpoint( Checkpoint checkpoint ) {
+    public Checkpoint( Checkpoint checkpoint ) {
         this.id = checkpoint.id;
         this.state = checkpoint.state;
         this.nodeId = checkpoint.nodeId;

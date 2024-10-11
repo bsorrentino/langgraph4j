@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import org.bsc.langgraph4j.agentexecutor.serializer.JSONStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
+import org.bsc.langgraph4j.studio.LangGraphStreamingServerJetty;
 
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 
@@ -27,21 +28,22 @@ public class AgentExecutorStreamingServer {
                 .maxTokens(2000)
                 .build();
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        // [Serializing with Jackson (JSON) - getting "No serializer found"?](https://stackoverflow.com/a/8395924/521197)
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
         var app = new AgentExecutor().graphBuilder()
                 .chatLanguageModel(llm)
                 .objectsWithTools(listOf(new TestTool()))
+                .stateSerializer( JSONStateSerializer.of(objectMapper) )
                 .build();
 
-        // [Serializing with Jackson (JSON) - getting "No serializer found"?](https://stackoverflow.com/a/8395924/521197)
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
-        var server = LangGraphStreamingServer.builder()
+        var server = LangGraphStreamingServerJetty.builder()
                 .port(8080)
                 .objectMapper(objectMapper)
                 .title("AGENT EXECUTOR")
                 .addInputStringArg("input")
-                .stateSerialize( JSONStateSerializer.of(objectMapper) )
                 .stateGraph(app)
                 .build();
 
