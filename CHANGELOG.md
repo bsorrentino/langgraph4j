@@ -2,6 +2,73 @@
 
 
 
+<!-- "name: v1.0-20241011" is a release tag -->
+
+## [v1.0-20241011](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241011) (2024-10-11)
+
+### Features
+
+ *  refine Serialization implementation ([199ae8d396d6e27](https://github.com/bsorrentino/langgraph4j/commit/199ae8d396d6e27e0087647b6eeeac5a78c441d1))
+     > -  add StateSerializer abstract class that owns a StateFactory
+     > -  refactor tests, samples and how-tos accordly
+     > work on #29
+   
+ *  create branch on CompileGraph.updateState() ([0f1ecdb1cca8d5a](https://github.com/bsorrentino/langgraph4j/commit/0f1ecdb1cca8d5ab2a09b39316932c5e2e86f1e4))
+   
+ *  **serialization**  make serialization implementation supporting more serialization strategies ([23af74bf35514c9](https://github.com/bsorrentino/langgraph4j/commit/23af74bf35514c9f56fd9afdcc162f1d2c73fa33))
+     > resolve #29
+   
+
+### Bug Fixes
+
+ -  **serializer**  propagate ObjectOutputMapper and ObjectInputMapper ([1693b43314936db](https://github.com/bsorrentino/langgraph4j/commit/1693b43314936dbe8eacbf1ba599ad5407819376))
+
+
+### Documentation
+
+ -  overall site refinements ([4de05122e142e93](https://github.com/bsorrentino/langgraph4j/commit/4de05122e142e930e14ffd95d0a2df71014efd32))
+
+ -  rename server-jetty to studio-jetty ([00f0d49b4872442](https://github.com/bsorrentino/langgraph4j/commit/00f0d49b48724420b6a72c171b98c756967df548))
+
+ -  rename server-jetty to studio-jetty ([e0d5c7c646c5a8a](https://github.com/bsorrentino/langgraph4j/commit/e0d5c7c646c5a8a993f795cfb3abf22d9f15a0ac))
+
+ -  rename server-jetty to studio-jetty ([d7cc59285a027c8](https://github.com/bsorrentino/langgraph4j/commit/d7cc59285a027c8a8764fb19846b7f072edf774b))
+
+ -  update changeme ([fd5194ceb6ee8ff](https://github.com/bsorrentino/langgraph4j/commit/fd5194ceb6ee8ff9dd9181e7b986b5c660b579c7))
+
+
+### Refactor
+
+ -  Renamed LangGraphStreamingServer to LangGraphStreamingServerJetty ([022695c2dab9a7d](https://github.com/bsorrentino/langgraph4j/commit/022695c2dab9a7d0b7cc3a15b75be3b65e2815c2))
+   
+ -  update how-tos with new serializer ([72d0e33b24d83b9](https://github.com/bsorrentino/langgraph4j/commit/72d0e33b24d83b9f652ac898f60fd451ee153d29))
+    > work on #29
+
+ -  set public scope ([9cb9d84c59d0bc9](https://github.com/bsorrentino/langgraph4j/commit/9cb9d84c59d0bc97ff30aca2f45292e4b2cddf7e))
+   
+ -  **action**  deploy aggregate site to pages ([852e95c080ed056](https://github.com/bsorrentino/langgraph4j/commit/852e95c080ed056f5c9319e4c09a06ffb384a893))
+    > work on #36
+
+ -  remove usage of lombok.var ([bb2c73cb5b2c423](https://github.com/bsorrentino/langgraph4j/commit/bb2c73cb5b2c423ee33185c27b4358485e857102))
+    > work on #36
+
+ -  **deploy**  rename server-jetty to studio-jetty ([31594fca57ea79a](https://github.com/bsorrentino/langgraph4j/commit/31594fca57ea79a6b20fe558dcb7bd9be30bb31b))
+   
+
+### ALM 
+
+ -  bump to new intermediate version ([68f92ed62519e79](https://github.com/bsorrentino/langgraph4j/commit/68f92ed62519e79602fba1d7acb2ce0ef3aaef1c))
+   
+ -  setup maven site aggegation ([c928339ddb546c8](https://github.com/bsorrentino/langgraph4j/commit/c928339ddb546c8e62c9b7c98c07f8ae678e5aca))
+    > resolve #36
+
+ -  bump to next developer version ([80ff8fdae63cbee](https://github.com/bsorrentino/langgraph4j/commit/80ff8fdae63cbee19ec997915ef9ec8ec5ed3ede))
+   
+
+
+
+
+
 <!-- "name: v1.0-20241006" is a release tag -->
 
 ## [v1.0-20241006](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241006) (2024-10-06)
