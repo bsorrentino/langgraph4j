@@ -30,6 +30,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Threads (_checkpointing of multiple different runs_)
 - [x] Update state (_interact with the state directly and update it_)
 - [x] Breakpoints (_pause and resume feature_)
+- [x] [Studio] (_Playground Webapp_)
 - [ ] Parallel Node Execution
 
 ## Samples
@@ -223,53 +224,13 @@ return  app.stream( inputs );
 
 ```
 
-
-# Playground Webapp 
-
-It is available an **embed playground webapp** able to run a Langgraph4j workflow in visual way. 
-
-## Maven
-
-```xml
-<dependency>
-    <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>langgraph4j-studio-jetty</artifactId>
-    <version>1.0-beta5</version>
-<dependency>
-```
-
-## Sample
-
-### Code
-```java
-StateGraph<AgentState> workflow = new StateGraph<>( AgentState::new );
-
-// define your workflow   
-
-...
-
-var saver = new MemorySaver();
-// connect playgroud webapp to workflow
-var server = LangGraphStreamingServerJetty.builder()
-                                      .port(8080)
-                                      .title("LANGGRAPH4j - TEST")
-                                      .stateGraph( workflow )
-                                      .checkpointSaver(saver)
-                                      .addInputStringArg("input")
-                                      .build();
-// start playground
-server.start().join();
-
-```
-### Demo
-![result](assets/studio-demo.gif)
-
 # References
 
 * [LangGraph - LangChain Blog][langgraph.blog]
 * [AI Agent in Java with LangGraph4j - Bartolomeo Blog][article01]
 * [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 
+[Studio]: https://bsorrentino.github.io/langgraph4j/studio-jetty/langgraph4j-studio-jetty/index.html
 [CompletableFuture]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
 [article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
 [langgraph.blog]: https://blog.langchain.dev/langgraph/
