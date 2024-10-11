@@ -195,6 +195,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
+        <module>how-tos</module>
         <module>agent-executor</module>
         <module>studio-jetty</module>
       </modules>

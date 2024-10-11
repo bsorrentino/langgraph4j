@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
-import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
@@ -42,9 +41,9 @@ import static java.util.Optional.ofNullable;
  * Implementations of this interface can be used to create a web server
  * that exposes an API for interacting with compiled language graphs.
  */
-public interface LangGraphStreamingServer {
+public interface LangGraphStreamingJettyServer {
 
-    Logger log = LoggerFactory.getLogger(LangGraphStreamingServer.class);
+    Logger log = LoggerFactory.getLogger(LangGraphStreamingJettyServer.class);
 
     CompletableFuture<Void> start() throws Exception;
 
@@ -95,7 +94,7 @@ public interface LangGraphStreamingServer {
             return this;
         }
 
-        public LangGraphStreamingServer build() throws Exception {
+        public LangGraphStreamingJettyServer build() throws Exception {
             Objects.requireNonNull( stateGraph, "stateGraph cannot be null");
 
 //            Objects.requireNonNull( saver, "checkpoint saver cannot be null");

@@ -15,17 +15,17 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Entry Points
 - [x] Conditional Entry Points
 - [x] State
-  - [x] Schema (_a series of Channels_)
-    - [x] Reducer (_how apply  updates to the state attributes_)
-    - [x] Default provider
-    - [x] AppenderChannel (_values accumulator_)
-- [x] Compiling graph    
+    - [x] Schema (_a series of Channels_)
+        - [x] Reducer (_how apply  updates to the state attributes_)
+        - [x] Default provider
+        - [x] AppenderChannel (_values accumulator_)
+- [x] Compiling graph
 - [x] Async support (_throught [CompletableFuture]_)
 - [x] Streaming support (_throught [java-async-generator]_)
 - [x] Checkpoints (_save and replay feature_)
 - [x] Graph visualization
-  - [x] [PlantUML]
-  - [x] [Mermaid]
+    - [x] [PlantUML]
+    - [x] [Mermaid]
 - [x] Playground (_Embeddable Webapp that plays with LangGraph4j_)
 - [x] Threads (_checkpointing of multiple different runs_)
 - [x] Update state (_interact with the state directly and update it_)
@@ -50,9 +50,9 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 | Sep 24, 2024 | `1.0-beta5` | last official beta release
 
 
-## Quick Start 
+## Quick Start
 
-### Adding LangGraph dependency 
+### Adding LangGraph dependency
 
 #### Last stable version
 
@@ -65,7 +65,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 </dependency>
 ```
 
-#### Development Version 
+#### Development Version
 
 **Maven**
 ```xml
@@ -78,8 +78,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 ### Define the agent state
 
-The main type of graph in `langgraph` is the `StatefulGraph`. This graph is parameterized by a state object that it passes around to each node. 
-Each node then returns operations to update that state. These operations can either SET specific attributes on the state (e.g. overwrite the existing values) or ADD to the existing attribute. 
+The main type of graph in `langgraph` is the `StatefulGraph`. This graph is parameterized by a state object that it passes around to each node.
+Each node then returns operations to update that state. These operations can either SET specific attributes on the state (e.g. overwrite the existing values) or ADD to the existing attribute.
 Whether to set or add is described in the state's schema provided to the graph. The schema is a Map of Channels, each Channel represent an attribute in the state. If an attribute is described with an `AppendeChannel` it will be a List and each element referring the attribute will be automaically added by graph during processing. The State must inherit from `AgentState` base class (that essentially is a `Map` wrapper).
 
 ```java
@@ -224,9 +224,9 @@ return  app.stream( inputs );
 ```
 
 
-# Playground Webapp 
+# Playground Webapp
 
-It is available an **embed playground webapp** able to run a Langgraph4j workflow in visual way. 
+It is available an **embed playground webapp** able to run a Langgraph4j workflow in visual way.
 
 ## Maven
 
@@ -262,7 +262,7 @@ server.start().join();
 
 ```
 ### Demo
-![result](assets/studio-demo.gif)
+![result](studio-demo.gif)
 
 # References
 

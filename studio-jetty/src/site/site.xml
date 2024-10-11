@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project xmlns="http://maven.apache.org/DECORATION/1.8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 https://maven.apache.org/xsd/decoration-1.8.0.xsd"
-         name="Maven">
-
+         name="LangGraph4j">
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
@@ -13,6 +12,7 @@
             <sideBarEnabled>true</sideBarEnabled>
         </fluidoSkin>
     </custom>
+
     <!--
     <bannerLeft>
         <src>langgraph4j.png</src>
@@ -23,7 +23,6 @@
         <src>langgraph4j.png</src>
     </bannerRight>
     -->
-
     <body>
 
         <head>
@@ -42,15 +41,9 @@
             <item name="Summary" href="summary.html"/>
             <item name="Dependencies" href="dependencies.html"/>
         </menu>
-
-        <menu name="Conceptual Guides">
-            <item name="Overview" href="concepts/index.html"/>
-            <item name="Low Level LangGraph Concepts" href="concepts/low_level.html"/>
-            <item name="FAQ" href="concepts/faq.html"/>
+        <menu name="References">
+            <item name="JavaDocs" href="apidocs/index.html"/>
         </menu>
 
-        <menu name="Reference">
-            <item name="javadoc" href="apidocs/index.html"/>
-        </menu>
     </body>
 </project>
