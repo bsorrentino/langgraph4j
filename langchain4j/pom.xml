@@ -12,9 +12,12 @@
     <packaging>jar</packaging>
 
     <name>langgraph4j::langchain4j</name>
-    <description>Integration stuff for langchain4j</description>
+    <description>langchain4j integration utilities</description>
 
     <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
@@ -48,21 +51,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>4.0.0-M14</version>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.doxia</groupId>
-                        <artifactId>doxia-module-markdown</artifactId>
-                        <version>2.0.0-M12</version>
-                    </dependency>
-                </dependencies>
-
-            </plugin>
-
         </plugins>
     </build>
 </project>
