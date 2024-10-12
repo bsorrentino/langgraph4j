@@ -2,6 +2,29 @@
 
 
 
+<!-- "name: v1.0-rc1" is a release tag -->
+
+## [v1.0-rc1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-rc1) (2024-10-12)
+
+
+
+### Documentation
+
+ -  update readme ([b49b34cd912f406](https://github.com/bsorrentino/langgraph4j/commit/b49b34cd912f406dc74a379bdbf04e0cc9c3919d))
+
+ -  update changeme ([07bb1763ba09206](https://github.com/bsorrentino/langgraph4j/commit/07bb1763ba09206ac35b57699b3e76044371f90c))
+
+
+
+### ALM 
+
+ -  bump to new version ([edf8bad65f537ec](https://github.com/bsorrentino/langgraph4j/commit/edf8bad65f537ecfd089e71a5bbaf8bfd94eab3a))
+   
+
+
+
+
+
 <!-- "name: v1.0-20241011" is a release tag -->
 
 ## [v1.0-20241011](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241011) (2024-10-11)
