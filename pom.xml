@@ -181,8 +181,6 @@
       </activation>
       <modules>
         <module>core-jdk8</module>
-        <module>image-to-diagram</module>
-        <module>adaptive-rag</module>
         <module>langchain4j</module>
       </modules>
       <build>
@@ -196,6 +194,8 @@
       </activation>
       <modules>
         <module>how-tos</module>
+        <module>image-to-diagram</module>
+        <module>adaptive-rag</module>
         <module>agent-executor</module>
         <module>studio-jetty</module>
       </modules>

@@ -18,17 +18,17 @@ jobs:
           GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: ./gpg-setup.sh
-      - name: Set up JDK 8
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'liberica'
-          java-version: '8'
-          java-package: jdk
-      - name: Deploy to OSS Sonatype
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-          OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
-        run: mvn -B -Prelease source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+#      - name: Set up JDK 8
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'liberica'
+#          java-version: '8'
+#          java-package: jdk
+#      - name: Deploy to OSS Sonatype
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+#          OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
+#        run: mvn -B -Prelease,jdk-17,jdk-8 source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -39,4 +39,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
           OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
-        run: mvn -B -Prelease,jdk-17 -pl studio-jetty source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+        run: mvn -B -Prelease,jdk-8 source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
