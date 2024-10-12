@@ -14,7 +14,7 @@ Welcome to the LangGraph4j how-to Guides! These guides provide practical, step-b
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core-jdk8</artifactId>
-    <version><!--last version--></version>
+    <version>1.0-rc1</version>
 </dependency>
 ```
 
