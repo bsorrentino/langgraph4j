@@ -450,7 +450,6 @@ public class CompiledGraph<State extends AgentState> {
                     catch (Exception e) {
                         throw new CompletionException(e);
                     }
-
                 });
             }
             catch( Exception e ) {
