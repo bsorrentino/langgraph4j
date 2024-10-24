@@ -36,9 +36,13 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 ## Samples
 
-* [Agent Executor](samples/agent-executor/README.md)
-* [Image To PlantUML Diagram](samples/image-to-diagram/README.md)
-* [Adaptive RAG](samples/adaptive-rag/README.md)
+| Project         | Integrated With        
+|--------------|----------------| 
+[Agent Executor](samples/springai-agentexecutor/README.md) |  [SpringAI]
+[Agent Executor](samples/agent-executor/README.md) |  [Langchain4j][langchain4j]
+[Image To PlantUML Diagram](samples/image-to-diagram/README.md)   | [Langchain4j][langchain4j]
+[Adaptive RAG](samples/adaptive-rag/README.md) | [Langchain4j][langchain4j]
+
 
 ## How To(s)
 
@@ -272,6 +276,7 @@ server.start().join();
 * [AI Agent in Java with LangGraph4j - Bartolomeo Blog][article01]
 * [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 
+[SpringAI]: https://spring.io/projects/spring-ai
 [CompletableFuture]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
 [article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
 [langgraph.blog]: https://blog.langchain.dev/langgraph/
