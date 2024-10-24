@@ -193,11 +193,11 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
-        <module>how-tos</module>
-        <module>image-to-diagram</module>
-        <module>adaptive-rag</module>
-        <module>agent-executor</module>
         <module>studio-jetty</module>
+        <module>how-tos</module>
+        <module>samples/image-to-diagram</module>
+        <module>samples/adaptive-rag</module>
+        <module>samples/agent-executor</module>
       </modules>
       <build>
       </build>
