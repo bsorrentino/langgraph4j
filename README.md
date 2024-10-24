@@ -39,9 +39,9 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 ## Samples
 
-* [Agent Executor](agent-executor/README.md)
-* [Image To PlantUML Diagram](image-to-diagram/README.md)
-* [Adaptive RAG](adaptive-rag/README.md)
+* [Agent Executor](samples/agent-executor/README.md)
+* [Image To PlantUML Diagram](samples/image-to-diagram/README.md)
+* [Adaptive RAG](samples/adaptive-rag/README.md)
 
 ## How To(s)
 
