@@ -31,12 +31,14 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Update state (_interact with the state directly and update it_)
 - [x] Breakpoints (_pause and resume feature_)
 - [ ] Parallel Node Execution
+- [ ] Child Graphs
+- [ ] Streaming response from LLM results
 
 ## Samples
 
-* [Agent Executor](agent-executor/README.md)
-* [Image To PlantUML Diagram](image-to-diagram/README.md)
-* [Adaptive RAG](adaptive-rag/README.md)
+* [Agent Executor](samples/agent-executor/README.md)
+* [Image To PlantUML Diagram](samples/image-to-diagram/README.md)
+* [Adaptive RAG](samples/adaptive-rag/README.md)
 
 ## How To(s)
 

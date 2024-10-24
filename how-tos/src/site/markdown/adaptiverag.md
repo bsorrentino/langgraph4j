@@ -1,43 +1,5 @@
 # Adaptive RAG
 
-<!-- 
-```java
-String userHomeDir = System.getProperty("user.home");
-String localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
-String langchain4jVersion = "0.35.0"
-```
-
-
-```java
-%dependency /add-repo local \{localRespoUrl} release|never snapshot|always
-%dependency /list-repos
-```
-
-
-```java
-%dependency /add org.slf4j:slf4j-jdk14:2.0.9
-%dependency /add org.bsc.langgraph4j:langgraph4j-core-jdk8:1.0-SNAPSHOT
-%dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j:1.0-SNAPSHOT
-%dependency /add dev.langchain4j:langchain4j:\{langchain4jVersion}
-%dependency /add dev.langchain4j:langchain4j-open-ai:\{langchain4jVersion}
-
-%dependency /resolve
-```
-
-## Initialize Logger
-
-
-```java
-try( var file = new java.io.FileInputStream("./logging.properties")) {
-    var lm = java.util.logging.LogManager.getLogManager();
-    lm.checkAccess(); 
-    lm.readConfiguration( file );
-}
-
-var log = org.slf4j.LoggerFactory.getLogger("AdaptiveRag");
-
-```
- -->
 
 ## Test Issue [#32](https://github.com/bsorrentino/langgraph4j/issues/32)
 
@@ -136,7 +98,7 @@ grader.apply( args );
 
 ```
 
-    2024-10-11 12:53:02 FINEST REPL.$JShell$20$AnswerGrader apply prompt: User question:
+    2024-10-24 16:56:26 FINEST REPL.$JShell$20$AnswerGrader apply prompt: User question:
     
     What are the four operations ? 
     
@@ -160,7 +122,7 @@ grader.apply( args );
 
 ```
 
-    2024-10-11 12:53:03 FINEST REPL.$JShell$20$AnswerGrader apply prompt: User question:
+    2024-10-24 16:56:28 FINEST REPL.$JShell$20$AnswerGrader apply prompt: User question:
     
     What are the four operations
     
@@ -184,7 +146,7 @@ grader.apply( args );
 
 ```
 
-    2024-10-11 12:53:05 FINEST REPL.$JShell$20$AnswerGrader apply prompt: User question:
+    2024-10-24 16:56:29 FINEST REPL.$JShell$20$AnswerGrader apply prompt: User question:
     
     What player at the Bears expected to draft first in the 2024 NFL draft?
     

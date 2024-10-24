@@ -13,41 +13,7 @@ When creating any LangGraph workflow, you can set them up to persist their state
 [`Checkpointer`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/Checkpoint.html
 [`MemorySaver`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/MemorySaver.html
 
-<!-- 
-```java
-String userHomeDir = System.getProperty("user.home");
-String localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
-String langchain4jVersion = "0.35.0"
-```
 
-
-```java
-%dependency /add-repo local \{localRespoUrl} release|never snapshot|always
-%dependency /list-repos
-```
-
-
-```java
-%dependency /add org.bsc.langgraph4j:langgraph4j-core-jdk8:1.0-SNAPSHOT
-%dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j:1.0-SNAPSHOT
-%dependency /add dev.langchain4j:langchain4j:\{langchain4jVersion}
-%dependency /add dev.langchain4j:langchain4j-open-ai:\{langchain4jVersion}
-
-%dependency /resolve
-```
-
-### Initialize Logger
-
-
-```java
-var lm = java.util.logging.LogManager.getLogManager();
-lm.checkAccess(); 
-try( var file = new java.io.FileInputStream("./logging.properties")) {
-    lm.readConfiguration( file );
-}
-```
- -->
- 
 ## Define the state
 
 State is an (immutable) data class, inheriting from [`AgentState`], shared with all nodes in our graph. A state is basically a wrapper of a `Map<String,Object>` that provides some enhancers:
@@ -122,10 +88,19 @@ stateSerializer.mapper()
 
 ```
 
+    SLF4J: No SLF4J providers were found.
+    SLF4J: Defaulting to no-operation (NOP) logger implementation
+    SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
 
 
 
-    org.bsc.langgraph4j.serializer.std.SerializerMapper@3748372b
+
+
+    SerializerMapper: 
+    java.util.Map
+    java.util.Collection
+    dev.langchain4j.agent.tool.ToolExecutionRequest
+    dev.langchain4j.data.message.ChatMessage
 
 
 
@@ -222,7 +197,7 @@ AiMessage aiMessage = response.content();
 System.out.println( aiMessage );
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_Pr6dnlhKtSPCvMbS2H7JnNnw", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_iwuCGVWzra6NNpEvTYUVW3qX", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
 
 
 ## Define the graph
@@ -316,7 +291,7 @@ for( var r : result ) {
 
     __START__
     agent
-    {messages=[AiMessage { text = "Hi I'm Bartolo, niced to meet you." toolExecutionRequests = null }, AiMessage { text = "Nice to meet you too, Bartolo! How can I assist you today?" toolExecutionRequests = null }]}
+    {messages=[AiMessage { text = "Hi I'm Bartolo, niced to meet you." toolExecutionRequests = null }, AiMessage { text = "Hello Bartolo! Nice to meet you too. How can I assist you today?" toolExecutionRequests = null }]}
     __END__
 
 
@@ -441,6 +416,6 @@ for( var r : result ) {
 
     __START__
     agent
-    AiMessage { text = "I don't know your name unless you tell me. If you'd like to share it or if there's anything specific you'd like to discuss, feel free to let me know!" toolExecutionRequests = null }
+    AiMessage { text = "No, I don't know your name. I don't have access to personal data about individuals unless it has been shared with me in the course of our conversation. If you have any questions or need assistance, feel free to ask!" toolExecutionRequests = null }
     __END__
 

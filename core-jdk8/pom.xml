@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-parent</artifactId>
-    <version>1.0-rc1</version>
+    <version>1.0-20241024</version>
   </parent>
 
   <artifactId>langgraph4j-core-jdk8</artifactId>
@@ -26,6 +26,14 @@
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
     </dependency>
+
+<!--
+    <dependency>
+      <groupId>net.jodah</groupId>
+      <artifactId>typetools</artifactId>
+      <version>0.6.3</version>
+    </dependency>
+-->
 
     <dependency>
       <groupId>org.bsc.async</groupId>

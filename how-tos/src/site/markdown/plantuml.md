@@ -1,8 +1,4 @@
-```java
-%dependency /add net.sourceforge.plantuml:plantuml-mit:1.2024.6
-%dependency /resolve
-```
-
+# PlantUML
 
 ```java
 import net.sourceforge.plantuml.SourceStringReader;
@@ -44,10 +40,5 @@ display( plantUML2PNG( code ) );
 ![png](plantuml_files/plantuml_2_0.png)
     
 
-
-
-
-
-    525f8598-3e57-461c-adc2-e6a309cce3d3
 
 

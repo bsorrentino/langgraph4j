@@ -1,11 +1,14 @@
 package org.bsc.langgraph4j.serializer.std;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.Serializer;
 
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.util.Optional;
 
+@Slf4j
 public class ObjectInputWithMapper implements ObjectInput {
 
     private final ObjectInput in;
@@ -19,16 +22,31 @@ public class ObjectInputWithMapper implements ObjectInput {
 
     @Override
     public Object readObject() throws ClassNotFoundException, IOException {
-        Object value = in.readObject();
-        // check if it's a serializer
-        if( value instanceof Class<?>) {
-            final Class<?> serializerClass = (Class<?>)value;
-            Serializer<?> serializer = mapper.getSerializer( serializerClass )
-                    .orElseThrow( () -> new IllegalArgumentException( "No serializer found for class " + serializerClass ) );
+        Object object = in.readObject();
 
-            value = serializer.read(this);
+        if( object instanceof ClassHolder ) {
+            ClassHolder holder = (ClassHolder) object;
+
+            if( holder.isNull() ) {
+                throw new NullPointerException("object cannot be null!");
+            }
+
+            Optional<Serializer<Object>> optSerializer = mapper.getSerializer(holder.getType());
+
+            if( !optSerializer.isPresent() ) {
+                optSerializer = mapper.getSerializer(holder.getTypeName());
+            }
+
+
+            Serializer<Object> serializer = optSerializer.orElseGet( () -> {
+                log.warn( "No serializer found for class {} in {}", holder.getTypeName(), mapper );
+                return mapper.getDefaultSerializer();
+            });
+
+            return serializer.read(this);
         }
-        return value;
+
+        return object;
     }
 
     @Override

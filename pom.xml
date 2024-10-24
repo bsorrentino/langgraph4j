@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.0-rc1</version>
+  <version>1.0-20241024</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -193,11 +193,12 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
-        <module>how-tos</module>
-        <module>image-to-diagram</module>
-        <module>adaptive-rag</module>
-        <module>agent-executor</module>
         <module>studio-jetty</module>
+        <module>how-tos</module>
+        <module>samples/image-to-diagram</module>
+        <module>samples/adaptive-rag</module>
+        <module>samples/agent-executor</module>
+        <module>samples/springai-agentexecutor</module>
       </modules>
       <build>
       </build>

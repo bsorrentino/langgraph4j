@@ -6,6 +6,7 @@ import org.bsc.langgraph4j.serializer.Serializer;
 
 import java.io.IOException;
 import java.io.ObjectOutput;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -21,21 +22,19 @@ class ObjectOutputWithMapper implements ObjectOutput {
 
     @Override
     public void writeObject(Object obj) throws IOException {
-        log.trace( "{}", (obj != null) ? obj.getClass() : "NULL" );
+        Objects.requireNonNull( obj, "object to serialize cannot be null" );
 
-        Optional<Serializer<Object>> serializer = (obj != null) ?
-                mapper.getSerializer(obj.getClass()) :
-                Optional.empty();
-        // check if written by serializer
-        if (serializer.isPresent()) {
-            log.trace( "use serializer {}", serializer.get().getClass().getSimpleName() );
-            out.writeObject(obj.getClass());
-            serializer.get().write(obj, this);
+        Optional<Serializer<Object>> serializer = mapper.getSerializer(obj.getClass());
+
+        if( serializer.isPresent() ) {
+            ClassHolder holder = new ClassHolder(obj);
+            out.writeObject( holder );
+            serializer.get().write(obj , this);
         }
         else {
-            log.trace( "no serializer found!" );
             out.writeObject(obj);
         }
+        // check if written by serializer
         out.flush();
     }
 
