@@ -10,7 +10,7 @@
     <artifactId>langgraph4j-adaptive-rag</artifactId>
     <packaging>jar</packaging>
 
-    <name>langgraph4j::adaptive-rag</name>
+    <name>langgraph4j::sample::adaptive-rag</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

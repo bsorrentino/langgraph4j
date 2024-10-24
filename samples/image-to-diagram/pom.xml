@@ -10,7 +10,7 @@
     <artifactId>langgraph4j-image-to-diagram</artifactId>
     <packaging>jar</packaging>
 
-    <name>langgraph4j::image-to-diagram</name>
+    <name>langgraph4j::sample::image-to-diagram</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

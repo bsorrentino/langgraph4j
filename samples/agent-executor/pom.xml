@@ -10,7 +10,7 @@
     <artifactId>langgraph4j-agent-executor</artifactId>
     <packaging>jar</packaging>
 
-    <name>langgraph4j::agent-executor</name>
+    <name>langgraph4j::sample::agent-executor</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
