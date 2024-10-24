@@ -12,12 +12,50 @@ import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import lombok.NonNull;
 import org.bsc.langgraph4j.agentexecutor.*;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
-import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AgentStateFactory;
 
 import java.io.*;
 import java.util.*;
 
+public class JSONStateSerializer extends PlainTextStateSerializer<AgentExecutor.State> {
+
+    final ObjectMapper objectMapper;
+
+    public JSONStateSerializer() {
+        this( new ObjectMapper() );
+    }
+    public JSONStateSerializer(  @NonNull ObjectMapper objectMapper) {
+        super( AgentExecutor.State::new );
+        this.objectMapper = objectMapper;
+
+        var module = new SimpleModule();
+        module.addDeserializer(AgentExecutor.State.class, new StateDeserializer());
+        module.addDeserializer(AgentOutcome.class, new AgentOutcomeDeserializer());
+        module.addDeserializer(AgentAction.class, new AgentActionDeserializer());
+        module.addDeserializer(AgentFinish.class, new AgentFinishDeserializer());
+        module.addDeserializer(ToolExecutionRequest.class, new ToolExecutionRequestDeserializer());
+        module.addDeserializer(IntermediateStep.class, new IntermediateStepDeserializer());
+
+        objectMapper.registerModule(module);
+    }
+
+    @Override
+    public String mimeType() {
+        return "application/json";
+    }
+
+    @Override
+    public void write(AgentExecutor.State object, ObjectOutput out) throws IOException {
+        var json = objectMapper.writeValueAsString(object);
+        out.writeUTF(json);
+    }
+
+    @Override
+    public AgentExecutor.State read(ObjectInput in) throws IOException, ClassNotFoundException {
+        var json = in.readUTF();
+        return objectMapper.readValue(json, AgentExecutor.State.class);
+    }
+
+}
 
 class IntermediateStepDeserializer extends  JsonDeserializer<IntermediateStep> {
 
@@ -95,13 +133,13 @@ class AgentOutcomeDeserializer extends  JsonDeserializer<AgentOutcome> {
 
         var actionNode = node.get("action");
         var action = ( actionNode != null && !actionNode.isNull()) ?
-            ctx.readValue(actionNode.traverse(parser.getCodec()), AgentAction.class) :
-            null;
+                ctx.readValue(actionNode.traverse(parser.getCodec()), AgentAction.class) :
+                null;
 
         var finishNode = node.get("finish");
         var finish = ( finishNode != null && !finishNode.isNull()) ?
-            ctx.readValue(finishNode.traverse(parser.getCodec()), AgentFinish.class) :
-            null;
+                ctx.readValue(finishNode.traverse(parser.getCodec()), AgentFinish.class) :
+                null;
 
         return new AgentOutcome( action, finish );
     }
@@ -141,46 +179,4 @@ class StateDeserializer extends JsonDeserializer<AgentExecutor.State> {
         }
         return new AgentExecutor.State( data );
     }
-}
-
-public class JSONStateSerializer extends PlainTextStateSerializer<AgentExecutor.State> {
-
-    final ObjectMapper objectMapper;
-
-    public static JSONStateSerializer of( ObjectMapper objectMapper ) {
-        return new JSONStateSerializer(objectMapper);
-    }
-
-    private JSONStateSerializer(  @NonNull ObjectMapper objectMapper) {
-        super( AgentExecutor.State::new );
-        this.objectMapper = objectMapper;
-
-        var module = new SimpleModule();
-        module.addDeserializer(AgentExecutor.State.class, new StateDeserializer());
-        module.addDeserializer(AgentOutcome.class, new AgentOutcomeDeserializer());
-        module.addDeserializer(AgentAction.class, new AgentActionDeserializer());
-        module.addDeserializer(AgentFinish.class, new AgentFinishDeserializer());
-        module.addDeserializer(ToolExecutionRequest.class, new ToolExecutionRequestDeserializer());
-        module.addDeserializer(IntermediateStep.class, new IntermediateStepDeserializer());
-
-        objectMapper.registerModule(module);
-    }
-
-    @Override
-    public String mimeType() {
-        return "application/json";
-    }
-
-    @Override
-    public void write(AgentExecutor.State object, ObjectOutput out) throws IOException {
-        var json = objectMapper.writeValueAsString(object);
-        out.writeUTF(json);
-    }
-
-    @Override
-    public AgentExecutor.State read(ObjectInput in) throws IOException, ClassNotFoundException {
-        var json = in.readUTF();
-        return objectMapper.readValue(json, AgentExecutor.State.class);
-    }
-
 }

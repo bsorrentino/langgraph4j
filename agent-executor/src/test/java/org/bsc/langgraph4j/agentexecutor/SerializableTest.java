@@ -32,10 +32,9 @@ public class SerializableTest {
                 }
                 """;
 
-        var mapper = new ObjectMapper();
-        var serializer = JSONStateSerializer.of( mapper );
+        var serializer = new JSONStateSerializer();
 
-        var state = serializer.read(data);
+        var state = serializer.read( data );
 
         assertNotNull(state);
         assertTrue(state.input().isPresent());
@@ -85,8 +84,7 @@ public class SerializableTest {
                 }
                 """;
 
-        var mapper = new ObjectMapper();
-        var serializer = JSONStateSerializer.of( mapper );
+        var serializer = new JSONStateSerializer();
 
         var state = serializer.read(data);
 

@@ -2,18 +2,13 @@ package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import lombok.extern.slf4j.Slf4j;
-import org.bsc.langgraph4j.agentexecutor.serializer.std.AgentActionSerializer;
-import org.bsc.langgraph4j.agentexecutor.serializer.std.AgentFinishSerializer;
-import org.bsc.langgraph4j.agentexecutor.serializer.std.AgentOutcomeSerializer;
-import org.bsc.langgraph4j.agentexecutor.serializer.std.IntermediateStepSerializer;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionResultMessageSerializer;
-import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.std.STDStateSerializer;
 import org.bsc.langgraph4j.serializer.StateSerializer;
-import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
@@ -29,7 +24,22 @@ import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
 @Slf4j
 public class AgentExecutor {
+    public enum Serializers {
 
+        STD( new STDStateSerializer() ),
+        JSON( new JSONStateSerializer() );
+
+        private final StateSerializer<AgentExecutor.State> serializer;
+
+        Serializers(StateSerializer<AgentExecutor.State> serializer) {
+            this.serializer = serializer;
+        }
+
+        public StateSerializer<AgentExecutor.State> object() {
+            return serializer;
+        }
+
+    }
     public class GraphBuilder {
         private ChatLanguageModel chatLanguageModel;
         private List<Object> objectsWithTools;
@@ -63,15 +73,7 @@ public class AgentExecutor {
                     .build();
 
             if( stateSerializer == null ) {
-                var serializer = new ObjectStreamStateSerializer<>(State::new);
-                serializer.mapper()
-                        .register(IntermediateStep.class, new IntermediateStepSerializer())
-                        .register(AgentAction.class, new AgentActionSerializer())
-                        .register(AgentFinish.class, new AgentFinishSerializer())
-                        .register(AgentOutcome.class, new AgentOutcomeSerializer())
-                        .register(ToolExecutionResultMessage.class, new ToolExecutionResultMessageSerializer());
-
-                stateSerializer = serializer;
+                stateSerializer = Serializers.STD.object();
             }
 
             return new StateGraph<>(State.SCHEMA, stateSerializer)
