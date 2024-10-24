@@ -2,6 +2,63 @@
 
 
 
+<!-- "name: v1.0-20241024" is a release tag -->
+
+## [v1.0-20241024](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241024) (2024-10-24)
+
+### Features
+
+ *  add  sample using langgraph4j with springai ([069b1dae671419d](https://github.com/bsorrentino/langgraph4j/commit/069b1dae671419da124eea56bd1efd1f4e3a9954))
+     > resolve #15
+   
+ *  **serializer**  change the standard serialization implementation to avoid class loading issues ([13fed3780bec648](https://github.com/bsorrentino/langgraph4j/commit/13fed3780bec648b8d419a315cd91f877bcbd0ce))
+   
+
+
+### Documentation
+
+ -  remove BaseSerializer refs ([f0fc1a43417f03b](https://github.com/bsorrentino/langgraph4j/commit/f0fc1a43417f03b9c0f716c1ab88f6707ba149d6))
+
+ -  update samples links ([90be73e67ed7189](https://github.com/bsorrentino/langgraph4j/commit/90be73e67ed7189a39d5fb6828b03c92acd799de))
+
+ -  add serializer section ([a8d3f8e1e441fee](https://github.com/bsorrentino/langgraph4j/commit/a8d3f8e1e441fee2553f97dc0a952edc1f193d69))
+     > work on #38
+
+ -  update feature list ([ada695313e79123](https://github.com/bsorrentino/langgraph4j/commit/ada695313e791235ac3f9b44d47ce6a9172b8f4c))
+
+ -  update project names ([e457098a54ccef4](https://github.com/bsorrentino/langgraph4j/commit/e457098a54ccef4a07a037816fc281d414d02239))
+
+ -  update site docs ([7994f159cb9465e](https://github.com/bsorrentino/langgraph4j/commit/7994f159cb9465efc698ae609ea930221f69520f))
+
+ -  update changeme ([8ab856f4743733f](https://github.com/bsorrentino/langgraph4j/commit/8ab856f4743733f0eff2027c1060be6526072150))
+
+
+### Refactor
+
+ -  update to project DTS ([9de853487ecc665](https://github.com/bsorrentino/langgraph4j/commit/9de853487ecc665eb0ad9469f120e1873dd7b64e))
+    > added samples folder
+
+ -  **agentexecutor**  update to be compliant with new serialization implementation ([6a408b2868e4fc7](https://github.com/bsorrentino/langgraph4j/commit/6a408b2868e4fc701eb643ec7cbbab8ad43b3c3c))
+   
+ -  **notebook**  update to be compliant with new serialization implementation ([cbba10a0f551a56](https://github.com/bsorrentino/langgraph4j/commit/cbba10a0f551a5652791d441f57cf44f9a46f58e))
+   
+ -  update to be compliant with new serialization implementation ([baf6fae5d9c6170](https://github.com/bsorrentino/langgraph4j/commit/baf6fae5d9c6170953fb7c5c95373af12de04f4a))
+   
+
+### ALM 
+
+ -  bump to intermediate version ([c547d2035945345](https://github.com/bsorrentino/langgraph4j/commit/c547d2035945345b016b8bcec93873352810f190))
+   
+ -  move to next dev version ([9c2b09a81374734](https://github.com/bsorrentino/langgraph4j/commit/9c2b09a81374734fa9ba55f1e17c5404a97df80b))
+   
+ -  update deploy action ([e8e2c1dbd6cbf7e](https://github.com/bsorrentino/langgraph4j/commit/e8e2c1dbd6cbf7ee86c88e60153f3119b06d6fed))
+    > remove JDK 8
+
+
+
+
+
+
 <!-- "name: v1.0-rc1" is a release tag -->
 
 ## [v1.0-rc1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-rc1) (2024-10-12)
