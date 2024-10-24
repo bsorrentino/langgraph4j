@@ -6,7 +6,6 @@ import org.bsc.langgraph4j.state.AgentStateFactory;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 
 public abstract class StateSerializer<State extends AgentState> implements Serializer<State> {
 

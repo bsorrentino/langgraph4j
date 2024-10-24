@@ -143,4 +143,31 @@ public final class CollectionsUtils {
         result.put(k4, v4);
         return unmodifiableMap(result);
     }
+
+    /**
+     * Creates a map containing three key-value pairs.
+     *
+     * @param k1 the first key
+     * @param v1 the first value
+     * @param k2 the second key
+     * @param v2 the second value
+     * @param k3 the third key
+     * @param v3 the third value
+     * @param k4 the fourth key
+     * @param v4 the fourth value@
+     * @param k5 the fifth key
+     * @param v5 the fifth value@
+     * @param <K> the type of the keys
+     * @param <V> the type of the values
+     * @return an unmodifiable map containing the provided key-value pairs
+     */
+    public static<K,V>  Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5) {
+        Map<K, V> result = new HashMap<K, V>();
+        result.put(k1, v1);
+        result.put(k2, v2);
+        result.put(k3, v3);
+        result.put(k4, v4);
+        result.put(k5, v5);
+        return unmodifiableMap(result);
+    }
 }

@@ -1,7 +1,6 @@
 package org.bsc.langgraph4j.serializer.std;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -14,7 +13,7 @@ import java.util.*;
 @Slf4j
 public class ObjectStreamStateSerializer<State extends AgentState> extends StateSerializer<State> {
 
-    static class ListSerializer implements Serializer<List<Object>> {
+    static class ListSerializer implements NullableObjectSerializer<List<Object>> {
 
         @Override
         public void write(List<Object> object, ObjectOutput out) throws IOException {
@@ -22,7 +21,7 @@ public class ObjectStreamStateSerializer<State extends AgentState> extends State
 
             for( Object value : object ) {
                 try {
-                    out.writeObject( value );
+                    writeNullableObject( value, out );
                 } catch (IOException ex) {
                     log.error( "Error writing collection value", ex );
                     throw ex;
@@ -41,7 +40,7 @@ public class ObjectStreamStateSerializer<State extends AgentState> extends State
 
             for (int i = 0; i < size; i++) {
 
-                Object value = in.readObject();
+                Object value = readNullableObject(in).orElse(null);
 
                 result.add(value);
 
@@ -51,7 +50,7 @@ public class ObjectStreamStateSerializer<State extends AgentState> extends State
         }
     }
 
-    static class MapSerializer implements Serializer<Map<String,Object>> {
+    static class MapSerializer implements NullableObjectSerializer<Map<String,Object>> {
 
         @Override
         public void write(Map<String,Object> object, ObjectOutput out) throws IOException {
@@ -61,7 +60,7 @@ public class ObjectStreamStateSerializer<State extends AgentState> extends State
                 try {
                     out.writeUTF(e.getKey());
 
-                    out.writeObject( e.getValue() );
+                    writeNullableObject( e.getValue(), out );
 
                 } catch (IOException ex) {
                     log.error( "Error writing map key '{}'", e.getKey(), ex );
@@ -82,7 +81,7 @@ public class ObjectStreamStateSerializer<State extends AgentState> extends State
             for( int i = 0; i < size; i++ ) {
                 String key = in.readUTF();
 
-                Object value = in.readObject();
+                Object value = readNullableObject(in).orElse(null);
 
                 result.put(key, value);
 
@@ -112,6 +111,7 @@ public class ObjectStreamStateSerializer<State extends AgentState> extends State
 
     @Override
     public final State read(ObjectInput in) throws IOException, ClassNotFoundException {
-        return stateFactory().apply(mapSerializer.read( mapper.objectOutputWithMapper(in) ));
+        return stateFactory().apply(mapSerializer.read( mapper.objectInputWithMapper(in) ));
     }
+
 }
