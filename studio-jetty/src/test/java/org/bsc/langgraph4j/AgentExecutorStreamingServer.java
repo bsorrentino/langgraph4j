@@ -35,7 +35,7 @@ public class AgentExecutorStreamingServer {
         var app = new AgentExecutor().graphBuilder()
                 .chatLanguageModel(llm)
                 .objectsWithTools(listOf(new TestTool()))
-                .stateSerializer( JSONStateSerializer.of(objectMapper) )
+                .stateSerializer( AgentExecutor.Serializers.JSON.object() )
                 .build();
 
 
