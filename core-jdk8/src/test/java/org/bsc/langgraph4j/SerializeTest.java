@@ -2,13 +2,15 @@ package org.bsc.langgraph4j;
 
 import lombok.ToString;
 import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.util.Map;
+import java.util.*;
 
+import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,13 +33,37 @@ public class SerializeTest {
         }
     }
 
+    static class ValueWithNull {
+        private final String name;
+
+        public ValueWithNull(String name) {
+            this.name = name;
+        }
+    }
+
     @Test
+    @SuppressWarnings("unchecked")
     public void serializeStateTest() throws Exception {
 
+        stateSerializer.mapper().register( ValueWithNull.class, new NullableObjectSerializer<ValueWithNull>() {
+
+            @Override
+            public void write(ValueWithNull object, ObjectOutput out) throws IOException {
+                writeNullableUTF(object.name, out);
+            }
+
+            @Override
+            public ValueWithNull read(ObjectInput in) throws IOException, ClassNotFoundException {
+                return new ValueWithNull( readNullableUTF(in).orElse(null) );
+            }
+        } );
         AgentState state = stateSerializer.stateOf(mapOf(
             "a", "b",
             "f", null,
-            "c", "d"
+            "c", 100,
+            "e", new ValueWithNull(null),
+            "list", listOf("aa", null , "cc", 200)
+
         ));
 
         byte[] bytes = serializeState( state );
@@ -45,9 +71,20 @@ public class SerializeTest {
         assertNotNull(bytes);
         Map<String,Object> deserializeState = deserializeState( bytes ).data();
 
-        assertEquals( 3, deserializeState.size() );
+        assertEquals( 5, deserializeState.size() );
         assertEquals( "b", deserializeState.get("a") );
-        assertEquals( "d", deserializeState.get("c") );
+        assertEquals( 100, deserializeState.get("c") );
+        assertNull( deserializeState.get("f") );
+        assertInstanceOf( ValueWithNull.class, deserializeState.get("e") );
+        assertNull( ((ValueWithNull)deserializeState.get("e")).name );
+        assertInstanceOf( List.class, deserializeState.get("list") );
+        List<String> list = (List<String>)deserializeState.get("list");
+        assertEquals( 4, list.size() );
+        assertEquals( "aa", list.get(0) );
+        assertNull(  list.get(1) );
+        assertEquals( "cc", list.get(2) );
+        assertEquals( 200, list.get(3) );
+
     }
 
     @ToString
@@ -113,6 +150,11 @@ public class SerializeTest {
 
         System.out.println( deserializedData.get( "x" ).getClass() );
         System.out.println( deserializedData );
+    }
+
+    @Test
+    public void customDeserializeStateTest() throws Exception {
+
     }
 
 }
