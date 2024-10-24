@@ -88,6 +88,9 @@ var graphBuilder = new StateGraph<>( MessagesState.SCHEMA, MyState::new)
 
 ```
 
+### Serializer 
+
+During graph execution the state needs to be serialized (mostly for cloning purpose) also for providing ability to persist the state across different executions. In order to not relies on unsafe standard serialization framework, we have provided a new streighforward implementation based on [`Serializer`] interface.
 
 ## Nodes
 
@@ -370,6 +373,7 @@ There are several different streaming modes that LangGraph4j supports:
 
 In addition, you can use the [`streamEvents`](https://v02.api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents) method to stream back events that happen _inside_ nodes. This is useful for [streaming tokens of LLM calls](../how-tos/streaming-tokens-without-langchain.html). -->
 
+[`Serializer`]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/Serializer.html
 [Reducer]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/Reducer.html
 [`AgentState`]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/AgentState.html
 [`StateGraph`]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html

@@ -21,7 +21,8 @@ Low Level Concepts
 - [State](low_level.md#state)
     - [Schema](low_level.md#schema)
     - [Reducers](low_level.md#reducers)
-    - [MessageState](low_level.md#messagestate)
+    <!-- - [MessageState](low_level.md#messagestate) -->
+    - [Serializer](low_level.md.md#serializer)
 - [Nodes](low_level.md#nodes)
     - [`START` node](low_level.md#start-node)
     - [`END` node](low_level.md#end-node)
