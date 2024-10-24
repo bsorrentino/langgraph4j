@@ -85,7 +85,7 @@ In the example, since [AiMessage] and [UserMessage] from Langchain4j are not Ser
 
 ```java
 import org.bsc.langgraph4j.serializer.Serializer;
-import org.bsc.langgraph4j.serializer.BaseSerializer;
+import org.bsc.langgraph4j.serializer.NullableObjectSerializer;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -114,7 +114,7 @@ StateSerializer.register(ToolExecutionRequest.class, new Serializer<ToolExecutio
 });
 
 // Setup custom serializer for Langchain4j AiMessage
-StateSerializer.register(ChatMessage.class, new BaseSerializer<ChatMessage>() {
+StateSerializer.register(ChatMessage.class, new NullableObjectSerializer<ChatMessage>() {
 
     void writeAI( AiMessage msg, ObjectOutput out) throws IOException {
         var hasToolExecutionRequests = msg.hasToolExecutionRequests();
@@ -122,7 +122,7 @@ StateSerializer.register(ChatMessage.class, new BaseSerializer<ChatMessage>() {
         out.writeBoolean( hasToolExecutionRequests );
         
         if( hasToolExecutionRequests ) {
-            writeObjectWithSerializer( msg.toolExecutionRequests(), out);
+            writeNullableObject( msg.toolExecutionRequests(), out);
         }
         else {
             out.writeUTF(msg.text());
@@ -132,7 +132,7 @@ StateSerializer.register(ChatMessage.class, new BaseSerializer<ChatMessage>() {
     AiMessage readAI( ObjectInput in) throws IOException, ClassNotFoundException {
         var hasToolExecutionRequests = in.readBoolean();
         if( hasToolExecutionRequests ) {
-            List<ToolExecutionRequest> toolExecutionRequests = readObjectWithSerializer(in);
+            List<ToolExecutionRequest> toolExecutionRequests = readNullableObject(in);
             return AiMessage.aiMessage( toolExecutionRequests );
         }
         return AiMessage.aiMessage(in.readUTF());

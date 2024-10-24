@@ -89,7 +89,7 @@ In the example, since [`AiMessage`] from Langchain4j is not Serialzable we have 
 
 ```java
 import org.bsc.langgraph4j.serializer.Serializer;
-import org.bsc.langgraph4j.serializer.BaseSerializer;
+import org.bsc.langgraph4j.serializer.NullableObjectSerializer;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
@@ -117,7 +117,7 @@ StateSerializer.register(ToolExecutionRequest.class, new Serializer<ToolExecutio
 });
 
 // Setup custom serializer for Langchain4j AiMessage
-StateSerializer.register(AiMessage.class, new BaseSerializer<AiMessage>() {
+StateSerializer.register(AiMessage.class, new NullableObjectSerializer<AiMessage>() {
 
     @Override
     public void write(AiMessage object, ObjectOutput out) throws IOException {
@@ -126,7 +126,7 @@ StateSerializer.register(AiMessage.class, new BaseSerializer<AiMessage>() {
         out.writeBoolean( hasToolExecutionRequests );
         
         if( hasToolExecutionRequests ) {
-            writeObjectWithSerializer( object.toolExecutionRequests(), out);
+            writeNullableObject( object.toolExecutionRequests(), out);
             
         }
         else {
@@ -139,7 +139,7 @@ StateSerializer.register(AiMessage.class, new BaseSerializer<AiMessage>() {
     public AiMessage read(ObjectInput in) throws IOException, ClassNotFoundException {
         var hasToolExecutionRequests = in.readBoolean();
         if( hasToolExecutionRequests ) {
-            List<ToolExecutionRequest> toolExecutionRequests = readObjectWithSerializer(in);
+            List<ToolExecutionRequest> toolExecutionRequests = readNullableObject(in);
             return AiMessage.aiMessage( toolExecutionRequests );
         }
         return AiMessage.aiMessage(in.readUTF());
