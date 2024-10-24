@@ -27,6 +27,14 @@
       <scope>provided</scope>
     </dependency>
 
+<!--
+    <dependency>
+      <groupId>net.jodah</groupId>
+      <artifactId>typetools</artifactId>
+      <version>0.6.3</version>
+    </dependency>
+-->
+
     <dependency>
       <groupId>org.bsc.async</groupId>
       <artifactId>async-generator-jdk8</artifactId>
