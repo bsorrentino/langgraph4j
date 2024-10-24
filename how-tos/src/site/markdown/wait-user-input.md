@@ -1,30 +1,5 @@
 # Wait for User Input
 
-<!-- 
-```java
-String userHomeDir = System.getProperty("user.home");
-String localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
-String langchain4jVersion = "0.35.0"
-```
-
-
-```java
-%dependency /add-repo local \{localRespoUrl} release|never snapshot|always
-%dependency /list-repos
-```
-
-
-```java
-%dependency /add org.bsc.langgraph4j:langgraph4j-core-jdk8:1.0-SNAPSHOT
-%dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j:1.0-SNAPSHOT
-%dependency /add dev.langchain4j:langchain4j:\{langchain4jVersion}
-%dependency /add dev.langchain4j:langchain4j-open-ai:\{langchain4jVersion}
-%dependency /add net.sourceforge.plantuml:plantuml-mit:1.2024.6
-%dependency /list-dependencies
-%dependency /resolve
-```
- -->
-
 ```java
 import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -153,7 +128,7 @@ display( plantUML2PNG(plantuml) );
 
 
 
-    31b2f257-8f0a-4700-b01d-7a2c3d9179f4
+    ec979dd0-7ac6-4e5f-a1b8-58108b1468ac
 
 
 
@@ -199,7 +174,7 @@ System.out.println("getNext with updateConfig: " + graph.getState(updateConfig).
 
     Tell me how you want to update the state: go to step 3!
     --State after update--
-    StateSnapshot{node=step_1, state={user_feedback=go to step 3!, input=hello world, messages=[]}, config=RunnableConfig(threadId=Thread1, checkPointId=16cb330b-7ab8-42c5-90ad-f17e0b7b2e80, nextNode=human_feedback, streamMode=VALUES)}
+    StateSnapshot{node=step_1, state={user_feedback=go to step 3!, input=hello world, messages=[]}, config=RunnableConfig(threadId=Thread1, checkPointId=08b955be-56d0-4219-8f1a-9989917c388e, nextNode=human_feedback, streamMode=VALUES)}
     getNext with invokeConfig: human_feedback
     getNext with updateConfig: human_feedback
 

@@ -1,61 +1,7 @@
 # Agent Executor
 
-<!-- 
-```java
-String userHomeDir = System.getProperty("user.home");
-String localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
-String langchain4jVersion = "0.35.0"
-```
 
-add local maven repository
-
-
-```java
-%dependency /add-repo local \{localRespoUrl} release|never snapshot|always
-%dependency /list-repos
-
-```
-
-Remove installed package from Jupiter cache
-
-
-```bash
-%%bash 
-rm -rf \{userHomeDir}/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/langgraph4j
-```
- 
-
-Install required maven dependencies
-
-
-```java
-%dependency /add org.slf4j:slf4j-jdk14:2.0.9
-%dependency /add org.bsc.langgraph4j:langgraph4j-core-jdk8:1.0-SNAPSHOT
-%dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j:1.0-SNAPSHOT
-%dependency /add org.bsc.langgraph4j:langgraph4j-agent-executor:1.0-SNAPSHOT
-%dependency /add dev.langchain4j:langchain4j:\{langchain4jVersion}
-%dependency /add dev.langchain4j:langchain4j-open-ai:\{langchain4jVersion}
-
-%dependency /resolve
-```
-
-Initialize Logger
-
-
-```java
-try( var file = new java.io.FileInputStream("./logging.properties")) {
-    var lm = java.util.logging.LogManager.getLogManager();
-    lm.checkAccess(); 
-    lm.readConfiguration( file );
-}
-
-var log = org.slf4j.LoggerFactory.getLogger("AgentExecutor");
-
-```
--->
-
-
-Create Tools
+## Create Tools
 
 
 ```java
@@ -151,16 +97,16 @@ for( var step : iterator ) {
 
 ```
 
-    2024-10-11 13:05:40 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> START
-    2024-10-11 13:05:40 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
-    2024-10-11 13:05:42 INFO REPL.$JShell$37 do_it$ STEP: NodeOutput{node=__START__, state={input=perform test once, intermediate_steps=[]}}
-    2024-10-11 13:05:42 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
-    2024-10-11 13:05:42 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
-    2024-10-11 13:05:42 INFO REPL.$JShell$37 do_it$ STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=dbe479ed-21dd-4e9b-bef8-3f4fda0abdb9, nextNode=action, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:42 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
-    2024-10-11 13:05:43 INFO REPL.$JShell$37 do_it$ STEP: StateSnapshot{node=action, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=7e382592-e877-46db-947a-f6c20ed00133, nextNode=agent, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:43 INFO REPL.$JShell$37 do_it$ STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}, config=RunnableConfig(threadId=test1, checkPointId=b450e944-ba09-4aa4-8903-92e600f3e251, nextNode=__END__, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:43 INFO REPL.$JShell$37 do_it$ STEP: NodeOutput{node=__END__, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}}
+    2024-10-24 17:57:22 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> START
+    2024-10-24 17:57:22 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
+    2024-10-24 17:57:24 INFO REPL.$JShell$37 do_it$ STEP: NodeOutput{node=__START__, state={input=perform test once, intermediate_steps=[]}}
+    2024-10-24 17:57:24 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
+    2024-10-24 17:57:24 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
+    2024-10-24 17:57:24 INFO REPL.$JShell$37 do_it$ STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=6a089ecc-5cd6-43e0-83d5-8ec7ad3c91ad, nextNode=action, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:24 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
+    2024-10-24 17:57:24 INFO REPL.$JShell$37 do_it$ STEP: StateSnapshot{node=action, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=e01a2d6f-47c6-4e29-a034-cb5b2e2e2c23, nextNode=agent, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:24 INFO REPL.$JShell$37 do_it$ STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}, config=RunnableConfig(threadId=test1, checkPointId=2f90f85f-9027-423e-b3fc-404adae4e0c9, nextNode=__END__, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:24 INFO REPL.$JShell$37 do_it$ STEP: NodeOutput{node=__END__, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}}
 
 
 
@@ -179,30 +125,30 @@ for( var step : iterator ) {
 
 ```
 
-    2024-10-11 13:05:43 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME REQUEST
-    2024-10-11 13:05:43 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME FROM agent
-    2024-10-11 13:05:43 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
-    2024-10-11 13:05:43 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
-    2024-10-11 13:05:43 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
-    2024-10-11 13:05:44 INFO REPL.$JShell$41 do_it$ STEP:
-     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=171ba325-e803-4a08-a4fc-c23a3dcbd7ef, nextNode=agent, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:44 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
-    2024-10-11 13:05:44 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
-    2024-10-11 13:05:44 INFO REPL.$JShell$41 do_it$ STEP:
-     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_ZFTeqmQgcEegRyb0Xoi2f6PY", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=89fe550d-c356-4354-b076-4fc8ad6e127a, nextNode=action, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:44 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
-    2024-10-11 13:05:46 INFO REPL.$JShell$41 do_it$ STEP:
-     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_ZFTeqmQgcEegRyb0Xoi2f6PY", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_ZFTeqmQgcEegRyb0Xoi2f6PY", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=9aded304-4a2a-4c84-8cdb-53622d50dda2, nextNode=agent, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:46 INFO REPL.$JShell$41 do_it$ STEP:
-     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_ZFTeqmQgcEegRyb0Xoi2f6PY", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
+    2024-10-24 17:57:25 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME REQUEST
+    2024-10-24 17:57:25 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME FROM agent
+    2024-10-24 17:57:25 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
+    2024-10-24 17:57:25 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
+    2024-10-24 17:57:25 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
+    2024-10-24 17:57:25 INFO REPL.$JShell$41 do_it$ STEP:
+     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=50e480bd-9e5a-4d11-a2c2-cac15b5b7182, nextNode=agent, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:25 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
+    2024-10-24 17:57:25 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
+    2024-10-24 17:57:25 INFO REPL.$JShell$41 do_it$ STEP:
+     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_2TlHcW2aZTe0ekvInKeCpmVg", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=aaf03107-4b66-4d6a-a2ff-4cdad1161f29, nextNode=action, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:25 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
+    2024-10-24 17:57:27 INFO REPL.$JShell$41 do_it$ STEP:
+     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_2TlHcW2aZTe0ekvInKeCpmVg", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_2TlHcW2aZTe0ekvInKeCpmVg", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=2a20847a-0167-4f40-9ccc-659b180d9207, nextNode=agent, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:27 INFO REPL.$JShell$41 do_it$ STEP:
+     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_2TlHcW2aZTe0ekvInKeCpmVg", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
     
     1. **Test 1:** "perform test once" - Result: test tool executed.
     2. **Test 2:** "perform test again" - Result: test tool executed.}, log=The tests have been executed successfully:
     
     1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.]]}, config=RunnableConfig(threadId=test1, checkPointId=3c0170b3-c270-41f2-b59f-4cbd433e0068, nextNode=__END__, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:46 INFO REPL.$JShell$41 do_it$ STEP:
-     NodeOutput{node=__END__, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_IWpeVQWcA0B2GJzXbQiLCQHL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_ZFTeqmQgcEegRyb0Xoi2f6PY", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
+    2. **Test 2:** "perform test again" - Result: test tool executed.]]}, config=RunnableConfig(threadId=test1, checkPointId=f5ff242d-7adb-4ee4-bc45-96c5a6515d4f, nextNode=__END__, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:27 INFO REPL.$JShell$41 do_it$ STEP:
+     NodeOutput{node=__END__, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_33DLAvIky9boYgbo7rD38G8M", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_2TlHcW2aZTe0ekvInKeCpmVg", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
     
     1. **Test 1:** "perform test once" - Result: test tool executed.
     2. **Test 2:** "perform test again" - Result: test tool executed.}, log=The tests have been executed successfully:
@@ -230,16 +176,16 @@ for( var step : iterator ) {
 
 ```
 
-    2024-10-11 13:05:46 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> START
-    2024-10-11 13:05:46 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
-    2024-10-11 13:05:47 INFO REPL.$JShell$42 do_it$ STEP: NodeOutput{node=__START__, state={input=perform test once, intermediate_steps=[]}}
-    2024-10-11 13:05:47 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
-    2024-10-11 13:05:47 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
-    2024-10-11 13:05:47 INFO REPL.$JShell$42 do_it$ STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=c470d430-fed3-477c-a6a7-84c6e67c55e4, nextNode=action, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:47 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
-    2024-10-11 13:05:49 INFO REPL.$JShell$42 do_it$ STEP: StateSnapshot{node=action, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=0504ac40-f4e6-4fae-be3d-6a2b9f1562e7, nextNode=agent, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:49 INFO REPL.$JShell$42 do_it$ STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}, config=RunnableConfig(threadId=test2, checkPointId=db351672-0f25-4120-ae28-09012ae2803b, nextNode=__END__, streamMode=SNAPSHOTS)}
-    2024-10-11 13:05:49 INFO REPL.$JShell$42 do_it$ STEP: NodeOutput{node=__END__, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}}
+    2024-10-24 17:57:27 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> START
+    2024-10-24 17:57:27 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
+    2024-10-24 17:57:28 INFO REPL.$JShell$42 do_it$ STEP: NodeOutput{node=__START__, state={input=perform test once, intermediate_steps=[]}}
+    2024-10-24 17:57:28 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
+    2024-10-24 17:57:28 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
+    2024-10-24 17:57:28 INFO REPL.$JShell$42 do_it$ STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=b05cbb4e-a1e8-4b18-b9fc-bec88d729dde, nextNode=action, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:28 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
+    2024-10-24 17:57:29 INFO REPL.$JShell$42 do_it$ STEP: StateSnapshot{node=action, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=56b95d26-f8e3-4735-9f9d-01f078088ddd, nextNode=agent, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:29 INFO REPL.$JShell$42 do_it$ STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}, config=RunnableConfig(threadId=test2, checkPointId=1ab7a2f1-50d5-4f9b-b02e-5e52ac9893bd, nextNode=__END__, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:29 INFO REPL.$JShell$42 do_it$ STEP: NodeOutput{node=__END__, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}}
 
 
 
@@ -275,35 +221,35 @@ catch( Exception e ) {
 
 ```
 
-    2024-10-11 13:06:10 INFO REPL.$JShell$49 do_it$ UPDATED CONFIG: RunnableConfig(threadId=test2, checkPointId=c470d430-fed3-477c-a6a7-84c6e67c55e4, nextNode=null, streamMode=VALUES)
-    2024-10-11 13:06:10 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME REQUEST
-    2024-10-11 13:06:10 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME FROM agent
-    2024-10-11 13:06:10 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
-    2024-10-11 13:06:10 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
-    2024-10-11 13:06:10 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
-    2024-10-11 13:06:11 INFO REPL.$JShell$50 do_it$ STEP:
-     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=92b00613-4f65-4f2a-b573-5302a46568d3, nextNode=agent, streamMode=SNAPSHOTS)}
-    2024-10-11 13:06:11 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
-    2024-10-11 13:06:11 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
-    2024-10-11 13:06:11 INFO REPL.$JShell$50 do_it$ STEP:
-     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eUegMsToBzjw53pntENbHK6U", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=9ac9f853-40d1-401b-a909-4c6779e8e593, nextNode=action, streamMode=SNAPSHOTS)}
-    2024-10-11 13:06:11 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
-    2024-10-11 13:06:13 INFO REPL.$JShell$50 do_it$ STEP:
-     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eUegMsToBzjw53pntENbHK6U", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eUegMsToBzjw53pntENbHK6U", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=c8a9dfb0-e902-4f16-8139-904d1b4666c7, nextNode=agent, streamMode=SNAPSHOTS)}
-    2024-10-11 13:06:13 INFO REPL.$JShell$50 do_it$ STEP:
-     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eUegMsToBzjw53pntENbHK6U", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
+    2024-10-24 17:57:29 INFO REPL.$JShell$46 do_it$ UPDATED CONFIG: RunnableConfig(threadId=test2, checkPointId=b05cbb4e-a1e8-4b18-b9fc-bec88d729dde, nextNode=null, streamMode=VALUES)
+    2024-10-24 17:57:29 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME REQUEST
+    2024-10-24 17:57:29 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME FROM agent
+    2024-10-24 17:57:29 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
+    2024-10-24 17:57:29 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
+    2024-10-24 17:57:29 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
+    2024-10-24 17:57:30 INFO REPL.$JShell$47 do_it$ STEP:
+     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=d2b12020-5058-4ce1-b888-7e87d04f6691, nextNode=agent, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:30 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor executeTools executeTools
+    2024-10-24 17:57:30 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execTest
+    2024-10-24 17:57:30 INFO REPL.$JShell$47 do_it$ STEP:
+     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eP56QWrZc6DQJJtez18C8zVL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=a18fb247-cdd6-4b58-964b-4c275ce3e31f, nextNode=action, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:30 FINEST org.bsc.langgraph4j.agentexecutor.AgentExecutor callAgent callAgent
+    2024-10-24 17:57:31 INFO REPL.$JShell$47 do_it$ STEP:
+     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eP56QWrZc6DQJJtez18C8zVL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eP56QWrZc6DQJJtez18C8zVL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=6dd8e19a-8af1-4ee2-9761-0a414aae8c50, nextNode=agent, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:31 INFO REPL.$JShell$47 do_it$ STEP:
+     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eP56QWrZc6DQJJtez18C8zVL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test was executed twice successfully. Here are the results:
     
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.}, log=The tests have been executed successfully:
+    1. **Test 1:** test tool executed: perform test once
+    2. **Test 2:** test tool executed: perform test once}, log=The test was executed twice successfully. Here are the results:
     
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.]]}, config=RunnableConfig(threadId=test2, checkPointId=74a5a0eb-8712-4f4c-afce-df8b4e4599da, nextNode=__END__, streamMode=SNAPSHOTS)}
-    2024-10-11 13:06:13 INFO REPL.$JShell$50 do_it$ STEP:
-     NodeOutput{node=__END__, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_BKVXOUlQmFPqydEJZ3hotT0H", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eUegMsToBzjw53pntENbHK6U", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
+    1. **Test 1:** test tool executed: perform test once
+    2. **Test 2:** test tool executed: perform test once]]}, config=RunnableConfig(threadId=test2, checkPointId=c15e98fa-9b66-4ce3-a9f9-257cadd619b4, nextNode=__END__, streamMode=SNAPSHOTS)}
+    2024-10-24 17:57:31 INFO REPL.$JShell$47 do_it$ STEP:
+     NodeOutput{node=__END__, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_bHyrttIOlJ1yWp4YvpbssIDK", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_eP56QWrZc6DQJJtez18C8zVL", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test was executed twice successfully. Here are the results:
     
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.}, log=The tests have been executed successfully:
+    1. **Test 1:** test tool executed: perform test once
+    2. **Test 2:** test tool executed: perform test once}, log=The test was executed twice successfully. Here are the results:
     
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.]]}}
+    1. **Test 1:** test tool executed: perform test once
+    2. **Test 2:** test tool executed: perform test once]]}}
 
