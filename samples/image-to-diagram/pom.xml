@@ -5,6 +5,7 @@
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
         <version>1.0-20241024</version>
+        <relativePath>../..</relativePath>
     </parent>
 
     <artifactId>langgraph4j-image-to-diagram</artifactId>
