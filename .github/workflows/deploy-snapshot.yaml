@@ -15,11 +15,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Set up JDK 8
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'liberica'
-          java-version: '8'
+          java-version: '17'
           java-package: jdk
       - name: Check for SNAPSHOT version
         id: check-snapshot
@@ -37,16 +37,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
           OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
-        run: mvn -B clean deploy --file pom.xml -s settings-template.xml
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'liberica'
-          java-version: '17'
-          java-package: jdk
-      - name: Build and Deploy SNAPSHOT
-        if: steps.check-snapshot.outputs.is_snapshot == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-          OSS_SONATYPE_TOKEN: ${{ secrets.OSS_SONATYPE_TOKEN }}
-        run: mvn -B -pl studio-jetty clean deploy --file pom.xml -s settings-template.xml
+        run: mvn -B -Pjdk-8 clean deploy --file pom.xml -s settings-template.xml -pl core-jdk8,langchain4j,studio-jetty

@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.0-20241024</version>
+  <version>1.0-rc2</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -198,6 +198,7 @@
         <module>samples/image-to-diagram</module>
         <module>samples/adaptive-rag</module>
         <module>samples/agent-executor</module>
+        <module>samples/springai-agentexecutor</module>
       </modules>
       <build>
       </build>
