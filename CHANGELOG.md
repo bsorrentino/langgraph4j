@@ -2,6 +2,46 @@
 
 
 
+<!-- "name: v1.0-rc2" is a release tag -->
+
+## [v1.0-rc2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-rc2) (2024-10-25)
+
+
+### Bug Fixes
+
+ -  **pom**  add relative parent path ([3902dcb101d38c3](https://github.com/bsorrentino/langgraph4j/commit/3902dcb101d38c3496b76073f80964f8163e73d4))
+
+
+### Documentation
+
+ -  update docs with new version ([dcd765c0901b1e3](https://github.com/bsorrentino/langgraph4j/commit/dcd765c0901b1e36644ee5edd626d96b7e405c5c))
+
+ -  update site pages ([5b8109c9d1af32d](https://github.com/bsorrentino/langgraph4j/commit/5b8109c9d1af32d54231da54d90e76042cd17d17))
+
+ -  update README ([791b930e6de4ff6](https://github.com/bsorrentino/langgraph4j/commit/791b930e6de4ff68e60f94f2afe7cceb7e5b98f8))
+
+ -  update changeme ([9f84f2d2f12eca4](https://github.com/bsorrentino/langgraph4j/commit/9f84f2d2f12eca41c83ed5bfb6c8fb95889e48c3))
+
+
+
+### ALM 
+
+ -  bump to new release candidate ([2fbb7e8c24f220f](https://github.com/bsorrentino/langgraph4j/commit/2fbb7e8c24f220f6ae961629ecc67e3920fc6e54))
+   
+ -  **action**  update deploy actions ([3d7153b2df8b46e](https://github.com/bsorrentino/langgraph4j/commit/3d7153b2df8b46e3c86a4d85d6f3d66716138af6))
+    > select projects to deploy
+
+ -  bump to SNAPSHOT version ([d7c167d5afca22f](https://github.com/bsorrentino/langgraph4j/commit/d7c167d5afca22fe587a689cc42113c775d96ff5))
+   
+ -  **image-to-diagram**  skip release ([8d54ba0778461f2](https://github.com/bsorrentino/langgraph4j/commit/8d54ba0778461f2e5f85bcad9ce3ef50f4d9ebd2))
+   
+ -  **image-to-diagram**  skip release ([5a9c47e4efa952b](https://github.com/bsorrentino/langgraph4j/commit/5a9c47e4efa952bf4720de1e6b443034e4384738))
+   
+
+
+
+
+
 <!-- "name: v1.0-20241024" is a release tag -->
 
 ## [v1.0-20241024](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241024) (2024-10-24)
