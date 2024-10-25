@@ -38,16 +38,16 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Project         | Integrated With        
 |--------------|----------------| 
-[Agent Executor](samples/springai-agentexecutor/README.md) |  [SpringAI]
-[Agent Executor](samples/agent-executor/README.md) |  [Langchain4j][langchain4j]
-[Image To PlantUML Diagram](samples/image-to-diagram/README.md)   | [Langchain4j][langchain4j]
-[Adaptive RAG](samples/adaptive-rag/README.md) | [Langchain4j][langchain4j]
+[Agent Executor][springai-agentexecutor] |  [SpringAI]
+[Agent Executor][agent-executor] |  [Langchain4j][langchain4j]
+[Image To PlantUML Diagram][image-to-diagram]   | [Langchain4j][langchain4j]
+[Adaptive RAG][adaptive-rag] | [Langchain4j][langchain4j]
 
 
 ## How To(s)
 
-* [How to add persistence ("memory") to your graph](how-tos/persistence.ipynb)
-* [How to view and update past graph state](how-tos/time-travel.ipynb)
+* [How to add persistence ("memory") to your graph][howto-presistence]
+* [How to view and update past graph state][howto-timetravel]
 
 ## Releases
 
@@ -276,6 +276,15 @@ server.start().join();
 * [AI Agent in Java with LangGraph4j - Bartolomeo Blog][article01]
 * [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 
+[javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
+[springai-agentexecutor]: https://github.com/bsorrentino/langgraph4j/blob/main/samples/springai-agentexecutor
+[agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/agent-executor
+[adaptive-rag]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/adaptive-rag
+[image-to-diagram]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/image-to-diagram
+[howto-presistence]: https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/persistence.ipynb
+[howto-timetravel]: https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/time-travel.ipynb
+
+
 [SpringAI]: https://spring.io/projects/spring-ai
 [CompletableFuture]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
 [article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
@@ -289,7 +298,6 @@ server.start().join();
 [PlantUML]: https://plantuml.com
 [java-async-generator]: https://github.com/bsorrentino/java-async-generator
 [Mermaid]: https://mermaid.js.org
-
-[javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/langgraph4j-jdk8/1.0-SNAPSHOT
 [releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
+
