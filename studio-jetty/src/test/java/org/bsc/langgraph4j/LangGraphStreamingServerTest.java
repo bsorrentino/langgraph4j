@@ -2,7 +2,7 @@ package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.studio.LangGraphStreamingServerJetty;
+import org.bsc.langgraph4j.studio.jetty.LangGraphStreamingServerJetty;
 
 import java.util.Map;
 

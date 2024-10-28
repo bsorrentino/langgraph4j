@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
-import org.bsc.langgraph4j.studio.LangGraphStreamingServerJetty;
+import org.bsc.langgraph4j.studio.jetty.LangGraphStreamingServerJetty;
 
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 
