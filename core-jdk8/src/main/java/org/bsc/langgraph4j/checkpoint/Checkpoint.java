@@ -4,7 +4,6 @@ import lombok.*;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 
-import java.io.Externalizable;
 import java.util.*;
 
 /**
