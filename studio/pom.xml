@@ -9,10 +9,10 @@
         <version>1.0-rc2</version>
     </parent>
 
-    <artifactId>langgraph4j-studio-jetty</artifactId>
+    <artifactId>langgraph4j-studio</artifactId>
 
     <packaging>jar</packaging>
-    <name>langgraph4j::studio::jetty</name>
+    <name>langgraph4j::studio</name>
     <description>an **embed playground webapp** to run a Langgraph4j workflow in visual way</description>
 
     <properties>
@@ -130,7 +130,7 @@
                     <execution>
                         <!--
                         exec:java@test
-                        mvn -p studio-jetty exec:java@test -Djava.util.logging.config.file=studio-jetty/logging.properties
+                        mvn -p studio exec:java@test -Djava.util.logging.config.file=studio/logging.properties
                         -->
                         <id>test</id>
                         <goals><goal>java</goal></goals>
@@ -142,7 +142,7 @@
                     <execution>
                         <!--
                         exec:java@agentexecutor
-                        mvn -pl studio-jetty exec:java@agentexecutor -Djava.util.logging.config.file=studio-jetty/logging.properties
+                        mvn -pl studio exec:java@agentexecutor -Djava.util.logging.config.file=studio/logging.properties
                         -->
                         <id>agentexecutor</id>
                         <goals><goal>java</goal></goals>
@@ -154,7 +154,7 @@
                     <execution>
                         <!--
                         exec:exec@adaptiverag
-                        mvn -pl studio-jetty exec:java@adaptiverag -Djava.util.logging.config.file=studio-jetty/logging.properties
+                        mvn -pl studio exec:java@adaptiverag -Djava.util.logging.config.file=studio/logging.properties
                         -->
                         <id>adaptiverag</id>
                         <goals><goal>java</goal></goals>

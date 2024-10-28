@@ -193,7 +193,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
-        <module>studio-jetty</module>
+        <module>studio</module>
         <module>how-tos</module>
         <module>samples/image-to-diagram</module>
         <module>samples/adaptive-rag</module>
