@@ -27,8 +27,7 @@ class ObjectOutputWithMapper implements ObjectOutput {
         Optional<Serializer<Object>> serializer = mapper.getSerializer(obj.getClass());
 
         if( serializer.isPresent() ) {
-            ClassHolder holder = new ClassHolder(obj);
-            out.writeObject( holder );
+            out.writeObject( obj.getClass() );
             serializer.get().write(obj , this);
         }
         else {
