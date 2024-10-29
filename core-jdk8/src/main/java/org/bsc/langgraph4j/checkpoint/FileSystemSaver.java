@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.checkpoint;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.StateSerializer;
@@ -15,31 +16,22 @@ import java.util.*;
 
 import static java.lang.String.format;
 
+
+/**
+ * A CheckpointSaver that stores Checkpoints in the filesystem.
+ *
+ * <p>
+ *     Each RunnableConfig is associated with a file in the provided targetFolder.
+ *     The file is named "thread-<i>threadId</i>.saver" if the RunnableConfig has a
+ *     threadId, or "thread-$default.saver" if it doesn't.
+ * </p>
+ *
+ */
+@Slf4j
 public class FileSystemSaver extends MemorySaver {
 
-    private final StateSerializer<AgentState> stateSerializer;
     private final Path targetFolder;
-    private final Serializer<Checkpoint> serializer = new NullableObjectSerializer<Checkpoint>() {
-
-        @Override
-        public void write(Checkpoint object, ObjectOutput out) throws IOException {
-            out.writeUTF( object.getId() );
-            writeNullableUTF(object.getNodeId(), out);
-            writeNullableUTF(object.getNextNodeId(), out);
-            AgentState state = stateSerializer.stateFactory().apply(object.getState());
-            stateSerializer.write( state, out);
-        }
-
-        @Override
-        public Checkpoint read(ObjectInput in) throws IOException, ClassNotFoundException {
-            return Checkpoint.builder()
-                                    .id( in.readUTF() )
-                                    .state( stateSerializer.read(in) )
-                                    .nextNodeId( readNullableUTF(in).orElse(null) )
-                                    .nodeId( readNullableUTF(in).orElse(null) )
-                                    .build();
-        }
-    };
+    private final Serializer<Checkpoint> serializer;
 
     @SuppressWarnings("unchecked")
     public FileSystemSaver( @NonNull Path targetFolder, @NonNull StateSerializer<? extends AgentState> stateSerializer) {
@@ -57,13 +49,13 @@ public class FileSystemSaver extends MemorySaver {
         }
 
         this.targetFolder = targetFolder;
-        this.stateSerializer = (StateSerializer<AgentState>) stateSerializer;
+        this.serializer = new CheckPointSerializer( (StateSerializer<AgentState>) stateSerializer );
     }
 
     private File getFile(RunnableConfig config) {
         return config.threadId()
                 .map( threadId -> Paths.get( targetFolder.toString(), format( "thread-%s.saver", threadId) ) )
-                .orElseGet( () -> Paths.get( targetFolder.toString(), "thread-default.saver" ) )
+                .orElseGet( () -> Paths.get( targetFolder.toString(), "thread-$default.saver" ) )
                 .toFile();
 
     }
@@ -87,6 +79,7 @@ public class FileSystemSaver extends MemorySaver {
             }
         }
     }
+
     @Override
     protected LinkedList<Checkpoint> getCheckpoints(RunnableConfig config) {
         LinkedList<Checkpoint> result = super.getCheckpoints(config);
@@ -101,6 +94,18 @@ public class FileSystemSaver extends MemorySaver {
             }
         }
         return result;
+    }
+
+
+    /**
+     * Clears the checkpoint file associated with the given RunnableConfig.
+     *
+     * @param config the RunnableConfig for which the checkpoint file should be cleared
+     * @return true if the file existed and was successfully deleted, false otherwise
+     */
+    public boolean clear(RunnableConfig config) {
+        File targetFile = getFile(config);
+        return targetFile.exists() && targetFile.delete();
     }
 
     @Override
@@ -121,4 +126,34 @@ public class FileSystemSaver extends MemorySaver {
         serialize( super.getCheckpoints(config), targetFile );
         return result;
     }
+
+
+}
+
+class CheckPointSerializer implements NullableObjectSerializer<Checkpoint> {
+    final StateSerializer<AgentState> stateSerializer;
+
+    public CheckPointSerializer(StateSerializer<AgentState> stateSerializer) {
+        this.stateSerializer = stateSerializer;
+    }
+
+    @Override
+    public void write(Checkpoint object, ObjectOutput out) throws IOException {
+        out.writeUTF( object.getId() );
+        writeNullableUTF(object.getNodeId(), out);
+        writeNullableUTF(object.getNextNodeId(), out);
+        AgentState state = stateSerializer.stateFactory().apply(object.getState());
+        stateSerializer.write( state, out);
+    }
+
+    @Override
+    public Checkpoint read(ObjectInput in) throws IOException, ClassNotFoundException {
+        return Checkpoint.builder()
+                .id( in.readUTF() )
+                .nextNodeId( readNullableUTF(in).orElse(null) )
+                .nodeId( readNullableUTF(in).orElse(null) )
+                .state( stateSerializer.read(in) )
+                .build();
+    }
+
 }
