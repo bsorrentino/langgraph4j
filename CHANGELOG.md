@@ -2,6 +2,50 @@
 
 
 
+<!-- "name: v1.0-20241029" is a release tag -->
+
+## [v1.0-20241029](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241029) (2024-10-29)
+
+### Features
+
+ *  **serializable**  remove ClassHolder,  StringHolder to avoid class loading problem ([a137abd7c5bea6f](https://github.com/bsorrentino/langgraph4j/commit/a137abd7c5bea6f90a1c19705d981270370160f6))
+   
+ *  add file system checkpoint saver ([5d8036d5ceabe99](https://github.com/bsorrentino/langgraph4j/commit/5d8036d5ceabe998458fbecb2449b9cbe01cae51))
+     > work on #35
+   
+ *  **studio**  decouple the Studio implementation from Jetty Server ([98f070e6fa910b7](https://github.com/bsorrentino/langgraph4j/commit/98f070e6fa910b79c3e0c405a439d95d63f42fac))
+     > resolve #42
+   
+
+### Bug Fixes
+
+ -  **agentexecutor**  set jackson mapper visibility to ANY ([3cb700a3ed6da50](https://github.com/bsorrentino/langgraph4j/commit/3cb700a3ed6da50f64418b2b9068d1d13e5edce3))
+
+
+### Documentation
+
+ -  update changeme ([33d0b1e14367a4f](https://github.com/bsorrentino/langgraph4j/commit/33d0b1e14367a4ff9d2d6561181d815ed2bbab71))
+
+
+
+### ALM 
+
+ -  bump to new intermediate version ([be65332d27f2ad0](https://github.com/bsorrentino/langgraph4j/commit/be65332d27f2ad05d7e3422f28f35244c67b9507))
+   
+ -  bump to SNAPSHOT ([571d941c4537c66](https://github.com/bsorrentino/langgraph4j/commit/571d941c4537c661a554e76bd3f9baddddeaca19))
+   
+ -  **studio**  DTS refactoring ([ead9d9b3ca8f98e](https://github.com/bsorrentino/langgraph4j/commit/ead9d9b3ca8f98e52cbd51dc97cf40d0578f7b43))
+    > work on #42
+
+ -  **springai-agentexecutor**  skip site generation ([caa34b0b7b76bc7](https://github.com/bsorrentino/langgraph4j/commit/caa34b0b7b76bc78666d97c4d8ed3c79c6f04404))
+   
+ -  update actions ([39ac81de3847ea4](https://github.com/bsorrentino/langgraph4j/commit/39ac81de3847ea41af472d3de62a32a3a7b2d20d))
+   
+
+
+
+
+
 <!-- "name: v1.0-rc2" is a release tag -->
 
 ## [v1.0-rc2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-rc2) (2024-10-25)
