@@ -249,7 +249,7 @@ return  app.stream( inputs );
 
 
 [SpringAI]: https://spring.io/projects/spring-ai
-[Studio]: https://bsorrentino.github.io/langgraph4j/studio-jetty/langgraph4j-studio-jetty/index.html
+[Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
 [CompletableFuture]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
 [article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
 [langgraph.blog]: https://blog.langchain.dev/langgraph/

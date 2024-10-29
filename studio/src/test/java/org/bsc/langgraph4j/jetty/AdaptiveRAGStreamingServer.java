@@ -1,7 +1,9 @@
-package org.bsc.langgraph4j;
+package org.bsc.langgraph4j.jetty;
 
 import dev.langchain4j.adaptiverag.AdaptiveRag;
-import org.bsc.langgraph4j.studio.LangGraphStreamingServerJetty;
+import org.bsc.langgraph4j.DotEnvConfig;
+import org.bsc.langgraph4j.GraphRepresentation;
+import org.bsc.langgraph4j.studio.jetty.LangGraphStreamingServerJetty;
 
 public class AdaptiveRAGStreamingServer {
 

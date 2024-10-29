@@ -21,7 +21,7 @@ public class MemorySaver implements BaseCheckpointSaver {
     public MemorySaver() {
     }
 
-    private LinkedList<Checkpoint> getCheckpoints( RunnableConfig config ) {
+    protected LinkedList<Checkpoint> getCheckpoints( RunnableConfig config ) {
         return config.threadId()
                     .map( threadId -> _checkpointsByThread.computeIfAbsent(threadId, k -> new LinkedList<>()) )
                     .orElse( _defaultCheckpoints );
@@ -38,7 +38,7 @@ public class MemorySaver implements BaseCheckpointSaver {
         }
     }
 
-    private Optional<Checkpoint> getLast( LinkedList<Checkpoint> checkpoints, RunnableConfig config ) {
+    protected Optional<Checkpoint> getLast( LinkedList<Checkpoint> checkpoints, RunnableConfig config ) {
         return (checkpoints.isEmpty() ) ? Optional.empty() : ofNullable(checkpoints.peek());
     }
 

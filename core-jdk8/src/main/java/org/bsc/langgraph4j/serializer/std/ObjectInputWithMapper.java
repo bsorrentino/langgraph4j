@@ -24,22 +24,18 @@ public class ObjectInputWithMapper implements ObjectInput {
     public Object readObject() throws ClassNotFoundException, IOException {
         Object object = in.readObject();
 
-        if( object instanceof ClassHolder ) {
-            ClassHolder holder = (ClassHolder) object;
+        if( object instanceof Class ) {
+            Class<?> type = (Class<?>) object;
 
-            if( holder.isNull() ) {
-                throw new NullPointerException("object cannot be null!");
-            }
-
-            Optional<Serializer<Object>> optSerializer = mapper.getSerializer(holder.getType());
+            Optional<Serializer<Object>> optSerializer = mapper.getSerializer(type);
 
             if( !optSerializer.isPresent() ) {
-                optSerializer = mapper.getSerializer(holder.getTypeName());
+                optSerializer = mapper.getSerializer(type.getName());
             }
 
 
             Serializer<Object> serializer = optSerializer.orElseGet( () -> {
-                log.warn( "No serializer found for class {} in {}", holder.getTypeName(), mapper );
+                log.warn( "No serializer found for class {} in {}", type.getName(), mapper );
                 return mapper.getDefaultSerializer();
             });
 

@@ -1,5 +1,7 @@
 package org.bsc.langgraph4j.agentexecutor.serializer.json;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,6 +28,7 @@ public class JSONStateSerializer extends PlainTextStateSerializer<AgentExecutor.
     public JSONStateSerializer(  @NonNull ObjectMapper objectMapper) {
         super( AgentExecutor.State::new );
         this.objectMapper = objectMapper;
+        this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
         var module = new SimpleModule();
         module.addDeserializer(AgentExecutor.State.class, new StateDeserializer());

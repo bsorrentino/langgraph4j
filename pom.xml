@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.0-rc2</version>
+  <version>1.0-20241029</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -193,7 +193,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
-        <module>studio-jetty</module>
+        <module>studio</module>
         <module>how-tos</module>
         <module>samples/image-to-diagram</module>
         <module>samples/adaptive-rag</module>
