@@ -90,7 +90,22 @@ var graphBuilder = new StateGraph<>( MessagesState.SCHEMA, MyState::new)
 
 ### Serializer 
 
-During graph execution the state needs to be serialized (mostly for cloning purpose) also for providing ability to persist the state across different executions. In order to not relies on unsafe standard serialization framework, we have provided a new streighforward implementation based on [`Serializer`] interface.
+During graph execution the state needs to be serialized (mostly for cloning purpose) also for providing ability to persist the state across different executions. To do this we have provided a new streighforward implementation based on [Serializer] interface.
+
+#### Why create a new Serialization framework ?
+
+1. Doesn't rely on unsafe standard serialization framework.
+1. Allow to implement serialization also to third-party (non serializable) classes
+1. Avoid as much as possible class loading problem
+1. Manage nullable value in serialization process
+
+#### Features 
+
+- [x] Allow to serialize using the java built-in standard binary serialization technique
+- [x] Allow to plug also different serialization techniques
+
+Currently the main class for state's serialization using built-in java stream is [ObjectStreamStateSerializer]. It is also available an abstraction allowing to plug serialization techniques text based like JSON and/or YAML that is [PlainTextStateSerializer].
+
 
 ## Nodes
 
@@ -373,7 +388,9 @@ There are several different streaming modes that LangGraph4j supports:
 
 In addition, you can use the [`streamEvents`](https://v02.api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents) method to stream back events that happen _inside_ nodes. This is useful for [streaming tokens of LLM calls](../how-tos/streaming-tokens-without-langchain.html). -->
 
-[`Serializer`]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/Serializer.html
+[PlainTextStateSerializer]: /langgraph4j/apidocs//org/bsc/langgraph4j/serializer/plain_text/PlainTextStateSerializer.html
+[ObjectStreamStateSerializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/std/ObjectStreamStateSerializer.html
+[Serializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/Serializer.html
 [Reducer]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/Reducer.html
 [`AgentState`]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/AgentState.html
 [`StateGraph`]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html
