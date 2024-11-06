@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j.langchain4j.generators;
 
-import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.StreamingResponseHandler;
 import dev.langchain4j.model.output.Response;
 import org.bsc.async.AsyncGenerator;
