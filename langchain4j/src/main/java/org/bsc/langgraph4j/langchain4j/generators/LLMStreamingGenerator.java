@@ -2,6 +2,7 @@ package org.bsc.langgraph4j.langchain4j.generators;
 
 import dev.langchain4j.model.StreamingResponseHandler;
 import dev.langchain4j.model.output.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.AsyncGeneratorQueue;
 
@@ -11,24 +12,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-public class LLMStreamingGenerator<T> implements AsyncGenerator<String> {
-    private final AsyncGeneratorQueue.Generator<String> generator ;
+@Slf4j
+public class LLMStreamingGenerator<T> extends AsyncGenerator.WithResult<String> {
+    final BlockingQueue<AsyncGenerator.Data<String>> queue;
 
     public LLMStreamingGenerator( BlockingQueue<AsyncGenerator.Data<String>> queue ) {
-        this.generator = new AsyncGeneratorQueue.Generator<>( queue );
+        super(new AsyncGeneratorQueue.Generator<>( queue ));
+        this.queue = queue;
     }
 
     public LLMStreamingGenerator() {
         this( new LinkedBlockingQueue<>());
-    }
-
-    @Override
-    public Data<String> next() {
-        return generator.next();
-    }
-
-    public AsyncGenerator<String> generator( ) {
-        return generator;
     }
 
     public StreamingResponseHandler<T> handler() {
@@ -36,19 +30,22 @@ public class LLMStreamingGenerator<T> implements AsyncGenerator<String> {
 
             @Override
             public void onNext(String token) {
-                generator.queue().add( AsyncGenerator.Data.of(completedFuture(token)) );
+                log.trace("onNext: {}", token);
+                queue.add( AsyncGenerator.Data.of(completedFuture(token)) );
             }
 
             @Override
             public void onComplete(Response<T> response) {
-                generator.queue().add(AsyncGenerator.Data.done());
+                log.trace("onComplete: {}", response);
+                queue.add(AsyncGenerator.Data.done(response));
             }
 
             @Override
             public void onError(Throwable error) {
+                log.trace("onError", error);
                 CompletableFuture<String> future = new CompletableFuture<>();
                 future.completeExceptionally(error);
-                generator.queue().add( AsyncGenerator.Data.of(future) );
+                queue.add( AsyncGenerator.Data.of(future) );
             }
         };
     }
