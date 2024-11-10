@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
@@ -17,11 +18,10 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
-public class AgentExecutorTest {
+public class AgentExecutorStreamingTest {
 
     @BeforeAll
     public static void loadEnv() {
@@ -33,11 +33,10 @@ public class AgentExecutorTest {
         var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
 
-        var chatLanguageModel = OpenAiChatModel.builder()
+        var chatLanguageModel = OpenAiStreamingChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-4o-mini" )
                 .logResponses(true)
-                .maxRetries(2)
                 .temperature(0.0)
                 .maxTokens(2000)
                 .build();
