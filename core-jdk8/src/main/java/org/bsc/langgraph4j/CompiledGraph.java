@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 
@@ -259,8 +260,9 @@ public class CompiledGraph<State extends AgentState> {
      */
     public AsyncGenerator<NodeOutput<State>> stream( Map<String,Object> inputs, RunnableConfig config ) throws Exception {
         Objects.requireNonNull(config, "config cannot be null");
+        final AsyncNodeGenerator<NodeOutput<State>> generator = new AsyncNodeGenerator<>( inputs, config );
 
-        return new AsyncNodeGenerator<>( inputs, config );
+        return new AsyncGenerator.WithEmbed<>( generator );
     }
 
     /**
@@ -304,6 +306,21 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     /**
+     * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
+     *
+     * @param inputs the input map
+     * @param config the invoke configuration
+     * @return an AsyncGenerator stream of NodeOutput
+     * @throws Exception if there is an error creating the stream
+     */
+    public AsyncGenerator<NodeOutput<State>> streamSnapshots( Map<String,Object> inputs, RunnableConfig config ) throws Exception {
+        Objects.requireNonNull(config, "config cannot be null");
+
+        final AsyncNodeGenerator<NodeOutput<State>> generator = new AsyncNodeGenerator<>( inputs, config.withStreamMode(StreamMode.SNAPSHOTS) );
+        return new AsyncGenerator.WithEmbed<>( generator );
+    }
+
+    /**
      * Generates a drawable graph representation of the state graph.
      *
      * @param type the type of graph representation to generate
@@ -343,6 +360,11 @@ public class CompiledGraph<State extends AgentState> {
     }
 
 
+    /**
+     * Async Generator for streaming outputs.
+     *
+     * @param <Output>
+     */
     public class AsyncNodeGenerator<Output extends NodeOutput<State>> implements AsyncGenerator<Output> {
 
         Map<String,Object> currentState;
@@ -387,12 +409,53 @@ public class CompiledGraph<State extends AgentState> {
             }
         }
 
+        @SuppressWarnings("unchecked")
         protected Output buildNodeOutput(String nodeId ) throws Exception {
             return  (Output)NodeOutput.of( nodeId, cloneState(currentState) );
         }
 
+        @SuppressWarnings("unchecked")
         protected Output buildStateSnapshot( Checkpoint checkpoint ) throws Exception {
-            return (Output)StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory()  ) ;
+            return (Output)StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() ) ;
+        }
+
+        @SuppressWarnings("unchecked")
+        private Optional<Data<Output>> getEmbedGenerator( Map<String,Object> partialState) {
+            return partialState.entrySet().stream()
+                    .filter( e -> e.getValue() instanceof AsyncGenerator)
+                    .findFirst()
+                    .map( e ->
+                        Data.composeWith( (AsyncGenerator<Output>)e.getValue(), data -> {
+                            partialState.put( e.getKey(), data );
+                            currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
+                        })
+                    )
+                    ;
+        }
+
+        private CompletableFuture<Data<Output>> evaluateAction(AsyncNodeAction<State> action, State withState ) {
+
+                return action.apply( withState ).thenApply( partialState -> {
+                    try {
+
+                        Optional<Data<Output>> embed = getEmbedGenerator( partialState );
+                        if( embed.isPresent() ) return embed.get();
+
+                        currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
+                        nextNodeId   = nextNodeId(currentNodeId, currentState);
+
+                        Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
+                        CompletableFuture<Output> future = completedFuture(( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
+                                buildStateSnapshot(cp.get()) :
+                                buildNodeOutput( currentNodeId ))
+                                ;
+                        return Data.of( future );
+                    }
+                    catch (Exception e) {
+                        throw new CompletionException(e);
+                    }
+
+                });
         }
 
         @Override
@@ -405,8 +468,6 @@ public class CompiledGraph<State extends AgentState> {
 
             // GUARD: CHECK IF IT IS END
             if( nextNodeId == null &&  currentNodeId == null  ) return Data.done();
-
-            CompletableFuture<Output> future = new CompletableFuture<>();
 
             try {
 
@@ -435,46 +496,35 @@ public class CompiledGraph<State extends AgentState> {
                 if (action == null)
                     throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
 
-                future = action.apply( cloneState(currentState) ).thenApply(  partialState -> {
-                    try {
-                        currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
-                        nextNodeId = nextNodeId(currentNodeId, currentState);
-
-                        Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
-                        return ( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
-                            buildStateSnapshot(cp.get()) :
-                            buildNodeOutput( currentNodeId )
-                                ;
-
-                    }
-                    catch (Exception e) {
-                        throw new CompletionException(e);
-                    }
-                });
+                return evaluateAction(action, cloneState(currentState) ).get();
+//                future = action.apply( cloneState(currentState) ).thenApply(  partialState -> {
+//                    try {
+//                        currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
+//                        nextNodeId = nextNodeId(currentNodeId, currentState);
+//
+//                        Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
+//                        return ( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
+//                            buildStateSnapshot(cp.get()) :
+//                            buildNodeOutput( currentNodeId )
+//                                ;
+//
+//                    }
+//                    catch (Exception e) {
+//                        throw new CompletionException(e);
+//                    }
+//                });
             }
             catch( Exception e ) {
                 log.error( e.getMessage(), e );
+                CompletableFuture<Output> future = new CompletableFuture<>();
                 future.completeExceptionally(e);
+                return Data.of(future);
             }
-            return Data.of(future);
 
 
         }
     }
 
-    /**
-     * Creates an AsyncGenerator stream of NodeOutput based on the provided inputs.
-     *
-     * @param inputs the input map
-     * @param config the invoke configuration
-     * @return an AsyncGenerator stream of NodeOutput
-     * @throws Exception if there is an error creating the stream
-     */
-    public AsyncGenerator<NodeOutput<State>> streamSnapshots( Map<String,Object> inputs, RunnableConfig config ) throws Exception {
-        Objects.requireNonNull(config, "config cannot be null");
-
-        return new AsyncNodeGenerator<>( inputs, config.withStreamMode(StreamMode.SNAPSHOTS) );
-    }
 
 
 }
