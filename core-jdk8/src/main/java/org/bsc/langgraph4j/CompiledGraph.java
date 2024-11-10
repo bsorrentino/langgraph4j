@@ -426,8 +426,11 @@ public class CompiledGraph<State extends AgentState> {
                     .findFirst()
                     .map( e ->
                         Data.composeWith( (AsyncGenerator<Output>)e.getValue(), data -> {
-                            partialState.put( e.getKey(), data );
-                            currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
+                            if( !(data instanceof Map) ) {
+                                throw new IllegalArgumentException("Embedded generator must return a Map");
+                            }
+                            currentState = AgentState.updateState(currentState, (Map<String, Object>)data, stateGraph.getChannels());
+                            nextNodeId = nextNodeId(currentNodeId, currentState);
                         })
                     )
                     ;
@@ -439,7 +442,9 @@ public class CompiledGraph<State extends AgentState> {
                     try {
 
                         Optional<Data<Output>> embed = getEmbedGenerator( partialState );
-                        if( embed.isPresent() ) return embed.get();
+                        if( embed.isPresent() ) {
+                            return embed.get();
+                        }
 
                         currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
                         nextNodeId   = nextNodeId(currentNodeId, currentState);
@@ -516,9 +521,7 @@ public class CompiledGraph<State extends AgentState> {
             }
             catch( Exception e ) {
                 log.error( e.getMessage(), e );
-                CompletableFuture<Output> future = new CompletableFuture<>();
-                future.completeExceptionally(e);
-                return Data.of(future);
+                return Data.error(e);
             }
 
 
