@@ -372,6 +372,7 @@ public class CompiledGraph<State extends AgentState> {
         String nextNodeId;
         int iteration = 0;
         RunnableConfig config;
+        boolean resumedFromEmbed = false;
 
         protected AsyncNodeGenerator(Map<String,Object> inputs, RunnableConfig config ) throws Exception {
             final boolean isResumeRequest =  (inputs == null);
@@ -431,6 +432,7 @@ public class CompiledGraph<State extends AgentState> {
                             }
                             currentState = AgentState.updateState(currentState, (Map<String, Object>)data, stateGraph.getChannels());
                             nextNodeId = nextNodeId(currentNodeId, currentState);
+                            resumedFromEmbed = true;
                         })
                     )
                     ;
@@ -449,18 +451,21 @@ public class CompiledGraph<State extends AgentState> {
                         currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
                         nextNodeId   = nextNodeId(currentNodeId, currentState);
 
-                        Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
-                        CompletableFuture<Output> future = completedFuture(( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
-                                buildStateSnapshot(cp.get()) :
-                                buildNodeOutput( currentNodeId ))
-                                ;
-                        return Data.of( future );
+                        return Data.of( getNodeOutput() );
                     }
                     catch (Exception e) {
                         throw new CompletionException(e);
                     }
 
                 });
+        }
+
+        private CompletableFuture<Output> getNodeOutput() throws Exception {
+            Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
+            return completedFuture(( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
+                    buildStateSnapshot(cp.get()) :
+                    buildNodeOutput( currentNodeId ))
+                    ;
         }
 
         @Override
@@ -475,6 +480,12 @@ public class CompiledGraph<State extends AgentState> {
             if( nextNodeId == null &&  currentNodeId == null  ) return Data.done();
 
             try {
+                // IS IT A RESUME FROM EMBED ?
+                if(resumedFromEmbed) {
+                    final CompletableFuture<Output> future = getNodeOutput();
+                    resumedFromEmbed = false;
+                    return Data.of( future );
+                }
 
                 if( START.equals(currentNodeId) ) {
                     nextNodeId = getEntryPoint( currentState );
