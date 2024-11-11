@@ -1,10 +1,12 @@
 package org.bsc.langgraph4j.agentexecutor;
 
-import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.streaming.StreamingOutput;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -17,11 +19,10 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
-public class AgentExecutorTest {
+public class AgentExecutorStreamingTest {
 
     @BeforeAll
     public static void loadEnv() {
@@ -33,11 +34,10 @@ public class AgentExecutorTest {
         var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
 
-        var chatLanguageModel = OpenAiChatModel.builder()
+        var chatLanguageModel = OpenAiStreamingChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-4o-mini" )
                 .logResponses(true)
-                .maxRetries(2)
                 .temperature(0.0)
                 .maxTokens(2000)
                 .build();
@@ -52,12 +52,7 @@ public class AgentExecutorTest {
 
     private List<AgentExecutor.State> executeAgent( String prompt )  throws Exception {
 
-        var iterator = newGraph().compile().stream( Map.of( "input", prompt ) );
-
-        return iterator.stream()
-                .peek( s -> System.out.println( s.node() ) )
-                .map( NodeOutput::state)
-                .collect(Collectors.toList());
+        return toStateList( newGraph().compile().stream( Map.of( "input", prompt ) ) );
     }
 
     private List<AgentExecutor.State> executeAgent( String prompt,
@@ -73,10 +68,20 @@ public class AgentExecutorTest {
 
         var graph = newGraph().compile( compileConfig );
 
-        var iterator = graph.stream( Map.of( "input", prompt ), config );
+        return toStateList(  graph.stream( Map.of( "input", prompt ), config ) );
+    }
 
-        return iterator.stream()
-                .peek( s -> System.out.println( s.node() ) )
+    private List<AgentExecutor.State> toStateList(AsyncGenerator<NodeOutput<AgentExecutor.State>> generator ) {
+
+        return generator.stream()
+                .filter( s -> {
+                    if( s instanceof StreamingOutput<AgentExecutor.State> streamingOutput) {
+                        System.out.printf( "%s '%s'\n", streamingOutput.node(), streamingOutput.chunk() );
+                        return false;
+                    }
+                    return true;
+                })
+                .peek( s -> System.out.printf( "NODE: %s\n", s.node() ) )
                 .map( NodeOutput::state)
                 .collect(Collectors.toList());
     }

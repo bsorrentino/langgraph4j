@@ -1,6 +1,9 @@
 package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.chat.StreamingChatLanguageModel;
+import dev.langchain4j.model.output.Response;
 import lombok.extern.slf4j.Slf4j;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -8,12 +11,14 @@ import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
 import org.bsc.langgraph4j.agentexecutor.serializer.std.STDStateSerializer;
+import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.StateGraph.END;
@@ -40,13 +45,19 @@ public class AgentExecutor {
         }
 
     }
+
     public class GraphBuilder {
+        private StreamingChatLanguageModel streamingChatLanguageModel;
         private ChatLanguageModel chatLanguageModel;
         private List<Object> objectsWithTools;
         private StateSerializer<State> stateSerializer;
 
         public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
             this.chatLanguageModel = chatLanguageModel;
+            return this;
+        }
+        public GraphBuilder chatLanguageModel(StreamingChatLanguageModel streamingChatLanguageModel) {
+            this.streamingChatLanguageModel = streamingChatLanguageModel;
             return this;
         }
         public GraphBuilder objectsWithTools(List<Object> objectsWithTools) {
@@ -61,7 +72,12 @@ public class AgentExecutor {
 
         public StateGraph<State> build() throws GraphStateException {
             Objects.requireNonNull(objectsWithTools, "objectsWithTools is required!");
-            Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
+            if( streamingChatLanguageModel != null && chatLanguageModel != null ) {
+                throw new IllegalArgumentException("chatLanguageModel and streamingChatLanguageModel are mutually exclusive!");
+            }
+            if( streamingChatLanguageModel == null && chatLanguageModel == null ) {
+                throw new IllegalArgumentException("a chatLanguageModel or streamingChatLanguageModel is required!");
+            }
 
             var toolNode = ToolNode.of( objectsWithTools );
 
@@ -69,6 +85,7 @@ public class AgentExecutor {
 
             var agentRunnable = Agent.builder()
                     .chatLanguageModel(chatLanguageModel)
+                    .streamingChatLanguageModel(streamingChatLanguageModel)
                     .tools( toolSpecifications )
                     .build();
 
@@ -127,21 +144,38 @@ public class AgentExecutor {
 
         var intermediateSteps = state.intermediateSteps();
 
-        var response = agentRunnable.execute( input, intermediateSteps );
+        final Function<Response<AiMessage>, Map<String,Object>> mapResult = response -> {
 
-        if( response.finishReason() == FinishReason.TOOL_EXECUTION ) {
+            if (response.finishReason() == FinishReason.TOOL_EXECUTION) {
 
-            var toolExecutionRequests = response.content().toolExecutionRequests();
-            var action = new AgentAction( toolExecutionRequests.get(0), "");
+                var toolExecutionRequests = response.content().toolExecutionRequests();
+                var action = new AgentAction(toolExecutionRequests.get(0), "");
 
-            return Map.of("agent_outcome", new AgentOutcome( action, null ) );
+                return Map.of("agent_outcome", new AgentOutcome(action, null));
 
+            } else {
+                var result = response.content().text();
+                var finish = new AgentFinish(Map.of("returnValues", result), result);
+
+                return Map.of("agent_outcome", new AgentOutcome(null, finish));
+            }
+        };
+
+        if(agentRunnable.isStreaming()) {
+
+            var generator = LLMStreamingGenerator.<AiMessage, State>builder()
+                    .mapResult(mapResult)
+                    .startingNode("agent")
+                    .startingState( state )
+                    .build();
+            agentRunnable.execute(input, intermediateSteps, generator.handler());
+
+            return Map.of( "agent_outcome", generator);
         }
         else {
-            var result = response.content().text();
-            var finish = new AgentFinish( Map.of("returnValues", result), result );
+            var response = agentRunnable.execute(input, intermediateSteps);
 
-            return Map.of("agent_outcome", new AgentOutcome( null, finish ) );
+            return mapResult.apply(response);
         }
 
     }

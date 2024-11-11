@@ -27,7 +27,7 @@ public class AgentTest {
 
         var chatLanguageModel = OpenAiChatModel.builder()
                 .apiKey( DotEnvConfig.valueOf("OPENAI_API_KEY").get() )
-                .modelName( "gpt-3.5-turbo-0613" )
+                .modelName( "gpt-4o-mini" )
                 .logResponses(true)
                 .maxRetries(2)
                 .temperature(0.0)
@@ -53,7 +53,7 @@ public class AgentTest {
         assertEquals(1, toolExecutionRequests.size());
         var toolExecutionRequest = toolExecutionRequests.get(0);
         assertEquals("execTest", toolExecutionRequest.name());
-        assertEquals("{  \"arg0\": \"hello world\"}", toolExecutionRequest.arguments().replaceAll("\n",""));
+        assertEquals("{\"arg0\":\"hello world\"}", toolExecutionRequest.arguments().replaceAll("\n",""));
 
     }
 }

@@ -17,40 +17,99 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+/**
+ * A node in the graph that executes a tool
+ *
+ * <p>This class is just a simple wrapper around a list of {@link Specification} that can be used to build a node
+ * in a graph that can execute a tool with the given id.
+ *
+ * <p>The node will execute the first tool that has the given id.
+ *
+ * @see Specification
+ */
 @Slf4j
 public final class ToolNode {
 
-    @Value
+    @Value(staticConstructor = "of")
     @Accessors( fluent = true)
-    static class Specification {
+    public static class Specification {
         @NonNull
         ToolSpecification value;
         @NonNull
         ToolExecutor executor;
+    }
 
+    public static class Builder {
+        private final List<Specification> toolSpecifications = new ArrayList<>();
 
-        public Specification(@NonNull Object objectWithTool, @NonNull Method method ) {
-            this.value = toolSpecificationFrom(method);
-            this.executor = new DefaultToolExecutor(objectWithTool, method);
+        public Builder specification(ToolSpecification spec, ToolExecutor executor) {
+            return this.specification( Specification.of(spec, executor));
+        }
+
+        public Builder specification(Specification toolSpecifications) {
+            this.toolSpecifications.add(toolSpecifications);
+            return this;
+        }
+
+        public Builder specification( Object objectWithTool ) {
+            for (Method method : objectWithTool.getClass().getDeclaredMethods()) {
+                if (method.isAnnotationPresent(Tool.class)) {
+                    final ToolExecutor toolExecutor = new DefaultToolExecutor(objectWithTool, method);
+                    toolSpecifications.add(new Specification(toolSpecificationFrom(method), toolExecutor));
+                }
+            }
+            return this;
+        }
+
+        public ToolNode build() {
+            return new ToolNode(toolSpecifications);
         }
     }
 
-    public static ToolNode of( Collection<Object> objectsWithTools) {
+    public static Builder builder() {
+        return new Builder();
+    }
 
-        List<Specification> toolSpecifications = new ArrayList<>();
+    /**
+     * Builds a ToolNode out of a collection of objects that have tools attached or a tool specification
+     *
+     * @param objectsWithToolsOrSpecification a list of objects with tools
+     * @return a ToolNode
+     * @Deprecated use {@link #builder()}
+     */
+    @Deprecated
+    public static ToolNode of( Collection<Object> objectsWithToolsOrSpecification) {
 
-        for (Object objectWithTool : objectsWithTools ) {
-            for (Method method : objectWithTool.getClass().getDeclaredMethods()) {
+        final Builder builder = builder();
+
+        for (Object objectWithToolOrSpecification : objectsWithToolsOrSpecification ) {
+
+            if( objectWithToolOrSpecification instanceof Specification ) {
+                builder.specification( (Specification) objectWithToolOrSpecification);
+                continue;
+            }
+            for (Method method : objectWithToolOrSpecification.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(Tool.class)) {
-                    toolSpecifications.add( new Specification( objectWithTool, method));
+                    final ToolExecutor toolExecutor = new DefaultToolExecutor(objectWithToolOrSpecification, method);
+                    builder.specification( Specification.of( toolSpecificationFrom(method), toolExecutor ) );
+
                 }
             }
         }
-        return new ToolNode(toolSpecifications);
+        return builder.build();
     }
 
-    public static ToolNode of(Object ...objectsWithTools) {
-        return of( Arrays.asList(objectsWithTools) );
+    /**
+     * Builds a ToolNode out of a array of objects that have tools attached or a tool specification
+     *
+     * @param objectsWithToolsOrSpecification a list of objects with tools
+     * @return a ToolNode
+     * @Deprecated use {@link #builder()}
+     */
+    @Deprecated
+    public static ToolNode of(Object ...objectsWithToolsOrSpecification) {
+        return of( Arrays.asList(objectsWithToolsOrSpecification) );
     }
 
 
