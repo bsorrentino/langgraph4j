@@ -165,6 +165,8 @@ public class AgentExecutor {
 
             var generator = LLMStreamingGenerator.<AiMessage, State>builder()
                     .mapResult(mapResult)
+                    .startingNode("agent")
+                    .startingState( state )
                     .build();
             agentRunnable.execute(input, intermediateSteps, generator.handler());
 
