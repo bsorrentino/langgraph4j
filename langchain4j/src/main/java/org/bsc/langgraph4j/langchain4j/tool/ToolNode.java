@@ -76,7 +76,7 @@ public final class ToolNode {
      *
      * @param objectsWithToolsOrSpecification a list of objects with tools
      * @return a ToolNode
-     * @Deprecated use {@link #builder()}
+     * @deprecated use {@link #builder()}
      */
     @Deprecated
     public static ToolNode of( Collection<Object> objectsWithToolsOrSpecification) {
@@ -105,7 +105,7 @@ public final class ToolNode {
      *
      * @param objectsWithToolsOrSpecification a list of objects with tools
      * @return a ToolNode
-     * @Deprecated use {@link #builder()}
+     * @deprecated use {@link #builder()}
      */
     @Deprecated
     public static ToolNode of(Object ...objectsWithToolsOrSpecification) {
