@@ -166,7 +166,7 @@ We can now put it all together and define the graph! (see example below)
 
 ## Integrate with LangChain4j
 
-Like default use case proposed in [LangGraph blog][langgraph.blog], We have ported [AgentExecutor] implementation from [langchain] using LangGraph4j. In the [agents](agents) project's module, you can the complete working code with tests. Feel free to checkout and use it as a reference.
+Like default use case proposed in [LangGraph blog][langgraph.blog], We have converted [AgentExecutor] implementation from [langchain] using LangGraph4j. In the [agent-executor][agent-executor] project's sample, there is the complete working code with tests. Feel free to checkout and use it as a reference.
 Below you can find a piece of code of the `AgentExecutor` to give you an idea of how is has built in langgraph style.
 
 
