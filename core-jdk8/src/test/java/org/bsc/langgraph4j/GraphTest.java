@@ -105,10 +105,10 @@ public class GraphTest {
                         "\"evaluate_result\" -down-> \"condition1\"\n" +
                         "\"condition1\" --> \"agent_review\": \"ERROR\"\n" +
                         "'\"evaluate_result\" --> \"agent_review\": \"ERROR\"\n" +
-                        "\"condition1\" -down-> stop: \"UNKNOWN\"\n" +
-                        "'\"evaluate_result\" -down-> stop: \"UNKNOWN\"\n" +
-                        "\"condition1\" -down-> stop: \"OK\"\n" +
-                        "'\"evaluate_result\" -down-> stop: \"OK\"\n" +
+                        "\"condition1\" -down-> __END__: \"UNKNOWN\"\n" +
+                        "'\"evaluate_result\" -down-> __END__: \"UNKNOWN\"\n" +
+                        "\"condition1\" -down-> __END__: \"OK\"\n" +
+                        "'\"evaluate_result\" -down-> __END__: \"OK\"\n" +
                         "@enduml\n",
                 result.getContent() );
 
@@ -154,8 +154,8 @@ public class GraphTest {
                 "\"agent\" -down-> \"condition1\"\n" +
                 "\"condition1\" --> \"action\": \"continue\"\n" +
                 "'\"agent\" --> \"action\": \"continue\"\n" +
-                "\"condition1\" -down-> stop: \"end\"\n" +
-                "'\"agent\" -down-> stop: \"end\"\n" +
+                "\"condition1\" -down-> __END__: \"end\"\n" +
+                "'\"agent\" -down-> __END__: \"end\"\n" +
                 "\"action\" -down-> \"agent\"\n" +
                 "@enduml\n",
                 result.getContent() );
