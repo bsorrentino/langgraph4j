@@ -169,11 +169,13 @@ public class AgentExecutorTest {
             .addEdge("action", "agent")
             .compile();
 
-        var plantUml = app.getGraph( GraphRepresentation.Type.PLANTUML, "Agent Executor" );
+        var printConditionalEdge = false;
+
+        var plantUml = app.getGraph( GraphRepresentation.Type.PLANTUML, "Agent Executor", printConditionalEdge );
 
         System.out.println( plantUml.getContent() );
 
-        var mermaid = app.getGraph( GraphRepresentation.Type.MERMAID, "Agent Executor" );
+        var mermaid = app.getGraph( GraphRepresentation.Type.MERMAID, "Agent Executor", printConditionalEdge );
 
         System.out.println( mermaid.getContent() );
     }
