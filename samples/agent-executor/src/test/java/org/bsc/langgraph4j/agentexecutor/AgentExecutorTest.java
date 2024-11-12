@@ -46,7 +46,7 @@ public class AgentExecutorTest {
 
         return agentExecutor.graphBuilder()
                 .chatLanguageModel(chatLanguageModel)
-                .objectsWithTools(List.of(new TestTool()))
+                .toolSpecification(new TestTool())
                 .build();
     }
 
