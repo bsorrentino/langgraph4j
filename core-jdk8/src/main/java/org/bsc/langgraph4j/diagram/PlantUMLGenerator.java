@@ -33,11 +33,11 @@ public class PlantUMLGenerator extends DiagramGenerator {
     }
     @Override
     protected void finish( StringBuilder sb, String finishPoint ) {
-        sb.append(format("\"%s\" -down-> stop\n", finishPoint));
+        sb.append(format("\"%s\" -down-> %s\n", finishPoint, END));
     }
     @Override
     protected void finish( StringBuilder sb, String finishPoint, String description ) {
-        sb.append( format( "\"%s\" -down-> stop: \"%s\"\n", finishPoint, description ) );
+        sb.append( format( "\"%s\" -down-> %s: \"%s\"\n", finishPoint, END, description ) );
     }
     @Override
     protected void call( StringBuilder sb, String from, String to ) {
