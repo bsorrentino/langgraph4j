@@ -4,6 +4,7 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.output.Response;
+import dev.langchain4j.service.tool.ToolExecutor;
 import lombok.extern.slf4j.Slf4j;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -49,7 +50,7 @@ public class AgentExecutor {
     public class GraphBuilder {
         private StreamingChatLanguageModel streamingChatLanguageModel;
         private ChatLanguageModel chatLanguageModel;
-        private List<Object> objectsWithTools;
+        private ToolNode.Builder toolNodeBuilder = ToolNode.builder();
         private StateSerializer<State> stateSerializer;
 
         public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
@@ -60,8 +61,21 @@ public class AgentExecutor {
             this.streamingChatLanguageModel = streamingChatLanguageModel;
             return this;
         }
+        @Deprecated
         public GraphBuilder objectsWithTools(List<Object> objectsWithTools) {
-            this.objectsWithTools = objectsWithTools;
+            objectsWithTools.forEach( o -> toolNodeBuilder.specification( o ) );
+            return this;
+        }
+        public GraphBuilder toolSpecification(Object objectsWithTool) {
+            toolNodeBuilder.specification( objectsWithTool );
+            return this;
+        }
+        public GraphBuilder toolSpecification(ToolSpecification spec, ToolExecutor executor) {
+            toolNodeBuilder.specification( spec, executor );
+            return this;
+        }
+        public GraphBuilder toolSpecification(ToolNode.Specification toolSpecifications) {
+            toolNodeBuilder.specification( toolSpecifications );
             return this;
         }
 
@@ -71,7 +85,7 @@ public class AgentExecutor {
         }
 
         public StateGraph<State> build() throws GraphStateException {
-            Objects.requireNonNull(objectsWithTools, "objectsWithTools is required!");
+
             if( streamingChatLanguageModel != null && chatLanguageModel != null ) {
                 throw new IllegalArgumentException("chatLanguageModel and streamingChatLanguageModel are mutually exclusive!");
             }
@@ -79,14 +93,12 @@ public class AgentExecutor {
                 throw new IllegalArgumentException("a chatLanguageModel or streamingChatLanguageModel is required!");
             }
 
-            var toolNode = ToolNode.of( objectsWithTools );
-
-            final List<ToolSpecification> toolSpecifications = toolNode.toolSpecifications();
+            final var toolNode = toolNodeBuilder.build();
 
             var agentRunnable = Agent.builder()
                     .chatLanguageModel(chatLanguageModel)
                     .streamingChatLanguageModel(streamingChatLanguageModel)
-                    .tools( toolSpecifications )
+                    .tools( toolNode.toolSpecifications() )
                     .build();
 
             if( stateSerializer == null ) {

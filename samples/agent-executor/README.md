@@ -11,16 +11,18 @@ This flow ensures that the agent can handle complex tasks efficiently by leverag
 title: Agent Executor
 ---
 flowchart TD
-	start((start))
-	stop((stop))
+	__START__((start))
+	__END__((stop))
 	agent("agent")
 	action("action")
-	condition1{"check state"}
-	start --> agent
-	agent --> condition1
-	condition1 -->|continue| action
-	condition1 -->|end| stop
-	action --> agent
+	%%	condition1{"check state"}
+	__START__:::__START__ --> agent:::agent
+	%%	agent:::agent --> condition1:::condition1
+	%%	condition1:::condition1 -->|end| __END__:::__END__
+	agent:::agent -->|end| __END__:::__END__
+	%%	condition1:::condition1 -->|continue| action:::action
+	agent:::agent -->|continue| action:::action
+	action:::action --> agent:::agent
 ```
 
 ## PlantUML Diagram
