@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   # Single deploy job since we're just deploying
-  # mvn -B -Pjdk-8 site:site site:stage site:run -DworkingDirectory=target/staging
+  # mvn -B -Pjdk-8 site:site site:stage
   deploy:
     environment:
       name: github-pages
