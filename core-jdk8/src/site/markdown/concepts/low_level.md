@@ -272,6 +272,7 @@ graph.invoke(inputs, config);
 
 See [this guide](../../how-tos/persistence.html) for how to use threads.
 
+<a id="checkpointer-state"></a>
 ## Checkpointer state
 
 When interacting with the checkpointer state, you must specify a [thread identifier](#threads). Each checkpoint saved by the checkpointer has two properties:
@@ -279,14 +280,18 @@ When interacting with the checkpointer state, you must specify a [thread identif
 - **state**: This is the value of the state at this point in time.
 - **nextNodeId**: This is the Idenfier of the node to execute next in the graph.
 
+
+<a id="get-state"></a>
 ### Get state
 
 You can get the state of a checkpointer by calling [`graph.getState(config)`]. The config should contain `thread_id`, and the state will be fetched for that thread.
 
+<a id="get-state-history"></a>
 ### Get state history
 
 You can also call [`graph.getStateHistory(config)`] to get a list of the history of the graph. The config should contain `thread_id`, and the state history will be fetched for that thread.
 
+<a id="Update-state"></a>
 ### Update state
 
 You can also interact with the state directly and update it using [`graph.updateState(config,values,asNode)`].  This takes three different components:
