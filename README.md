@@ -35,6 +35,12 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [ ] Parallel Node Execution
 - [ ] Child Graphs
 
+## Releases
+
+| Date         | Release        | info
+|--------------|----------------| ---
+| Nov 15, 2024 | `1.0.0` | official release 
+
 
 ## Samples
 
@@ -51,12 +57,6 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 * [How to add persistence ("memory") to your graph][howto-presistence]
 * [How to view and update past graph state][howto-timetravel]
 
-## Releases
-
-| Date         | Release        | info
-|--------------|----------------| ---
-| Oct 12, 2024 | `1.0-rc2` | official release candidate
-
 
 ## Quick Start 
 
@@ -69,7 +69,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core-jdk8</artifactId>
-    <version>1.0-rc2</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
