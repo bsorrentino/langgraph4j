@@ -37,18 +37,20 @@
                     });
             </script>]]>
         </head>
+
         <menu name="Project">
             <item name="Home" href="index.html"/>
             <item name="Summary" href="summary.html"/>
             <item name="Dependencies" href="dependencies.html"/>
         </menu>
 
+<!-- 
         <menu name="Conceptual Guides">
             <item name="Overview" href="concepts/index.html"/>
             <item name="Low Level Concepts" href="concepts/low_level.html"/>
             <item name="FAQ" href="concepts/faq.html"/>
         </menu>
-
+ -->
         <menu name="Reference">
             <item name="javadoc" href="apidocs/index.html"/>
         </menu>

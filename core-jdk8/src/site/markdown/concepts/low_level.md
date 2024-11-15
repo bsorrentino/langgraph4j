@@ -4,11 +4,11 @@
 
 At its core, LangGraph4j models agent workflows as graphs. You define the behavior of your agents using three key components:
 
-1. [`State`](#state): A shared data structure that represents the current snapshot of your application. It is represented by an [`AgentState`] object.
+1. [`State`](#State): A shared data structure that represents the current snapshot of your application. It is represented by an [`AgentState`] object.
 
-2. [`Nodes`](#nodes): A **Functional Interface** ([`AsyncNodeAction`])  that encode the logic of your agents. They receive the current `State` as input, perform some computation or side-effect, and return an updated `State`.
+2. [`Nodes`](#Nodes): A **Functional Interface** ([`AsyncNodeAction`])  that encode the logic of your agents. They receive the current `State` as input, perform some computation or side-effect, and return an updated `State`.
 
-3. [`Edges`](#edges): A **Functional Interface**  ([`AsyncEdgeAction`]) that determine which `Node` to execute next based on the current `State`. They can be conditional branches or fixed transitions.
+3. [`Edges`](#Edges): A **Functional Interface**  ([`AsyncEdgeAction`]) that determine which `Node` to execute next based on the current `State`. They can be conditional branches or fixed transitions.
 
 By composing `Nodes` and `Edges`, you can create complex, looping workflows that evolve the `State` over time. The real power, though, comes from how LangGraph4j manages that `State`. 
 To emphasize: `Nodes` and `Edges` are like functions - they can contain an LLM or just Java code.
@@ -30,11 +30,12 @@ The [`StateGraph`] class is the main graph class to uses. This is parameterized 
 
 The `MessageGraph` class is a special type of graph. The `State` of a `MessageGraph` is ONLY an array of messages. This class is rarely used except for chatbots, as most applications require the `State` to be more complex than an array of messages.
  -->
+ <a id="compiling-your-graph"></a>
 ### Compiling your graph
 
-To build your graph, you first define the [state](#state), you then add [nodes](#nodes) and [edges](#edges), and then you compile it. What exactly is compiling your graph and why is it needed?
+To build your graph, you first define the [state](#State), you then add [nodes](#Nodes) and [edges](#Edges), and then you compile it. What exactly is compiling your graph and why is it needed?
 
-Compiling is a pretty simple step. It provides a few basic checks on the structure of your graph (no orphaned nodes, etc). It is also where you can specify runtime args like [checkpointers](#checkpointer) and [breakpoints](#breakpoints). You compile your graph by just calling the `.compile` method:
+Compiling is a pretty simple step. It provides a few basic checks on the structure of your graph (no orphaned nodes, etc). It is also where you can specify runtime args like [checkpointers](#Checkpointer) and [breakpoints](#Breakpoints). You compile your graph by just calling the `.compile` method:
 
 ```java
 // compile your graph
@@ -45,7 +46,7 @@ You **MUST** compile your graph before you can use it.
 
 ## State
 
-The first thing you do when you define a graph is define the `State` of the graph. The `State` consists of the [schema of the graph](#schema) as well as [`reducer`](#reducers) functions which specify how to apply updates to the state. The schema of the `State` will be the input schema to all `Nodes` and `Edges` in the graph, and should be defined using a map of  [`Channel`] object. All `Nodes` will emit updates to the `State` which are then applied using the specified `reducer` function.
+The first thing you do when you define a graph is define the `State` of the graph. The `State` consists of the [schema of the graph](#Schema) as well as [`reducer`](#Reducers) functions which specify how to apply updates to the state. The schema of the `State` will be the input schema to all `Nodes` and `Edges` in the graph, and should be defined using a map of  [`Channel`] object. All `Nodes` will emit updates to the `State` which are then applied using the specified `reducer` function.
 
 ### Schema
 
@@ -110,9 +111,9 @@ Currently the main class for state's serialization using built-in java stream is
 ## Nodes
 
 <!--
-In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#state), and (optionally), the **second** positional argument is a "config", containing optional [configurable parameters](#configuration) (such as a `thread_id`).
+In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#tate), and (optionally), the **second** positional argument is a "config", containing optional [configurable parameters](#configuration) (such as a `thread_id`).
 -->
-In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#state), you add these nodes to a graph using the [`addNode`] method:
+In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#State), you add these nodes to a graph using the [`addNode`] method:
 
 ```java
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
@@ -145,6 +146,7 @@ var builder = new StateGraph( State::new )
 
 Since [`AsyncNodeAction`] is designed to work with [`CompletableFuture`], you can use `node_async` static method that adapt it to a simpler syncronous scenario. 
 
+<a id="start-node"></a>
 ### `START` Node
 
 The `START` Node is a special node that represents the node sends user input to the graph. The main purpose for referencing this node is to determine which nodes should be called first.
@@ -154,7 +156,7 @@ import static org.bsc.langgraph4j.StateGraph.START;
 
 graph.addEdge(START, "nodeA");
 ```
-
+<a id="end-node"></a>
 ### `END` Node
 
 The `END` Node is a special node that represents a terminal node. This node is referenced when you want to denote which edges have no actions after they are done.
@@ -181,6 +183,7 @@ Edges define how the logic is routed and how the graph decides to stop. This is 
 <!-- 👉 PARALLEL
  A node can have MULTIPLE outgoing edges. If a node has multiple out-going edges, **all** of those destination nodes will be executed in parallel as a part of the next superstep. -->
 
+<a id="normal-edges"></a>
 ### Normal Edges
 
 If you **always** want to go from node A to node B, you can use the [addEdge](/langgraphjs/reference/classes/langgraph.StateGraph.html#addEdge) method directly.
@@ -190,6 +193,7 @@ If you **always** want to go from node A to node B, you can use the [addEdge](/l
 graph.addEdge("nodeA", "nodeB");
 ```
 
+<a id="conditional-edges"></a>
 ### Conditional Edges
 
 If you want to **optionally** route to 1 or more edges (or optionally terminate), you can use the [`addConditionalEdges`] method. This method accepts the name of a node and a **Functional Interface** ([`AsyncEdgeAction`]) that will be used as " routing function" to call after that node is executed:
@@ -206,6 +210,7 @@ Similar to nodes, the `routingFunction` accept the current `state` of the graph 
 
 You must provide an object that maps the `routingFunction`'s output to the name of the next node.
 
+<a id="entry-point"></a>
 ### Entry Point
 
 The entry point is the first node(s) that are run when the graph starts. You can use the [`addEdge`] method from the virtual `START` node to the first node to execute to specify where to enter the graph.
@@ -215,7 +220,7 @@ import static org.bsc.langgraph4j.StateGraph.START;
 
 graph.addEdge(START, "nodeA");
 ```
-
+<a id="conditional-entry-point"></a>
 ### Conditional Entry Point
 
 A conditional entry point lets you start at different nodes depending on custom logic. You can use [`addConditionalEdges`] from the virtual `START` node to accomplish this.
@@ -275,7 +280,7 @@ See [this guide](../../how-tos/persistence.html) for how to use threads.
 <a id="checkpointer-state"></a>
 ## Checkpointer state
 
-When interacting with the checkpointer state, you must specify a [thread identifier](#threads). Each checkpoint saved by the checkpointer has two properties:
+When interacting with the checkpointer state, you must specify a [thread identifier](#Threads). Each checkpoint saved by the checkpointer has two properties:
 
 - **state**: This is the value of the state at this point in time.
 - **nextNodeId**: This is the Idenfier of the node to execute next in the graph.
@@ -306,7 +311,7 @@ The config should contain `thread_id` specifying which thread to update.
 
 **`values`**
 
-These are the values that will be used to update the state. Note that this update is treated exactly as any update from a node is treated. This means that these values will be passed to the [reducer](#reducers) functions that are part of the state. So this does NOT automatically overwrite the state. 
+These are the values that will be used to update the state. Note that this update is treated exactly as any update from a node is treated. This means that these values will be passed to the [reducer](#Reducers) functions that are part of the state. So this does NOT automatically overwrite the state. 
 
 **`asNode`**
 
@@ -351,7 +356,7 @@ See [this guide](../how-tos/configuration.html) for a full breakdown on configur
 
 It can often be useful to set breakpoints before or after certain nodes execute. This can be used to wait for human approval before continuing. These can be set when you ["compile" a graph](#compiling-your-graph). You can set breakpoints either _before_ a node executes (using `interruptBefore`) or after a node executes (using `interruptAfter`.)
 
-You **MUST** use a [checkpoiner](#checkpointer) when using breakpoints. This is because your graph needs to be able to resume execution.
+You **MUST** use a [checkpoiner](#Checkpointer) when using breakpoints. This is because your graph needs to be able to resume execution.
 
 In order to resume execution, you can just invoke your graph with `null` as the input.
 
@@ -381,10 +386,6 @@ System.out.println(result.getContent());
 
 ```
 
-## Streaming
-
-LangGraph4j is built with first class support for streaming. it uses [java-async-generator] library to help with this. 
-
 <!-- 
 There are several different streaming modes that LangGraph4j supports:
 
@@ -393,7 +394,7 @@ There are several different streaming modes that LangGraph4j supports:
 
 In addition, you can use the [`streamEvents`](https://v02.api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents) method to stream back events that happen _inside_ nodes. This is useful for [streaming tokens of LLM calls](../how-tos/streaming-tokens-without-langchain.html). -->
 
-[PlainTextStateSerializer]: /langgraph4j/apidocs//org/bsc/langgraph4j/serializer/plain_text/PlainTextStateSerializer.html
+[PlainTextStateSerializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/plain_text/PlainTextStateSerializer.html
 [ObjectStreamStateSerializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/std/ObjectStreamStateSerializer.html
 [Serializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/Serializer.html
 [Reducer]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/Reducer.html
