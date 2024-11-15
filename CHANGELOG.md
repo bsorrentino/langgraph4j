@@ -2,6 +2,170 @@
 
 
 
+<!-- "name: v1.0.0" is a release tag -->
+
+## [v1.0.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0.0) (2024-11-15)
+
+
+
+### Documentation
+
+ -  replace new version refs ([a06e5408dece2ec](https://github.com/bsorrentino/langgraph4j/commit/a06e5408dece2ec18edccff0b734c972264bf685))
+
+ -  finalize serializer doc ([24cf52b065306ff](https://github.com/bsorrentino/langgraph4j/commit/24cf52b065306ffbbe813b9c6cfc4090ca737fef))
+     > resolve #38
+
+ -  site refinement ([aecd65ef0df55e9](https://github.com/bsorrentino/langgraph4j/commit/aecd65ef0df55e94b14520d15746d7ed149f1447))
+
+ -  update notebooks run ([4ef6c3ae9a45ce9](https://github.com/bsorrentino/langgraph4j/commit/4ef6c3ae9a45ce922f4cc36cf00c14ab10064e94))
+
+ -  update readme ([a6e691aaffebf60](https://github.com/bsorrentino/langgraph4j/commit/a6e691aaffebf6021bd439feaac989dc984a7c8c))
+
+
+
+### ALM 
+
+ -  bump new langchain4j version ([0dc4ff72d2c039b](https://github.com/bsorrentino/langgraph4j/commit/0dc4ff72d2c039b4937e7e97c094328af94c20e2))
+   
+ -  bump to new official release ([7d2867f7d7e27fb](https://github.com/bsorrentino/langgraph4j/commit/7d2867f7d7e27fb932e030a3937ebbbf50b173a1))
+   
+
+
+
+
+
+<!-- "name: v1.0-20241113" is a release tag -->
+
+## [v1.0-20241113](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241113) (2024-11-13)
+
+### Features
+
+ *  **StreamingOutput**  add toString() ([c8916f44303b350](https://github.com/bsorrentino/langgraph4j/commit/c8916f44303b350ed8da0a62b4dc7c02130cdc44))
+   
+
+
+### Documentation
+
+ -  **core**  update sime menu ([8573a6e830e3d40](https://github.com/bsorrentino/langgraph4j/commit/8573a6e830e3d40f36a2d770bf097251a7a21a44))
+
+
+
+### ALM 
+
+ -  bump next intermediate version ([a2da7cc63ab9751](https://github.com/bsorrentino/langgraph4j/commit/a2da7cc63ab975168c4afb1d5ea73703aa9519bd))
+   
+ -  bump to snapshot ([511fb622550973a](https://github.com/bsorrentino/langgraph4j/commit/511fb622550973a0a1889f903056a8b6559dfa5e))
+   
+
+
+
+
+
+<!-- "name: v1.0-20241112" is a release tag -->
+
+## [v1.0-20241112](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241112) (2024-11-12)
+
+### Features
+
+ *  **AgentExecutor**  allow to use dynamic tool definirion ([e463bfe87059da7](https://github.com/bsorrentino/langgraph4j/commit/e463bfe87059da7d1984b9e6582c04b23b5d3da1))
+   
+
+### Bug Fixes
+
+ -  **PlantUMLgenerator**  use right finish node ([6a7a0b9ed539f83](https://github.com/bsorrentino/langgraph4j/commit/6a7a0b9ed539f83408c1491bbcd7ca067e3a2f3c))
+
+
+### Documentation
+
+ -  update readme ([04fac5f56576c1c](https://github.com/bsorrentino/langgraph4j/commit/04fac5f56576c1cb373d5fea02eb8fa5dada70ab))
+     > resolve #47
+
+ -  update readme ([a16cd11b4f9ea93](https://github.com/bsorrentino/langgraph4j/commit/a16cd11b4f9ea939208c61ed22c1d3b2234638d6))
+
+ -  update agent-executor docs ([2ab48f37b8fc09b](https://github.com/bsorrentino/langgraph4j/commit/2ab48f37b8fc09bee96f6cb9896257855e1af75b))
+
+ -  update javadoc ([3006717053c6bb1](https://github.com/bsorrentino/langgraph4j/commit/3006717053c6bb1dfac8b1732793c23d4f5d31cd))
+
+
+
+### ALM 
+
+ -  bump to next intermediate version ([bb5dcce671d766f](https://github.com/bsorrentino/langgraph4j/commit/bb5dcce671d766f0952ac67a4caa7b3201a0559b))
+   
+ -  bump SNAPSHOT ([f20897527b8f644](https://github.com/bsorrentino/langgraph4j/commit/f20897527b8f644a73d10e1851b0deabcc6f5a73))
+   
+
+
+
+
+
+<!-- "name: v1.0-20241111" is a release tag -->
+
+## [v1.0-20241111](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241111) (2024-11-11)
+
+### Features
+
+ *  **ToolNode**  Support for Tools specified dynamically ([d5d387baba0fa40](https://github.com/bsorrentino/langgraph4j/commit/d5d387baba0fa407ab117965c18f2df0de6fcef7))
+     > resolve #44
+   
+ *  **AsyncNodeGenerator**  add 'resumedFromEmbed' state management in AsyncNodeGenerator ([d4a5dd2f65d1e3f](https://github.com/bsorrentino/langgraph4j/commit/d4a5dd2f65d1e3f5ee929b74b0e4c907429164a0))
+     > work on #31
+   
+ *  **LLMStreamingGenerator**  make compliant with StreamingOutput ([d39eef962b417bd](https://github.com/bsorrentino/langgraph4j/commit/d39eef962b417bdd65c85d45857c9c7b248289cb))
+     > work on #31
+   
+ *  **StreamingOutput**  add NodeOutput<> specialization to support LLM streaming ([aed9c23c09ed37d](https://github.com/bsorrentino/langgraph4j/commit/aed9c23c09ed37df535b25673776e4bdce1669e7))
+     > work on #31
+   
+ *  **langchain4j**  bump async-generator version ([253cd7d5b1ed353](https://github.com/bsorrentino/langgraph4j/commit/253cd7d5b1ed353897a819b6220cbe4de854d038))
+     > work on #31
+   
+ *  **langchain4j**  handle completion on LLMStreamingGenerator ([5740d1394aa35a6](https://github.com/bsorrentino/langgraph4j/commit/5740d1394aa35a6ddc83605078958924cfbb5ebb))
+     > - provide an operator to convert response to Map&lt;&gt;
+     > work on #31
+   
+ *  **CompiledGraph**  integrate embedding generator. ([e7938e49c137f12](https://github.com/bsorrentino/langgraph4j/commit/e7938e49c137f12671665213d19cd700947fe990))
+     > - manage resume state after completion of an embed generator
+     > work on #31
+   
+ *  **CompiledGraph**  add support of AsyncIterator.WithEmbed ([3c254e8e800a346](https://github.com/bsorrentino/langgraph4j/commit/3c254e8e800a346feeab63e1f5436ae1dc87c098))
+     > work on #31
+   
+ *  make LLMStreamingGenerator an implementation of AsyncGenerator.WithResult ([c838f618ce9553c](https://github.com/bsorrentino/langgraph4j/commit/c838f618ce9553cc118f2919ab6c72e1dd298850))
+     > work on #31
+   
+ *  add a LLMStreamingGenerator class ([d38eac5586b0ecd](https://github.com/bsorrentino/langgraph4j/commit/d38eac5586b0ecdfe1c190e099b07210c496faf6))
+     > Convert the langchain4j StreamingResponseHandler to AsyncStream
+     > work on #31
+   
+ *  add react demo notebook ([b19ab5e7456d4bc](https://github.com/bsorrentino/langgraph4j/commit/b19ab5e7456d4bc58fad6145c238400069cb06ea))
+   
+
+
+### Documentation
+
+ -  refine serializer documentation ([74c9c33b7c5110c](https://github.com/bsorrentino/langgraph4j/commit/74c9c33b7c5110c984325838cbc6275435469bb8))
+     > work on #38
+
+ -  update changeme ([c33bddf902eac64](https://github.com/bsorrentino/langgraph4j/commit/c33bddf902eac64cd07851f925051a4723574a4e))
+
+
+
+### ALM 
+
+ -  bump intermediate version ([a43baab610d37ba](https://github.com/bsorrentino/langgraph4j/commit/a43baab610d37ba0e742a1102bd711f5da5caff0))
+   
+ -  bump to SNAPSHOT ([9d0a9a6be7b5825](https://github.com/bsorrentino/langgraph4j/commit/9d0a9a6be7b582588a06b594ebe9e88e5db558dc))
+    > bump async-generator-jdk8 dep
+ > work on #31
+
+ -  bump to SNAPSHOT ([232eead50f7e2b9](https://github.com/bsorrentino/langgraph4j/commit/232eead50f7e2b9850af57112eb1e22c5cb2d94d))
+   
+
+
+
+
+
 <!-- "name: v1.0-20241029" is a release tag -->
 
 ## [v1.0-20241029](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241029) (2024-10-29)
