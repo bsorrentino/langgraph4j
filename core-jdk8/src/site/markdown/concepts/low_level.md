@@ -105,7 +105,23 @@ During graph execution the state needs to be serialized (mostly for cloning purp
 - [x] Allow to serialize using the java built-in standard binary serialization technique
 - [x] Allow to plug also different serialization techniques
 
-Currently the main class for state's serialization using built-in java stream is [ObjectStreamStateSerializer]. It is also available an abstraction allowing to plug serialization techniques text based like JSON and/or YAML that is [PlainTextStateSerializer].
+Currently the main class for state's serialization using built-in java stream is [ObjectStreamStateSerializer]. It is also available an abstraction allowing to plug serialization techniques text based like `JSON` and/or `YAML` that is [PlainTextStateSerializer].
+
+#### Out of the Box
+
+There are several provided Serializers out-of-the-box:
+
+ class | description 
+ ----- | -----
+`ListSerializer` | built-in `List<Object>` serializer
+`MapSerializer` | built-in `Map<String,Object>` serializer
+&nbsp; |  &nbsp; 
+`AiMessageSerializer` | langchain4j `AiMessage` Serializer
+`ChatMesssageSerializer` | langchain4j `ChatMesssage` Serializer
+`SystemMessageSerializer` | langchain4j `SystemMessage` Serializer
+`UserMessageSerializer` | langchain4j `UserMessage` Serializer
+`ToolExecutionRequestSerializer` | langchain4j `ToolExecutionRequest` Serializer
+`ToolExecutionResultMessageSerializer` | langchain4j `ToolExecutionResultMessage` Serializer
 
 
 ## Nodes
