@@ -1,6 +1,3 @@
-# Adaptive RAG
-
-
 ```java
 String userHomeDir = System.getProperty("user.home");
 String localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
@@ -20,6 +17,14 @@ String langchain4jVersion = "0.35.0"
     [0m[0mname: [1m[32matlassian [0murl: [1m[32mhttps://packages.atlassian.com/maven/public [0mrelease:[32mtrue [0mupdate:[32mnever [0msnapshot:[32mfalse [0mupdate:[32mnever 
     [0m[0mname: [1m[32mlocal [0murl: [1m[32mfile:///Users/bsorrentino/.m2/repository/ [0mrelease:[32mtrue [0mupdate:[32mnever [0msnapshot:[32mtrue [0mupdate:[32malways 
     [0m
+
+Remove installed package from Jupiter cache
+
+
+```bash
+%%bash 
+rm -rf \{userHomeDir}/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/
+```
 
 
 ```java
@@ -67,7 +72,7 @@ String langchain4jVersion = "0.35.0"
     [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/knuddels/jtokkit/1.1.0/jtokkit-1.1.0.jar[0m
     [0m
 
-## Initialize Logger
+### Initialize Logger
 
 
 ```java
@@ -77,168 +82,65 @@ try( var file = new java.io.FileInputStream("./logging.properties")) {
     lm.readConfiguration( file );
 }
 
-var log = org.slf4j.LoggerFactory.getLogger("AdaptiveRag");
+var log = org.slf4j.LoggerFactory.getLogger("llm-streaming");
 
 ```
 
-## Test Issue [#32](https://github.com/bsorrentino/langgraph4j/issues/32)
-
-Issue concerns a problem on `AdaptiveRag` implementation referred to `AnswerGrader` task
-
 
 ```java
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.input.Prompt;
-import dev.langchain4j.model.input.structured.StructuredPrompt;
-import dev.langchain4j.model.input.structured.StructuredPromptProcessor;
-import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.output.structured.Description;
-import dev.langchain4j.service.AiServices;
-import dev.langchain4j.service.SystemMessage;
-import java.time.Duration;
-import java.util.function.Function;
+import dev.langchain4j.model.StreamingResponseHandler;
+import dev.langchain4j.model.chat.StreamingChatLanguageModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.output.Response;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
+import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
+import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.streaming.StreamingOutput;
 
+var generator = LLMStreamingGenerator.<AiMessage,AgentState>builder()
+                        .mapResult( r -> Map.of( "content", r.content() ) )
+                        .build();
 
-public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrader.Score> {
+StreamingChatLanguageModel model = OpenAiStreamingChatModel.builder()
+    .apiKey(System.getenv("OPENAI_API_KEY"))
+    .modelName(GPT_4_O_MINI)
+    .build();
 
-    static final String MODELS[] =  { "gpt-3.5-turbo-0125", "gpt-4o-mini" };
+String userMessage = "Tell me a joke";
 
-    /**
-     * Binary score to assess answer addresses question.
-     */
-    public static class Score {
+model.generate(userMessage, generator.handler() );
 
-        @Description("Answer addresses the question, 'yes' or 'no'")
-        public String binaryScore;
-
-        @Override
-        public String toString() {
-            return "Score: " + binaryScore;
-        }
-    }
-
-    @StructuredPrompt("""
-User question: 
-
-{{question}}
-
-LLM generation: 
-
-{{generation}}
-""")
-    record Arguments(String question, String generation) {
-    }
-
-    interface Service {
-
-        @SystemMessage("""
-You are a grader assessing whether an answer addresses and/or resolves a question. 
-
-Give a binary score 'yes' or 'no'. Yes, means that the answer resolves the question otherwise return 'no'
-        """)
-        Score invoke(String userMessage);
-    }
-
-    String openApiKey;
-
-    @Override
-    public Score apply(Arguments args) {
-        ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
-                .apiKey( System.getenv("OPENAI_API_KEY")  )
-                .modelName( MODELS[1] )
-                .timeout(Duration.ofMinutes(2))
-                .logRequests(true)
-                .logResponses(true)
-                .maxRetries(2)
-                .temperature(0.0)
-                .maxTokens(2000)
-                .build();
-
-
-        Service service = AiServices.create(Service.class, chatLanguageModel);
-
-        Prompt prompt = StructuredPromptProcessor.toPrompt(args);
-
-        log.trace( "prompt: {}", prompt.text() );
-        
-        return service.invoke(prompt.text());
-    }
-
+for( var r : generator ) {
+    log.info( "{}", r);
 }
-
+  
+log.info( "RESULT: {}", generator.resultValue().orElse(null) );
+  
+//Thread.sleep( 1000 );
 ```
 
-
-```java
-
-var grader = new AnswerGrader();
-
-var args = new AnswerGrader.Arguments( "What are the four operations ? ", "LLM means Large Language Model" );
-grader.apply( args );
-
-```
-
-    prompt: User question:
+    StreamingOutput{chunk=} 
+    StreamingOutput{chunk=Why} 
+    StreamingOutput{chunk= did} 
+    StreamingOutput{chunk= the} 
+    StreamingOutput{chunk= scare} 
+    StreamingOutput{chunk=crow} 
+    StreamingOutput{chunk= win} 
+    StreamingOutput{chunk= an} 
+    StreamingOutput{chunk= award} 
+    StreamingOutput{chunk=?
     
-    What are the four operations ? 
+    } 
+    StreamingOutput{chunk=Because} 
+    StreamingOutput{chunk= he} 
+    StreamingOutput{chunk= was} 
+    StreamingOutput{chunk= outstanding} 
+    StreamingOutput{chunk= in} 
+    StreamingOutput{chunk= his} 
+    StreamingOutput{chunk= field} 
+    StreamingOutput{chunk=!} 
+    RESULT: {content=AiMessage { text = "Why did the scarecrow win an award?
     
-    LLM generation:
-    
-    LLM means Large Language Model
-     
-
-
-
-
-
-    Score: no
-
-
-
-
-```java
-var args = new AnswerGrader.Arguments( "What are the four operations", "There are four basic operations: addition, subtraction, multiplication, and division." );   
-grader.apply( args );
-
-```
-
-    prompt: User question:
-    
-    What are the four operations
-    
-    LLM generation:
-    
-    There are four basic operations: addition, subtraction, multiplication, and division.
-     
-
-
-
-
-
-    Score: yes
-
-
-
-
-```java
-var args = new AnswerGrader.Arguments( "What player at the Bears expected to draft first in the 2024 NFL draft?", "The Bears selected USC quarterback Caleb Williams with the No. 1 pick in the 2024 NFL Draft." );   
-grader.apply( args );
-
-```
-
-    prompt: User question:
-    
-    What player at the Bears expected to draft first in the 2024 NFL draft?
-    
-    LLM generation:
-    
-    The Bears selected USC quarterback Caleb Williams with the No. 1 pick in the 2024 NFL Draft.
-     
-
-
-
-
-
-    Score: yes
-
+    Because he was outstanding in his field!" toolExecutionRequests = null }} 
 

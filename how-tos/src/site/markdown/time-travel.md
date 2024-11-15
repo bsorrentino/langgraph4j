@@ -23,6 +23,90 @@ This works for [StateGraph](https://bsorrentino.github.io/langgraph4j/apidocs/or
 
 Below is an example.
 
+
+```java
+String userHomeDir = System.getProperty("user.home");
+String localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
+String langchain4jVersion = "0.35.0"
+```
+
+
+```java
+%dependency /add-repo local \{localRespoUrl} release|never snapshot|always
+// %dependency /list-repos
+```
+
+    [0mRepository [1m[32mlocal[0m url: [1m[32mfile:///Users/bsorrentino/.m2/repository/[0m added.
+    [0m
+
+Remove installed package from Jupiter cache
+
+
+```bash
+%%bash 
+rm -rf \{userHomeDir}/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/langgraph4j
+```
+
+
+```java
+%dependency /add org.slf4j:slf4j-jdk14:2.0.9
+%dependency /add org.bsc.langgraph4j:langgraph4j-core-jdk8:1.0-SNAPSHOT
+%dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j:1.0-SNAPSHOT
+%dependency /add dev.langchain4j:langchain4j:\{langchain4jVersion}
+%dependency /add dev.langchain4j:langchain4j-open-ai:\{langchain4jVersion}
+
+%dependency /resolve
+```
+
+    Adding dependency [0m[1m[32morg.slf4j:slf4j-jdk14:2.0.9
+    [0mAdding dependency [0m[1m[32morg.bsc.langgraph4j:langgraph4j-core-jdk8:1.0-SNAPSHOT
+    [0mAdding dependency [0m[1m[32morg.bsc.langgraph4j:langgraph4j-langchain4j:1.0-SNAPSHOT
+    [0mAdding dependency [0m[1m[32mdev.langchain4j:langchain4j:0.35.0
+    [0mAdding dependency [0m[1m[32mdev.langchain4j:langchain4j-open-ai:0.35.0
+    [0mSolving dependencies
+    Resolved artifacts count: 26
+    Add to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/slf4j/slf4j-jdk14/2.0.9/slf4j-jdk14-2.0.9.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/langgraph4j/langgraph4j-core-jdk8/1.0-SNAPSHOT/langgraph4j-core-jdk8-1.0-SNAPSHOT.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/async/async-generator-jdk8/2.2.0/async-generator-jdk8-2.2.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/langgraph4j/langgraph4j-langchain4j/1.0-SNAPSHOT/langgraph4j-langchain4j-1.0-SNAPSHOT.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j/0.35.0/langchain4j-0.35.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-core/0.35.0/langchain4j-core-0.35.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/apache/opennlp/opennlp-tools/1.9.4/opennlp-tools-1.9.4.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-open-ai/0.35.0/langchain4j-open-ai-0.35.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/ai4j/openai4j/0.22.0/openai4j-0.22.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/squareup/retrofit2/retrofit/2.9.0/retrofit-2.9.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/squareup/retrofit2/converter-jackson/2.9.0/converter-jackson-2.9.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/fasterxml/jackson/core/jackson-databind/2.17.2/jackson-databind-2.17.2.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/fasterxml/jackson/core/jackson-annotations/2.17.2/jackson-annotations-2.17.2.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/fasterxml/jackson/core/jackson-core/2.17.2/jackson-core-2.17.2.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/squareup/okhttp3/okhttp/4.12.0/okhttp-4.12.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/squareup/okio/okio/3.6.0/okio-3.6.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/squareup/okio/okio-jvm/3.6.0/okio-jvm-3.6.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/squareup/okhttp3/okhttp-sse/4.12.0/okhttp-sse-4.12.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/kotlin/kotlin-stdlib-jdk8/1.9.10/kotlin-stdlib-jdk8-1.9.10.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/kotlin/kotlin-stdlib/1.9.10/kotlin-stdlib-1.9.10.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/kotlin/kotlin-stdlib-common/1.9.10/kotlin-stdlib-common-1.9.10.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/annotations/13.0/annotations-13.0.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/kotlin/kotlin-stdlib-jdk7/1.9.10/kotlin-stdlib-jdk7-1.9.10.jar[0m
+    [0mAdd to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/knuddels/jtokkit/1.1.0/jtokkit-1.1.0.jar[0m
+    [0m
+
+### Initialize logger
+
+
+```java
+try( var file = new java.io.FileInputStream("./logging.properties")) {
+    var lm = java.util.logging.LogManager.getLogManager();
+    lm.checkAccess(); 
+    lm.readConfiguration( file );
+}
+
+var log = org.slf4j.LoggerFactory.getLogger("time-travel");
+
+```
+
 ## Define the state
 
 State is an (immutable) data class, inheriting from [AgentState], shared with all nodes in our graph. A state is basically a wrapper of a `Map<String,Object>` that provides some enhancers:
@@ -202,13 +286,13 @@ result;
 
 ```
 
-    2024-10-24 18:05:59 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execQuery
+    execute: execQuery 
 
 
 
 
 
-    Optional[ToolExecutionResultMessage { id = "call_TNiVMyLsZGyBAoVvbcddIT7C" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]
+    Optional[ToolExecutionResultMessage { id = "call_clfKNL7okcr8bHNwEJUYp7Jn" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]
 
 
 
@@ -313,7 +397,7 @@ for( var r : result ) {
 }
 ```
 
-    2024-10-24 18:06:00 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> START
+    START 
 
 
     __START__
@@ -338,7 +422,7 @@ System.out.println(checkpoint);
 
 ```
 
-    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "Hi I'm Bartolo." }] }, AiMessage { text = "Hello Bartolo! How can I assist you today?" toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-num-1, checkPointId=f82c89d0-4fd4-410b-acf7-4013c5e72c48, nextNode=__END__, streamMode=VALUES)}
+    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "Hi I'm Bartolo." }] }, AiMessage { text = "Hello Bartolo! How can I assist you today?" toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-num-1, checkPointId=a524b711-4588-4859-8c50-acff0e7c1ed3, nextNode=__END__, streamMode=VALUES)}
 
 
 The current state is the two messages we've seen above, 1. the Human Message we sent in, 2. the AIMessage we got back from the model.
@@ -372,8 +456,8 @@ System.out.println( state.lastMessage().orElse(null) );
   
 ```
 
-    2024-10-24 18:06:03 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> START
-    2024-10-24 18:06:04 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execQuery
+    START 
+    execute: execQuery 
 
 
     AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius. If you need more details or have any other questions, feel free to ask!" toolExecutionRequests = null }
@@ -411,13 +495,13 @@ for( var r : result ) {
 
 ```
 
-    2024-10-24 18:06:06 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> START
+    START 
 
 
     __START__
     {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }]}
     agent
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }]}
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }]}
 
 
 ## Get State
@@ -451,18 +535,18 @@ for( var r : result ) {
 }
 ```
 
-    2024-10-24 18:06:08 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME REQUEST
-    2024-10-24 18:06:08 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME FROM agent
-    2024-10-24 18:06:08 FINEST org.bsc.langgraph4j.langchain4j.tool.ToolNode execute execute: execQuery
-    2024-10-24 18:06:09 FINEST REPL.$JShell$77 do_it$ RESULT:
+    RESUME REQUEST 
+    RESUME FROM agent 
+    execute: execQuery 
+    RESULT:
     tools
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_DSLbzazRs41xozGhsxY5csSC" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}
-    2024-10-24 18:06:09 FINEST REPL.$JShell$77 do_it$ RESULT:
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_HmirEZJNwBCzKSQauWGHPCiD" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]} 
+    RESULT:
     agent
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_DSLbzazRs41xozGhsxY5csSC" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
-    2024-10-24 18:06:09 FINEST REPL.$JShell$77 do_it$ RESULT:
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_HmirEZJNwBCzKSQauWGHPCiD" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]} 
+    RESULT:
     __END__
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_DSLbzazRs41xozGhsxY5csSC" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_HmirEZJNwBCzKSQauWGHPCiD" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]} 
 
 
 ## Check full history
@@ -488,22 +572,22 @@ if (toReplay==null) {
 }
 ```
 
-    2024-10-24 18:06:09 FINEST REPL.$JShell$80 do_it$ 
+    
     ---
-    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_DSLbzazRs41xozGhsxY5csSC" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=9af1ff00-f7ef-4aff-86e9-7981ddcf5dca, nextNode=__END__, streamMode=VALUES)}
+    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_HmirEZJNwBCzKSQauWGHPCiD" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=af521ddb-0f26-4c5b-8610-4d374f6818f5, nextNode=__END__, streamMode=VALUES)}
+    --- 
+    
     ---
-    2024-10-24 18:06:09 FINEST REPL.$JShell$80 do_it$ 
+    StateSnapshot{node=tools, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_HmirEZJNwBCzKSQauWGHPCiD" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=b1f96095-9651-4af5-b058-0089f47b17a5, nextNode=agent, streamMode=VALUES)}
+    --- 
+    
     ---
-    StateSnapshot{node=tools, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_DSLbzazRs41xozGhsxY5csSC" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=b7abfc7a-7b2b-485a-94fa-070f2f220bda, nextNode=agent, streamMode=VALUES)}
+    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_HmirEZJNwBCzKSQauWGHPCiD" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=22008a3a-fd9d-4899-92e2-7151875de7f0, nextNode=tools, streamMode=VALUES)}
+    --- 
+    
     ---
-    2024-10-24 18:06:09 FINEST REPL.$JShell$80 do_it$ 
-    ---
-    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_DSLbzazRs41xozGhsxY5csSC" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=aaee6ba1-ce74-4e72-bb7c-4a0bba07d783, nextNode=tools, streamMode=VALUES)}
-    ---
-    2024-10-24 18:06:09 FINEST REPL.$JShell$80 do_it$ 
-    ---
-    StateSnapshot{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=6296327f-cbf5-45ed-bc92-9ef9bfc3df37, nextNode=agent, streamMode=VALUES)}
-    ---
+    StateSnapshot{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=8abd26da-710d-4a98-97da-6f63ae4ac4d5, nextNode=agent, streamMode=VALUES)}
+    --- 
 
 
 ## Replay a past state
@@ -520,14 +604,14 @@ for( var r : results ) {
 
 ```
 
-    2024-10-24 18:06:09 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME REQUEST
-    2024-10-24 18:06:09 FINEST org.bsc.langgraph4j.CompiledGraph$AsyncNodeGenerator <init> RESUME FROM tools
-    2024-10-24 18:06:10 FINEST REPL.$JShell$83 do_it$ RESULT:
+    RESUME REQUEST 
+    RESUME FROM tools 
+    RESULT:
     agent
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_DSLbzazRs41xozGhsxY5csSC" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
-    ---
-    2024-10-24 18:06:10 FINEST REPL.$JShell$83 do_it$ RESULT:
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_HmirEZJNwBCzKSQauWGHPCiD" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
+    --- 
+    RESULT:
     __END__
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_DSLbzazRs41xozGhsxY5csSC", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_DSLbzazRs41xozGhsxY5csSC" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
-    ---
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HmirEZJNwBCzKSQauWGHPCiD", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_HmirEZJNwBCzKSQauWGHPCiD" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
+    --- 
 
