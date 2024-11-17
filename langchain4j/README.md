@@ -11,7 +11,7 @@
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>llanggraph4j-langchain4j</artifactId>
+    <artifactId>langgraph4j-langchain4j</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
