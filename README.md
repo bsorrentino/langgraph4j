@@ -194,15 +194,13 @@ public static class State implements AgentState {
    
 }
 
-var toolInfoList = ToolInfo.fromList( objectsWithTools );
-
-final List<ToolSpecification> toolSpecifications = toolInfoList.stream()
-        .map(ToolInfo::specification)
-        .toList();
+var toolInfo = ToolNode.builder()
+                        .specification( objectsWithTools )
+                        .build();
 
 var agentRunnable = Agent.builder()
-                        .chatLanguageModel(chatLanguageModel)
-                        .tools( toolSpecifications )
+                        .chatLanguageModel( chatLanguageModel )
+                        .tools( toolInfo.specifications() )
                         .build();
 
 // Fluent Interface
