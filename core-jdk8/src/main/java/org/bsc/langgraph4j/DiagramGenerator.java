@@ -62,9 +62,9 @@ public abstract class DiagramGenerator {
 
             }
         });
-        if( compiledGraph.getFinishPoint() != null ) {
-           finish( sb, compiledGraph.getFinishPoint() ) ;
-        }
+//        if( compiledGraph.getFinishPoint() != null ) {
+//           finish( sb, compiledGraph.getFinishPoint() ) ;
+//        }
         appendFooter( sb );
 
         return sb.toString();
