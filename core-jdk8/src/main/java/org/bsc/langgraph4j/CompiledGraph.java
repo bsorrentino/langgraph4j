@@ -142,10 +142,12 @@ public class CompiledGraph<State extends AgentState> {
         return updateState(config, values, null);
     }
 
+    @Deprecated
     public EdgeValue<State> getEntryPoint() {
         return stateGraph.getEntryPoint();
     }
 
+    @Deprecated
     public String getFinishPoint() {
         return stateGraph.getFinishPoint();
     }
