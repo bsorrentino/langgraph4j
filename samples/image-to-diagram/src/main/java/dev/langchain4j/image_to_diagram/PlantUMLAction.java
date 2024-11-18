@@ -40,8 +40,7 @@ public class PlantUMLAction {
 
         final Diagram system = blocks.get(0).getDiagram();
 
-        if( system instanceof PSystemError ) {
-            PSystemError errors = (PSystemError) system;
+        if(system instanceof PSystemError errors) {
             ErrorUml err = errors.getFirstError();
 
             try(ByteArrayOutputStream png = new ByteArrayOutputStream()) {
@@ -72,9 +71,8 @@ public class PlantUMLAction {
 
         final Diagram system = blocks.get(0).getDiagram();
 
-        if( system instanceof PSystemError ) {
+        if(system instanceof PSystemError errors) {
 
-            PSystemError errors = (PSystemError) system;
             ErrorUml err = errors.getFirstError();
             String error = format( "error '%s' at line %d : '%s'",
                     err.getType(),

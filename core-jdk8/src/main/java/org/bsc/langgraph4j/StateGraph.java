@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
-import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
@@ -90,6 +89,7 @@ public class StateGraph<State extends AgentState> {
     Set<Edge<State>> edges = new LinkedHashSet<>();
 
     private EdgeValue<State> entryPoint;
+    @Deprecated
     private String finishPoint;
 
     private final Map<String, Channel<?>> channels;
@@ -190,6 +190,7 @@ public class StateGraph<State extends AgentState> {
         this.finishPoint = finishPoint;
     }
 
+    /**
     /**
      * Adds a node to the graph.
      *
@@ -297,11 +298,11 @@ public class StateGraph<State extends AgentState> {
             throw Errors.entryPointNotExist.exception(entryPoint.id());
         }
 
-        if (finishPoint != null) {
-            if (!nodes.contains(nodeById(finishPoint))) {
-                throw Errors.finishPointNotExist.exception(finishPoint);
-            }
-        }
+//        if (finishPoint != null) {
+//            if (!nodes.contains(nodeById(finishPoint))) {
+//                throw Errors.finishPointNotExist.exception(finishPoint);
+//            }
+//        }
 
         for (Edge<State> edge : edges) {
 

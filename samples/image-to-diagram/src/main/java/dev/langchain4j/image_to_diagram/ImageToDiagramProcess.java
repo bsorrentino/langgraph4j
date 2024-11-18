@@ -43,7 +43,6 @@ public class ImageToDiagramProcess implements ImageToDiagram {
         }
     }
 
-
     private final ImageUrlOrData imageUrlOrData;
 
     public ImageToDiagramProcess(URI image ) {
