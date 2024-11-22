@@ -8,11 +8,11 @@
 		<version>3.3.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>org.bsc.assemblyai</groupId>
-	<artifactId>mindmap</artifactId>
+	<groupId>org.bsc.ai</groupId>
+	<artifactId>mapifyai</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>mindmap</name>
-	<description>From AssemblyAI transcribe to MindMap</description>
+	<name>MapifyAI</name>
+	<description>From Transcript to MindMap</description>
 	<url/>
 	<licenses>
 		<license/>
