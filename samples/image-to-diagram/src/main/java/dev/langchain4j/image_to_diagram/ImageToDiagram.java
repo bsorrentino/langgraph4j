@@ -71,8 +71,8 @@ public interface ImageToDiagram {
 
     OpenAiChatModel getLLM();
 
-    default PromptTemplate loadPromptTemplate(String resourceName ) throws Exception {
-        final ClassLoader classLoader = getClass().getClassLoader();
+    static PromptTemplate loadPromptTemplate(String resourceName ) throws Exception {
+        final ClassLoader classLoader = ImageToDiagram.class.getClassLoader();
         final InputStream inputStream = classLoader.getResourceAsStream(resourceName);
         if (inputStream == null) {
             throw new IllegalArgumentException("File not found: " + resourceName);

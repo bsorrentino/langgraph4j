@@ -1,7 +1,7 @@
 package dev.langchain4j.image_to_diagram;
 
-import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.model.input.Prompt;
+import dev.langchain4j.image_to_diagram.actions.correction.EvaluateResult;
+import dev.langchain4j.image_to_diagram.actions.correction.ReviewResult;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -11,13 +11,11 @@ import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 @Slf4j( topic="DiagramCorrectionProcess" )
@@ -39,53 +37,6 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
                 .temperature(0.0)
                 .maxTokens(2000)
                 .build();
-
-    }
-
-    CompletableFuture<Map<String,Object>> reviewResult(State state)  {
-        CompletableFuture<Map<String,Object>> future = new CompletableFuture<>();
-        try {
-
-            String diagramCode = last( state.diagramCode() )
-                    .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
-
-            String error = state.evaluationError()
-                    .orElseThrow(() -> new IllegalArgumentException("no evaluation error provided!"));
-
-            log.trace("evaluation error: {}", error);
-
-            Prompt systemPrompt = loadPromptTemplate( "review_diagram.txt" )
-                    .apply( mapOf( "evaluationError", error, "diagramCode", diagramCode));
-            dev.langchain4j.model.output.Response<dev.langchain4j.data.message.AiMessage> response = getLLM().generate( new SystemMessage(systemPrompt.text()) );
-
-            String result = response.content().text();
-
-            log.trace("review result: {}", result);
-
-            future.complete(mapOf("diagramCode", result ) );
-
-        } catch (Exception e) {
-            future.completeExceptionally(e);
-        }
-
-        return future;
-    }
-
-    private CompletableFuture<Map<String,Object>> evaluateResult(State state) {
-
-        String diagramCode = last( state.diagramCode() )
-                .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
-
-        return PlantUMLAction.validate( diagramCode )
-                .thenApply( v -> mapOf( "evaluationResult", (Object) EvaluationResult.OK ) )
-                .exceptionally( e -> {
-                    if( e.getCause() instanceof PlantUMLAction.Error ) {
-                        return mapOf("evaluationResult", EvaluationResult.ERROR,
-                                "evaluationError",  e.getCause().getMessage(),
-                                "evaluationErrorType", ((PlantUMLAction.Error)e.getCause()).getType());
-                    }
-                    throw new RuntimeException(e);
-                });
 
     }
 
@@ -112,8 +63,8 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
 
         StateGraph<State> workflow = new StateGraph<>(State::new);
 
-        workflow.addNode( "evaluate_result", this::evaluateResult);
-        workflow.addNode( "agent_review", this::reviewResult );
+        workflow.addNode( "evaluate_result", EvaluateResult.of());
+        workflow.addNode( "agent_review", ReviewResult.of( getLLM()) );
         workflow.addEdge( "agent_review", "evaluate_result" );
         workflow.addConditionalEdges(
                 "evaluate_result",

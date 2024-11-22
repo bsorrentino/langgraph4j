@@ -15,16 +15,17 @@ public class PlantUMLAction {
 
     public static class Error extends Exception {
 
-        private ErrorUmlType type;
+        private final ErrorUmlType type;
+
+        public ErrorUmlType getType() {
+            return type;
+        }
 
         public Error(String message, ErrorUmlType type) {
             super(message);
             this.type = type;
         }
 
-        public ErrorUmlType getType() {
-            return type;
-        }
     }
 
     public static <T> CompletableFuture<T> validate( String code ) {

@@ -7,6 +7,7 @@ import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.extern.slf4j.Slf4j;
 
+import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.NodeOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.LogManager;
 
 import static java.lang.String.format;
@@ -126,9 +128,9 @@ public class ImageToDiagramTest {
     public void imageToDiagram() throws Exception {
 
         // var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
-        ImageToDiagramProcess agentExecutor = new ImageToDiagramProcess("LangChainAgents.png");
+        var agentExecutor = new ImageToDiagramProcess("LangChainAgents.png");
 
-        org.bsc.async.AsyncGenerator<NodeOutput<ImageToDiagram.State>> result = agentExecutor.execute( mapOf() );
+        AsyncGenerator<NodeOutput<ImageToDiagram.State>> result = agentExecutor.execute( Map.of() );
 
         ImageToDiagramProcess.State state = null;
         for( NodeOutput<ImageToDiagram.State> r : result ) {
@@ -137,20 +139,21 @@ public class ImageToDiagramTest {
         }
 
         System.out.println( ofNullable(state)
-                                .flatMap( s -> last( s.diagramCode() ) ).orElse("NO DIAGRAM CODE") );
+                                .flatMap( s -> last( s.diagramCode() ) )
+                                .orElse("NO DIAGRAM CODE") );
 
     }
 
-    public String reviewDiagram( String diagramId ) throws Exception {
+    public void reviewDiagram( String diagramId ) throws Exception {
 
-        final String diagramCode = readTextResource(format("%s_wrong_result.txt", diagramId));
+        final var diagramCode = readTextResource(format("%s_wrong_result.txt", diagramId));
 
-        final String expectedCode = readTextResource(format("%s_expected_result.txt", diagramId));
+        final var expectedCode = readTextResource(format("%s_expected_result.txt", diagramId));
 
-        final DiagramCorrectionProcess process = new DiagramCorrectionProcess();
+        final var process = new DiagramCorrectionProcess();
 
         ArrayList<NodeOutput<ImageToDiagram.State>> list = new ArrayList<NodeOutput<ImageToDiagram.State>>();
-        ImageToDiagram.State result = process.execute( mapOf( "diagramCode", diagramCode ) )
+        var result = process.execute( Map.of( "diagramCode", diagramCode ) )
                 .collectAsync( list, v -> log.trace(v.toString()) )
                 .thenApply( v -> {
                     if( list.isEmpty() ) {
@@ -165,7 +168,7 @@ public class ImageToDiagramTest {
         assertTrue( code.isPresent() );
         assertEquals( expectedCode, code.get().trim() );
 
-        return code.get();
+        //return code.get();
     }
 
 
