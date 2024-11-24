@@ -20,8 +20,9 @@ public interface ImageToDiagram {
 
     class State extends AgentState {
         static Map<String, Channel<?>> SCHEMA = mapOf(
-                "messages", AppenderChannel.<String>of(ArrayList::new)
+                "diagramCode", AppenderChannel.<String>of(ArrayList::new)
         );
+
         public State(Map<String, Object> initData) {
             super(initData);
         }

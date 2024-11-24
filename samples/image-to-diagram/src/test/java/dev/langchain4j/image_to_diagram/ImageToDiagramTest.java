@@ -130,7 +130,7 @@ public class ImageToDiagramTest {
         // var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
         var agentExecutor = new ImageToDiagramProcess("LangChainAgents.png");
 
-        AsyncGenerator<NodeOutput<ImageToDiagram.State>> result = agentExecutor.execute( Map.of() );
+        var result = agentExecutor.execute( Map.of() );
 
         ImageToDiagramProcess.State state = null;
         for( NodeOutput<ImageToDiagram.State> r : result ) {

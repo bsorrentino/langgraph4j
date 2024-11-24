@@ -37,35 +37,22 @@ export const diagramSchema = z.object({
 
 public class Diagram {
 
-    @Data
-    static public class Participant {
-        String name;
-        String shape;
-        String description;
+    public record Participant (String name, String shape, String description) {
     }
 
-    @Data
-    static public class Relation {
-        String source;
-        String target;
-        String description;
+    public record Relation (String source, String target, String description) {
     }
 
-    @Data
-    static public class Container {
-        String name;
-        List<String> children;
-        String description;
+    public record Container(String name, List<String> children, String description) {
     }
 
-    @Data
-    static public class Element {
-        String type;
-        String title;
-        List<Participant> participants;
-        List<Relation> relations;
-        List<Container> containers;
-        List<String> description;
-    }
+    public record Element(
+        String type,
+        String title,
+        List<Participant> participants,
+        List<Relation> relations,
+        List<Container> containers,
+        List<String> description
+    ) {}
 
 }

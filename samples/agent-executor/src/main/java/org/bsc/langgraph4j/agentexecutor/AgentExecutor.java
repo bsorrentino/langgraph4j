@@ -10,7 +10,7 @@ import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.jackson.JSONStateSerializer;
 import org.bsc.langgraph4j.agentexecutor.serializer.std.STDStateSerializer;
 import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
 import org.bsc.langgraph4j.serializer.StateSerializer;

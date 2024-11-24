@@ -2,6 +2,7 @@ package dev.langchain4j.image_to_diagram;
 
 import dev.langchain4j.image_to_diagram.actions.correction.EvaluateResult;
 import dev.langchain4j.image_to_diagram.actions.correction.ReviewResult;
+import dev.langchain4j.image_to_diagram.serializer.gson.JSONStateSerializer;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +62,9 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
     @Override
     public AsyncGenerator<NodeOutput<State>> execute(Map<String, Object> inputs) throws Exception {
 
-        StateGraph<State> workflow = new StateGraph<>(State::new);
+        var stateSerializer = new JSONStateSerializer();
+
+        StateGraph<State> workflow = new StateGraph<>(State.SCHEMA,stateSerializer);
 
         workflow.addNode( "evaluate_result", EvaluateResult.of());
         workflow.addNode( "agent_review", ReviewResult.of( getLLM()) );

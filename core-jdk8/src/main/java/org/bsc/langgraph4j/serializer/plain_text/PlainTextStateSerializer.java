@@ -6,6 +6,8 @@ import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 
 import java.io.*;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 public abstract class PlainTextStateSerializer<State extends AgentState> extends StateSerializer<State> {
 
@@ -17,6 +19,20 @@ public abstract class PlainTextStateSerializer<State extends AgentState> extends
     public String mimeType() {
         return "plain/text";
     }
+
+    @SuppressWarnings("unchecked")
+    public Class<State> getStateType() {
+        Type superClass = getClass().getGenericSuperclass();
+        if (superClass instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) superClass;
+            Type[] typeArguments = parameterizedType.getActualTypeArguments();
+            if (typeArguments.length > 0) {
+                return (Class<State>) typeArguments[0];
+            }
+        }
+        throw new IllegalStateException("Unable to determine state type");
+    }
+
 
     public State read( String data ) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream bytesStream =  new ByteArrayOutputStream();

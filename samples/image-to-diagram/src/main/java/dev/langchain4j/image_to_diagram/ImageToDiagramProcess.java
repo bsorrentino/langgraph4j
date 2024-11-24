@@ -4,6 +4,7 @@ import dev.langchain4j.image_to_diagram.actions.DescribeDiagramImage;
 import dev.langchain4j.image_to_diagram.actions.EvaluateResult;
 import dev.langchain4j.image_to_diagram.actions.TranslateGenericDiagramToPlantUML;
 import dev.langchain4j.image_to_diagram.actions.TranslateSequenceDiagramToPlantUML;
+import dev.langchain4j.image_to_diagram.serializer.gson.JSONStateSerializer;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
+import org.bsc.langgraph4j.serializer.plain_text.gson.GsonStateSerializer;
 
 import java.net.URI;
 import java.time.Duration;
@@ -71,7 +73,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
 
     private  String routeDiagramTranslation( State state)  {
         return state.diagram()
-                .filter(d -> d.type.equalsIgnoreCase("sequence"))
+                .filter(d -> d.type().equalsIgnoreCase("sequence"))
                 .map(d -> "sequence")
                 .orElse("generic");
     };
@@ -92,7 +94,9 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .maxTokens(2000)
                 .build();
 
-        org.bsc.langgraph4j.CompiledGraph<State> app = new StateGraph<>(State::new)
+        var stateSerializer = new JSONStateSerializer();
+
+        var app = new StateGraph<>(State.SCHEMA,stateSerializer)
             .addNode("agent_describer", DescribeDiagramImage.of(imageUrlOrData, llmVision )  )
             .addNode("agent_sequence_plantuml", TranslateSequenceDiagramToPlantUML.of(getLLM()) )
             .addNode("agent_generic_plantuml", TranslateGenericDiagramToPlantUML.of(getLLM()) )
