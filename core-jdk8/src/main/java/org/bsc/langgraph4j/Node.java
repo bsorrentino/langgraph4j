@@ -3,6 +3,7 @@ package org.bsc.langgraph4j;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Objects;
@@ -26,6 +27,8 @@ class Node<State extends AgentState> {
      * The action to be performed asynchronously by the node.
      */
     AsyncNodeAction<State> action;
+
+    AsyncNodeActionWithConfig<State> actionWithConfig;
 
     /**
      * Checks if this node is equal to another object.

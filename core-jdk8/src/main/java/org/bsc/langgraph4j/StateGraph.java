@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
@@ -202,7 +203,21 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
-        Node<State> node = new Node<State>(id, action);
+        Node<State> node = new Node<State>(id, action, null);
+
+        if (nodes.contains(node)) {
+            throw Errors.duplicateNodeError.exception(id);
+        }
+
+        nodes.add(node);
+        return this;
+    }
+
+    public StateGraph<State> addNode(String id, AsyncNodeActionWithConfig<State> actionWithConfig) throws GraphStateException {
+        if (Objects.equals(id, END)) {
+            throw Errors.invalidNodeIdentifier.exception(END);
+        }
+        Node<State> node = new Node<State>(id, null, actionWithConfig);
 
         if (nodes.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -277,7 +292,7 @@ public class StateGraph<State extends AgentState> {
      * @return a new fake node
      */
     private Node<State> nodeById(String id) {
-        return new Node<>(id, null);
+        return new Node<>(id, null, null);
     }
 
     /**
