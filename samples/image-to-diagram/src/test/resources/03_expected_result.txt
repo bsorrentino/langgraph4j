@@ -1,5 +1,5 @@
 @startuml
-actor Bob
+rectangle Bob
 actor Alice
 actor Jack
 rectangle MyFriend

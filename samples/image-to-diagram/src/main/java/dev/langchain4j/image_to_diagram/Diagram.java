@@ -1,7 +1,5 @@
 package dev.langchain4j.image_to_diagram;
 
-import lombok.Data;
-
 import java.util.List;
 
 // diagram schema

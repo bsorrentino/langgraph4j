@@ -1,4 +1,5 @@
 @startuml
+allowmixing
 rectangle MyFriend
 actor Alice
 actor Jack

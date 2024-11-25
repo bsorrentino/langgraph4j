@@ -1,6 +1,7 @@
 package dev.langchain4j.image_to_diagram;
 
 import com.google.gson.Gson;
+
 import java.util.regex.Pattern;
 
 public class DiagramOutputParser {

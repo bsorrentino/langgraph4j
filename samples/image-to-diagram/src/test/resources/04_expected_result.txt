@@ -1,6 +1,6 @@
 @startuml
-actor Bob
-rect MyFriend
+rectangle Bob
+rectangle MyFriend
 actor Alice
 actor Jack
 Bob --> Alice : hello

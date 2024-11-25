@@ -1,7 +1,7 @@
 @startuml
 actor Alice
-actor Bob
+rectangle Bob
 actor Jack
-actor MyFriend
+rectangle MyFriend
 Bob --> Alice : hello
 @enduml

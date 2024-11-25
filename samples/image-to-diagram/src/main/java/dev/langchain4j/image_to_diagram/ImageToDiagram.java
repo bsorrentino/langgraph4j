@@ -3,8 +3,6 @@ package dev.langchain4j.image_to_diagram;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import net.sourceforge.plantuml.ErrorUmlType;
-import org.bsc.async.AsyncGenerator;
-import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
@@ -12,8 +10,10 @@ import org.bsc.langgraph4j.state.Channel;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.Duration;
 import java.util.*;
 
+import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.*;
 
 public interface ImageToDiagram {
@@ -70,7 +70,39 @@ public interface ImageToDiagram {
         UNKNOWN
     }
 
-    OpenAiChatModel getLLM();
+    default OpenAiChatModel getVisionModel( ) {
+
+        var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
+                .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
+
+        return OpenAiChatModel.builder()
+                .apiKey( openApiKey )
+                .modelName( "gpt-4o" )
+                .timeout(Duration.ofMinutes(2))
+                .logRequests(true)
+                .logResponses(true)
+                .maxRetries(2)
+                .temperature(0.0)
+                .maxTokens(2000)
+                .build();
+
+    }
+
+    default OpenAiChatModel getModel( ) {
+        var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
+                .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
+
+        return OpenAiChatModel.builder()
+                .apiKey( openApiKey )
+                .modelName( "gpt-4o-mini" )
+                .logRequests(true)
+                .logResponses(true)
+                .maxRetries(2)
+                .temperature(0.0)
+                .maxTokens(2000)
+                .build();
+
+    }
 
     static PromptTemplate loadPromptTemplate(String resourceName ) throws Exception {
         final ClassLoader classLoader = ImageToDiagram.class.getClassLoader();
@@ -87,8 +119,5 @@ public interface ImageToDiagram {
             return PromptTemplate.from( result.toString() );
         }
     }
-
-    AsyncGenerator<NodeOutput<State>> execute(Map<String, Object> inputs ) throws Exception;
-
 
 }

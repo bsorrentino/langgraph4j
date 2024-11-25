@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.data.message.*;
 import dev.langchain4j.model.input.PromptTemplate;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.extern.slf4j.Slf4j;
 
-import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.NodeOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +15,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.LogManager;
 
 import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 public class ImageToDiagramTest {
 
-    private String readTextResource( String resourceName ) throws Exception {
+    public static final String VISION_MODEL_NAME = "gpt-4o";
+
+    private String readTextResource(String resourceName ) throws Exception {
         final ClassLoader classLoader = getClass().getClassLoader();
         final InputStream inputStream = classLoader.getResourceAsStream(resourceName);
         if (inputStream == null) {
@@ -56,18 +54,22 @@ public class ImageToDiagramTest {
 
         DotEnvConfig.load();
     }
+
     @Test
     public void parseDiagramSchema() throws Exception {
         String json = readTextResource("diagram_data.json");
         assertNotNull(json);
 
-        Gson gson = new Gson();
-        Diagram.Element diagram = gson.fromJson(json, Diagram.Element.class);
+        var gson = new Gson();
+        var diagram = gson.fromJson(json, Diagram.Element.class);
 
         assertNotNull(diagram);
-
-        System.out.println( diagram );
-
+        assertEquals( "process", diagram.type()  );
+        assertEquals( "User Request Routing", diagram.title()  );
+        assertEquals( 5, diagram.participants().size()  );
+        assertEquals( 4, diagram.relations().size()  );
+        assertTrue(diagram.containers().isEmpty());
+        assertEquals( 3, diagram.description().size()  );
     }
 
     @Test
@@ -75,24 +77,18 @@ public class ImageToDiagramTest {
         String result = readTextResource("describe_result.txt");
 
         DiagramOutputParser outputParser = new DiagramOutputParser();
-        System.out.println( outputParser.parse( result ) );
+        var diagram = outputParser.parse( result );
+        assertNotNull(diagram);
+        assertEquals( "process", diagram.type()  );
+        assertEquals( "User Request Routing", diagram.title()  );
+        assertEquals( 5, diagram.participants().size()  );
+        assertEquals( 4, diagram.relations().size()  );
+        assertTrue(diagram.containers().isEmpty());
+        assertEquals( 3, diagram.description().size()  );
     }
 
     @Test
     public void describeDiagramImage() throws Exception {
-        String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
-
-        OpenAiChatModel chatLanguageModel = OpenAiChatModel.builder()
-                .apiKey( openApiKey )
-                .modelName( "gpt-4-vision-preview" )
-                .timeout(Duration.ofMinutes(2))
-                .logRequests(true)
-                .logResponses(true)
-                .maxRetries(2)
-                .temperature(0.0)
-                .maxTokens(2000)
-                .build();
 
         String template = readTextResource( "describe_diagram_image.txt" );
 
@@ -100,10 +96,9 @@ public class ImageToDiagramTest {
 
         String imageData = ImageLoader.loadImageAsBase64( "supervisor-diagram.png" );
 
-        System.out.println(imageData );
+        assertNotNull(imageData);
 
-        ImageToDiagramProcess.ImageUrlOrData imageUrlOrData = ImageToDiagramProcess.ImageUrlOrData.of( new URI("https://blog.langchain.dev/content/images/2024/01/supervisor-diagram.png")  );
-        // var imageUrlOrData = ImageToDiagram.ImageUrlOrData.of( imageData );
+        var imageUrlOrData = ImageToDiagramProcess.ImageUrlOrData.of( new URI("https://blog.langchain.dev/content/images/2024/01/supervisor-diagram.png")  );
 
         ImageContent imageContent = (imageUrlOrData.url()!=null) ?
                 ImageContent.from(imageUrlOrData.url(), ImageContent.DetailLevel.AUTO) :
@@ -111,40 +106,46 @@ public class ImageToDiagramTest {
         TextContent textContent = new TextContent(systemPrompt.text());
         UserMessage message = UserMessage.from(textContent, imageContent);
 
-        // var json = ChatMessageSerializer.messageToJson(message);
-        dev.langchain4j.model.output.Response<AiMessage> response = chatLanguageModel.generate( message );
+        var imageToDiagram = new ImageToDiagram() {};
 
-        DiagramOutputParser outputParser = new DiagramOutputParser();
+        var response = imageToDiagram.getVisionModel().generate( message );
+
+        var outputParser = new DiagramOutputParser();
 
         String text = response.content().text();
 
-        System.out.println( text );
+        assertNotNull( text );
 
-        System.out.println( outputParser.parse( text ) );
+       var diagram = outputParser.parse( text );
+
+       assertNotNull(diagram);
+       assertEquals( "process", diagram.type()  );
+       assertEquals( "User-Supervisor-Agent Routing", diagram.title()  );
+       assertEquals( 5, diagram.participants().size()  );
+       assertEquals( 5, diagram.relations().size()  );
+       assertTrue(diagram.containers().isEmpty());
+       assertEquals( 5, diagram.description().size()  );
     }
 
 
     @Test
     public void imageToDiagram() throws Exception {
 
-        // var agentExecutor = new ImageToDiagram("supervisor-diagram.png");
         var agentExecutor = new ImageToDiagramProcess("LangChainAgents.png");
 
-        var result = agentExecutor.execute( Map.of() );
+        var result = agentExecutor.executeWithCorrection( Map.of() );
 
-        ImageToDiagramProcess.State state = null;
-        for( NodeOutput<ImageToDiagram.State> r : result ) {
-            state = r.state();
-            System.out.println( state.diagram() );
-        }
+        var diagramCode = result.stream().reduce( (out1, out2) -> out2 )
+                .map( NodeOutput::state )
+                .flatMap( s -> last( s.diagramCode() ) )
+                .orElse("NO DIAGRAM CODE") ;
 
-        System.out.println( ofNullable(state)
-                                .flatMap( s -> last( s.diagramCode() ) )
-                                .orElse("NO DIAGRAM CODE") );
+        assertNotNull(diagramCode);
+        assertNotEquals("NO DIAGRAM CODE", diagramCode);
 
     }
 
-    public void reviewDiagram( String diagramId ) throws Exception {
+    private void reviewDiagram( String diagramId ) throws Exception {
 
         final var diagramCode = readTextResource(format("%s_wrong_result.txt", diagramId));
 

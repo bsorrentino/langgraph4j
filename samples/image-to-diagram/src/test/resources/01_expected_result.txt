@@ -1,8 +1,8 @@
 @startuml
 participant Alice
-participant Bob
+rectangle Bob
 participant Jack
-diamond "My Friend" as M
+rectangle "My Friend" as M
 Bob --> Alice : hello
 M --> Jack
 @enduml
