@@ -203,7 +203,7 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
-        Node<State> node = new Node<State>(id, action, null);
+        Node<State> node = new Node<State>(id, action);
 
         if (nodes.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -217,7 +217,7 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
-        Node<State> node = new Node<State>(id, null, actionWithConfig);
+        Node<State> node = new Node<State>(id, actionWithConfig);
 
         if (nodes.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -292,7 +292,7 @@ public class StateGraph<State extends AgentState> {
      * @return a new fake node
      */
     private Node<State> nodeById(String id) {
-        return new Node<>(id, null, null);
+        return new Node<>(id);
     }
 
     /**

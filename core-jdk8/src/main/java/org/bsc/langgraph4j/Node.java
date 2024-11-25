@@ -30,6 +30,23 @@ class Node<State extends AgentState> {
 
     AsyncNodeActionWithConfig<State> actionWithConfig;
 
+    public Node( String id ) {
+        this.id = id;
+        this.action = null;
+        this.actionWithConfig = null;
+
+    }
+    public Node( String id, AsyncNodeAction<State> action ) {
+        this.id = id;
+        this.action = action;
+        this.actionWithConfig = null;
+    }
+    public Node( String id, AsyncNodeActionWithConfig<State> actionWithConfig ) {
+        this.id = id;
+        this.action = null;
+        this.actionWithConfig = actionWithConfig;
+
+    }
     /**
      * Checks if this node is equal to another object.
      *
