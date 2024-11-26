@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.state.AgentState;
@@ -142,10 +143,12 @@ public class CompiledGraph<State extends AgentState> {
         return updateState(config, values, null);
     }
 
+    @Deprecated
     public EdgeValue<State> getEntryPoint() {
         return stateGraph.getEntryPoint();
     }
 
+    @Deprecated
     public String getFinishPoint() {
         return stateGraph.getFinishPoint();
     }
@@ -438,9 +441,18 @@ public class CompiledGraph<State extends AgentState> {
                     ;
         }
 
+        @SuppressWarnings("unchecked")
         private CompletableFuture<Data<Output>> evaluateAction(AsyncNodeAction<State> action, State withState ) {
 
-                return action.apply( withState ).thenApply( partialState -> {
+                final CompletableFuture<Map<String,Object>> partialStateFuture;
+                if( action instanceof AsyncNodeActionWithConfig ) {
+                    partialStateFuture = ((AsyncNodeActionWithConfig<State>)action).apply( withState, config );
+                }
+                else {
+                    partialStateFuture = action.apply( withState );
+                }
+
+                return partialStateFuture.thenApply( partialState -> {
                     try {
 
                         Optional<Data<Output>> embed = getEmbedGenerator( partialState );
@@ -458,6 +470,30 @@ public class CompiledGraph<State extends AgentState> {
                     }
 
                 });
+        }
+
+        /**
+         * evaluate Action without nested support
+         */
+        private CompletableFuture<Output> evaluateActionWithoutNested( AsyncNodeAction<State> action, State withState  ) {
+
+            return action.apply( withState ).thenApply(  partialState -> {
+                try {
+                    currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
+                    nextNodeId = nextNodeId(currentNodeId, currentState);
+
+                    Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
+                    return ( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
+                        buildStateSnapshot(cp.get()) :
+                        buildNodeOutput( currentNodeId )
+                            ;
+
+                }
+                catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            });
+
         }
 
         private CompletableFuture<Output> getNodeOutput() throws Exception {
@@ -513,22 +549,6 @@ public class CompiledGraph<State extends AgentState> {
                     throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
 
                 return evaluateAction(action, cloneState(currentState) ).get();
-//                future = action.apply( cloneState(currentState) ).thenApply(  partialState -> {
-//                    try {
-//                        currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
-//                        nextNodeId = nextNodeId(currentNodeId, currentState);
-//
-//                        Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
-//                        return ( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
-//                            buildStateSnapshot(cp.get()) :
-//                            buildNodeOutput( currentNodeId )
-//                                ;
-//
-//                    }
-//                    catch (Exception e) {
-//                        throw new CompletionException(e);
-//                    }
-//                });
             }
             catch( Exception e ) {
                 log.error( e.getMessage(), e );

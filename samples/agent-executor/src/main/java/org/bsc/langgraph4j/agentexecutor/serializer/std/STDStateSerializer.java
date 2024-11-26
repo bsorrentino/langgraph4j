@@ -1,12 +1,12 @@
 package org.bsc.langgraph4j.agentexecutor.serializer.std;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
-import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import org.bsc.langgraph4j.agentexecutor.*;
-import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
+import org.bsc.langgraph4j.agentexecutor.state.AgentFinish;
+import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
+import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionRequestSerializer;
-import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionResultMessageSerializer;
 import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;

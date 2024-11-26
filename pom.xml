@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -36,7 +36,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <langchai4j.version>0.36.0</langchai4j.version>
+    <langchai4j.version>0.36.2</langchai4j.version>
   </properties>
 
   <distributionManagement>
@@ -181,7 +181,6 @@
       </activation>
       <modules>
         <module>core-jdk8</module>
-        <module>langchain4j</module>
       </modules>
       <build>
 
@@ -193,6 +192,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
+        <module>langchain4j</module>
         <module>studio</module>
         <module>how-tos</module>
         <module>samples/image-to-diagram</module>

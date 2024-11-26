@@ -1,4 +1,4 @@
-package dev.langchain4j.image_to_diagram;
+package dev.langchain4j.image_to_diagram.actions.correction;
 
 import net.sourceforge.plantuml.*;
 import net.sourceforge.plantuml.core.Diagram;
@@ -15,16 +15,17 @@ public class PlantUMLAction {
 
     public static class Error extends Exception {
 
-        private ErrorUmlType type;
+        private final ErrorUmlType type;
+
+        public ErrorUmlType getType() {
+            return type;
+        }
 
         public Error(String message, ErrorUmlType type) {
             super(message);
             this.type = type;
         }
 
-        public ErrorUmlType getType() {
-            return type;
-        }
     }
 
     public static <T> CompletableFuture<T> validate( String code ) {
@@ -40,8 +41,7 @@ public class PlantUMLAction {
 
         final Diagram system = blocks.get(0).getDiagram();
 
-        if( system instanceof PSystemError ) {
-            PSystemError errors = (PSystemError) system;
+        if(system instanceof PSystemError errors) {
             ErrorUml err = errors.getFirstError();
 
             try(ByteArrayOutputStream png = new ByteArrayOutputStream()) {
@@ -72,9 +72,8 @@ public class PlantUMLAction {
 
         final Diagram system = blocks.get(0).getDiagram();
 
-        if( system instanceof PSystemError ) {
+        if(system instanceof PSystemError errors) {
 
-            PSystemError errors = (PSystemError) system;
             ErrorUml err = errors.getFirstError();
             String error = format( "error '%s' at line %d : '%s'",
                     err.getType(),

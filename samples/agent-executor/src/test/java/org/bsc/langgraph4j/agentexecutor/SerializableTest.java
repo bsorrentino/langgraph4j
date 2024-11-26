@@ -1,7 +1,7 @@
 package org.bsc.langgraph4j.agentexecutor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.serializer.jackson.JSONStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SerializableTest {
 
     @Test
-    public void jsonSerializeTest() throws Exception {
+    public void customJsonStateDeserializeTest() throws Exception {
 
         var data = """
                 {
@@ -33,6 +33,7 @@ public class SerializableTest {
                 """;
 
         var serializer = new JSONStateSerializer();
+
 
         var state = serializer.read( data );
 
@@ -84,7 +85,7 @@ public class SerializableTest {
                 }
                 """;
 
-        var serializer = new JSONStateSerializer();
+        var serializer = new JSONStateSerializer() ;
 
         var state = serializer.read(data);
 

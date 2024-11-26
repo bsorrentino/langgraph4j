@@ -1,49 +1,36 @@
-package org.bsc.langgraph4j.agentexecutor.serializer.json;
+package org.bsc.langgraph4j.agentexecutor.serializer.jackson;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
-import lombok.NonNull;
 import org.bsc.langgraph4j.agentexecutor.*;
-import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
+import org.bsc.langgraph4j.agentexecutor.state.AgentFinish;
+import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
+import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
+import org.bsc.langgraph4j.serializer.plain_text.jackson.JacksonStateSerializer;
 
 import java.io.*;
 import java.util.*;
 
-public class JSONStateSerializer extends PlainTextStateSerializer<AgentExecutor.State> {
-
-    final ObjectMapper objectMapper;
+public class JSONStateSerializer extends JacksonStateSerializer<AgentExecutor.State> {
 
     public JSONStateSerializer() {
-        this( new ObjectMapper() );
-    }
-    public JSONStateSerializer(  @NonNull ObjectMapper objectMapper) {
         super( AgentExecutor.State::new );
-        this.objectMapper = objectMapper;
-        this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
-        var module = new SimpleModule();
-        module.addDeserializer(AgentExecutor.State.class, new StateDeserializer());
-        module.addDeserializer(AgentOutcome.class, new AgentOutcomeDeserializer());
-        module.addDeserializer(AgentAction.class, new AgentActionDeserializer());
-        module.addDeserializer(AgentFinish.class, new AgentFinishDeserializer());
-        module.addDeserializer(ToolExecutionRequest.class, new ToolExecutionRequestDeserializer());
-        module.addDeserializer(IntermediateStep.class, new IntermediateStepDeserializer());
-
-        objectMapper.registerModule(module);
-    }
-
-    @Override
-    public String mimeType() {
-        return "application/json";
+        objectMapper.registerModule( new SimpleModule()
+            .addDeserializer(AgentOutcome.class, new AgentOutcomeDeserializer())
+            .addDeserializer(AgentAction.class, new AgentActionDeserializer())
+            .addDeserializer(AgentFinish.class, new AgentFinishDeserializer())
+            .addDeserializer(ToolExecutionRequest.class, new ToolExecutionRequestDeserializer())
+            .addDeserializer(IntermediateStep.class, new IntermediateStepDeserializer())
+            .addDeserializer(AgentExecutor.State.class, new StateDeserializer())
+        );
     }
 
     @Override
@@ -183,3 +170,4 @@ class StateDeserializer extends JsonDeserializer<AgentExecutor.State> {
         return new AgentExecutor.State( data );
     }
 }
+

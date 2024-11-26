@@ -1,36 +1,51 @@
 package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
-import dev.langchain4j.model.output.Response;
 import dev.langchain4j.service.tool.ToolExecutor;
-import lombok.extern.slf4j.Slf4j;
-import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.output.FinishReason;
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.agentexecutor.serializer.json.JSONStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.actions.CallAgent;
+import org.bsc.langgraph4j.agentexecutor.actions.ExecuteTools;
+import org.bsc.langgraph4j.agentexecutor.actions.ShouldContinue;
+import org.bsc.langgraph4j.agentexecutor.serializer.jackson.JSONStateSerializer;
 import org.bsc.langgraph4j.agentexecutor.serializer.std.STDStateSerializer;
-import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
+import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
+import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
-
-import java.util.*;
-import java.util.function.Function;
-
-import static java.util.Optional.ofNullable;
-import static org.bsc.langgraph4j.StateGraph.END;
-import static org.bsc.langgraph4j.StateGraph.START;
-import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
-import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
-@Slf4j
-public class AgentExecutor {
-    public enum Serializers {
+import java.util.*;
+
+import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
+
+public interface AgentExecutor {
+
+    class State extends AgentState {
+        static Map<String, Channel<?>> SCHEMA = Map.of(
+                "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
+        );
+
+        public State(Map<String, Object> initData) {
+            super(initData);
+        }
+
+        public Optional<String> input() {
+            return value("input");
+        }
+        public Optional<AgentOutcome> agentOutcome() {
+            return value("agent_outcome");
+        }
+        public List<IntermediateStep> intermediateSteps() {
+            return this.<List<IntermediateStep>>value("intermediate_steps").orElseGet(ArrayList::new);
+        }
+    }
+
+    enum Serializers {
 
         STD( new STDStateSerializer() ),
         JSON( new JSONStateSerializer() );
@@ -47,10 +62,10 @@ public class AgentExecutor {
 
     }
 
-    public class GraphBuilder {
+    class GraphBuilder {
         private StreamingChatLanguageModel streamingChatLanguageModel;
         private ChatLanguageModel chatLanguageModel;
-        private ToolNode.Builder toolNodeBuilder = ToolNode.builder();
+        private final ToolNode.Builder toolNodeBuilder = ToolNode.builder();
         private StateSerializer<State> stateSerializer;
 
         public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
@@ -63,7 +78,7 @@ public class AgentExecutor {
         }
         @Deprecated
         public GraphBuilder objectsWithTools(List<Object> objectsWithTools) {
-            objectsWithTools.forEach( o -> toolNodeBuilder.specification( o ) );
+            objectsWithTools.forEach(toolNodeBuilder::specification);
             return this;
         }
         public GraphBuilder toolSpecification(Object objectsWithTool) {
@@ -79,7 +94,7 @@ public class AgentExecutor {
             return this;
         }
 
-        public GraphBuilder stateSerializer( StateSerializer<State> stateSerializer) {
+        public GraphBuilder stateSerializer(StateSerializer<State> stateSerializer) {
             this.stateSerializer = stateSerializer;
             return this;
         }
@@ -95,7 +110,7 @@ public class AgentExecutor {
 
             final var toolNode = toolNodeBuilder.build();
 
-            var agentRunnable = Agent.builder()
+            var agent = Agent.builder()
                     .chatLanguageModel(chatLanguageModel)
                     .streamingChatLanguageModel(streamingChatLanguageModel)
                     .tools( toolNode.toolSpecifications() )
@@ -105,116 +120,27 @@ public class AgentExecutor {
                 stateSerializer = Serializers.STD.object();
             }
 
+            final var callAgent = new CallAgent( agent );
+            final var executeTools = new ExecuteTools( agent, toolNode );
+            final var shouldContinue = new ShouldContinue();
+
             return new StateGraph<>(State.SCHEMA, stateSerializer)
+                    .addNode( "agent", callAgent )
+                    .addNode( "action", executeTools )
                     .addEdge(START,"agent")
-                    .addNode( "agent", node_async( state ->
-                            callAgent(agentRunnable, state))
-                    )
-                    .addNode( "action", node_async( state ->
-                            executeTools(toolNode, state))
-                    )
-                    .addConditionalEdges(
-                            "agent",
-                            edge_async(AgentExecutor.this::shouldContinue),
+                    .addConditionalEdges("agent",
+                            shouldContinue,
                             Map.of("continue", "action", "end", END)
                     )
                     .addEdge("action", "agent")
                     ;
-
         }
     }
 
-    public final GraphBuilder graphBuilder() {
+    static GraphBuilder graphBuilder() {
         return new GraphBuilder();
     }
 
-    public static class State extends AgentState {
-        static Map<String, Channel<?>> SCHEMA = Map.of(
-            "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
-        );
-
-        public State(Map<String, Object> initData) {
-            super(initData);
-        }
-
-        Optional<String> input() {
-            return value("input");
-        }
-        Optional<AgentOutcome> agentOutcome() {
-            return value("agent_outcome");
-        }
-        List<IntermediateStep> intermediateSteps() {
-            return this.<List<IntermediateStep>>value("intermediate_steps").orElseGet(ArrayList::new);
-        }
-
-    }
-
-    Map<String,Object> callAgent(Agent agentRunnable, State state )  {
-        log.trace( "callAgent" );
-        var input = state.input()
-                        .orElseThrow(() -> new IllegalArgumentException("no input provided!"));
-
-        var intermediateSteps = state.intermediateSteps();
-
-        final Function<Response<AiMessage>, Map<String,Object>> mapResult = response -> {
-
-            if (response.finishReason() == FinishReason.TOOL_EXECUTION) {
-
-                var toolExecutionRequests = response.content().toolExecutionRequests();
-                var action = new AgentAction(toolExecutionRequests.get(0), "");
-
-                return Map.of("agent_outcome", new AgentOutcome(action, null));
-
-            } else {
-                var result = response.content().text();
-                var finish = new AgentFinish(Map.of("returnValues", result), result);
-
-                return Map.of("agent_outcome", new AgentOutcome(null, finish));
-            }
-        };
-
-        if(agentRunnable.isStreaming()) {
-
-            var generator = LLMStreamingGenerator.<AiMessage, State>builder()
-                    .mapResult(mapResult)
-                    .startingNode("agent")
-                    .startingState( state )
-                    .build();
-            agentRunnable.execute(input, intermediateSteps, generator.handler());
-
-            return Map.of( "agent_outcome", generator);
-        }
-        else {
-            var response = agentRunnable.execute(input, intermediateSteps);
-
-            return mapResult.apply(response);
-        }
-
-    }
-
-    Map<String,Object> executeTools( ToolNode toolNode, State state )  {
-        log.trace( "executeTools" );
-
-        var agentOutcome = state.agentOutcome().orElseThrow(() -> new IllegalArgumentException("no agentOutcome provided!"));
-
-        var toolExecutionRequest = ofNullable(agentOutcome.action())
-                                        .map(AgentAction::toolExecutionRequest)
-                                        .orElseThrow(() -> new IllegalStateException("no action provided!" ))
-                                        ;
-        var result = toolNode.execute( toolExecutionRequest )
-                .map( ToolExecutionResultMessage::text )
-                .orElseThrow(() -> new IllegalStateException("no tool found for: " + toolExecutionRequest.name()));
-
-        return Map.of("intermediate_steps", new IntermediateStep( agentOutcome.action(), result ) );
-
-    }
-
-    String shouldContinue(State state) {
-
-        return state.agentOutcome()
-                .map(AgentOutcome::finish)
-                .map( finish -> "end" )
-                .orElse("continue");
-    }
-
 }
+
+
