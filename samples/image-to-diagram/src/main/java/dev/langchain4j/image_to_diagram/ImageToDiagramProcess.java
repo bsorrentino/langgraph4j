@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
-import org.bsc.langgraph4j.subgraph.*;
-
 import java.net.URI;
 import java.util.*;
 
@@ -90,7 +88,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .addNode("agent_describer", DescribeDiagramImage.of(imageUrlOrData, getVisionModel() )  )
                 .addNode("agent_sequence_plantuml", TranslateSequenceDiagramToPlantUML.of(getModel()) )
                 .addNode("agent_generic_plantuml", TranslateGenericDiagramToPlantUML.of(getModel()) )
-                .addNode( "agent_diagram_correction", SubgraphNodeAction.of(diagramCorrectionProcess) )
+                .addSubgraph( "agent_diagram_correction", diagramCorrectionProcess )
                 .addNode( "evaluate_result", EvaluateResult.of(getModel()))
                 .addConditionalEdges(
                         "agent_describer",
