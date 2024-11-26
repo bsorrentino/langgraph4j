@@ -2,6 +2,45 @@
 
 
 
+<!-- "name: v1.1.1" is a release tag -->
+
+## [v1.1.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.1) (2024-11-26)
+
+### Features
+
+ *  makes AsyncNodeActionWithConfig the standard action ([a52695de667ea22](https://github.com/bsorrentino/langgraph4j/commit/a52695de667ea2233fe8a5cc639c89f084c18e2b))
+   
+
+### Bug Fixes
+
+ -  **subgraph**  makes AsyncNodeActionWithConfig the standard action and acceps null result from embed generator ([68228a2d1481a0e](https://github.com/bsorrentino/langgraph4j/commit/68228a2d1481a0ebf7d19fce71f132fe4f08994a))
+
+
+### Documentation
+
+ -  update changeme ([25d84a5d54c0def](https://github.com/bsorrentino/langgraph4j/commit/25d84a5d54c0deff2cd9a691e8e0680508c183af))
+
+
+### Refactor
+
+ -  deprecated state methods: ([835b7360d24aa2b](https://github.com/bsorrentino/langgraph4j/commit/835b7360d24aa2bc7b43aca443b9a46b2d94f4c0))
+    > value( key, T  )
+ > value( key, Supplier&lt;T&gt; )
+
+ -  **agent-executor**  update actions management ([e2fb377da0d944b](https://github.com/bsorrentino/langgraph4j/commit/e2fb377da0d944b4b9bfae79cfa9e5e42420221b))
+   
+
+### ALM 
+
+ -  bump to next release ([3cff8a5ee5630ff](https://github.com/bsorrentino/langgraph4j/commit/3cff8a5ee5630ff8451aeecd07499dd97a4a54a2))
+   
+ -  bump next SNAPSHOT ([c7a966f4c78278a](https://github.com/bsorrentino/langgraph4j/commit/c7a966f4c78278af008f0988df14d007cc9d9e8c))
+   
+
+
+
+
+
 <!-- "name: v1.1.0" is a release tag -->
 
 ## [v1.1.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.0) (2024-11-26)
