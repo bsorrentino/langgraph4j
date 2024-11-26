@@ -4,7 +4,7 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.agentexecutor.*;
 import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
 import org.bsc.langgraph4j.agentexecutor.state.AgentFinish;
@@ -18,7 +18,7 @@ import java.util.function.Function;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 @Slf4j
-public class CallAgent implements AsyncNodeAction<AgentExecutor.State> {
+public class CallAgent implements NodeAction<AgentExecutor.State> {
 
     final Agent agent;
 
@@ -27,11 +27,7 @@ public class CallAgent implements AsyncNodeAction<AgentExecutor.State> {
     }
 
     @Override
-    public CompletableFuture<Map<String, Object>> apply( AgentExecutor.State state ) {
-        return completedFuture(callAgent(state));
-    }
-
-    private Map<String,Object> callAgent( AgentExecutor.State state )  {
+    public Map<String,Object> apply( AgentExecutor.State state )  {
         log.trace( "callAgent" );
         var input = state.input()
                 .orElseThrow(() -> new IllegalArgumentException("no input provided!"));

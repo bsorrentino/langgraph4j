@@ -5,9 +5,9 @@ import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import org.bsc.langgraph4j.*;
+import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.agentexecutor.actions.CallAgent;
 import org.bsc.langgraph4j.agentexecutor.actions.ExecuteTools;
-import org.bsc.langgraph4j.agentexecutor.actions.ShouldContinue;
 import org.bsc.langgraph4j.agentexecutor.serializer.jackson.JSONStateSerializer;
 import org.bsc.langgraph4j.agentexecutor.serializer.std.STDStateSerializer;
 import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
@@ -22,6 +22,8 @@ import java.util.*;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
+import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
+import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 public interface AgentExecutor {
 
@@ -122,14 +124,18 @@ public interface AgentExecutor {
 
             final var callAgent = new CallAgent( agent );
             final var executeTools = new ExecuteTools( agent, toolNode );
-            final var shouldContinue = new ShouldContinue();
+            final EdgeAction<State> shouldContinue = (state ) ->
+                    state.agentOutcome()
+                        .map(AgentOutcome::finish)
+                        .map( finish -> "end" )
+                        .orElse("continue");
 
             return new StateGraph<>(State.SCHEMA, stateSerializer)
-                    .addNode( "agent", callAgent )
-                    .addNode( "action", executeTools )
+                    .addNode( "agent",  node_async( callAgent ) )
+                    .addNode( "action", node_async( executeTools ) )
                     .addEdge(START,"agent")
                     .addConditionalEdges("agent",
-                            shouldContinue,
+                            edge_async( shouldContinue ),
                             Map.of("continue", "action", "end", END)
                     )
                     .addEdge("action", "agent")
