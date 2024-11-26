@@ -43,7 +43,7 @@ public class StateGraphPersistenceTest
         }
 
         int steps() {
-            return value("steps", 0);
+            return this.<Integer>value("steps").orElse(0);
         }
 
         List<String> messages() {
