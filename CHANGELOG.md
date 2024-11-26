@@ -2,6 +2,84 @@
 
 
 
+<!-- "name: v1.1.0" is a release tag -->
+
+## [v1.1.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.0) (2024-11-26)
+
+### Features
+
+ *  adds subgraph  action support in state graph ([38988780cf22cb6](https://github.com/bsorrentino/langgraph4j/commit/38988780cf22cb612d8a32642a592032d0ca5702))
+     > resolve  #39
+   
+ *  makes compliant with new node action that accepts RunnableConfig ([c640f3aa8f582ec](https://github.com/bsorrentino/langgraph4j/commit/c640f3aa8f582ec3ad9cd7837d6cb57e192acc30))
+     > work on #39
+   
+ *  adds subgraph node action ([266fe4a2d3f51d8](https://github.com/bsorrentino/langgraph4j/commit/266fe4a2d3f51d8366ace38c45b12281afd28eae))
+     > work on #39
+   
+ *  adds node action that accept either Map and RunnableConfig ([aaf57f15199df40](https://github.com/bsorrentino/langgraph4j/commit/aaf57f15199df40aa0ac67320a5b7f703dd182b7))
+     > work on #39
+   
+ *  refine jackson & gson serialization impl ([8ebd7df555a9180](https://github.com/bsorrentino/langgraph4j/commit/8ebd7df555a918029d4280d9af0efb7076839f8d))
+     > - update agent executor serialization impl
+     > - update image to diagram serailization impl
+   
+ *  refine jackson & gson serialization impl ([a7e1619b3e1feb1](https://github.com/bsorrentino/langgraph4j/commit/a7e1619b3e1feb11363e1c6489c278193bf6a2f2))
+     > - update agent executor serialization impl
+     > - update image to diagram serailization impl
+   
+
+
+### Documentation
+
+ -  update release tag ([ebc75ba5f23a250](https://github.com/bsorrentino/langgraph4j/commit/ebc75ba5f23a250aae5d7da8f982dd0f466a84dc))
+
+ -  update readme ([53ee9e49ac9d8ba](https://github.com/bsorrentino/langgraph4j/commit/53ee9e49ac9d8ba02525cdce9fc7d97a093e67ec))
+
+ -  **langchain4j**  update readme ([1a795510260139a](https://github.com/bsorrentino/langgraph4j/commit/1a795510260139aed3992a7758a9e1e546382d4b))
+
+ -  **langchain4j**  update readme ([507fbd2b39641b7](https://github.com/bsorrentino/langgraph4j/commit/507fbd2b39641b76f3da3f5a7155c20f6500ca24))
+
+ -  **langchain4j**  update readme ([96fa8d5ee0d97aa](https://github.com/bsorrentino/langgraph4j/commit/96fa8d5ee0d97aaceefb9ed87bd25a4b223ace54))
+
+ -  update changeme ([54b616a96bd439b](https://github.com/bsorrentino/langgraph4j/commit/54b616a96bd439b53c0820f7eefef24baaef13ec))
+
+
+### Refactor
+
+ -  updates methods names ([d8138ad0f0ab3c4](https://github.com/bsorrentino/langgraph4j/commit/d8138ad0f0ab3c4989ff4ee75a6686bef7cec9cd))
+   
+ -  **image-to-diagram**  update actions management ([464e37b03b449b4](https://github.com/bsorrentino/langgraph4j/commit/464e37b03b449b4f53b44b53ac690d976c77dfc0))
+   
+ -  **agent-executor**  update actions management ([ee61b11177b54bd](https://github.com/bsorrentino/langgraph4j/commit/ee61b11177b54bd801752e0eb83da50a5f04755a))
+   
+ -  **agent-executor**  update project layout ([bd1e35fb47e8c72](https://github.com/bsorrentino/langgraph4j/commit/bd1e35fb47e8c72fd001d684dbe2808790ec7962))
+   
+ -  adds Node constructors ([63dd250c1635ca1](https://github.com/bsorrentino/langgraph4j/commit/63dd250c1635ca1675a0e63415fe25a9670dace9))
+    > work on #39
+
+ -  **imageToDiagram**  move Node Action from method to Class ([6e5632d82967a8f](https://github.com/bsorrentino/langgraph4j/commit/6e5632d82967a8ff2875e51ca82d86e705625b4b))
+   
+ -  **DiagramGenerator**  remove usage of getFnishPoint() ([39155598281962a](https://github.com/bsorrentino/langgraph4j/commit/39155598281962a776d86aef57e146ff25c073db))
+   
+ -  **CompiledGraph**  deprecate getEntryPoint() and getFinishPoint() ([2e26d5f462f7732](https://github.com/bsorrentino/langgraph4j/commit/2e26d5f462f7732e90121a218a80c5b5370e2715))
+   
+
+### ALM 
+
+ -  bump to next version ([131b605d7449814](https://github.com/bsorrentino/langgraph4j/commit/131b605d7449814c6eae1f658795e45d783a3834))
+   
+ -  bump to SNAPSHOT ([947f8455cad9cc6](https://github.com/bsorrentino/langgraph4j/commit/947f8455cad9cc66c1d2311f1003c63f742d0e48))
+   
+ -  move langchain4j integration module on java 17 ([a0a8d4a4b71dba3](https://github.com/bsorrentino/langgraph4j/commit/a0a8d4a4b71dba334699734be3c23acab0fc27a7))
+   
+ -  **mapifyai**  update project artifact id ([e80eee6d877d9d3](https://github.com/bsorrentino/langgraph4j/commit/e80eee6d877d9d356ce2b4f59b79f727ae7394be))
+   
+
+
+
+
+
 <!-- "name: v1.0.0" is a release tag -->
 
 ## [v1.0.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0.0) (2024-11-15)
