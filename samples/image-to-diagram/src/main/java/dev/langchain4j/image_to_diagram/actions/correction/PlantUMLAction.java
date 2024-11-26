@@ -1,4 +1,4 @@
-package dev.langchain4j.image_to_diagram;
+package dev.langchain4j.image_to_diagram.actions.correction;
 
 import net.sourceforge.plantuml.*;
 import net.sourceforge.plantuml.core.Diagram;

@@ -1,9 +1,7 @@
 package dev.langchain4j.image_to_diagram.actions.correction;
 
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.image_to_diagram.DiagramCorrectionProcess;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
-import dev.langchain4j.image_to_diagram.actions.TranslateGenericDiagramToPlantUML;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.NonNull;

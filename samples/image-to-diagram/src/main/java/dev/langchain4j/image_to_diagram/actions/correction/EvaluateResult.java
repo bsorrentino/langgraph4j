@@ -1,7 +1,6 @@
 package dev.langchain4j.image_to_diagram.actions.correction;
 
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
-import dev.langchain4j.image_to_diagram.PlantUMLAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 
 import java.util.Map;

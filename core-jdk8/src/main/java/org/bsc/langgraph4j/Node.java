@@ -3,6 +3,7 @@ package org.bsc.langgraph4j;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Objects;
@@ -27,6 +28,25 @@ class Node<State extends AgentState> {
      */
     AsyncNodeAction<State> action;
 
+    AsyncNodeActionWithConfig<State> actionWithConfig;
+
+    public Node( String id ) {
+        this.id = id;
+        this.action = null;
+        this.actionWithConfig = null;
+
+    }
+    public Node( String id, AsyncNodeAction<State> action ) {
+        this.id = id;
+        this.action = action;
+        this.actionWithConfig = null;
+    }
+    public Node( String id, AsyncNodeActionWithConfig<State> actionWithConfig ) {
+        this.id = id;
+        this.action = null;
+        this.actionWithConfig = actionWithConfig;
+
+    }
     /**
      * Checks if this node is equal to another object.
      *

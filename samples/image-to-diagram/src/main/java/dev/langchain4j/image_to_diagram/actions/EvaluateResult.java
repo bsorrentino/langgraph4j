@@ -2,8 +2,8 @@ package dev.langchain4j.image_to_diagram.actions;
 
 import dev.langchain4j.image_to_diagram.DiagramCorrectionProcess;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
-import dev.langchain4j.image_to_diagram.ImageToDiagramProcess;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
@@ -15,11 +15,14 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class EvaluateResult implements AsyncNodeAction<ImageToDiagram.State> {
 
-    public static AsyncNodeAction<ImageToDiagram.State> of() {
-        return new EvaluateResult();
+    public static AsyncNodeAction<ImageToDiagram.State> of( @NonNull OpenAiChatModel model ) {
+        return new EvaluateResult(model);
     }
 
-    private EvaluateResult() {}
+    final OpenAiChatModel model;
+    private EvaluateResult( OpenAiChatModel model ) {
+        this.model = model;
+    }
 
     @Override
     public CompletableFuture<Map<String, Object>> apply(ImageToDiagram.State state) {
