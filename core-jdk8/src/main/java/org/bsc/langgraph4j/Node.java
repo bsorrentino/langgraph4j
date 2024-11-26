@@ -26,26 +26,20 @@ class Node<State extends AgentState> {
     /**
      * The action to be performed asynchronously by the node.
      */
-    AsyncNodeAction<State> action;
-
-    AsyncNodeActionWithConfig<State> actionWithConfig;
+    AsyncNodeActionWithConfig<State> action;
 
     public Node( String id ) {
         this.id = id;
         this.action = null;
-        this.actionWithConfig = null;
 
     }
     public Node( String id, AsyncNodeAction<State> action ) {
         this.id = id;
-        this.action = action;
-        this.actionWithConfig = null;
+        this.action = AsyncNodeActionWithConfig.of(action);
     }
-    public Node( String id, AsyncNodeActionWithConfig<State> actionWithConfig ) {
+    public Node( String id, AsyncNodeActionWithConfig<State> action ) {
         this.id = id;
-        this.action = null;
-        this.actionWithConfig = actionWithConfig;
-
+        this.action = action;
     }
     /**
      * Checks if this node is equal to another object.
