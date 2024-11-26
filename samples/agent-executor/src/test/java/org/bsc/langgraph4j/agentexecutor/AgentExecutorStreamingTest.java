@@ -42,7 +42,7 @@ public class AgentExecutorStreamingTest {
                 .maxTokens(2000)
                 .build();
 
-        return AgentExecutor.builder()
+        return AgentExecutor.graphBuilder()
                 .chatLanguageModel(chatLanguageModel)
                 .toolSpecification(new TestTool())
                 .build();

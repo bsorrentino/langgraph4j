@@ -62,39 +62,39 @@ public interface AgentExecutor {
 
     }
 
-    class Builder {
+    class GraphBuilder {
         private StreamingChatLanguageModel streamingChatLanguageModel;
         private ChatLanguageModel chatLanguageModel;
         private final ToolNode.Builder toolNodeBuilder = ToolNode.builder();
         private StateSerializer<State> stateSerializer;
 
-        public Builder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
+        public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
             this.chatLanguageModel = chatLanguageModel;
             return this;
         }
-        public Builder chatLanguageModel(StreamingChatLanguageModel streamingChatLanguageModel) {
+        public GraphBuilder chatLanguageModel(StreamingChatLanguageModel streamingChatLanguageModel) {
             this.streamingChatLanguageModel = streamingChatLanguageModel;
             return this;
         }
         @Deprecated
-        public Builder objectsWithTools(List<Object> objectsWithTools) {
+        public GraphBuilder objectsWithTools(List<Object> objectsWithTools) {
             objectsWithTools.forEach(toolNodeBuilder::specification);
             return this;
         }
-        public Builder toolSpecification(Object objectsWithTool) {
+        public GraphBuilder toolSpecification(Object objectsWithTool) {
             toolNodeBuilder.specification( objectsWithTool );
             return this;
         }
-        public Builder toolSpecification(ToolSpecification spec, ToolExecutor executor) {
+        public GraphBuilder toolSpecification(ToolSpecification spec, ToolExecutor executor) {
             toolNodeBuilder.specification( spec, executor );
             return this;
         }
-        public Builder toolSpecification(ToolNode.Specification toolSpecifications) {
+        public GraphBuilder toolSpecification(ToolNode.Specification toolSpecifications) {
             toolNodeBuilder.specification( toolSpecifications );
             return this;
         }
 
-        public Builder stateSerializer(StateSerializer<State> stateSerializer) {
+        public GraphBuilder stateSerializer(StateSerializer<State> stateSerializer) {
             this.stateSerializer = stateSerializer;
             return this;
         }
@@ -120,12 +120,16 @@ public interface AgentExecutor {
                 stateSerializer = Serializers.STD.object();
             }
 
+            final var callAgent = new CallAgent( agent );
+            final var executeTools = new ExecuteTools( agent, toolNode );
+            final var shouldContinue = new ShouldContinue();
+
             return new StateGraph<>(State.SCHEMA, stateSerializer)
-                    .addNode( "agent", CallAgent.of( agent ) )
-                    .addNode( "action", ExecuteTools.of( agent, toolNode ) )
+                    .addNode( "agent", callAgent )
+                    .addNode( "action", executeTools )
                     .addEdge(START,"agent")
                     .addConditionalEdges("agent",
-                            ShouldContinue.of(),
+                            shouldContinue,
                             Map.of("continue", "action", "end", END)
                     )
                     .addEdge("action", "agent")
@@ -133,8 +137,8 @@ public interface AgentExecutor {
         }
     }
 
-    static Builder builder() {
-        return new Builder();
+    static GraphBuilder graphBuilder() {
+        return new GraphBuilder();
     }
 
 }

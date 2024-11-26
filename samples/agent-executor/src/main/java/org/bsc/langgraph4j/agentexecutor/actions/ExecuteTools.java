@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.agentexecutor.actions;
 
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.agentexecutor.Agent;
@@ -18,14 +19,10 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 @Slf4j
 public class ExecuteTools implements AsyncNodeAction<AgentExecutor.State>  {
 
-    public static ExecuteTools of(Agent agent, ToolNode toolNode) {
-        return new ExecuteTools(agent, toolNode);
-    }
-
     final Agent agent;
     final ToolNode toolNode;
 
-    private ExecuteTools(Agent agent, ToolNode toolNode) {
+    public ExecuteTools(@NonNull Agent agent, @NonNull ToolNode toolNode) {
         this.agent = agent;
         this.toolNode = toolNode;
     }

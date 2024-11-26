@@ -20,13 +20,9 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 @Slf4j
 public class CallAgent implements AsyncNodeAction<AgentExecutor.State> {
 
-    public static CallAgent of(Agent agent) {
-        return new CallAgent(agent);
-    }
-
     final Agent agent;
 
-    private CallAgent( Agent agent ) {
+    public CallAgent( Agent agent ) {
         this.agent = agent;
     }
 
