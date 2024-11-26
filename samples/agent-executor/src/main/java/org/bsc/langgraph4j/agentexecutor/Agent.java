@@ -9,6 +9,8 @@ import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.output.Response;
 import lombok.Builder;
 import lombok.Singular;
+import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
+import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
 
 import java.util.ArrayList;
 import java.util.List;

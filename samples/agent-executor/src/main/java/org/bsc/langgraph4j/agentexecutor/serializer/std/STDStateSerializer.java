@@ -2,6 +2,10 @@ package org.bsc.langgraph4j.agentexecutor.serializer.std;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import org.bsc.langgraph4j.agentexecutor.*;
+import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
+import org.bsc.langgraph4j.agentexecutor.state.AgentFinish;
+import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
+import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionRequestSerializer;
 import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;

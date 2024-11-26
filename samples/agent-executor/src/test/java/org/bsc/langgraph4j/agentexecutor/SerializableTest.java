@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.agentexecutor;
 
 import org.bsc.langgraph4j.agentexecutor.serializer.jackson.JSONStateSerializer;
+import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

@@ -9,8 +9,6 @@ import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.bsc.langgraph4j.studio.jetty.LangGraphStreamingServerJetty;
 
-import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
-
 public class AgentExecutorStreamingServer {
 
     public static void main(String[] args) throws Exception {
@@ -33,9 +31,9 @@ public class AgentExecutorStreamingServer {
         // [Serializing with Jackson (JSON) - getting "No serializer found"?](https://stackoverflow.com/a/8395924/521197)
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
-        var app = new AgentExecutor().graphBuilder()
+        var app = AgentExecutor.builder()
                 .chatLanguageModel(llm)
-                .objectsWithTools(listOf(new TestTool()))
+                .toolSpecification( new TestTool() )
                 .stateSerializer( AgentExecutor.Serializers.JSON.object() )
                 .build();
 
