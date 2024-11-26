@@ -30,4 +30,15 @@ public interface AsyncNodeActionWithConfig<S extends AgentState> extends BiFunct
         };
     }
 
+    /**
+     * Adapts a simple AsyncNodeAction to an AsyncNodeActionWithConfig.
+     *
+     * @param action the simple AsyncNodeAction to be adapted
+     * @param <S> the type of the agent state
+     * @return an AsyncNodeActionWithConfig that wraps the given AsyncNodeAction
+     */
+    static <S extends AgentState> AsyncNodeActionWithConfig<S> of(AsyncNodeAction<S> action) {
+        return (t, config) -> action.apply(t);
+    }
+
 }

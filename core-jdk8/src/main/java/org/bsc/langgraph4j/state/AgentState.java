@@ -42,16 +42,14 @@ public class AgentState {
      * @param <T> the type of the value
      * @return an Optional containing the value if present, otherwise an empty Optional
      */
-    public final <T> Optional<T> value(String key) {
-        return ofNullable((T) data().get(key));
-    }
-    public final <T> T value(String key, T defaultValue ) {
-        return (T)value(key).orElse(defaultValue);
-    }
+    @SuppressWarnings("unchecked")
+    public final <T> Optional<T> value(String key) { return ofNullable((T) data().get(key));}
 
-    public final <T> T value(String key, Supplier<T>  defaultProvider ) {
-        return (T)value(key).orElseGet(defaultProvider);
-    }
+    @Deprecated
+    public final <T> T value(String key, T defaultValue ) { return this.<T>value(key).orElse(defaultValue);}
+
+    @Deprecated
+    public final <T> T value(String key, Supplier<T>  defaultProvider ) { return this.<T>value(key).orElseGet(defaultProvider); }
 
     /**
      * Retrieves or creates an AppendableValue associated with the given key.
@@ -108,6 +106,7 @@ public class AgentState {
      * @param newValue the new value
      * @return the merged value
      */
+    @Deprecated
     private static Object mergeFunction(Object currentValue, Object newValue) {
         if (currentValue instanceof AppendableValueRW<?>) {
             ((AppendableValueRW<?>) currentValue).append(newValue);
