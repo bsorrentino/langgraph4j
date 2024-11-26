@@ -38,7 +38,7 @@ public class CompiledGraph<State extends AgentState> {
     }
     final StateGraph<State> stateGraph;
     @Getter
-    final Map<String, AsyncNodeAction<State>> nodes = new LinkedHashMap<>();
+    final Map<String, AsyncNodeActionWithConfig<State>> nodes = new LinkedHashMap<>();
     @Getter
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
 
@@ -430,10 +430,15 @@ public class CompiledGraph<State extends AgentState> {
                     .findFirst()
                     .map( e ->
                         Data.composeWith( (AsyncGenerator<Output>)e.getValue(), data -> {
-                            if( !(data instanceof Map) ) {
-                                throw new IllegalArgumentException("Embedded generator must return a Map");
+
+                            if( data != null ) {
+
+                                if (!(data instanceof Map)) {
+                                    throw new IllegalArgumentException("Embedded generator must return a Map");
+                                }
+                                currentState = AgentState.updateState(currentState, (Map<String, Object>) data, stateGraph.getChannels());
                             }
-                            currentState = AgentState.updateState(currentState, (Map<String, Object>)data, stateGraph.getChannels());
+
                             nextNodeId = nextNodeId(currentNodeId, currentState);
                             resumedFromEmbed = true;
                         })
@@ -441,18 +446,9 @@ public class CompiledGraph<State extends AgentState> {
                     ;
         }
 
-        @SuppressWarnings("unchecked")
-        private CompletableFuture<Data<Output>> evaluateAction(AsyncNodeAction<State> action, State withState ) {
+        private CompletableFuture<Data<Output>> evaluateAction(AsyncNodeActionWithConfig<State> action, State withState ) {
 
-                final CompletableFuture<Map<String,Object>> partialStateFuture;
-                if( action instanceof AsyncNodeActionWithConfig ) {
-                    partialStateFuture = ((AsyncNodeActionWithConfig<State>)action).apply( withState, config );
-                }
-                else {
-                    partialStateFuture = action.apply( withState );
-                }
-
-                return partialStateFuture.thenApply( partialState -> {
+                return action.apply( withState, config ).thenApply( partialState -> {
                     try {
 
                         Optional<Data<Output>> embed = getEmbedGenerator( partialState );
@@ -543,7 +539,7 @@ public class CompiledGraph<State extends AgentState> {
 
                 currentNodeId = nextNodeId;
 
-                AsyncNodeAction<State> action = nodes.get(currentNodeId);
+                AsyncNodeActionWithConfig<State> action = nodes.get(currentNodeId);
 
                 if (action == null)
                     throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
