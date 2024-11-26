@@ -3,7 +3,7 @@ package org.bsc.langgraph4j.agentexecutor.actions;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.agentexecutor.Agent;
 import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
@@ -11,13 +11,11 @@ import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.Optional.ofNullable;
-import static java.util.concurrent.CompletableFuture.completedFuture;
 
 @Slf4j
-public class ExecuteTools implements AsyncNodeAction<AgentExecutor.State>  {
+public class ExecuteTools implements NodeAction<AgentExecutor.State> {
 
     final Agent agent;
     final ToolNode toolNode;
@@ -28,11 +26,7 @@ public class ExecuteTools implements AsyncNodeAction<AgentExecutor.State>  {
     }
 
     @Override
-    public CompletableFuture<Map<String, Object>> apply(AgentExecutor.State state) {
-        return completedFuture(executeTools(toolNode, state));
-    }
-
-    private Map<String,Object> executeTools(ToolNode toolNode, AgentExecutor.State state )  {
+    public Map<String,Object> apply(AgentExecutor.State state )  {
         log.trace( "executeTools" );
 
         var agentOutcome = state.agentOutcome().orElseThrow(() -> new IllegalArgumentException("no agentOutcome provided!"));
