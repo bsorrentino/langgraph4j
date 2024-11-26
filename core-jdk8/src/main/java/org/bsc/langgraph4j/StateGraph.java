@@ -238,6 +238,7 @@ public class StateGraph<State extends AgentState> {
 
     /**
      * Adds a subgraph to the state graph by creating a node with the specified identifier.
+     * This implies that Subgraph share the same state with parent graph
      *
      * @param id the identifier of the node representing the subgraph
      * @param subGraph the compiled subgraph to be added

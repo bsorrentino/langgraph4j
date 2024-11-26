@@ -31,7 +31,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Update state (_interact with the state directly and update it_)
 - [x] Breakpoints (_pause and resume feature_)
 - [X] Streaming response from LLM results
-- [ ] Child Graphs
+- [X] Child Graphs
 - [ ] Parallel Node Execution
 
 ## Samples
@@ -53,7 +53,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Oct 12, 2024 | `1.0.0` | official release candidate
+| Nov 26, 2024 | `1.1.0` | official release 
 
 
 ## Quick Start
@@ -67,7 +67,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core-jdk8</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -240,7 +240,7 @@ It is available an **embed playground webapp** able to run a Langgraph4j workflo
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-studio</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 <dependency>
 ```
 
