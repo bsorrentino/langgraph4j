@@ -15,12 +15,8 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class EvaluateResult implements AsyncNodeAction<ImageToDiagram.State> {
 
-    public static AsyncNodeAction<ImageToDiagram.State> of( @NonNull OpenAiChatModel model ) {
-        return new EvaluateResult(model);
-    }
-
     final OpenAiChatModel model;
-    private EvaluateResult( OpenAiChatModel model ) {
+    public EvaluateResult( OpenAiChatModel model ) {
         this.model = model;
     }
 

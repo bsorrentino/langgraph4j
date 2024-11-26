@@ -3,6 +3,7 @@ package dev.langchain4j.image_to_diagram;
 import com.google.gson.Gson;
 import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.data.message.*;
+import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
 
@@ -131,9 +132,13 @@ public class ImageToDiagramTest {
     @Test
     public void imageToDiagram() throws Exception {
 
-        var agentExecutor = new ImageToDiagramProcess("LangChainAgents.png");
+        var agentExecutor = new ImageToDiagramProcess();
 
-        var result = agentExecutor.executeWithCorrection( Map.of() );
+        var imageData = ImageLoader.loadImageAsBase64( "LangChainAgents.png" );
+
+        assertNotNull(imageData);
+
+        var result = agentExecutor.executeWithCorrection( ImageToDiagramProcess.ImageUrlOrData.of(imageData) );
 
         var diagramCode = result.stream().reduce( (out1, out2) -> out2 )
                 .map( NodeOutput::state )

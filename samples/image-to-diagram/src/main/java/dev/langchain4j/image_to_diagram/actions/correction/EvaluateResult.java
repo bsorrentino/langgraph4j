@@ -10,11 +10,7 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
 
 public class EvaluateResult implements AsyncNodeAction<ImageToDiagram.State> {
 
-    public static AsyncNodeAction<ImageToDiagram.State> of() {
-        return new EvaluateResult();
-    }
-
-    private EvaluateResult() {}
+    public EvaluateResult() {}
 
     @Override
     public CompletableFuture<Map<String, Object>> apply(ImageToDiagram.State state) {

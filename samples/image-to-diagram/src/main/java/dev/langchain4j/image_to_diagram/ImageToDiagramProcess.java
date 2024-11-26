@@ -1,22 +1,22 @@
 package dev.langchain4j.image_to_diagram;
 
-import dev.langchain4j.image_to_diagram.actions.DescribeDiagramImage;
-import dev.langchain4j.image_to_diagram.actions.EvaluateResult;
-import dev.langchain4j.image_to_diagram.actions.TranslateGenericDiagramToPlantUML;
-import dev.langchain4j.image_to_diagram.actions.TranslateSequenceDiagramToPlantUML;
+import dev.langchain4j.image_to_diagram.actions.*;
 import dev.langchain4j.image_to_diagram.serializer.gson.JSONStateSerializer;
-import dev.langchain4j.model.openai.OpenAiChatModel;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.NodeOutput;
+import org.bsc.langgraph4j.action.AsyncEdgeAction;
+import org.bsc.langgraph4j.action.AsyncNodeAction;
+
 import java.net.URI;
 import java.util.*;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
-import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
+import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 @Slf4j( topic="ImageToDiagramProcess" )
@@ -36,36 +36,34 @@ public class ImageToDiagramProcess implements ImageToDiagram {
         }
     }
 
-    private final ImageUrlOrData imageUrlOrData;
+    final AsyncNodeAction<State> describeDiagramImage =
+            node_async( new DescribeDiagramImage(getVisionModel() ) );
+    final AsyncNodeAction<State> translateSequenceDiagramToPlantUML =
+            node_async( new TranslateSequenceDiagramToPlantUML(getModel()) );
+    final AsyncNodeAction<State> translateGenericDiagramToPlantUML =
+            node_async( new TranslateGenericDiagramToPlantUML(getModel()) );
+    final AsyncNodeAction<State> evaluateResult = new EvaluateResult(getModel());
+    final AsyncEdgeAction<State> routeDiagramTranslation = new RouteDiagramTranslation();
 
-    public ImageToDiagramProcess(URI image) {
-        imageUrlOrData = ImageUrlOrData.of(image);
-    }
+//    public ImageToDiagramProcess(URI image) {
+//        this(ImageUrlOrData.of(image));
+//    }
+//
+//    public ImageToDiagramProcess(String resourceName  ) throws  Exception {
+//        this( ImageUrlOrData.of(ImageLoader.loadImageAsBase64( resourceName ) ) );
+//    }
 
-    public ImageToDiagramProcess(String resourceName  ) throws  Exception {
-        String imageData = ImageLoader.loadImageAsBase64( resourceName );
-        imageUrlOrData = ImageUrlOrData.of(imageData);
-    }
-
-    private  String routeDiagramTranslation( State state)  {
-        return state.diagram()
-                .filter(d -> d.type().equalsIgnoreCase("sequence"))
-                .map(d -> "sequence")
-                .orElse("generic");
-    };
-
-    public AsyncGenerator<NodeOutput<State>> execute( Map<String, Object> inputs ) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> execute( @NonNull ImageUrlOrData imageData ) throws Exception {
 
         var stateSerializer = new JSONStateSerializer();
 
         var app = new StateGraph<>(State.SCHEMA,stateSerializer)
-            .addNode("agent_describer", DescribeDiagramImage.of(imageUrlOrData, getVisionModel() )  )
-            .addNode("agent_sequence_plantuml", TranslateSequenceDiagramToPlantUML.of(getModel()) )
-            .addNode("agent_generic_plantuml", TranslateGenericDiagramToPlantUML.of(getModel()) )
-            .addNode( "evaluate_result", EvaluateResult.of(getModel()))
-            .addConditionalEdges(
-                    "agent_describer",
-                    edge_async(this::routeDiagramTranslation),
+            .addNode("agent_describer", describeDiagramImage  )
+            .addNode("agent_sequence_plantuml", translateSequenceDiagramToPlantUML)
+            .addNode("agent_generic_plantuml", translateGenericDiagramToPlantUML )
+            .addNode( "evaluate_result", evaluateResult )
+            .addConditionalEdges("agent_describer",
+                    routeDiagramTranslation,
                     mapOf( "sequence", "agent_sequence_plantuml",
                         "generic", "agent_generic_plantuml" )
             )
@@ -75,24 +73,23 @@ public class ImageToDiagramProcess implements ImageToDiagram {
             .addEdge("evaluate_result", END)
             .compile();
 
-        return app.stream( inputs );
+        return app.stream( Map.of( "imageData", imageData ) );
     }
 
-    public AsyncGenerator<NodeOutput<State>> executeWithCorrection(  Map<String, Object> inputs ) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> executeWithCorrection( @NonNull ImageUrlOrData imageData ) throws Exception {
 
         var stateSerializer = new JSONStateSerializer();
 
         var diagramCorrectionProcess = new DiagramCorrectionProcess().workflow(stateSerializer).compile();
 
         var app = new StateGraph<>(State.SCHEMA,stateSerializer)
-                .addNode("agent_describer", DescribeDiagramImage.of(imageUrlOrData, getVisionModel() )  )
-                .addNode("agent_sequence_plantuml", TranslateSequenceDiagramToPlantUML.of(getModel()) )
-                .addNode("agent_generic_plantuml", TranslateGenericDiagramToPlantUML.of(getModel()) )
+                .addNode("agent_describer", describeDiagramImage  )
+                .addNode("agent_sequence_plantuml", translateSequenceDiagramToPlantUML )
+                .addNode("agent_generic_plantuml", translateGenericDiagramToPlantUML )
                 .addSubgraph( "agent_diagram_correction", diagramCorrectionProcess )
-                .addNode( "evaluate_result", EvaluateResult.of(getModel()))
-                .addConditionalEdges(
-                        "agent_describer",
-                        edge_async(this::routeDiagramTranslation),
+                .addNode( "evaluate_result", evaluateResult )
+                .addConditionalEdges("agent_describer",
+                        routeDiagramTranslation,
                         mapOf( "sequence", "agent_sequence_plantuml",
                                 "generic", "agent_generic_plantuml" )
                 )
@@ -102,7 +99,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .addEdge("evaluate_result", END)
                 .compile();
 
-        return app.stream( inputs );
+        return app.stream( Map.of( "imageData", imageData ) );
     }
 
 }

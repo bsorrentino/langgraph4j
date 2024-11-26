@@ -2,26 +2,19 @@ package dev.langchain4j.image_to_diagram.actions;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.image_to_diagram.Diagram;
+import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.NonNull;
-import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.NodeAction;
 
 import java.util.Map;
 
-import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-
 public class TranslateGenericDiagramToPlantUML implements NodeAction<ImageToDiagram.State>  {
-
-    public static AsyncNodeAction<ImageToDiagram.State> of( @NonNull OpenAiChatModel model) {
-        return node_async(new TranslateGenericDiagramToPlantUML(model));
-    }
 
     final OpenAiChatModel model;
 
-    private TranslateGenericDiagramToPlantUML(OpenAiChatModel model) {
+    public TranslateGenericDiagramToPlantUML( @NonNull OpenAiChatModel model) {
         this.model = model;
     }
 

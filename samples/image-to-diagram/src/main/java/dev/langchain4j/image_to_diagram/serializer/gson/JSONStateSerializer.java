@@ -2,7 +2,8 @@ package dev.langchain4j.image_to_diagram.serializer.gson;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import dev.langchain4j.image_to_diagram.Diagram;
+import dev.langchain4j.image_to_diagram.ImageToDiagramProcess;
+import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
 import net.sourceforge.plantuml.ErrorUmlType;
 import org.bsc.langgraph4j.serializer.plain_text.gson.GsonStateSerializer;
@@ -30,6 +31,7 @@ class StateDeserializer implements JsonDeserializer<ImageToDiagram.State> {
 
         JsonElement dataElement = json.getAsJsonObject().get("data");
 
+        JsonElement imageDataElement = dataElement.getAsJsonObject().getAsJsonObject("imageData");
         JsonElement diagramCodeElement = dataElement.getAsJsonObject().getAsJsonArray("diagramCode");
         JsonElement diagramElement = dataElement.getAsJsonObject().getAsJsonObject("diagram");
         JsonPrimitive evaluationResultElement = dataElement.getAsJsonObject().getAsJsonPrimitive("evaluationResult");
@@ -39,6 +41,13 @@ class StateDeserializer implements JsonDeserializer<ImageToDiagram.State> {
         Map<String,Object> data = new HashMap<>();
 
         var gson = new Gson();
+
+        if( imageDataElement != null ) {
+            var imageUrlOrData = imageDataElement.getAsJsonObject();
+            var imageData = gson.fromJson(imageUrlOrData, new TypeToken<ImageToDiagramProcess.ImageUrlOrData>() {}.getType() );
+            data.put( "imageData", imageData );
+        }
+
         List<String> diagramCode = gson.fromJson(diagramCodeElement, new TypeToken<List<String>>() {}.getType());
         data.put( "diagramCode", diagramCode );
 

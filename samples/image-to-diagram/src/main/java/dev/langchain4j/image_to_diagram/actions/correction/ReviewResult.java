@@ -17,14 +17,9 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 @Slf4j
 public class ReviewResult implements AsyncNodeAction<ImageToDiagram.State> {
-    public static AsyncNodeAction<ImageToDiagram.State> of( @NonNull OpenAiChatModel model) {
-        return new ReviewResult(model);
-    }
-
     final OpenAiChatModel model;
 
-    private ReviewResult( OpenAiChatModel model) {
-
+    public ReviewResult( OpenAiChatModel model) {
         this.model = model;
     }
 

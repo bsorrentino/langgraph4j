@@ -1,5 +1,6 @@
 package dev.langchain4j.image_to_diagram;
 
+import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import net.sourceforge.plantuml.ErrorUmlType;
@@ -10,6 +11,7 @@ import org.bsc.langgraph4j.state.Channel;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.time.Duration;
 import java.util.*;
 
@@ -27,6 +29,9 @@ public interface ImageToDiagram {
             super(initData);
         }
 
+        public Optional<ImageToDiagramProcess.ImageUrlOrData> imageData() {
+            return value("imageData");
+        }
         public Optional<Diagram.Element> diagram() {
             return value("diagram");
         }
