@@ -31,7 +31,7 @@ public class AgentExecutorStreamingServer {
         // [Serializing with Jackson (JSON) - getting "No serializer found"?](https://stackoverflow.com/a/8395924/521197)
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
-        var app = AgentExecutor.builder()
+        var app = AgentExecutor.graphBuilder()
                 .chatLanguageModel(llm)
                 .toolSpecification( new TestTool() )
                 .stateSerializer( AgentExecutor.Serializers.JSON.object() )
