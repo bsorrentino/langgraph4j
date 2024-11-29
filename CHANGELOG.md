@@ -2,6 +2,40 @@
 
 
 
+<!-- "name: v1.1.2" is a release tag -->
+
+## [v1.1.2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.2) (2024-11-29)
+
+### Features
+
+ *  **image-to-diagram**  update diagrams and workflow for image processing ([778c8cc5fe3c669](https://github.com/bsorrentino/langgraph4j/commit/778c8cc5fe3c6691b36bc8a8f9acf311fc95bc0e))
+   
+ *  add notebook for subgraph sample ([26f9993f56d114d](https://github.com/bsorrentino/langgraph4j/commit/26f9993f56d114dc2e80030a6dea9b23cec65701))
+   
+ *  add support of subgraph in graph representation generation ([99ff7b4761a1cd8](https://github.com/bsorrentino/langgraph4j/commit/99ff7b4761a1cd8319292534dc577ade05ca4e6c))
+     > - streamline diagram generation with Context class
+   
+
+
+### Documentation
+
+ -  update with new version ([44fb415f1c3f919](https://github.com/bsorrentino/langgraph4j/commit/44fb415f1c3f9192ad4b301c0482f4ef8d273233))
+
+ -  update changeme ([180e4389e611ed8](https://github.com/bsorrentino/langgraph4j/commit/180e4389e611ed810cecac234e808ba8567f10b7))
+
+
+
+### ALM 
+
+ -  bump to next version ([762637ba25974b0](https://github.com/bsorrentino/langgraph4j/commit/762637ba25974b0a1056e1d92fc13039ba3825b7))
+   
+ -  update version to 1.2-SNAPSHOT for modules ([0636130c2f05495](https://github.com/bsorrentino/langgraph4j/commit/0636130c2f05495da3b9109dca95a5586105e132))
+   
+
+
+
+
+
 <!-- "name: v1.1.1" is a release tag -->
 
 ## [v1.1.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.1) (2024-11-26)
