@@ -2,67 +2,73 @@ package org.bsc.langgraph4j.diagram;
 
 import org.bsc.langgraph4j.DiagramGenerator;
 
+import java.util.Objects;
+
 import static java.lang.String.format;
 import static org.bsc.langgraph4j.StateGraph.END;
+import static org.bsc.langgraph4j.StateGraph.START;
 
 public class PlantUMLGenerator extends DiagramGenerator {
 
     @Override
-    protected void appendHeader( StringBuilder sb, String title ) {
-        sb
-        .append("@startuml unnamed.puml\n" )
-        .append("skinparam usecaseFontSize 14\n")
-        .append("skinparam usecaseStereotypeFontSize 12\n")
-        .append("skinparam hexagonFontSize 14\n" )
-        .append("skinparam hexagonStereotypeFontSize 12\n")
-        .append( format("title \"%s\"\n", title) )
-        .append("footer\n\n")
-        .append("powered by langgraph4j\n")
-        .append("end footer\n")
-        .append("circle start<<input>>\n")
-        .append( format("circle stop as %s\n", END));
+    protected void appendHeader( Context ctx ) {
+
+        if( ctx.isSubgraph() ) {
+            ctx.sb()
+                .append(format("rectangle %s [ {{\ntitle \"%s\"\n", ctx.title(), ctx.title()))
+                .append(format("circle \" \" as %s\n", START))
+                .append(format("circle exit as %s\n", END))
+                ;
+        }
+        else {
+            ctx.sb()
+                .append(format("@startuml %s\n", ctx.titleToSnakeCase()))
+                .append("skinparam usecaseFontSize 14\n")
+                .append("skinparam usecaseStereotypeFontSize 12\n")
+                .append("skinparam hexagonFontSize 14\n")
+                .append("skinparam hexagonStereotypeFontSize 12\n")
+                .append(format("title \"%s\"\n", ctx.title()))
+                .append("footer\n\n")
+                .append("powered by langgraph4j\n")
+                .append("end footer\n")
+                .append(format("circle start<<input>> as %s\n", START))
+                .append(format("circle stop as %s\n", END));
+        }
     }
 
     @Override
-    protected void appendFooter( StringBuilder sb ) {
-        sb.append( "@enduml\n" );
+    protected void appendFooter(Context ctx ) {
+        if( ctx.isSubgraph() ) {
+            ctx.sb().append("\n}} ]\n");
+        }
+        else {
+            ctx.sb().append("@enduml\n");
+        }
     }
     @Override
-    protected void start( StringBuilder sb, String entryPoint ) {
-        sb.append( format("start -down-> \"%s\"\n", entryPoint ));
+    protected void call( Context ctx, String from, String to ) {
+        ctx.sb().append( format( "\"%s\" -down-> \"%s\"\n", from, to ) );
     }
     @Override
-    protected void finish( StringBuilder sb, String finishPoint ) {
-        sb.append(format("\"%s\" -down-> %s\n", finishPoint, END));
+    protected void call( Context ctx, String from, String to, String description ) {
+        ctx.sb().append( format( "\"%s\" -down-> \"%s\": \"%s\"\n", from, to, description ) );
     }
     @Override
-    protected void finish( StringBuilder sb, String finishPoint, String description ) {
-        sb.append( format( "\"%s\" -down-> %s: \"%s\"\n", finishPoint, END, description ) );
+    protected void declareConditionalStart( Context ctx, String name ) {
+        ctx.sb().append(format("hexagon \"check state\" as %s<<Condition>>\n", name));
     }
     @Override
-    protected void call( StringBuilder sb, String from, String to ) {
-        sb.append( format( "\"%s\" -down-> \"%s\"\n", from, to ) );
+    protected void declareNode( Context ctx, String name ) {
+        ctx.sb().append( format( "usecase \"%s\"<<Node>>\n", name ) );
     }
     @Override
-    protected void call( StringBuilder sb, String from, String to, String description ) {
-        sb.append( format( "\"%s\" --> \"%s\": \"%s\"\n", from, to, description ) );
-    }
-    @Override
-    protected void declareConditionalStart( StringBuilder sb, String name ) {
-        sb.append(format("hexagon \"check state\" as %s<<Condition>>\n", name));
-    }
-    @Override
-    protected void declareNode( StringBuilder sb, String name ) {
-        sb.append( format( "usecase \"%s\"<<Node>>\n", name ) );
-    }
-    @Override
-    protected void declareConditionalEdge( StringBuilder sb, int ordinal ) {
-        sb.append( format("hexagon \"check state\" as condition%d<<Condition>>\n", ordinal ) );
+    protected void declareConditionalEdge( Context ctx, int ordinal ) {
+        ctx.sb().append( format("hexagon \"check state\" as condition%d<<Condition>>\n", ordinal ) );
     }
 
     @Override
-    protected StringBuilder commentLine(StringBuilder sb, boolean yesOrNo) {
-        return (yesOrNo) ? sb.append( "'" ) : sb;
+    protected void commentLine(Context ctx, boolean yesOrNo) {
+        if(yesOrNo) ctx.sb().append( "'" ) ;
     }
 
 

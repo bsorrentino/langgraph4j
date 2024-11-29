@@ -7,6 +7,7 @@ import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
 
+import org.bsc.langgraph4j.GraphRepresentation;
 import org.bsc.langgraph4j.NodeOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -159,7 +160,7 @@ public class ImageToDiagramTest {
         final var process = new DiagramCorrectionProcess();
 
         ArrayList<NodeOutput<ImageToDiagram.State>> list = new ArrayList<NodeOutput<ImageToDiagram.State>>();
-        var result = process.execute( Map.of( "diagramCode", diagramCode ) )
+        var result = process.workflow().compile().stream( Map.of( "diagramCode", diagramCode ) )
                 .collectAsync( list, v -> log.trace(v.toString()) )
                 .thenApply( v -> {
                     if( list.isEmpty() ) {
@@ -206,4 +207,72 @@ public class ImageToDiagramTest {
     public void reviewDiagram7() throws Exception {
         reviewDiagram("07");
     }
+
+    @Test
+    public void getGraph() throws Exception {
+        var agentExecutor = new ImageToDiagramProcess();
+
+        var plantUml = agentExecutor.workflow()
+                .getGraph( GraphRepresentation.Type.PLANTUML,
+                        "Image to diagram with correction",
+                        false );
+
+        assertNotNull(plantUml);
+        var expected_workflow = readTextResource("01_expected_plantuml.txt");
+        assertEquals( expected_workflow, plantUml.getContent() );
+
+        var plantUmlWithCorrection = agentExecutor.workflowWithCorrection()
+                            .getGraph( GraphRepresentation.Type.PLANTUML,
+                                    "Image to diagram with correction",
+                                    false );
+
+        assertNotNull(plantUmlWithCorrection);
+        var expected_workflow_with_correction = readTextResource("02_expected_plantuml.txt");
+        assertEquals( expected_workflow_with_correction, plantUmlWithCorrection.getContent() );
+
+        var mermaid = agentExecutor.workflow()
+                .getGraph( GraphRepresentation.Type.MERMAID,
+                        "Image to diagram with correction",
+                        false );
+
+        assertNotNull(mermaid);
+        expected_workflow = readTextResource("01_expected_mermaid.txt");
+        assertEquals( expected_workflow, mermaid.getContent() );
+
+        var mermaidWithCorrection = agentExecutor.workflowWithCorrection()
+                .getGraph( GraphRepresentation.Type.MERMAID,
+                        "Image to diagram with correction",
+                        false );
+
+        assertNotNull(mermaidWithCorrection);
+        expected_workflow_with_correction = readTextResource("02_expected_mermaid.txt");
+        assertEquals( expected_workflow_with_correction, mermaidWithCorrection.getContent() );
+
+        var correctionProcess = new DiagramCorrectionProcess();
+
+        var correctionPlantUml = correctionProcess.workflow().getGraph( GraphRepresentation.Type.MERMAID,
+                        "Correction Process",
+                        false );
+
+        assertEquals( "---\n" +
+                "title: Correction Process\n" +
+                "---\n" +
+                "flowchart TD\n" +
+                "\t__START__((start))\n" +
+                "\t__END__((stop))\n" +
+                "\tevaluate_result(\"evaluate_result\")\n" +
+                "\tagent_review(\"agent_review\")\n" +
+                "\t%%\tcondition1{\"check state\"}\n" +
+                "\t__START__:::__START__ --> evaluate_result:::evaluate_result\n" +
+                "\tagent_review:::agent_review --> evaluate_result:::evaluate_result\n" +
+                "\t%%\tevaluate_result:::evaluate_result --> condition1:::condition1\n" +
+                "\t%%\tcondition1:::condition1 -->|ERROR| agent_review:::agent_review\n" +
+                "\tevaluate_result:::evaluate_result -->|ERROR| agent_review:::agent_review\n" +
+                "\t%%\tcondition1:::condition1 -->|UNKNOWN| __END__:::__END__\n" +
+                "\tevaluate_result:::evaluate_result -->|UNKNOWN| __END__:::__END__\n" +
+                "\t%%\tcondition1:::condition1 -->|OK| __END__:::__END__\n" +
+                "\tevaluate_result:::evaluate_result -->|OK| __END__:::__END__\n", correctionPlantUml.getContent());
+
+    }
+
 }

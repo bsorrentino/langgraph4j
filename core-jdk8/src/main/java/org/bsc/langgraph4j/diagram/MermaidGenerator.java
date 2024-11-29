@@ -14,62 +14,77 @@ import static org.bsc.langgraph4j.StateGraph.START;
 public class MermaidGenerator extends DiagramGenerator {
 
     @Override
-    protected void appendHeader(StringBuilder sb, String title) {
-       sb
-         .append( format("---\ntitle: %s\n---\n", title))
-         .append( "flowchart TD\n")
-         .append( format("\t%s((start))\n", START))
-         .append( format("\t%s((stop))\n",END))
-       ;
+    protected void appendHeader( Context ctx ) {
+        if( ctx.isSubgraph() ) {
+            ctx.sb()
+                .append(format("subgraph %s\n", ctx.title()))
+                .append(format("\t#%s@{ shape: start, label: \"enter\" }\n", START))
+                .append(format("\t#%s@{ shape: stop, label: \"exit\" }\n", END))
+                ;
+        }
+        else {
+            ctx.sb()
+                .append(format("---\ntitle: %s\n---\n", ctx.title()))
+                .append("flowchart TD\n")
+                .append(format("\t%s((start))\n", START))
+                .append(format("\t%s((stop))\n", END))
+                ;
+        }
     }
 
     @Override
-    protected void appendFooter(StringBuilder sb) {
-        // do nothing
+    protected void appendFooter(Context ctx) {
+        if( ctx.isSubgraph() ) {
+            ctx.sb().append("end\n");
+        }
     }
 
    @Override
-   protected void declareConditionalStart(StringBuilder sb, String name) {
-       sb.append( format("\t%s{\"check state\"}\n", name) );
+   protected void declareConditionalStart(Context ctx, String name) {
+       ctx.sb().append('\t');
+       if( ctx.isSubgraph() ) ctx.sb().append('#');
+       ctx.sb().append( format("%s{\"check state\"}\n", name) );
    }
 
    @Override
-   protected void declareNode(StringBuilder sb, String name) {
-      sb.append( format( "\t%s(\"%s\")\n", name, name ) );
+   protected void declareNode(Context ctx, String name) {
+       ctx.sb().append('\t');
+       if( ctx.isSubgraph() ) ctx.sb().append('#');
+       ctx.sb().append( format( "%s(\"%s\")\n", name, name ) );
    }
 
    @Override
-   protected void declareConditionalEdge(StringBuilder sb, int ordinal) {
-        sb.append( format("\tcondition%d{\"check state\"}\n", ordinal) );
+   protected void declareConditionalEdge(Context ctx, int ordinal) {
+       ctx.sb().append('\t');
+       if( ctx.isSubgraph() ) ctx.sb().append('#');
+       ctx.sb().append( format("condition%d{\"check state\"}\n", ordinal) );
    }
 
     @Override
-    protected StringBuilder commentLine(StringBuilder sb, boolean yesOrNo) {
-        return (yesOrNo) ? sb.append( "\t%%" ) : sb;
+    protected void commentLine(Context ctx, boolean yesOrNo) {
+        if (yesOrNo) ctx.sb().append( "\t%%" );
     }
 
     @Override
-    protected void start(StringBuilder sb, String entryPoint) {
-        call( sb, START, entryPoint );
+    protected void call(Context ctx, String from, String to) {
+        ctx.sb().append('\t');
+        if( ctx.isSubgraph() ) {
+            ctx.sb().append( format("#%1$s:::%1$s --> #%2$s:::%2$s\n", from, to) );
+        }
+        else {
+            ctx.sb().append( format("%1$s:::%1$s --> %2$s:::%2$s\n", from, to) );
+        }
     }
 
     @Override
-    protected void finish(StringBuilder sb, String finishPoint) {
-        call( sb, finishPoint, END );
-    }
+    protected void call(Context ctx, String from, String to, String description) {
+        ctx.sb().append('\t');
+        if( ctx.isSubgraph() ) {
+            ctx.sb().append(format("#%1$s:::%1$s -->|%2$s| #%3$s:::%3$s\n", from, description, to));
+        }
+        else {
+            ctx.sb().append(format("%1$s:::%1$s -->|%2$s| %3$s:::%3$s\n", from, description, to));
+        }
 
-    @Override
-    protected void finish(StringBuilder sb, String finishPoint, String description) {
-        call( sb, finishPoint, END, description );
-    }
-
-    @Override
-    protected void call(StringBuilder sb, String from, String to) {
-        sb.append( format("\t%1$s:::%1$s --> %2$s:::%2$s\n", from, to) );
-    }
-
-    @Override
-    protected void call(StringBuilder sb, String from, String to, String description) {
-        sb.append(format("\t%1$s:::%1$s -->|%2$s| %3$s:::%3$s\n", from, description, to));
     }
 }

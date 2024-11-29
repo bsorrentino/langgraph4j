@@ -45,49 +45,40 @@ public class ImageToDiagramProcess implements ImageToDiagram {
     final AsyncNodeAction<State> evaluateResult = new EvaluateResult(getModel());
     final AsyncEdgeAction<State> routeDiagramTranslation = new RouteDiagramTranslation();
 
-//    public ImageToDiagramProcess(URI image) {
-//        this(ImageUrlOrData.of(image));
-//    }
-//
-//    public ImageToDiagramProcess(String resourceName  ) throws  Exception {
-//        this( ImageUrlOrData.of(ImageLoader.loadImageAsBase64( resourceName ) ) );
-//    }
 
-    public AsyncGenerator<NodeOutput<State>> execute( @NonNull ImageUrlOrData imageData ) throws Exception {
-
+    public StateGraph<State> workflow() throws Exception {
         var stateSerializer = new JSONStateSerializer();
 
-        var app = new StateGraph<>(State.SCHEMA,stateSerializer)
-            .addNode("agent_describer", describeDiagramImage  )
-            .addNode("agent_sequence_plantuml", translateSequenceDiagramToPlantUML)
-            .addNode("agent_generic_plantuml", translateGenericDiagramToPlantUML )
-            .addNode( "evaluate_result", evaluateResult )
-            .addConditionalEdges("agent_describer",
-                    routeDiagramTranslation,
-                    mapOf( "sequence", "agent_sequence_plantuml",
-                        "generic", "agent_generic_plantuml" )
-            )
-            .addEdge("agent_sequence_plantuml", "evaluate_result")
-            .addEdge("agent_generic_plantuml", "evaluate_result")
-            .addEdge( START,"agent_describer")
-            .addEdge("evaluate_result", END)
-            .compile();
-
-        return app.stream( Map.of( "imageData", imageData ) );
+        return new StateGraph<>(State.SCHEMA,stateSerializer)
+                .addNode("agent_describer", describeDiagramImage  )
+                .addNode("agent_sequence_plantuml", translateSequenceDiagramToPlantUML)
+                .addNode("agent_generic_plantuml", translateGenericDiagramToPlantUML )
+                //.addNode( "evaluate_result", evaluateResult )
+                .addConditionalEdges("agent_describer",
+                        routeDiagramTranslation,
+                        mapOf( "sequence", "agent_sequence_plantuml",
+                                "generic", "agent_generic_plantuml" )
+                )
+                //.addEdge("agent_sequence_plantuml", "evaluate_result")
+                //.addEdge("agent_generic_plantuml", "evaluate_result")
+                .addEdge("agent_sequence_plantuml", END)
+                .addEdge("agent_generic_plantuml", END)
+                .addEdge( START,"agent_describer")
+                //.addEdge("evaluate_result", END)
+                ;
     }
 
-    public AsyncGenerator<NodeOutput<State>> executeWithCorrection( @NonNull ImageUrlOrData imageData ) throws Exception {
+    public StateGraph<State> workflowWithCorrection() throws Exception {
 
         var stateSerializer = new JSONStateSerializer();
 
         var diagramCorrectionProcess = new DiagramCorrectionProcess().workflow(stateSerializer).compile();
 
-        var app = new StateGraph<>(State.SCHEMA,stateSerializer)
+        return new StateGraph<>(State.SCHEMA,stateSerializer)
                 .addNode("agent_describer", describeDiagramImage  )
                 .addNode("agent_sequence_plantuml", translateSequenceDiagramToPlantUML )
                 .addNode("agent_generic_plantuml", translateGenericDiagramToPlantUML )
-                .addSubgraph( "agent_diagram_correction", diagramCorrectionProcess )
-                .addNode( "evaluate_result", evaluateResult )
+                .addSubgraph( "evaluate_result", diagramCorrectionProcess )
                 .addConditionalEdges("agent_describer",
                         routeDiagramTranslation,
                         mapOf( "sequence", "agent_sequence_plantuml",
@@ -96,10 +87,15 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .addEdge("agent_sequence_plantuml", "evaluate_result")
                 .addEdge("agent_generic_plantuml", "evaluate_result")
                 .addEdge( START,"agent_describer")
-                .addEdge("evaluate_result", END)
-                .compile();
+                .addEdge("evaluate_result", END);
+    }
 
-        return app.stream( Map.of( "imageData", imageData ) );
+    public AsyncGenerator<NodeOutput<State>> execute( @NonNull ImageUrlOrData imageData ) throws Exception {
+        return workflow().compile().stream( Map.of( "imageData", imageData ) );
+    }
+
+    public AsyncGenerator<NodeOutput<State>> executeWithCorrection( @NonNull ImageUrlOrData imageData ) throws Exception {
+        return workflowWithCorrection().compile().stream( Map.of( "imageData", imageData ) );
     }
 
 }

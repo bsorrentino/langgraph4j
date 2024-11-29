@@ -1,0 +1,36 @@
+---
+title: Image to diagram with correction
+---
+flowchart TD
+	__START__((start))
+	__END__((stop))
+	agent_describer("agent_describer")
+	agent_sequence_plantuml("agent_sequence_plantuml")
+	agent_generic_plantuml("agent_generic_plantuml")
+subgraph evaluate_result
+	#__START__@{ shape: start, label: "enter" }
+	#__END__@{ shape: stop, label: "exit" }
+	#evaluate_result("evaluate_result")
+	#agent_review("agent_review")
+	%%	#condition1{"check state"}
+	#__START__:::__START__ --> #evaluate_result:::evaluate_result
+	#agent_review:::agent_review --> #evaluate_result:::evaluate_result
+	%%	#evaluate_result:::evaluate_result --> #condition1:::condition1
+	%%	#condition1:::condition1 -->|ERROR| #agent_review:::agent_review
+	#evaluate_result:::evaluate_result -->|ERROR| #agent_review:::agent_review
+	%%	#condition1:::condition1 -->|UNKNOWN| #__END__:::__END__
+	#evaluate_result:::evaluate_result -->|UNKNOWN| #__END__:::__END__
+	%%	#condition1:::condition1 -->|OK| #__END__:::__END__
+	#evaluate_result:::evaluate_result -->|OK| #__END__:::__END__
+end
+	%%	condition1{"check state"}
+	__START__:::__START__ --> agent_describer:::agent_describer
+	%%	agent_describer:::agent_describer --> condition1:::condition1
+	%%	condition1:::condition1 -->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
+	agent_describer:::agent_describer -->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
+	%%	condition1:::condition1 -->|generic| agent_generic_plantuml:::agent_generic_plantuml
+	agent_describer:::agent_describer -->|generic| agent_generic_plantuml:::agent_generic_plantuml
+	agent_sequence_plantuml:::agent_sequence_plantuml --> evaluate_result:::evaluate_result
+	agent_generic_plantuml:::agent_generic_plantuml --> evaluate_result:::evaluate_result
+	evaluate_result:::evaluate_result --> __END__:::__END__
+
