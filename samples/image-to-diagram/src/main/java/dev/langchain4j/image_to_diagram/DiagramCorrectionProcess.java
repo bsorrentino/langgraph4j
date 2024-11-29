@@ -27,6 +27,10 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
     final AsyncNodeAction<State> reviewResult = new ReviewResult( getModel() );
     final AsyncEdgeAction<State> routeEvaluationResult = edge_async( new RouteEvaluationResult() );
 
+    public StateGraph<State> workflow() throws Exception {
+        return workflow( new JSONStateSerializer() );
+    }
+
     public StateGraph<State> workflow(StateSerializer<State> stateSerializer ) throws Exception {
 
         return new StateGraph<>(State.SCHEMA,stateSerializer)
@@ -43,16 +47,4 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
 
     }
 
-
-    public AsyncGenerator<NodeOutput<State>> execute(Map<String, Object> inputs) throws Exception {
-
-        var stateSerializer = new JSONStateSerializer();
-
-        var workflow = workflow(stateSerializer);
-
-        var app = workflow.compile();
-
-        return app.stream( inputs );
-
-    }
 }

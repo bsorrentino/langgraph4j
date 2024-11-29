@@ -28,7 +28,7 @@ public class EvaluateResult implements AsyncNodeAction<ImageToDiagram.State> {
 
         ArrayList<NodeOutput<ImageToDiagram.State>> list = new ArrayList<NodeOutput<ImageToDiagram.State>>();
         try {
-            return diagramCorrectionProcess.execute( state.data() )
+            return diagramCorrectionProcess.workflow().compile().stream( state.data() )
                     .collectAsync(list, v -> log.info( v.toString() ) )
                     .thenApply( v -> {
                         if( list.isEmpty() ) {
