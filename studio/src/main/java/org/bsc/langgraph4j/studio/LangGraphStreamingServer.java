@@ -16,7 +16,6 @@ import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
-import org.bsc.langgraph4j.studio.jetty.LangGraphStreamingServerJetty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,9 +218,12 @@ public interface LangGraphStreamingServer {
         }
     }
 
+
     record ArgumentMetadata(
-            String type,
+            String name,
+            ArgumentType type,
             boolean required) {
+        public enum ArgumentType { STRING, IMAGE };
     }
 
     record ThreadEntry( String id, List<? extends NodeOutput<? extends AgentState>> entries) {
@@ -231,11 +233,11 @@ public interface LangGraphStreamingServer {
     record InitData(
             String title,
             String graph,
-            Map<String, ArgumentMetadata> args,
+            List<ArgumentMetadata> args,
             List<ThreadEntry> threads
     ) {
 
-        public InitData( String title, String graph, Map<String, ArgumentMetadata> args ) {
+        public InitData( String title, String graph, List<ArgumentMetadata> args ) {
             this( title, graph, args, List.of(new ThreadEntry("default", List.of())));
         }
     }
@@ -288,7 +290,7 @@ public interface LangGraphStreamingServer {
         final ObjectMapper objectMapper = new ObjectMapper();
         final InitData initData;
 
-        public GraphInitServlet(StateGraph<? extends AgentState> stateGraph, String title, Map<String, ArgumentMetadata> args) {
+        public GraphInitServlet(StateGraph<? extends AgentState> stateGraph, String title, List<ArgumentMetadata> args) {
             Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
             this.stateGraph = stateGraph;
 

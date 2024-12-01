@@ -50,7 +50,7 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
 
     public static class Builder {
         private int port = 8080;
-        private final Map<String, ArgumentMetadata> inputArgs = new HashMap<>();
+        private final List<ArgumentMetadata> inputArgs = new ArrayList<>();
         private String title = null;
         private ObjectMapper objectMapper;
         private BaseCheckpointSaver saver;
@@ -72,13 +72,21 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
         }
 
         public Builder addInputStringArg(String name, boolean required) {
-            inputArgs.put(name, new ArgumentMetadata("string", required));
+            inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.STRING, required));
             return this;
         }
 
         public Builder addInputStringArg(String name) {
-            inputArgs.put(name, new ArgumentMetadata("string", true));
+            return addInputStringArg( name, true);
+        }
+
+        public Builder addInputImageArg(String name, boolean required) {
+            inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.STRING, required));
             return this;
+        }
+
+        public Builder addInputImageArg(String name) {
+            return addInputImageArg( name, true);
         }
 
         public Builder checkpointSaver(BaseCheckpointSaver saver) {
