@@ -81,7 +81,7 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
         }
 
         public Builder addInputImageArg(String name, boolean required) {
-            inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.STRING, required));
+            inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.IMAGE, required));
             return this;
         }
 

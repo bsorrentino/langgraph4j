@@ -258,7 +258,6 @@ public interface LangGraphStreamingServer {
             jsonGenerator.writeStringField("title", initData.title());
             jsonGenerator.writeObjectField("args", initData.args());
 
-
 //            jsonGenerator.writeArrayFieldStart("nodes" );
 //            for( var node : initData.nodes() ) {
 //                jsonGenerator.writeString(node);
