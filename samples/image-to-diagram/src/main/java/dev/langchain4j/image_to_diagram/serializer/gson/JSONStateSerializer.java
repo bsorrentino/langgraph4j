@@ -42,10 +42,19 @@ class StateDeserializer implements JsonDeserializer<ImageToDiagram.State> {
 
         var gson = new Gson();
 
+
         if( imageDataElement != null ) {
-            var imageUrlOrData = imageDataElement.getAsJsonObject();
-            var imageData = gson.fromJson(imageUrlOrData, new TypeToken<ImageToDiagramProcess.ImageUrlOrData>() {}.getType() );
-            data.put( "imageData", imageData );
+            if( imageDataElement.isJsonPrimitive()  ) {
+                var base64 = imageDataElement.getAsString();
+                var imageData = ImageToDiagramProcess.ImageUrlOrData.of(base64);
+                data.put( "imageData", imageData );
+            }
+            else {
+                var imageUrlOrData = imageDataElement.getAsJsonObject();
+                var imageData = gson.fromJson(imageUrlOrData, new TypeToken<ImageToDiagramProcess.ImageUrlOrData>() {
+                }.getType());
+                data.put("imageData", imageData);
+            }
         }
 
         List<String> diagramCode = gson.fromJson(diagramCodeElement, new TypeToken<List<String>>() {}.getType());
