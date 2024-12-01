@@ -116,8 +116,9 @@ class ImageUploader extends LitElement {
         
         if (result instanceof ArrayBuffer) {
           const buffer = new Uint8Array(result);
-          const string = Buffer.from(buffer).toString('base64');
-          resolve(string);
+          const binaryString = buffer.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+        // Encode the binary string to Base64
+          resolve(btoa(binaryString));
           return;
         } 
         
