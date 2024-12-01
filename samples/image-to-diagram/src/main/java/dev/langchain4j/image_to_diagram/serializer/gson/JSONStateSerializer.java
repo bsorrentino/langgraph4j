@@ -31,7 +31,7 @@ class StateDeserializer implements JsonDeserializer<ImageToDiagram.State> {
 
         JsonElement dataElement = json.getAsJsonObject().get("data");
 
-        JsonElement imageDataElement = dataElement.getAsJsonObject().getAsJsonObject("imageData");
+        JsonElement imageDataElement = dataElement.getAsJsonObject().get("imageData");
         JsonElement diagramCodeElement = dataElement.getAsJsonObject().getAsJsonArray("diagramCode");
         JsonElement diagramElement = dataElement.getAsJsonObject().getAsJsonObject("diagram");
         JsonPrimitive evaluationResultElement = dataElement.getAsJsonObject().getAsJsonPrimitive("evaluationResult");
@@ -42,14 +42,13 @@ class StateDeserializer implements JsonDeserializer<ImageToDiagram.State> {
 
         var gson = new Gson();
 
-
         if( imageDataElement != null ) {
             if( imageDataElement.isJsonPrimitive()  ) {
                 var base64 = imageDataElement.getAsString();
                 var imageData = ImageToDiagramProcess.ImageUrlOrData.of(base64);
                 data.put( "imageData", imageData );
             }
-            else {
+            else if ( imageDataElement.isJsonObject() ) {
                 var imageUrlOrData = imageDataElement.getAsJsonObject();
                 var imageData = gson.fromJson(imageUrlOrData, new TypeToken<ImageToDiagramProcess.ImageUrlOrData>() {
                 }.getType());
