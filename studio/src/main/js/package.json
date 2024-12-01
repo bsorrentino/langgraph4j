@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "types": "./src/types.d.ts",
   "scripts": {
     "dev": "parcel index.html --no-cache",
     "parcel:build": "parcel build index.html --public-url '.'",
