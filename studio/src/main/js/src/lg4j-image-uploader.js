@@ -41,14 +41,17 @@ class ImageUploader extends LitElement {
 
   constructor() {
     super();
-    // this._imageUrl = null;
-    // this._fileName = null;
     this.nopreview = false; 
     this._file = null
+    /** @type {string|null} */
+    this._base64 = null
   }
 
+  /**
+   * @return  {string|null}  base64 string
+   */
   get value() {
-    return this._file
+    return this._base64
   }
   
   get #imageUrl() {
@@ -83,14 +86,47 @@ class ImageUploader extends LitElement {
     const file = e.target?.files[0];
     if (file && file.type.startsWith('image/')) {
       this._file = file; // Set the file name
-      // const reader = new FileReader();
-      // reader.onload = (event) => {
-      //   this._imageUrl = event.target.result;
-      // };
-      // reader.readAsDataURL(file);
+      this.#convertFileToBase64(file)
+        .then( base64 => this._base64 = base64 )
+        .catch( error => alert(error.message) );
     } else {
       alert('Please select a valid image file.');
     }
+  }
+
+  /**
+   * Convert a file to a Base64 string.
+   * @param {File} file File object to convert
+   * @return {Promise<string>} Promise resolving to the Base64 string
+   */
+  #convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        
+        if (typeof result === 'string') {
+          // The `onload` result is a data URL, which consists of a prefix
+          // (data:application/octet-stream;base64,) and the actual Base64
+          // string. We split the string at the comma and take the second
+          // element, which is the Base64 string
+          resolve(result.split(',')[1]);
+          return;
+        } 
+        
+        if (result instanceof ArrayBuffer) {
+          const buffer = new Uint8Array(result);
+          const string = Buffer.from(buffer).toString('base64');
+          resolve(string);
+          return;
+        } 
+        
+        reject(new Error( (!result) ? 'Failed to read file' : 'Unknown type of file'));
+        
+      }
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 }
 
