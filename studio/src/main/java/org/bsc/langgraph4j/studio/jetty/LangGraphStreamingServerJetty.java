@@ -52,17 +52,11 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
         private int port = 8080;
         private final List<ArgumentMetadata> inputArgs = new ArrayList<>();
         private String title = null;
-        private ObjectMapper objectMapper;
         private BaseCheckpointSaver saver;
         private StateGraph<? extends AgentState> stateGraph;
 
         public Builder port(int port) {
             this.port = port;
-            return this;
-        }
-
-        public Builder objectMapper(ObjectMapper objectMapper) {
-            this.objectMapper = objectMapper;
             return this;
         }
 
@@ -121,15 +115,11 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
 
             var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-            if (objectMapper == null) {
-                objectMapper = new ObjectMapper();
-            }
-
             context.setSessionHandler(new org.eclipse.jetty.ee10.servlet.SessionHandler());
 
             context.addServlet(new ServletHolder(new GraphInitServlet(stateGraph, title, inputArgs)), "/init");
 
-            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, objectMapper, saver)), "/stream");
+            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, saver)), "/stream");
 
             var handlerList = new Handler.Sequence( resourceHandler, context);
 
