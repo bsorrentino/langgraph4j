@@ -428,10 +428,11 @@ public class CompiledGraph<State extends AgentState> {
             return partialState.entrySet().stream()
                     .filter( e -> e.getValue() instanceof AsyncGenerator)
                     .findFirst()
-                    .map( e ->
-                        Data.composeWith( (AsyncGenerator<Output>)e.getValue(), data -> {
+                    .map( e -> {
+                        final AsyncGenerator<Output> generator = (AsyncGenerator<Output>) e.getValue();
+                        return Data.composeWith( generator.map( n -> { n.setSubGraph(true); return n; } ), data -> {
 
-                            if( data != null ) {
+                            if (data != null) {
 
                                 if (!(data instanceof Map)) {
                                     throw new IllegalArgumentException("Embedded generator must return a Map");
@@ -441,8 +442,8 @@ public class CompiledGraph<State extends AgentState> {
 
                             nextNodeId = nextNodeId(currentNodeId, currentState);
                             resumedFromEmbed = true;
-                        })
-                    )
+                        });
+                    })
                     ;
         }
 

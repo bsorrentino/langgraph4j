@@ -1,7 +1,12 @@
 package org.bsc.langgraph4j;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.ToString;
 import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.plain_text.gson.GsonStateSerializer;
+import org.bsc.langgraph4j.serializer.plain_text.jackson.JacksonStateSerializer;
 import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
@@ -152,9 +157,60 @@ public class SerializeTest {
         System.out.println( deserializedData );
     }
 
-    @Test
-    public void customDeserializeStateTest() throws Exception {
+    static class JacksonSerializer extends JacksonStateSerializer<AgentState> {
 
+        public JacksonSerializer() {
+            super(AgentState::new);
+        }
+
+        ObjectMapper getObjectMapper() {
+           return objectMapper;
+        }
+    }
+    @Test
+    public void NodOutputJacksonSerializationTest() throws Exception {
+
+        JacksonSerializer serializer = new JacksonSerializer();
+
+        NodeOutput<AgentState> output = NodeOutput.of("node", null);
+        output.setSubGraph(true);
+        String json = serializer.getObjectMapper().writeValueAsString(output);
+
+        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":true}", json );
+
+        output.setSubGraph(false);
+        json = serializer.getObjectMapper().writeValueAsString(output);
+
+        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":false}", json );
+    }
+
+    static class GsonSerializer extends GsonStateSerializer<AgentState> {
+
+        public GsonSerializer() {
+            super(AgentState::new, new GsonBuilder()
+                    .serializeNulls()
+                    .create());
+        }
+
+        Gson getGson() {
+            return gson;
+        }
+    }
+    @Test
+    public void NodOutputJGsonSerializationTest() throws Exception {
+
+        GsonSerializer serializer = new GsonSerializer();
+
+        NodeOutput<AgentState> output = NodeOutput.of("node", null);
+        output.setSubGraph(true);
+        String json = serializer.getGson().toJson(output);
+
+        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":true}", json );
+
+        output.setSubGraph(false);
+        json = serializer.getGson().toJson(output);
+
+        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":false}", json );
     }
 
 }

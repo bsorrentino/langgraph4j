@@ -1,5 +1,7 @@
 package org.bsc.langgraph4j.studio;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +18,6 @@ import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
-import org.bsc.langgraph4j.studio.jetty.LangGraphStreamingServerJetty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Optional.ofNullable;
+import org.bsc.langgraph4j.diagram.MermaidGenerator;
 
 
 public interface LangGraphStreamingServer {
@@ -37,30 +39,6 @@ public interface LangGraphStreamingServer {
 
     CompletableFuture<Void> start() throws Exception;
 
-    class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
-        Logger log = LangGraphStreamingServer.log;
-
-        protected NodeOutputSerializer() {
-            super( NodeOutput.class );
-        }
-
-        @Override
-        public void serialize(NodeOutput nodeOutput, JsonGenerator gen, SerializerProvider serializerProvider) throws
-                IOException {
-            log.trace( "NodeOutputSerializer start! {}", nodeOutput.getClass() );
-            gen.writeStartObject();
-            if( nodeOutput instanceof StateSnapshot<?> snapshot) {
-                var checkpoint = snapshot.config().checkPointId();
-                log.trace( "checkpoint: {}", checkpoint );
-                if( checkpoint.isPresent() ) {
-                    gen.writeStringField("checkpoint", checkpoint.get());
-                }
-            }
-            gen.writeStringField("node", nodeOutput.node());
-            gen.writeObjectField("state", nodeOutput.state().data());
-            gen.writeEndObject();
-        }
-    }
 
     record PersistentConfig(String sessionId, String threadId) {
         public PersistentConfig {
@@ -78,16 +56,19 @@ public interface LangGraphStreamingServer {
         final Map<PersistentConfig, CompiledGraph<? extends AgentState>> graphCache = new HashMap<>();
 
         public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph,
-                                  ObjectMapper objectMapper,
                                   BaseCheckpointSaver saver) {
 
             Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
             this.stateGraph = stateGraph;
-            this.objectMapper = objectMapper;
+            this.saver = saver;
+
+            this.objectMapper = new ObjectMapper();
+            this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             var module = new SimpleModule();
             module.addSerializer(NodeOutput.class, new NodeOutputSerializer());
             objectMapper.registerModule(module);
-            this.saver = saver;
+
+
         }
 
         private CompileConfig compileConfig(PersistentConfig config) {
@@ -101,6 +82,19 @@ public interface LangGraphStreamingServer {
             return RunnableConfig.builder()
                     .threadId(config.threadId())
                     .build();
+        }
+
+        private void serializeOutput( PrintWriter writer, String threadId, NodeOutput<? extends AgentState> output) {
+            try {
+                writer.printf("[ \"%s\",", threadId);
+                writer.println();
+                var outputAsString = objectMapper.writeValueAsString(output);
+                writer.println(outputAsString);
+                writer.println( "]" );
+            } catch (IOException e) {
+                log.warn("error serializing state", e);
+            }
+
         }
 
         @Override
@@ -186,15 +180,7 @@ public interface LangGraphStreamingServer {
 
                 generator.forEachAsync(s -> {
                             try {
-                                try {
-                                    writer.printf("[ \"%s\",", threadId);
-                                    writer.println();
-                                    var outputAsString = objectMapper.writeValueAsString(s);
-                                    writer.println(outputAsString);
-                                    writer.println( "]" );
-                                } catch (IOException e) {
-                                    log.warn("error serializing state", e);
-                                }
+                                serializeOutput(writer, threadId, s);
                                 writer.flush();
                                 TimeUnit.SECONDS.sleep(1);
                             } catch ( InterruptedException e) {
@@ -219,9 +205,12 @@ public interface LangGraphStreamingServer {
         }
     }
 
+
     record ArgumentMetadata(
-            String type,
+            String name,
+            ArgumentType type,
             boolean required) {
+        public enum ArgumentType { STRING, IMAGE };
     }
 
     record ThreadEntry( String id, List<? extends NodeOutput<? extends AgentState>> entries) {
@@ -231,11 +220,11 @@ public interface LangGraphStreamingServer {
     record InitData(
             String title,
             String graph,
-            Map<String, ArgumentMetadata> args,
+            List<ArgumentMetadata> args,
             List<ThreadEntry> threads
     ) {
 
-        public InitData( String title, String graph, Map<String, ArgumentMetadata> args ) {
+        public InitData( String title, String graph, List<ArgumentMetadata> args ) {
             this( title, graph, args, List.of(new ThreadEntry("default", List.of())));
         }
     }
@@ -255,7 +244,6 @@ public interface LangGraphStreamingServer {
             jsonGenerator.writeStringField("graph", initData.graph());
             jsonGenerator.writeStringField("title", initData.title());
             jsonGenerator.writeObjectField("args", initData.args());
-
 
 //            jsonGenerator.writeArrayFieldStart("nodes" );
 //            for( var node : initData.nodes() ) {
@@ -288,7 +276,7 @@ public interface LangGraphStreamingServer {
         final ObjectMapper objectMapper = new ObjectMapper();
         final InitData initData;
 
-        public GraphInitServlet(StateGraph<? extends AgentState> stateGraph, String title, Map<String, ArgumentMetadata> args) {
+        public GraphInitServlet(StateGraph<? extends AgentState> stateGraph, String title, List<ArgumentMetadata> args) {
             Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
             this.stateGraph = stateGraph;
 
@@ -318,5 +306,37 @@ public interface LangGraphStreamingServer {
     }
 
 
+}
+
+@SuppressWarnings("rawtypes")
+class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
+    Logger log = LangGraphStreamingServer.log;
+
+    protected NodeOutputSerializer() {
+        super( NodeOutput.class );
+    }
+
+    @Override
+    public void serialize(NodeOutput nodeOutput, JsonGenerator gen, SerializerProvider serializerProvider) throws
+            IOException {
+        log.trace( "NodeOutputSerializer start! {}", nodeOutput.getClass() );
+        gen.writeStartObject();
+        if( nodeOutput instanceof StateSnapshot<?> snapshot) {
+            var checkpoint = snapshot.config().checkPointId();
+            log.trace( "checkpoint: {}", checkpoint );
+            if( checkpoint.isPresent() ) {
+                gen.writeStringField("checkpoint", checkpoint.get());
+            }
+        }
+        if(nodeOutput.isSubGraph()) {
+            gen.writeStringField("node", MermaidGenerator.SUBGRAPH_PREFIX + nodeOutput.node());
+        }
+        else {
+            gen.writeStringField("node", nodeOutput.node());
+
+        }
+        gen.writeObjectField("state", nodeOutput.state().data());
+        gen.writeEndObject();
+    }
 }
 

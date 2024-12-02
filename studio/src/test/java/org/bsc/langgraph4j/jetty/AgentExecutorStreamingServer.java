@@ -1,8 +1,5 @@
 package org.bsc.langgraph4j.jetty;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bsc.langgraph4j.DotEnvConfig;
 import org.bsc.langgraph4j.TestTool;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
@@ -27,10 +24,6 @@ public class AgentExecutorStreamingServer {
                 .maxTokens(2000)
                 .build();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        // [Serializing with Jackson (JSON) - getting "No serializer found"?](https://stackoverflow.com/a/8395924/521197)
-        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-
         var app = AgentExecutor.graphBuilder()
                 .chatLanguageModel(llm)
                 .toolSpecification( new TestTool() )
@@ -40,7 +33,6 @@ public class AgentExecutorStreamingServer {
 
         var server = LangGraphStreamingServerJetty.builder()
                 .port(8080)
-                .objectMapper(objectMapper)
                 .title("AGENT EXECUTOR")
                 .addInputStringArg("input")
                 .stateGraph(app)

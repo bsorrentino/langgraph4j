@@ -42,7 +42,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
             node_async( new TranslateSequenceDiagramToPlantUML(getModel()) );
     final AsyncNodeAction<State> translateGenericDiagramToPlantUML =
             node_async( new TranslateGenericDiagramToPlantUML(getModel()) );
-    final AsyncNodeAction<State> evaluateResult = new EvaluateResult(getModel());
+    // final AsyncNodeAction<State> evaluateResult = new EvaluateResult(getModel());
     final AsyncEdgeAction<State> routeDiagramTranslation = new RouteDiagramTranslation();
 
 

@@ -17,3 +17,6 @@ flowchart TD
 	agent_sequence_plantuml:::agent_sequence_plantuml --> __END__:::__END__
 	agent_generic_plantuml:::agent_generic_plantuml --> __END__:::__END__
 
+	classDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;
+	classDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;
+
