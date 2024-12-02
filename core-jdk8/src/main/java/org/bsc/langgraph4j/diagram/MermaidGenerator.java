@@ -13,7 +13,7 @@ import static org.bsc.langgraph4j.StateGraph.START;
  */
 public class MermaidGenerator extends DiagramGenerator {
 
-    final char SUBGRAPH_PREFIX = '_';
+    public static final char SUBGRAPH_PREFIX = '_';
 
     @Override
     protected void appendHeader( Context ctx ) {
