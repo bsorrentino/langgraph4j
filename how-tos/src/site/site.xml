@@ -33,6 +33,8 @@
             <item name="How to add persistence to your graph" href="persistence.html"/>
             <item name="How to view and update past graph state" href="time-travel.html"/>
             <item name="Wait for user input" href="wait-user-input.html"/>
+            <item name="Langchain4j LLM Streaming" href="llm-streaming.html"/>
+            <item name="Subgraph" href="subgraph.html"/>
         </menu>
     </body>
 </project>
