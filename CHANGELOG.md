@@ -2,6 +2,77 @@
 
 
 
+<!-- "name: v1.1.3" is a release tag -->
+
+## [v1.1.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.3) (2024-12-03)
+
+### Features
+
+ *  **studio**  add subgraph management ([088b2ddaaec153b](https://github.com/bsorrentino/langgraph4j/commit/088b2ddaaec153ba573ff1bacb254d2eb8e9cf17))
+     > - remove unnecessary ObjectMapper injection
+     > - Refactored GraphStreamServlet to no longer require an objectMapper, simplifying dependency management.
+     > - Removed redundant ObjectMapper configuration in LangGraphStreamingServerJetty builder.
+   
+ *  add subGraph field to NodeOutput class ([06a4acc4f6764a4](https://github.com/bsorrentino/langgraph4j/commit/06a4acc4f6764a4613ffdd20a586918d07388aab))
+   
+ *  **image-to-diagram**  handle imageData as JSONPrimitive or JsonObject ([4e114e84139a59f](https://github.com/bsorrentino/langgraph4j/commit/4e114e84139a59fe9f2859c9199221efb2551bf4))
+   
+ *  **studio**  add image-to-diagram workflow ([390dc819a52ef89](https://github.com/bsorrentino/langgraph4j/commit/390dc819a52ef897192e372c6a71df215d7e60ad))
+   
+ *  **studio**  update argument metadata to use enums and ([f95bd80e7afb9c5](https://github.com/bsorrentino/langgraph4j/commit/f95bd80e7afb9c57103933694796ff68dedfbe0e))
+     > lists
+   
+ *  **studio**  Add a new component for image upload ([946ba93b0176021](https://github.com/bsorrentino/langgraph4j/commit/946ba93b0176021c75c3a48a839c4084a6d8566f))
+   
+
+### Bug Fixes
+
+ -  **studio**  classloader error on loading embed resources ([d317e75a2f504b0](https://github.com/bsorrentino/langgraph4j/commit/d317e75a2f504b027433fb215183527b4086ecbf))
+
+ -  **StateDeserializer**  correct imageDataElement handling ([cc4f56dc8e5244f](https://github.com/bsorrentino/langgraph4j/commit/cc4f56dc8e5244f5745a4dbe26aa206df47a43e6))
+
+ -  **studio**  remove test attribute ([045cb7a8737928a](https://github.com/bsorrentino/langgraph4j/commit/045cb7a8737928a8f320adf4900526f74d6eb76d))
+
+
+### Documentation
+
+ -  update changeme ([e6b36ba303586ff](https://github.com/bsorrentino/langgraph4j/commit/e6b36ba303586ffcf17acf6945824bc02e4836e1))
+
+
+### Refactor
+
+ -  **studio**  remove unused ObjectMapper from AgentExecutorStreamingServer ([a7d05a750a24fa9](https://github.com/bsorrentino/langgraph4j/commit/a7d05a750a24fa920250663b2406d7a1ea51877e))
+   
+ -  **CompiledGraph**  set subGraph flag to async generator output ([8d11886d1cc6b0a](https://github.com/bsorrentino/langgraph4j/commit/8d11886d1cc6b0a50ffe6c2fd0ecbac6cbd5cfbb))
+   
+ -  **MermaidGenerator**  make SUBGRAPH_PREFIX final and public ([e65f75709765cea](https://github.com/bsorrentino/langgraph4j/commit/e65f75709765cea35a330ef50abc4fdaed59d200))
+   
+ -  **studio**  update base64 encoding method in lg4j-image-uploader.js ([ce34c5183fd1c4f](https://github.com/bsorrentino/langgraph4j/commit/ce34c5183fd1c4fa8de7b10a0fb39c4d687ab0bc))
+   
+ -  **lg4j-image-uploader**  convert file to Base64 and update value method ([fa8f5b211a90a00](https://github.com/bsorrentino/langgraph4j/commit/fa8f5b211a90a004c5cb7bb009bedd50ac54d446))
+   
+ -  **diagram**  refine mermaid subgraph generation ([ab720c24a96702f](https://github.com/bsorrentino/langgraph4j/commit/ab720c24a96702f083875c05a5c6a9997d902dc2))
+   
+
+### ALM 
+
+ -  bump new version ([e5d8cb3d4d9f023](https://github.com/bsorrentino/langgraph4j/commit/e5d8cb3d4d9f023062fa253af619d36b68893612))
+   
+ -  **async-generator**  update dependency version ([a0b66e3f468c7fa](https://github.com/bsorrentino/langgraph4j/commit/a0b66e3f468c7fa4a8a1bd953c975dc4c01317df))
+   
+ -  **frontend**  update dist ([1888f5bb402c16a](https://github.com/bsorrentino/langgraph4j/commit/1888f5bb402c16ada3d4325be2a773551932ae7c))
+   
+ -  **frontend**  update dist ([7025fda56c03f48](https://github.com/bsorrentino/langgraph4j/commit/7025fda56c03f483fcead5456ed639f37ff56dc1))
+   
+ -  **studio**  update dependencies and types ([1910d0fe1ff5f76](https://github.com/bsorrentino/langgraph4j/commit/1910d0fe1ff5f76b7dc0e47f4519a0a2009cadeb))
+   
+ -  update versions to SNAPSHOT across all modules ([5465d89c19776b9](https://github.com/bsorrentino/langgraph4j/commit/5465d89c19776b9bff9754b30400283864e72a79))
+   
+
+
+
+
+
 <!-- "name: v1.1.2" is a release tag -->
 
 ## [v1.1.2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.2) (2024-11-29)
