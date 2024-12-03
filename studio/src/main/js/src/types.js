@@ -30,3 +30,19 @@
  * @property {any} new_value - The new value after the edit.
  * @property {Record<string, any>} updated_src - The updated source object after the edit.
  */
+
+/**
+ * @typedef {Object} ArgumentMetadata
+ * @property {string} name
+ * @property {'STRING' | 'IMAGE'} type
+ * @property {boolean} required
+ */
+
+/**
+ * @typedef {Object} InitData
+ * @property {string} title
+ * @property {string} graph
+ * @property {Array<ArgumentMetadata>} args
+ * @property {Array<[ string, Array<any> ]>} threads
+ */
+

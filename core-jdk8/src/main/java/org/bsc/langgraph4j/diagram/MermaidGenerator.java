@@ -13,13 +13,17 @@ import static org.bsc.langgraph4j.StateGraph.START;
  */
 public class MermaidGenerator extends DiagramGenerator {
 
+    public static final char SUBGRAPH_PREFIX = '_';
+
     @Override
     protected void appendHeader( Context ctx ) {
         if( ctx.isSubgraph() ) {
             ctx.sb()
                 .append(format("subgraph %s\n", ctx.title()))
-                .append(format("\t#%s@{ shape: start, label: \"enter\" }\n", START))
-                .append(format("\t#%s@{ shape: stop, label: \"exit\" }\n", END))
+                .append(format("\t%1$c%2$s((start)):::%1$c%2$s\n", SUBGRAPH_PREFIX,START))
+                .append(format("\t%1$c%2$s((stop)):::%1$c%2$s\n", SUBGRAPH_PREFIX, END))
+                //.append(format("\t#%s@{ shape: start, label: \"enter\" }\n", START))
+                //.append(format("\t#%s@{ shape: stop, label: \"exit\" }\n", END))
                 ;
         }
         else {
@@ -37,26 +41,32 @@ public class MermaidGenerator extends DiagramGenerator {
         if( ctx.isSubgraph() ) {
             ctx.sb().append("end\n");
         }
+        else {
+            ctx.sb()
+                .append('\n')
+                .append(format("\tclassDef %c%s fill:black,stroke-width:1px,font-size:xx-small;\n", SUBGRAPH_PREFIX,START))
+                .append(format("\tclassDef %c%s fill:black,stroke-width:1px,font-size:xx-small;\n", SUBGRAPH_PREFIX,END));
+        }
     }
 
    @Override
    protected void declareConditionalStart(Context ctx, String name) {
        ctx.sb().append('\t');
-       if( ctx.isSubgraph() ) ctx.sb().append('#');
+       if( ctx.isSubgraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
        ctx.sb().append( format("%s{\"check state\"}\n", name) );
    }
 
    @Override
    protected void declareNode(Context ctx, String name) {
        ctx.sb().append('\t');
-       if( ctx.isSubgraph() ) ctx.sb().append('#');
+       if( ctx.isSubgraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
        ctx.sb().append( format( "%s(\"%s\")\n", name, name ) );
    }
 
    @Override
    protected void declareConditionalEdge(Context ctx, int ordinal) {
        ctx.sb().append('\t');
-       if( ctx.isSubgraph() ) ctx.sb().append('#');
+       if( ctx.isSubgraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
        ctx.sb().append( format("condition%d{\"check state\"}\n", ordinal) );
    }
 
@@ -69,7 +79,7 @@ public class MermaidGenerator extends DiagramGenerator {
     protected void call(Context ctx, String from, String to) {
         ctx.sb().append('\t');
         if( ctx.isSubgraph() ) {
-            ctx.sb().append( format("#%1$s:::%1$s --> #%2$s:::%2$s\n", from, to) );
+            ctx.sb().append( format("%1$c%2$s:::%1$c%2$s --> %1$c%3$s:::%1$c%3$s\n", SUBGRAPH_PREFIX, from, to) );
         }
         else {
             ctx.sb().append( format("%1$s:::%1$s --> %2$s:::%2$s\n", from, to) );
@@ -80,7 +90,7 @@ public class MermaidGenerator extends DiagramGenerator {
     protected void call(Context ctx, String from, String to, String description) {
         ctx.sb().append('\t');
         if( ctx.isSubgraph() ) {
-            ctx.sb().append(format("#%1$s:::%1$s -->|%2$s| #%3$s:::%3$s\n", from, description, to));
+            ctx.sb().append(format("%1$s%2$s:::%1$c%2$s -->|%3$s| %1$s%4$s:::%1$c%4$s\n", SUBGRAPH_PREFIX, from, description, to));
         }
         else {
             ctx.sb().append(format("%1$s:::%1$s -->|%2$s| %3$s:::%3$s\n", from, description, to));

@@ -1,20 +1,18 @@
+
 import TWStyles from './twlit.js';
 
 import { html, css, LitElement, CSSResult } from 'lit';
 
+import { imageToDiagram as test } from './lg4j-executor-test.js';
+
 /**
  * @file
  * @typedef {import('./types.js').ResultData} ResultData * 
- */
-
-/**
- * @file
  * @typedef {import('./types.js').EditEvent} EditEvent
- */
-
-/**
- * @file
  * @typedef {import('./types.js').UpdatedState} UpdatedState
+ * @typedef {import('./types.js').InitData} InitData
+ * @typedef {import('./types.js').ArgumentMetadata} ArgumentMetadata
+ * 
  */
 
 /**
@@ -90,10 +88,10 @@ export class LG4JExecutorElement extends LitElement {
    * @type { import('lit').PropertyDeclarations }
    */
   static properties = {
-    url: { type: String, reflect: true  },
+    url: { type: String, reflect: true },
     test: { type: Boolean, reflect: true },
     _executing: { state: true }
-    
+
   }
 
   /**
@@ -124,9 +122,10 @@ export class LG4JExecutorElement extends LitElement {
   constructor() {
     super();
     this.test = false
-    this.formMetaData = {}
+    /** @type {ArgumentMetadata[]} */
+    this.formMetaData = []
     this._executing = false
-    
+
   }
 
   /**
@@ -134,8 +133,8 @@ export class LG4JExecutorElement extends LitElement {
    * 
    * @param {CustomEvent<string>} e - The event object containing the updated data.
    */
-  #onThreadUpdated( e ) {
-    console.debug( 'thread-updated', e.detail )
+  #onThreadUpdated(e) {
+    console.debug('thread-updated', e.detail)
     this.#selectedThread = e.detail
     this.#updatedState = null
     this.requestUpdate()
@@ -145,8 +144,8 @@ export class LG4JExecutorElement extends LitElement {
    * 
    * @param {CustomEvent<UpdatedState>} e - The event object containing the result data.
    */
-  #onNodeUpdated( e ) {
-    console.debug( 'onNodeUpdated', e )
+  #onNodeUpdated(e) {
+    console.debug('onNodeUpdated', e)
     this.#updatedState = e.detail
     this.requestUpdate()
   }
@@ -158,12 +157,16 @@ export class LG4JExecutorElement extends LitElement {
     super.connectedCallback();
 
     // @ts-ignore
-    this.addEventListener( "thread-updated", this.#onThreadUpdated );
+    this.addEventListener("thread-updated", this.#onThreadUpdated);
     // @ts-ignore
-    this.addEventListener( 'node-updated', this.#onNodeUpdated )
+    this.addEventListener('node-updated', this.#onNodeUpdated)
 
-    if(this.test ) {
-      this.#_test_callInit();
+    if (this.test) {
+      test.callInit(this)
+        .then(data => {
+          this.formMetaData = data.args 
+          this.requestUpdate()
+        })
       return
     }
 
@@ -175,9 +178,9 @@ export class LG4JExecutorElement extends LitElement {
     super.disconnectedCallback();
 
     // @ts-ignore
-    this.removeEventListener( "thread-updated", this.#onThreadUpdated )
+    this.removeEventListener("thread-updated", this.#onThreadUpdated)
     // @ts-ignore
-    this.removeEventListener( 'node-updated', this.#onNodeUpdated )
+    this.removeEventListener('node-updated', this.#onNodeUpdated)
 
   }
 
@@ -191,13 +194,18 @@ export class LG4JExecutorElement extends LitElement {
     // console.debug( 'render', this.formMetaData )
     return html`
         <div class="container">
-          ${ Object.entries(this.formMetaData).map( ([key, _]) => 
-             html`<textarea id="${key}" class="textarea textarea-primary" placeholder="${key}"></textarea>`
-          )}
+          ${this.formMetaData.map(({ name, type }) => {
+      switch (type) {
+        case 'STRING':
+          return html`<textarea id="${name}" class="textarea textarea-primary" placeholder="${name}"></textarea>`
+        case 'IMAGE':
+          return html`<lg4j-image-uploader id="${name}"></lg4j-image-uploader>`
+      }
+    })}
           <div class="commands">
             <button id="submit" ?disabled=${this._executing} @click="${this.#callSubmit}" class="btn btn-primary item1">Submit</button>
             <button id="resume" ?disabled=${!this.#updatedState || this._executing} @click="${this.#callResume}" class="btn btn-secondary item2">
-            Resume ${ this.#updatedState ? '(from ' + this.#updatedState?.node + ')' : '' }
+            Resume ${this.#updatedState ? '(from ' + this.#updatedState?.node + ')' : ''}
             </button>
           </div>
         </div>
@@ -206,13 +214,14 @@ export class LG4JExecutorElement extends LitElement {
 
   async #callInit() {
 
-    const initResponse = await fetch( `${this.url}/init` )
+    const initResponse = await fetch(`${this.url}/init`)
 
+    /** @type {InitData} */
     const initData = await initResponse.json()
-    
-    console.debug( 'initData', initData );
 
-    this.dispatchEvent( new CustomEvent( 'init', { 
+    console.debug('initData', initData);
+
+    this.dispatchEvent(new CustomEvent('init', {
       detail: initData,
       bubbles: true,
       composed: true,
@@ -224,187 +233,117 @@ export class LG4JExecutorElement extends LitElement {
     this.requestUpdate()
   }
 
+  async #callResume() {
+    this._executing = true
+    try {
 
-async #callResume() {
-  this._executing = true
-  try {
+      if (this.test) {
+        await test.callSubmitAction(this, this.#selectedThread);
+        return
+      }
 
-    if(this.test ) {
-      await this.#_test_callSubmitAction();
-      return
+      await this.#callResumeAction()
+
+
+    }
+    finally {
+      this._executing = false
     }
 
-    await this.#callResumeAction()
-    
-    
-  }
-  finally {
-    this._executing = false
   }
 
-}  
+  async #callResumeAction() {
 
-async #callResumeAction() {
-
-  const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}&resume=true&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
+    const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}&resume=true&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(this.#updatedState?.data)
-  });
-
-  this.#updatedState = null
-
-  for await (let chunk of streamingResponse( execResponse )  ) {
-    console.debug( chunk )
-
-    this.dispatchEvent( new CustomEvent( 'result', { 
-      detail: JSON.parse(chunk),
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    } ) );
-
-  }
-
-
-}
-
-async #callSubmit() {
-
-  this._executing = true
-  try {
-
-    if(this.test ) {
-      await this.#_test_callSubmitAction();
-      return
-    }
-
-    await this.#callSubmitAction()
-    
-  }
-  finally {
-    this._executing = false
-  }
-}
-
-async #callSubmitAction() {
-  
-    // Get input as object
-    /**
-     * @type { Record<string,any> } data
-     */
-    const data = Object.keys(this.formMetaData).reduce( (acc, key) => {
-      // @ts-ignore
-      acc[key] = this.shadowRoot?.getElementById(key)?.value
-      return acc
-    }, {});
-
-    const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
     });
 
-    for await (let chunk of streamingResponse( execResponse )  ) {
-      console.debug( chunk )
+    this.#updatedState = null
 
-      this.dispatchEvent( new CustomEvent( 'result', { 
+    for await (let chunk of streamingResponse(execResponse)) {
+      console.debug(chunk)
+
+      this.dispatchEvent(new CustomEvent('result', {
         detail: JSON.parse(chunk),
         bubbles: true,
         composed: true,
         cancelable: true
-      } ) );
+      }));
 
     }
-  
-}
-  
-////////////////////////////////////////////////////////
-// TEST
-///////////////////////////////////////////////////////
 
-  async #_test_callInit() {
-      
-    await delay( 1000 );
-    this.dispatchEvent( new CustomEvent( 'init', { 
-      detail: { 
-        threads: [ ['default', [] ] ],
-        title: 'LangGraph4j : TEST',
-        graph:`
----
-title: TEST
----        
-flowchart TD
-  start((start))
-  stop((stop))
-  web_search("web_search")
-  retrieve("retrieve")
-  grade_documents("grade_documents")
-  generate("generate")
-  transform_query("transform_query")
-  start:::start -->|web_search| web_search:::web_search
-  start:::start -->|vectorstore| retrieve:::retrieve
-  web_search:::web_search --> generate:::generate
-  retrieve:::retrieve --> grade_documents:::grade_documents
-  grade_documents:::grade_documents -->|transform_query| transform_query:::transform_query
-  grade_documents:::grade_documents -->|generate| generate:::generate
-  transform_query:::transform_query --> retrieve:::retrieve
-  generate:::generate -->|not supported| generate:::generate
-  generate:::generate -->|not useful| transform_query:::transform_query
-  generate:::generate -->|useful| stop:::stop
-      `
-      },
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    }));
-
-    this.formMetaData = { 
-      input: { type: 'string', required: true }
-    }
-    
-    this.requestUpdate()
 
   }
 
+  async #callSubmit() {
 
-  async #_test_callSubmitAction( ) {
+    this._executing = true
+    try {
 
-    const thread = this.#selectedThread
-    
-    const send = async ( /** @type {string} */ nodeId ) => {
-      await delay( 1000 );
-      this.dispatchEvent( new CustomEvent( 'result', { 
-        detail: [ thread, { 
-          checkpoint: ( nodeId==='start' || nodeId==='stop') ? undefined : `checkpoint-${nodeId}`,
-          node: nodeId, 
-          state: { 
-            input: "this is input",
-            property1: { value: "value1", valid: true } , 
-            property2: { value: "value2", children: { elements: [1,2,3]} } }}
-          ],
+      if (this.test) {
+        await test.callSubmitAction(this, this.#selectedThread);
+        return
+      }
+
+      await this.#callSubmitAction()
+
+    }
+    finally {
+      this._executing = false
+    }
+  }
+
+  async #callSubmitAction() {
+
+    // Get input as object
+    /** @type { Record<string,any> } */
+    const result = {}
+    /** @type { Record<string,any> } data */
+    const data = this.formMetaData.reduce((acc, md) => {
+
+      const { name, type } = md
+      const elem = this.shadowRoot?.getElementById(name)
+
+      switch (type) {
+        case 'STRING':
+          //@ts-ignore
+          acc[name] = elem?.value
+          break;
+        case 'IMAGE':
+          //@ts-ignore
+          acc[name] = elem?.value
+          break;
+      }
+
+      return acc
+    }, result);
+
+    const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    for await (let chunk of streamingResponse(execResponse)) {
+      console.debug(chunk)
+
+      this.dispatchEvent(new CustomEvent('result', {
+        detail: JSON.parse(chunk),
         bubbles: true,
         composed: true,
         cancelable: true
       }));
-    }
 
-    await send( 'start' );
-    await send( 'retrieve' );
-    await send( 'grade_documents');
-    await send( 'transform_query');
-    await send( 'retrieve' );
-    await send( 'grade_documents');
-    await send( 'generate');
-    await send( 'stop' );
+    }
 
   }
 
 }
-
 
 window.customElements.define('lg4j-executor', LG4JExecutorElement);

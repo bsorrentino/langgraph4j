@@ -271,7 +271,10 @@ public class ImageToDiagramTest {
                 "\t%%\tcondition1:::condition1 -->|UNKNOWN| __END__:::__END__\n" +
                 "\tevaluate_result:::evaluate_result -->|UNKNOWN| __END__:::__END__\n" +
                 "\t%%\tcondition1:::condition1 -->|OK| __END__:::__END__\n" +
-                "\tevaluate_result:::evaluate_result -->|OK| __END__:::__END__\n", correctionPlantUml.getContent());
+                "\tevaluate_result:::evaluate_result -->|OK| __END__:::__END__\n" +
+                "\n" +
+                "\tclassDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;\n" +
+                "\tclassDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;\n", correctionPlantUml.getContent());
 
     }
 
