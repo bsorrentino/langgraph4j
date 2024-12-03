@@ -1,14 +1,4 @@
-```java
-%dependency /add net.sourceforge.plantuml:plantuml-mit:1.2024.6
-%dependency /resolve
-```
-
-    Adding dependency [0m[1m[32mnet.sourceforge.plantuml:plantuml-mit:1.2024.6
-    [0mSolving dependencies
-    Resolved artifacts count: 1
-    Add to classpath: [0m[32m/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/net/sourceforge/plantuml/plantuml-mit/1.2024.6/plantuml-mit-1.2024.6.jar[0m
-    [0m
-
+# PlantUML diagrams
 
 ```java
 import net.sourceforge.plantuml.SourceStringReader;
@@ -54,6 +44,6 @@ display( plantUML2PNG( code ) );
 
 
 
-    4b9fd63a-6209-4d74-b74b-69356119c518
+    8ab3c38d-cf18-42ff-bf41-b97f3b48806f
 
 
