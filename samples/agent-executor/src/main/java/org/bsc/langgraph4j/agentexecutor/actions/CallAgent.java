@@ -26,6 +26,28 @@ public class CallAgent implements NodeAction<AgentExecutor.State> {
         this.agent = agent;
     }
 
+    private Map<String,Object> mapResult( Response<AiMessage> response )  {
+
+        var content = response.content();
+
+        if( response.finishReason() == FinishReason.STOP ) {
+            var result = content.text();
+            var finish = new AgentFinish(Map.of("returnValues", result), result);
+            return Map.of("agent_outcome", new AgentOutcome(null, finish));
+        }
+
+        if (response.finishReason() == FinishReason.TOOL_EXECUTION || response.content().hasToolExecutionRequests() ) {
+
+            var toolExecutionRequests = response.content().toolExecutionRequests();
+            var action = new AgentAction(toolExecutionRequests.get(0), "");
+
+            return Map.of("agent_outcome", new AgentOutcome(action, null));
+
+        }
+
+        throw new IllegalStateException("Unsupported finish reason: " + response.finishReason() );
+    }
+
     @Override
     public Map<String,Object> apply( AgentExecutor.State state )  {
         log.trace( "callAgent" );
@@ -34,27 +56,10 @@ public class CallAgent implements NodeAction<AgentExecutor.State> {
 
         var intermediateSteps = state.intermediateSteps();
 
-        final Function<Response<AiMessage>, Map<String,Object>> mapResult = response -> {
-
-            if (response.finishReason() == FinishReason.TOOL_EXECUTION) {
-
-                var toolExecutionRequests = response.content().toolExecutionRequests();
-                var action = new AgentAction(toolExecutionRequests.get(0), "");
-
-                return Map.of("agent_outcome", new AgentOutcome(action, null));
-
-            } else {
-                var result = response.content().text();
-                var finish = new AgentFinish(Map.of("returnValues", result), result);
-
-                return Map.of("agent_outcome", new AgentOutcome(null, finish));
-            }
-        };
-
         if( agent.isStreaming()) {
 
             var generator = LLMStreamingGenerator.<AiMessage, AgentExecutor.State>builder()
-                    .mapResult(mapResult)
+                    .mapResult( this::mapResult )
                     .startingNode("agent")
                     .startingState( state )
                     .build();
@@ -65,7 +70,7 @@ public class CallAgent implements NodeAction<AgentExecutor.State> {
         else {
             var response = agent.execute(input, intermediateSteps);
 
-            return mapResult.apply(response);
+            return mapResult(response);
         }
 
     }
