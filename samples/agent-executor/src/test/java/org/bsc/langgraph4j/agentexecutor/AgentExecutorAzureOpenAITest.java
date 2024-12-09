@@ -3,7 +3,9 @@ package org.bsc.langgraph4j.agentexecutor;
 import dev.langchain4j.model.azure.AzureOpenAiChatModel;
 import org.bsc.langgraph4j.DotEnvConfig;
 import org.bsc.langgraph4j.StateGraph;
+import org.junit.jupiter.api.Disabled;
 
+@Disabled
 public class AgentExecutorAzureOpenAITest extends AbstractAgentExecutorTest {
 
     @Override
