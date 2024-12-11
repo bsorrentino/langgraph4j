@@ -244,7 +244,8 @@
             <configuration>
               <serverId>sonatype-server</serverId>
               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+               <!--<skipStagingRepositoryClose>true</skipStagingRepositoryClose>-->
+               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
         </plugins>
