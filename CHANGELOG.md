@@ -2,6 +2,47 @@
 
 
 
+<!-- "name: v1.1.4" is a release tag -->
+
+## [v1.1.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.4) (2024-12-11)
+
+
+
+### Documentation
+
+ -  bump version to 1.1.4 ([8b3412603a77405](https://github.com/bsorrentino/langgraph4j/commit/8b3412603a7740525bde55dcb6252a2459d57640))
+
+ -  update documentation ([9c31acd3d69d1c8](https://github.com/bsorrentino/langgraph4j/commit/9c31acd3d69d1c833b4fd62055afd4af0d81969c))
+
+ -  update documentation ([88bc458aa49026f](https://github.com/bsorrentino/langgraph4j/commit/88bc458aa49026f0c5f27ae0dd02a8621637677c))
+
+ -  update changeme ([bca96c976c52505](https://github.com/bsorrentino/langgraph4j/commit/bca96c976c525056cc5a78c79a39ec211e406a8b))
+
+
+### Refactor
+
+ -  **notebook**  bump langgraph4j version ([e73e40cd900d9da](https://github.com/bsorrentino/langgraph4j/commit/e73e40cd900d9daa09d4c3af98bd99ae9eecdff3))
+   
+ -  **AgentExecutor**  disable agent executor test by default ([f7d5f6b109eb901](https://github.com/bsorrentino/langgraph4j/commit/f7d5f6b109eb901ca64080c06696638a2604d366))
+   
+
+### ALM 
+
+ -  bump version to 1.1.4 ([141e81b4f4de729](https://github.com/bsorrentino/langgraph4j/commit/141e81b4f4de7291ca3dcd61691b37ae5ec63af7))
+   
+ -  update doxia-module-markdown version to latest stable ([595c124979917df](https://github.com/bsorrentino/langgraph4j/commit/595c124979917dffe08cce661ffab0281a28e79b))
+    > - Updated the version of the doxia-module-markdown dependency from 2.0.0-M12 to 2.0.0 to address any known issues and ensure compatibility with recent projects.
+
+ -  bump to new SNAPSHOT ([0333b25987a3293](https://github.com/bsorrentino/langgraph4j/commit/0333b25987a3293d6232fa75361ce88cd329dfce))
+   
+ -  **AgentExecutor**  add support for Azure OpenAI using langchain4j ([3d7a7a68dd5f8ce](https://github.com/bsorrentino/langgraph4j/commit/3d7a7a68dd5f8ce3502c604a0857ed457716c148))
+    > work on #50
+
+
+
+
+
+
 <!-- "name: v1.1.3" is a release tag -->
 
 ## [v1.1.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.3) (2024-12-03)
