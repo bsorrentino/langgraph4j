@@ -5,13 +5,13 @@
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
         <version>1.1.4</version>
-        <relativePath>../..</relativePath>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>langgraph4j-agent-executor</artifactId>
     <packaging>jar</packaging>
 
-    <name>langgraph4j::sample::agent-executor</name>
+    <name>langgraph4j::agent-executor</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

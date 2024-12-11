@@ -193,11 +193,11 @@
       </activation>
       <modules>
         <module>langchain4j</module>
+        <module>agent-executor</module>
         <module>studio</module>
         <module>how-tos</module>
         <module>samples/image-to-diagram</module>
         <module>samples/adaptive-rag</module>
-        <module>samples/agent-executor</module>
         <module>samples/springai-agentexecutor</module>
       </modules>
       <build>
