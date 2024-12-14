@@ -238,7 +238,7 @@ return  app.stream( inputs );
 
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [springai-agentexecutor]: samples/springai-agentexecutor
-[agent-executor]: samples/agent-executor/
+[agent-executor]: agent-executor/
 [adaptive-rag]: samples/image-to-diagram/
 [image-to-diagram]: samples/adaptive-rag
 [howto-presistence]: how-tos/persistence.ipynb
