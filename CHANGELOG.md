@@ -2,6 +2,47 @@
 
 
 
+<!-- "name: v1.1.5" is a release tag -->
+
+## [v1.1.5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.5) (2024-12-14)
+
+
+
+### Documentation
+
+ -  bump version in documentation ([61394a3779ce24b](https://github.com/bsorrentino/langgraph4j/commit/61394a3779ce24b14129ee9ad5e8dd0e80a22cde))
+
+ -  **agent-executor**  update documentation ([2cd1e63cf3c8659](https://github.com/bsorrentino/langgraph4j/commit/2cd1e63cf3c8659f81ee1492234c9bbfb9b9af09))
+
+ -  Documented addition of TestTool and dynamic executor ([e87feebc6ed406f](https://github.com/bsorrentino/langgraph4j/commit/e87feebc6ed406fa022e95174b6cf229a34f3815))
+
+ -  update changeme ([4aa1b232dbf14a9](https://github.com/bsorrentino/langgraph4j/commit/4aa1b232dbf14a921c6d4d5e543cac42edd277e0))
+
+
+### Refactor
+
+ -  **agent-executor**  remove unused maven plugins ([90734fd33818a98](https://github.com/bsorrentino/langgraph4j/commit/90734fd33818a9822bc49d78c7afdadade69942a))
+    > - Removed &#x60;maven-site-plugin&#x60;, &#x60;maven-deploy-plugin&#x60;, and &#x60;maven-surefire-plugin&#x60; configurations that were unnecessarily skipping steps.
+ > .
+
+ -  **pom.xml**  add option skipStagingRepositoryClose ([bdba67d91c414c8](https://github.com/bsorrentino/langgraph4j/commit/bdba67d91c414c89366ab7047bed9dbf6a74fa07))
+   
+ -  **agent-executor**  promote agent executor as main package ([5e2992db8146368](https://github.com/bsorrentino/langgraph4j/commit/5e2992db81463689b3dd455a34d2cfe9f706155f))
+   
+
+### ALM 
+
+ -  bump version ([74f4532109977ec](https://github.com/bsorrentino/langgraph4j/commit/74f4532109977ec424b5fce8b195db7f1befc6a5))
+   
+ -  bump version ([e012329d16d95c8](https://github.com/bsorrentino/langgraph4j/commit/e012329d16d95c8b48ea03282f86be3828910d56))
+   
+ -  update project to use latest version ([da4e05ed598b7c3](https://github.com/bsorrentino/langgraph4j/commit/da4e05ed598b7c365f794bec0030ed5eb7117bd7))
+   
+
+
+
+
+
 <!-- "name: v1.1.4" is a release tag -->
 
 ## [v1.1.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.4) (2024-12-11)
