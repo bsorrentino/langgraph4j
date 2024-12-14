@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.1.4</version>
+  <version>1.1.5</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -193,11 +193,11 @@
       </activation>
       <modules>
         <module>langchain4j</module>
+        <module>agent-executor</module>
         <module>studio</module>
         <module>how-tos</module>
         <module>samples/image-to-diagram</module>
         <module>samples/adaptive-rag</module>
-        <module>samples/agent-executor</module>
         <module>samples/springai-agentexecutor</module>
       </modules>
       <build>
@@ -244,7 +244,8 @@
             <configuration>
               <serverId>sonatype-server</serverId>
               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+               <!--<skipStagingRepositoryClose>true</skipStagingRepositoryClose>-->
+               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
         </plugins>

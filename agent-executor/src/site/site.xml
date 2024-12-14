@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <site xmlns="http://maven.apache.org/SITE/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://maven.apache.org/SITE/2.0.0 https://maven.apache.org/xsd/site-2.0.0.xsd"
-      name="LangGraph4j">
+         name="LangGraph4j">
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
@@ -13,11 +13,6 @@
         </fluidoSkin>
     </custom>
 
-    <bannerLeft href="/">
-        <image src="langgraph4j.png"/>
-    </bannerLeft>
-    <bannerRight>
-    </bannerRight>
     <body>
 
         <head>
@@ -31,16 +26,14 @@
                     });
             </script>]]>
         </head>
-
-        <menu name="Modules">
-            <item name="Core module" href="core-jdk8/langgraph4j-core-jdk8/index.html"/>
-            <item name="Langchain4j integration module" href="langchain4j/langgraph4j-langchain4j/index.html"/>
-            <item name="Agent Executor" href="agent-executor/langgraph4j-agent-executor/index.html"/>
-            <item name="Studio (jetty implementation)" href="studio/langgraph4j-studio/index.html"/>
+        <menu name="Project">
+            <item name="Home" href="index.html"/>
+            <item name="Summary" href="summary.html"/>
+            <item name="Dependencies" href="dependencies.html"/>
         </menu>
         <menu name="References">
-            <item name="How To(s)" href="how-tos/langgraph4j-howtos/index.html"/>
             <item name="JavaDocs" href="apidocs/index.html"/>
         </menu>
+
     </body>
 </site>
