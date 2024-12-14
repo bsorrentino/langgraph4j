@@ -1,8 +1,11 @@
 # 🦜🕸️ LangGraph4j Agent Executor implementation
 
+The **Agent Executor** is a **runtime for agents**.
 
+## Diagram 
+![diagram](./agentexecutor.puml.png)
 
-
+## How to use
 ```java
 
 public class TestTool {
