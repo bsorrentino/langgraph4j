@@ -30,7 +30,7 @@ flowchart TD
 
 ***
 
-> Go to [code](src/main/java/dev/langchain4j/agentexecutor)
+> Go to [code](src/main/java/org/bsc/langgraph4j/agentexecutor)
 
 
 [agentexecutor]: agentexecutor.puml.png
