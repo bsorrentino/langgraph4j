@@ -4,21 +4,48 @@
 
 
 ```java
+
+public class TestTool {
+    private String lastResult;
+
+    Optional<String> lastResult() {
+        return Optional.ofNullable(lastResult);
+    }
+
+    @Tool("tool for test AI agent executor")
+    String execTest(@P("test message") String message) {
+
+        lastResult = format( "test tool executed: %s", message);
+        return lastResult;
+    }
+}
+
 public void main( String args[] ) throws Exception 
 {
 
-        var chatLanguageModel = OpenAiChatModel.builder()
-                .apiKey( System.getenv( "OPENAI_API_KEY" ) )
-                .modelName( "gpt-4o-mini" )
-                .logResponses(true)
-                .maxRetries(2)
-                .temperature(0.0)
-                .maxTokens(2000)
-                .build();
+    var toolSpecification = ToolSpecification.builder()
+            .name("getPCName")
+            .description("Returns a String - PC name the AI is currently running in. Returns null if station is not running")
+            .build();
 
-        return AgentExecutor.graphBuilder()
+    var toolExecutor = (toolExecutionRequest, memoryId) -> getPCName();
+
+    var chatLanguageModel = OpenAiChatModel.builder()
+            .apiKey( System.getenv( "OPENAI_API_KEY" ) )
+            .modelName( "gpt-4o-mini" )
+            .logResponses(true)
+            .maxRetries(2)
+            .temperature(0.0)
+            .maxTokens(2000)
+            .build();
+
+
+    return AgentExecutor.graphBuilder()
                 .chatLanguageModel(chatLanguageModel)
+                // add object with tool
                 .toolSpecification(new TestTool())
+                // add dynamic tool
+                .toolExecutor(toolSpecification, toolExecutor)
                 .build();
 
 }
