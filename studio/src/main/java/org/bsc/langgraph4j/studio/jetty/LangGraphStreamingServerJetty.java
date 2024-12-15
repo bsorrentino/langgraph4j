@@ -19,20 +19,31 @@ import java.util.concurrent.CompletableFuture;
 
 
 /**
+ * Represents a streaming server for LangGraph using Jetty.
  * LangGraphStreamingServer is an interface that represents a server that supports streaming
- * of LangGraph.
- * Implementations of this interface can be used to create a web server
- * that exposes an API for interacting with compiled language graphs.
+ * of LangGraph. Implementations of this interface can be used to create a web server that exposes an API for interacting with compiled language graphs.
  */
 public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
 
     final Server server;
 
+    /**
+     * Constructs a LangGraphStreamingServerJetty with the specified server.
+     *
+     * @param server the server to be used by the streaming server
+     * @throws NullPointerException if the server is null
+     */
     private LangGraphStreamingServerJetty(Server server) {
         Objects.requireNonNull(server, "server cannot be null");
         this.server = server;
     }
 
+    /**
+     * Starts the streaming server asynchronously.
+     *
+     * @return a CompletableFuture that completes when the server has started
+     * @throws Exception if an error occurs while starting the server
+     */
     public CompletableFuture<Void> start() throws Exception {
         return CompletableFuture.runAsync(() -> {
             try {
@@ -43,11 +54,18 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
         }, Runnable::run);
     }
 
-
+    /**
+     * Creates a new Builder for LangGraphStreamingServerJetty.
+     *
+     * @return a new Builder instance
+     */
     static public Builder builder() {
         return new Builder();
     }
 
+    /**
+     * Builder class for constructing LangGraphStreamingServerJetty instances.
+     */
     public static class Builder {
         private int port = 8080;
         private final List<ArgumentMetadata> inputArgs = new ArrayList<>();
@@ -55,46 +73,104 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
         private BaseCheckpointSaver saver;
         private StateGraph<? extends AgentState> stateGraph;
 
+        /**
+         * Sets the port for the server.
+         *
+         * @param port the port number
+         * @return the Builder instance
+         */
         public Builder port(int port) {
             this.port = port;
             return this;
         }
 
+        /**
+         * Sets the title for the server.
+         *
+         * @param title the title to be set
+         * @return the Builder instance
+         */
         public Builder title(String title) {
             this.title = title;
             return this;
         }
 
+        /**
+         * Adds an input string argument to the server configuration.
+         *
+         * @param name the name of the argument
+         * @param required whether the argument is required
+         * @return the Builder instance
+         */
         public Builder addInputStringArg(String name, boolean required) {
             inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.STRING, required));
             return this;
         }
 
+        /**
+         * Adds an input string argument to the server configuration with required set to true.
+         *
+         * @param name the name of the argument
+         * @return the Builder instance
+         */
         public Builder addInputStringArg(String name) {
-            return addInputStringArg( name, true);
+            return addInputStringArg(name, true);
         }
 
+        /**
+         * Adds an input image argument to the server configuration.
+         *
+         * @param name the name of the argument
+         * @param required whether the argument is required
+         * @return the Builder instance
+         */
         public Builder addInputImageArg(String name, boolean required) {
             inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.IMAGE, required));
             return this;
         }
 
+        /**
+         * Adds an input image argument to the server configuration with required set to true.
+         *
+         * @param name the name of the argument
+         * @return the Builder instance
+         */
         public Builder addInputImageArg(String name) {
-            return addInputImageArg( name, true);
+            return addInputImageArg(name, true);
         }
 
+        /**
+         * Sets the checkpoint saver for the server.
+         *
+         * @param saver the checkpoint saver to be used
+         * @return the Builder instance
+         */
         public Builder checkpointSaver(BaseCheckpointSaver saver) {
             this.saver = saver;
             return this;
         }
 
+        /**
+         * Sets the state graph for the server.
+         *
+         * @param stateGraph the state graph to be used
+         * @param <State> the type of the state
+         * @return the Builder instance
+         */
         public <State extends AgentState> Builder stateGraph(StateGraph<State> stateGraph) {
             this.stateGraph = stateGraph;
             return this;
         }
 
+        /**
+         * Builds and returns a LangGraphStreamingServerJetty instance.
+         *
+         * @return a new LangGraphStreamingServerJetty instance
+         * @throws NullPointerException if the stateGraph is null
+         * @throws Exception if an error occurs during server setup
+         */
         public LangGraphStreamingServerJetty build() throws Exception {
-            Objects.requireNonNull( stateGraph, "stateGraph cannot be null");
+            Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
 
             if (saver == null) {
                 saver = new MemorySaver();
@@ -121,12 +197,11 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
 
             context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, saver)), "/stream");
 
-            var handlerList = new Handler.Sequence( resourceHandler, context);
+            var handlerList = new Handler.Sequence(resourceHandler, context);
 
             server.setHandler(handlerList);
 
             return new LangGraphStreamingServerJetty(server);
-
         }
     }
 }
