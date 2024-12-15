@@ -12,10 +12,6 @@ import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
 import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-
-import static java.util.concurrent.CompletableFuture.completedFuture;
 
 @Slf4j
 public class CallAgent implements NodeAction<AgentExecutor.State> {
