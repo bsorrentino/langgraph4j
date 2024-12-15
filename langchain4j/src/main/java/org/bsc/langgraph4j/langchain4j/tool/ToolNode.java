@@ -40,18 +40,43 @@ public final class ToolNode {
         ToolExecutor executor;
     }
 
+    /**
+     * Builder for {@link ToolNode}
+     */
     public static class Builder {
+        /**
+         * List of tool specification
+         */
         private final List<Specification> toolSpecifications = new ArrayList<>();
 
+        /**
+         * Adds a tool specification to the node
+         *
+         * @param spec the tool specification
+         * @param executor the executor to use
+         * @return the builder
+         */
         public Builder specification(ToolSpecification spec, ToolExecutor executor) {
             return this.specification( Specification.of(spec, executor));
         }
 
+        /**
+         * Adds a tool specification to the node
+         *
+         * @param toolSpecifications the tool specification
+         * @return the builder
+         */
         public Builder specification(Specification toolSpecifications) {
             this.toolSpecifications.add(toolSpecifications);
             return this;
         }
 
+        /**
+         * Adds all the methods annotated with {@link Tool} to the node
+         *
+         * @param objectWithTool the object containing the tool
+         * @return the builder
+         */
         public Builder specification( Object objectWithTool ) {
             for (Method method : objectWithTool.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(Tool.class)) {
@@ -62,11 +87,15 @@ public final class ToolNode {
             return this;
         }
 
+        /**
+         * Builds the node
+         *
+         * @return the node
+         */
         public ToolNode build() {
             return new ToolNode(toolSpecifications);
         }
     }
-
     public static Builder builder() {
         return new Builder();
     }
@@ -122,12 +151,24 @@ public final class ToolNode {
         this.entries = entries;
     }
 
+    /**
+     * Returns a list of {@link ToolSpecification}s that can be executed by this node
+     *
+     * @return a list of tool specifications
+     */
     public List<ToolSpecification> toolSpecifications() {
         return this.entries.stream()
                 .map(Specification::value)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Executes the first matching tool
+     *
+     * @param request the request to execute
+     * @param memoryId the memory id to pass to the tool
+     * @return the result of the tool
+     */
     public Optional<ToolExecutionResultMessage> execute( @NonNull ToolExecutionRequest request, Object memoryId ) {
         log.trace( "execute: {}", request.name() );
 
@@ -141,6 +182,13 @@ public final class ToolNode {
                 ;
     }
 
+    /**
+     * Executes the first matching tool
+     *
+     * @param requests the requests to execute
+     * @param memoryId the memory id to pass to the tool
+     * @return the result of the tool
+     */
     public Optional<ToolExecutionResultMessage> execute(@NonNull Collection<ToolExecutionRequest> requests, Object memoryId ) {
         for( ToolExecutionRequest request : requests ) {
 
@@ -153,12 +201,23 @@ public final class ToolNode {
         return Optional.empty();
     }
 
+    /**
+     * Executes the first matching tool
+     *
+     * @param request the request to execute
+     * @return the result of the tool
+     */
     public Optional<ToolExecutionResultMessage> execute( ToolExecutionRequest request ) {
         return execute( request, null );
     }
 
+    /**
+     * Executes the first matching tool
+     *
+     * @param requests the requests to execute
+     * @return the result of the tool
+     */
     public Optional<ToolExecutionResultMessage> execute( Collection<ToolExecutionRequest> requests ) {
         return execute( requests, null );
     }
-
 }
