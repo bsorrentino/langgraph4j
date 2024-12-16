@@ -20,15 +20,31 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
+/**
+ * AgenticFlow is a service class responsible for orchestrating the flow of an agent's actions.
+ */
 @Service
 public class AgenticFlow {
 
+    /**
+     * State class extending AgentState, representing the state of the agent in the flow.
+     */
     public static class State extends AgentState {
-
+        
+        /**
+         * Constructs a new instance of State with initial data.
+         *
+         * @param initData Initial data for the state
+         */
         public State(Map<String, Object> initData) {
             super(initData);
         }
 
+        /**
+         * Retrieves the serializer for the State class.
+         *
+         * @return The StateSerializer for serializing State objects
+         */
         public static StateSerializer<State> serializer() {
             var serializer = new ObjectStreamStateSerializer<>(State::new);
             serializer.mapper().register(UserMessage.class, new UserMessageSerializer());
@@ -37,31 +53,55 @@ public class AgenticFlow {
         }
     }
 
+    /**
+     * Dependency for extracting keypoints from transcripts.
+     */
     final ExtractKeypointsFromTranscript extractKeypointsFromTranscript;
+
+    /**
+     * Dependency for generating PlantUML mindmaps.
+     */
     final GeneratePlantUMLMindmap generatePlantUMLMindmap;
+
+    /**
+     * Dependency for generating PlantUML images.
+     */
     final GeneratePlantUMLImage generatePlantUMLImage;
 
-    public AgenticFlow( ExtractKeypointsFromTranscript extractKeypointsFromTranscript,
+    /**
+     * Constructor initializing the dependencies.
+     *
+     * @param extractKeypointsFromTranscript The ExtractKeypointsFromTranscript dependency
+     * @param generatePlantUMLMindmap      The GeneratePlantUMLMindmap dependency
+     * @param generatePlantUMLImage        The GeneratePlantUMLImage dependency
+     */
+    public AgenticFlow(ExtractKeypointsFromTranscript extractKeypointsFromTranscript,
                         GeneratePlantUMLMindmap generatePlantUMLMindmap,
-                        GeneratePlantUMLImage generatePlantUMLImage ) {
+                        GeneratePlantUMLImage generatePlantUMLImage) {
         this.extractKeypointsFromTranscript = extractKeypointsFromTranscript;
         this.generatePlantUMLMindmap = generatePlantUMLMindmap;
         this.generatePlantUMLImage = generatePlantUMLImage;
     }
 
+    /**
+     * Builds and returns a state graph representing the flow of the agent.
+     *
+     * @return The constructed StateGraph
+     * @throws Exception If an error occurs during the graph construction
+     */
     public StateGraph<State> buildGraph() throws Exception {
 
-        return new StateGraph<>( State.serializer() )
-                .addNode( "agent", node_async( extractKeypointsFromTranscript ) )
-                .addNode( "mindmap", node_async( generatePlantUMLMindmap ) )
-                .addNode( "mindmap-to-image", node_async( generatePlantUMLImage ) )
-                .addEdge(START,"agent")
+        return new StateGraph<>(State.serializer())
+                .addNode("agent", node_async(extractKeypointsFromTranscript))
+                .addNode("mindmap", node_async(generatePlantUMLMindmap))
+                .addNode("mindmap-to-image", node_async(generatePlantUMLImage))
+                .addEdge(START, "agent")
                 .addEdge("agent", "mindmap")
                 .addEdge("mindmap", "mindmap-to-image")
 /*
                 .addConditionalEdges(
                         "agent",
-                        edge_async( state -> {
+                        edge_async(state -> {
                             if (state.agentOutcome().map(AgentOutcome::finish).isPresent()) {
                                 return "end";
                             }
@@ -71,10 +111,6 @@ public class AgenticFlow {
                 )
                 .addEdge("action", "agent")
 */
-                .addEdge("mindmap-to-image", END)
-                ;
-
-
+                .addEdge("mindmap-to-image", END);
     }
-
 }
