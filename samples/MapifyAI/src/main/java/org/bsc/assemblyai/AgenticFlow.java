@@ -30,21 +30,12 @@ public class AgenticFlow {
      * State class extending AgentState, representing the state of the agent in the flow.
      */
     public static class State extends AgentState {
-        
-        /**
-         * Constructs a new instance of State with initial data.
-         *
-         * @param initData Initial data for the state
-         */
+        // Constructor for initializing the State with initial data
         public State(Map<String, Object> initData) {
             super(initData);
         }
 
-        /**
-         * Retrieves the serializer for the State class.
-         *
-         * @return The StateSerializer for serializing State objects
-         */
+        // Retrieves the serializer for the State class
         public static StateSerializer<State> serializer() {
             var serializer = new ObjectStreamStateSerializer<>(State::new);
             serializer.mapper().register(UserMessage.class, new UserMessageSerializer());
@@ -53,28 +44,16 @@ public class AgenticFlow {
         }
     }
 
-    /**
-     * Dependency for extracting keypoints from transcripts.
-     */
+    // Dependency for extracting keypoints from transcripts
     final ExtractKeypointsFromTranscript extractKeypointsFromTranscript;
 
-    /**
-     * Dependency for generating PlantUML mindmaps.
-     */
+    // Dependency for generating PlantUML mindmaps
     final GeneratePlantUMLMindmap generatePlantUMLMindmap;
 
-    /**
-     * Dependency for generating PlantUML images.
-     */
+    // Dependency for generating PlantUML images
     final GeneratePlantUMLImage generatePlantUMLImage;
 
-    /**
-     * Constructor initializing the dependencies.
-     *
-     * @param extractKeypointsFromTranscript The ExtractKeypointsFromTranscript dependency
-     * @param generatePlantUMLMindmap      The GeneratePlantUMLMindmap dependency
-     * @param generatePlantUMLImage        The GeneratePlantUMLImage dependency
-     */
+    // Constructor initializing the dependencies
     public AgenticFlow(ExtractKeypointsFromTranscript extractKeypointsFromTranscript,
                         GeneratePlantUMLMindmap generatePlantUMLMindmap,
                         GeneratePlantUMLImage generatePlantUMLImage) {
@@ -90,7 +69,6 @@ public class AgenticFlow {
      * @throws Exception If an error occurs during the graph construction
      */
     public StateGraph<State> buildGraph() throws Exception {
-
         return new StateGraph<>(State.serializer())
                 .addNode("agent", node_async(extractKeypointsFromTranscript))
                 .addNode("mindmap", node_async(generatePlantUMLMindmap))
@@ -98,19 +76,6 @@ public class AgenticFlow {
                 .addEdge(START, "agent")
                 .addEdge("agent", "mindmap")
                 .addEdge("mindmap", "mindmap-to-image")
-/*
-                .addConditionalEdges(
-                        "agent",
-                        edge_async(state -> {
-                            if (state.agentOutcome().map(AgentOutcome::finish).isPresent()) {
-                                return "end";
-                            }
-                            return "continue";
-                        }),
-                        mapOf("continue", "action", "end", END)
-                )
-                .addEdge("action", "agent")
-*/
                 .addEdge("mindmap-to-image", END);
     }
 }

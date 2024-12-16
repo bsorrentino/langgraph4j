@@ -8,9 +8,18 @@ import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
+/**
+ * This class is designed to load environment variables from a `.env` file and make them available as system properties or environment variables.
+ */
 public class DotEnvConfig {
 
-    static DotEnvConfig load()  {
+    /**
+     * Loads the `.env` file and its contents into the system properties.
+     *
+     * @return A new instance of {@link DotEnvConfig} after loading.
+     * @throws RuntimeException If no `.env` file is found after searching up to 4 directories deep from the current working directory. 
+     */
+    static DotEnvConfig load() {
 
         // Search for .env file
         Path path = Paths.get(".").toAbsolutePath();
@@ -43,6 +52,12 @@ public class DotEnvConfig {
     }
 
 
+    /**
+     * Retrieves the value of an environment variable.
+     *
+     * @param key The name of the environment variable.
+     * @return An {@link Optional} containing the value if it exists, otherwise an empty Optional.
+     */
     public Optional<String> valueOf(String key ) {
         String value = System.getenv(key);
         if (value == null) {
