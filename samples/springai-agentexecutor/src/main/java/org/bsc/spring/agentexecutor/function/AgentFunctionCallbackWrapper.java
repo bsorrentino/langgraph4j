@@ -78,6 +78,7 @@ public class AgentFunctionCallbackWrapper<I, O> implements BiFunction<I, ToolCon
         return biFunction.apply(input, context);
     }
 
+    @SuppressWarnings("unchecked")
     private static <I, O> Class<O> resolveOutputType(BiFunction<I, ToolContext, O> biFunction) {
         return (Class<O>) TypeResolverHelper.getBiFunctionArgumentClass((Class<? extends BiFunction<?, ?, ?>>) biFunction.getClass(), 2);
     }
@@ -185,10 +186,12 @@ public class AgentFunctionCallbackWrapper<I, O> implements BiFunction<I, ToolCon
             return new AgentFunctionCallbackWrapper<>(name, description, inputTypeSchema, inputType, responseConverter, objectMapper, finalBiFunction);
         }
 
+        @SuppressWarnings("unchecked")
         private static <I, O> Class<I> resolveInputType(BiFunction<I, ToolContext, O> biFunction) {
             return (Class<I>) TypeResolverHelper.getBiFunctionInputClass((Class<? extends BiFunction<?, ?, ?>>) biFunction.getClass());
         }
 
+        @SuppressWarnings("unchecked")
         private static <I, O> Class<I> resolveInputType(Function<I, O> function) {
             return (Class<I>) TypeResolverHelper.getFunctionInputClass((Class<? extends Function<?, ?>>) function.getClass());
         }
