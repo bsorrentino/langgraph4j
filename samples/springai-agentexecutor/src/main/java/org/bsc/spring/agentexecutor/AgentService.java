@@ -9,6 +9,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service class that uses the {@link ChatClient} and
+ * the {@link ToolService} to execute an LLM request.
+ *
+ */
 @Service
 public class AgentService {
     public final ToolService toolService;

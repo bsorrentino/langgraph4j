@@ -17,6 +17,12 @@ import org.springframework.util.Assert;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * A wrapper for a {@link FunctionCallback}.
+ *
+ * @param <I> the type of the input
+ * @param <O> the type of the output
+ */
 @EqualsAndHashCode
 public class AgentFunctionCallbackWrapper<I, O> implements BiFunction<I, ToolContext, O>, FunctionCallback {
     @Getter
