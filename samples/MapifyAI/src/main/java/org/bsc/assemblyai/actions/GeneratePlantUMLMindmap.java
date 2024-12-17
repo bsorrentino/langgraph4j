@@ -14,6 +14,10 @@ import java.util.Map;
 /**
  * The GeneratePlantUMLMindmap class implements the NodeAction interface for generating a PlantUML mindmap based on an agentic flow state.
  */
+/**
+ * The GeneratePlantUMLMindmap class is a component responsible for generating a PlantUML mindmap based on the provided agentic flow state.
+ * It implements the NodeAction interface and utilizes an LLMAgent to process the generated prompt.
+ */
 @Component
 public class GeneratePlantUMLMindmap implements NodeAction<AgenticFlow.State>  {
 
