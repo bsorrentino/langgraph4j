@@ -12,9 +12,16 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Map;
 
+/**
+ * This class is responsible for serializing and deserializing the state of an agent executor.
+ * It extends {@link ObjectStreamStateSerializer} for handling the serialization of the AgentExecutor.State object.
+ */
 @Slf4j
 public class AgentStateSerializer extends ObjectStreamStateSerializer<AgentExecutor.State>  {
 
+    /**
+     * Constructor that initializes the serializer with a supplier for creating new AgentExecutor.State instances and registers various serializers for different types.
+     */
     public AgentStateSerializer() {
         super(AgentExecutor.State::new);
 
@@ -25,6 +32,9 @@ public class AgentStateSerializer extends ObjectStreamStateSerializer<AgentExecu
 
     }
 
+    /**
+     * Represents a serializer for the {@link AgentExecutor.Finish} object.
+     */
     static class FinishSerializer implements Serializer<AgentExecutor.Finish> {
 
         @Override
@@ -42,6 +52,9 @@ public class AgentStateSerializer extends ObjectStreamStateSerializer<AgentExecu
 
     }
 
+    /**
+     * Represents a serializer for the {@link AgentExecutor.Action} object.
+     */
     static class ActionSerializer implements Serializer<AgentExecutor.Action> {
 
         @Override
@@ -64,6 +77,9 @@ public class AgentStateSerializer extends ObjectStreamStateSerializer<AgentExecu
         }
     }
 
+    /**
+     * Represents a nullable object serializer for the {@link AgentExecutor.Outcome} object.
+     */
     static class OutcomeSerializer implements NullableObjectSerializer<AgentExecutor.Outcome> {
         @Override
         public void write(AgentExecutor.Outcome object, ObjectOutput out) throws IOException {
@@ -81,6 +97,9 @@ public class AgentStateSerializer extends ObjectStreamStateSerializer<AgentExecu
         }
     }
 
+    /**
+     * Represents a serializer for the {@link AgentExecutor.Step} object.
+     */
     static class StepSerializer implements Serializer<AgentExecutor.Step> {
         @Override
         public void write(AgentExecutor.Step object, ObjectOutput out) throws IOException {

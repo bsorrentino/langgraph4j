@@ -1,6 +1,5 @@
 package org.bsc.spring.agentexecutor;
 
-import lombok.Getter;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.model.ChatResponse;
