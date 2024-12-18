@@ -52,6 +52,7 @@ public class ExtractKeypointsFromTranscript implements NodeAction<AgenticFlow.St
     public Map<String, Object> apply(AgenticFlow.State state) throws Exception {
         var promptTemplate = PromptTemplate.from(promptKeypoints.getContentAsString(StandardCharsets.UTF_8));
 
+        // Retrieve or throw exception if conversation property is not found
         var conversation = state.<String>value("conversation")
                 .orElseThrow(() -> new RuntimeException("No conversation property found"));
 
@@ -59,8 +60,10 @@ public class ExtractKeypointsFromTranscript implements NodeAction<AgenticFlow.St
 
         var response = agent.model.generate(prompt.toUserMessage());
 
+        // Extract the content from the generated message
         var message = response.content();
 
+        // Return a map containing the summary text
         return Map.of("summary", message.text());
     }
 }

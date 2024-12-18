@@ -28,12 +28,13 @@ public class GeneratePlantUMLImage implements NodeAction<AgenticFlow.State>  {
         var mindmapScript = state.<String>value("mindmap")
                 .orElseThrow( () -> new RuntimeException("No mindmap property found") );
 
+        // Create a reader for PlantUML source strings using the retrieved mindmap script.
         SourceStringReader reader = new SourceStringReader(mindmapScript);
 
+        // Output the image to a file and capture its description.
         try(OutputStream out = new java.io.FileOutputStream("mindmap.png")) {
             var description = reader.outputImage(out);
             return Map.of("description", description.toString());
         }
-
     }
 }

@@ -49,15 +49,18 @@ public class ConsoleApplicationRunner implements CommandLineRunner {
      */
     @Override
     public void run(String... args) throws Exception {
-
+        // Builds and compiles graph using agenticFlow
         var app = agenticFlow.buildGraph().compile();
 
+        // Reads conversation content from resource
         var conversation = conversation01.getContentAsString(StandardCharsets.UTF_8);
-        var generator = app.stream( Map.of("conversation", conversation) );
+        
+        // Streams output based on the compiled application and the conversation
+        var generator = app.stream(Map.of("conversation", conversation));
 
-        for( var output : generator ) {
-            System.out.println( output );
+        // Prints each generated output to the console
+        for (var output : generator) {
+            System.out.println(output);
         }
     }
-
 }

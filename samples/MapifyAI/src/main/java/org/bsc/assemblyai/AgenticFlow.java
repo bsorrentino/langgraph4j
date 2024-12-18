@@ -79,7 +79,7 @@ public class AgenticFlow {
      */
     public AgenticFlow( ExtractKeypointsFromTranscript extractKeypointsFromTranscript,
                         GeneratePlantUMLMindmap generatePlantUMLMindmap,
-                        GeneratePlantUMLImage generatePlantUMLImage ) {
+                        GeneratePlantUMLImage generatePlantUMLImage) {
         this.extractKeypointsFromTranscript = extractKeypointsFromTranscript;
         this.generatePlantUMLMindmap = generatePlantUMLMindmap;
         this.generatePlantUMLImage = generatePlantUMLImage;
@@ -92,12 +92,11 @@ public class AgenticFlow {
      * @throws Exception If any error occurs during the graph construction process.
      */
     public StateGraph<State> buildGraph() throws Exception {
-
-        return new StateGraph<>( State.serializer() )
-                .addNode( "agent", node_async( extractKeypointsFromTranscript ) )
-                .addNode( "mindmap", node_async( generatePlantUMLMindmap ) )
-                .addNode( "mindmap-to-image", node_async( generatePlantUMLImage ) )
-                .addEdge(START,"agent")
+        return new StateGraph<>(State.serializer())
+                .addNode("agent", node_async(extractKeypointsFromTranscript))
+                .addNode("mindmap", node_async(generatePlantUMLMindmap))
+                .addNode("mindmap-to-image", node_async(generatePlantUMLImage))
+                .addEdge(START, "agent")
                 .addEdge("agent", "mindmap")
                 .addEdge("mindmap", "mindmap-to-image")
 /*
@@ -117,5 +116,4 @@ public class AgenticFlow {
                 ;
 
     }
-
 }
