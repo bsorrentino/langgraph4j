@@ -33,17 +33,33 @@ export const diagramSchema = z.object({
 
 */
 
+/**
+ * Represents a Diagram containing various elements, participants, relations, and containers.
+ */
 public class Diagram {
 
+    /**
+     * Represents a participant in the diagram with a name, shape, and description.
+     */
     public record Participant (String name, String shape, String description) {
     }
 
+    /**
+     * Represents a relation between two participants with a source, target, and description.
+     */
     public record Relation (String source, String target, String description) {
     }
 
+    /**
+     * Represents a container that can hold child elements with a name, children list, and description.
+     */
     public record Container(String name, List<String> children, String description) {
     }
 
+    /**
+     * Represents an element in the diagram with various properties including type, title, participants, relations,
+     * containers, and descriptions.
+     */
     public record Element(
         String type,
         String title,
