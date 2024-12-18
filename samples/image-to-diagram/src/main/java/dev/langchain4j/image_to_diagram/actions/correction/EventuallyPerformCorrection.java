@@ -7,6 +7,10 @@ import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * This is an example of a public class designed to eventually perform correction. 
+ * It implements the AsyncNodeActionWithConfig interface specifically tailored for ImageToDiagram.State.
+ */
 public class EventuallyPerformCorrection implements AsyncNodeActionWithConfig<ImageToDiagram.State> {
 
     @Override

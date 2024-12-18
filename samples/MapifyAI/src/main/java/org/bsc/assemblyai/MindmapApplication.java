@@ -13,14 +13,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.util.Map;
 
 /**
- * Main application class for a Mind Map application built using Spring Boot.
- * This class serves as the entry point to the Spring Boot application.
+ * Main application class for a mind mapping tool.
  */
 @SpringBootApplication
 public class MindmapApplication {
 
 	/**
-	 * The main method of the application. Called to start the application context.
+	 * The main entry point of the application.
+	 *
 	 * @param args Command line arguments passed to the application.
 	 */
 	public static void main(String[] args) {

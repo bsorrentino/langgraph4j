@@ -4,16 +4,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Configuration class forDotenv integration in a Spring environment.
+ * Class responsible for configuring the Dotenv environment.
+ * 
+ * @configuration This class is annotated with @Configuration to indicate a Spring configuration class.
  */
 @Configuration
 public class DotenvConfiguration {
 
     /**
-     * Creates and returns a bean of type {@link DotEnvConfig}.
-     * Initializes the configuration by loading it from the environment or default properties.
+     * Bean method that initializes and returns a new instance of DotEnvConfig.
      *
-     * @return An instance of {@link DotEnvConfig} initialized with the appropriate values.
+     * @bean This method is annotated with @Bean to declare it as a bean in the Spring application context.
+     * @returns A new instance of DotEnvConfig initialized by calling its load() method.
      */
     @Bean
     public DotEnvConfig dotenv() {

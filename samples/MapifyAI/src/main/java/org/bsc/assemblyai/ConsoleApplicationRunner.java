@@ -9,37 +9,43 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Component: This class implements the CommandLineRunner interface and is part of a Spring application.
- * It initializes and runs the console application using the_agenticFlow_ service and a conversation resource.
+ * ConsoleApplicationRunner is a {@link CommandLineRunner} implementation designed to run the application.
+ * It reads a conversation file, processes it using the {@link AgenticFlow}, and prints the generated outputs to the console.
+ *
+ * <p>This class is annotated with {@code @Component} to indicate that it should be managed by Spring's dependency injection container.</p>
  */
 @Component
 public class ConsoleApplicationRunner implements CommandLineRunner {
 
     /**
-     * Injection: A Resource object for accessing "conversation-test01.txt".
-     * This file is used to retrieve conversation content by the application.
+     * The conversation file resource to be used for processing.
+     * This field is annotated with {@code @Value} to inject the value from the application properties.
      */
     @Value("classpath:conversation-test01.txt")
     private Resource conversation01;
 
     /**
-     * Dependency injection: Final AgenticFlow instance, representing the service responsible for building and compiling flow graphs.
-     * The application will use this service to generate outputs based on a conversation.
+     * An instance of {@link AgenticFlow}, which is responsible for processing the conversation data and generating outputs.
      */
     final AgenticFlow agenticFlow;
 
     /**
-     * Constructor: Initializes the ConsoleApplicationRunner with an AgenticFlow instance.
-     * @param agenticFlow Instance of the AgenticFlow service.
+     * Constructs a new ConsoleApplicationRunner with an instance of {@link AgenticFlow}.
+     *
+     * @param agenticFlow The {@link AgenticFlow} instance to be used for processing.
+     *                    This parameter is annotated with {@code @Autowired} to enable constructor-based dependency injection.
      */
-    public ConsoleApplicationRunner(AgenticFlow agenticFlow) {
+    public ConsoleApplicationRunner( AgenticFlow agenticFlow ) {
         this.agenticFlow = agenticFlow;
     }
 
     /**
-     * Operation: Implements the run method from CommandLineRunner interface. 
-     * Initializes and runs the application, loading a conversation resource, compiling it with agenticFlow,
-     * and generating outputs based on the conversation.
+     * Runs the application logic.
+     *
+     * <p>This method reads the conversation file, processes it using the {@link AgenticFlow}, and prints the generated outputs to the console.</p>
+     *
+     * @param args Command line arguments passed to the application.
+     * @throws Exception if an error occurs during execution.
      */
     @Override
     public void run(String... args) throws Exception {

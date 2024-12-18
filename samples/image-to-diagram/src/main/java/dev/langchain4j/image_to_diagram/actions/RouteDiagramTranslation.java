@@ -7,6 +7,10 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
+/**
+ * RouteDiagramTranslation class implements AsyncEdgeAction interface for processing 
+ * ImageToDiagram.State and determining the type of diagram.
+ */
 public class RouteDiagramTranslation implements AsyncEdgeAction<ImageToDiagram.State> {
 
     @Override

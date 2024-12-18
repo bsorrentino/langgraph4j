@@ -5,28 +5,26 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 
+
 /**
- * LLMAgent class that manages interactions with the OpenAI language model.
+ * Service class for the Large Language Model (LLM) agent.
  */
 @Service
 public class LLMAgent {
 
-    /**
-     * The resource containing prompt keypoints.
-     */
+    /** Resource containing prompt keypoints. */
     @Value("classpath:prompt-keypoints.txt")
     private Resource promptKeypoints;
 
-    /**
-     * The final instance of the OpenAiChatModel used for generating responses.
-     */
+    /** Pre-initialized OpenAI chat model instance. */
     public final OpenAiChatModel model;
 
     /**
-     * Constructor for LLMAgent class that initializes the OpenAI chat model with configuration details.
+     * Constructor for the LLMAgent.
+     * 
+     * Initializes the agent by loading configuration and setting up the OpenAI chat model.
      *
-     * @param config Configuration object containing API key and other settings.
-     * @throws IllegalArgumentException if no API key is provided in the configuration.
+     * @param config DotEnv configuration object.
      */
     public LLMAgent(DotEnvConfig config ) {
 

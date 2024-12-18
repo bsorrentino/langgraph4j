@@ -12,37 +12,41 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * This class is a Spring component that implements the NodeAction interface for generating PlantUML mindmaps.
+ * The GeneratePlantUMLMindmap class implements the NodeAction interface for generating a PlantUML mindmap based on an agentic flow state.
+ */
+/**
+ * The GeneratePlantUMLMindmap class is a component responsible for generating a PlantUML mindmap based on the provided agentic flow state.
+ * It implements the NodeAction interface and utilizes an LLMAgent to process the generated prompt.
  */
 @Component
 public class GeneratePlantUMLMindmap implements NodeAction<AgenticFlow.State>  {
 
     /**
-     * Resource representing the prompt template file for PlantUML.
+     * The promptFile field holds a resource containing the template for generating a PlantUML mindmap.
      */
     @Value("classpath:prompt-plantuml-mindmap.txt")
     private Resource promptFile;
 
     /**
-     * Reference to an instance of LLMAgent, used for generating responses.
+     * The agent field is the natural language processing (NLP) agent used to generate the mindmap.
      */
     private final LLMAgent agent;
 
     /**
-     * Constructor for GeneratePlantUMLMindmap.
+     * Constructor for GeneratePlantUMLMindmap that initializes the agent field with the provided agent.
      *
-     * @param agent The LLMAgent instance to be used for generating responses.
+     * @param agent the NLP agent to be used for generating the mindmap
      */
-    public GeneratePlantUMLMindmap(LLMAgent agent)  {
+    public GeneratePlantUMLMindmap( LLMAgent agent)  {
         this.agent = agent;
     }
 
     /**
-     * Applies this action to the given state, generating a PlantUML mindmap based on a summary property.
+     * The apply method generates a PlantUML mindmap based on the provided agentic flow state.
      *
-     * @param state The AgenticFlow.State object containing the necessary data for generation.
-     * @return A map with a key "mindmap" and the generated mindmap as its value.
-     * @throws Exception if an error occurs during the generation process, such as missing summary properties or issues with the agent's response.
+     * @param state the current agentic flow state containing relevant data
+     * @return a map containing the generated mindmap as a string
+     * @throws Exception if an error occurs during the generation process
      */
     @Override
     public Map<String, Object> apply(AgenticFlow.State state) throws Exception {

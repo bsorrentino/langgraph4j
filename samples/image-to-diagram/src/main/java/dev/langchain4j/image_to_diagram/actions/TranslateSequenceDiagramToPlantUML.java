@@ -13,10 +13,22 @@ import java.util.Map;
 
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
+/**
+ * The `TranslateSequenceDiagramToPlantUML` class implements the `NodeAction<ImageToDiagram.State>` interface.
+ * It is responsible for translating a sequence diagram into PlantUML code using an OpenAI chat model.
+ */
 public class TranslateSequenceDiagramToPlantUML implements NodeAction<ImageToDiagram.State> {
 
+    /**
+     * The `model` field represents the OpenAiChatModel used for generating PlantUML code from sequence diagrams.
+     */
     final OpenAiChatModel model;
 
+    /**
+     * Constructor for `TranslateSequenceDiagramToPlantUML`.
+     *
+     * @param model the OpenAiChatModel to use for translation
+     */
     public TranslateSequenceDiagramToPlantUML(OpenAiChatModel model) {
         this.model = model;
     }
@@ -34,6 +46,5 @@ public class TranslateSequenceDiagramToPlantUML implements NodeAction<ImageToDia
         String result = response.content().text();
 
         return Map.of("diagramCode", result );
-
     }
 }
