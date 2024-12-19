@@ -1,15 +1,12 @@
 package dev.langchain4j.adaptiverag;
-
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import lombok.Value;
-
 import java.time.Duration;
 import java.util.function.Function;
-
 /**
  * Router for user queries to the most relevant datasource.
  */
@@ -31,8 +28,24 @@ public class QuestionRouter implements Function<String, QuestionRouter.Type> {
     }
 
 
+    /**
+     * Provides a service interface for processing user questions.
+     * 
+     * @SystemMessage "You are an expert at routing a user question to a vectorstore or web search. The vectorstore contains documents related to agents, prompt engineering, and adversarial attacks. Use the vectorstore for questions on these topics. Otherwise, use web-search."
+     */
     interface Service {
 
+        /**
+         * Invokes the system with a user's question.
+         * 
+         * This method is designed to route a user's query to either a vectorstore or a web search,
+         * based on the content of the query. The vectorstore houses documents related to agents, prompt
+         * engineering, and adversarial attacks. If the query pertains to any of these topics, it will be
+         * directed to the vectorstore. For other types of questions, a web search will be initiated.
+         * 
+         * @param question The user's input query that needs to be routed or searched for.
+         * @return A Result object containing the response from either the vectorstore or web search.
+         */
         @SystemMessage("You are an expert at routing a user question to a vectorstore or web search.\n" +
                 "The vectorstore contains documents related to agents, prompt engineering, and adversarial attacks.\n" +
                 "Use the vectorstore for questions on these topics. Otherwise, use web-search.")
@@ -41,6 +54,11 @@ public class QuestionRouter implements Function<String, QuestionRouter.Type> {
 
     private final String openApiKey;
 
+    /**
+     * Applies a given question to an AI model and extracts the data source from the response.
+     * @param question The question to be applied to the AI model.
+     * @return The extracted data source from the model's response.
+     */
     @Override
     public Type apply(String question) {
 
