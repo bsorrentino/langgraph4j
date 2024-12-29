@@ -191,7 +191,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
-        <module>core-jdk8</module>
+        <module>core</module>
         <module>langchain4j</module>
         <module>agent-executor</module>
         <module>studio</module>
