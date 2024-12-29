@@ -33,6 +33,17 @@ public class TranslateSequenceDiagramToPlantUML implements NodeAction<ImageToDia
         this.model = model;
     }
 
+    /**
+     * Converts a sequence diagram from an image to PlantUML code.
+     *
+     * This method processes the given state containing an image, generates a system prompt,
+     * and uses a language model to produce PlantUML code representing the diagram.
+     * If no diagram is provided in the state, it throws an IllegalArgumentException.
+     *
+     * @param state The input state containing an image for conversion.
+     * @return A map with a key "diagramCode" containing the generated PlantUML code.
+     * @throws Exception if there is an error during the conversion process.
+     */
     @Override
     public Map<String, Object> apply(ImageToDiagram.State state) throws Exception {
         Diagram.Element diagram = state.diagram()
