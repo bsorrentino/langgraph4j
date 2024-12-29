@@ -37,9 +37,13 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 ## Releases
 
+**Note: ‼️**
+> From release 1.2.x the miminum supported Java version is the `Java 17` and
+> the artifact `langgraph4j-core-jdk8` is replaced by `langgraph4j-core`
+
 | Date         | Release        | info
 |--------------|----------------| ---
-| Dec 03, 2024 | `1.1.5` | official release 
+| Dec 03, 2024 | `1.1.5` | official release
 
 
 ## Samples
@@ -80,7 +84,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
 </dependency>
 ```
 
