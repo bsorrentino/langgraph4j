@@ -72,17 +72,5 @@
   <build>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <!-- Specify the Java version
-          <source>1.8</source>
-          -->
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
+
 </project>
