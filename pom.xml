@@ -180,7 +180,6 @@
         <jdk>1.8</jdk>
       </activation>
       <modules>
-        <module>core-jdk8</module>
       </modules>
       <build>
 
@@ -192,6 +191,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
+        <module>core-jdk8</module>
         <module>langchain4j</module>
         <module>agent-executor</module>
         <module>studio</module>

@@ -33,7 +33,7 @@
         </head>
 
         <menu name="Modules">
-            <item name="Core module" href="core-jdk8/langgraph4j-core-jdk8/index.html"/>
+            <item name="Core module" href="core-jdk8/langgraph4j-core/index.html"/>
             <item name="Langchain4j integration module" href="langchain4j/langgraph4j-langchain4j/index.html"/>
             <item name="Agent Executor" href="agent-executor/langgraph4j-agent-executor/index.html"/>
             <item name="Studio (jetty implementation)" href="studio/langgraph4j-studio/index.html"/>
