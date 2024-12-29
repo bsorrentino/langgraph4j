@@ -11,9 +11,9 @@ else
     echo "Argument provided by user: $ver"
 fi
 
-mvn versions:set -DnewVersion=$ver -Pjdk-8,jdk-17
+mvn versions:set -DnewVersion=$ver
 # unrelated parent
 mvn versions:set -DnewVersion=$ver -pl samples/springai-agentexecutor
 
 # after this, you need to commit the changes
-# mvn versions:commit -Pjdk-8
+# mvn versions:commit
