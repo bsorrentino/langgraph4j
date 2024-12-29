@@ -34,6 +34,13 @@ public class DescribeDiagramImage implements NodeAction<ImageToDiagram.State> {
         this.visionModel = visionModel;
     }
 
+    /**
+     * Applies the provided image to create a diagram.
+     *
+     * @param state The current state of the image to be converted into a diagram.
+     * @return A map containing the resulting diagram and associated image data.
+     * @throws Exception if no image data is provided in the state.
+     */
     @Override
     public Map<String, Object> apply(ImageToDiagram.State state) throws Exception {
         // Load the prompt template for diagram image description

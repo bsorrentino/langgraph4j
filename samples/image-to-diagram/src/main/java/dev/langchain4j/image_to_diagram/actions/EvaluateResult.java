@@ -18,7 +18,6 @@ import java.util.concurrent.CompletableFuture;
  * It implements the AsyncNodeAction interface, which allows for asynchronous processing
  * of a State object into a Map. The class leverages the OpenAiChatModel for its operations.
  */
-
 @Slf4j
 public class EvaluateResult implements AsyncNodeAction<ImageToDiagram.State> {
 
@@ -35,12 +34,13 @@ public class EvaluateResult implements AsyncNodeAction<ImageToDiagram.State> {
     }
 
     /**
-     * Overrides the apply method from AsyncNodeAction, which takes an ImageToDiagram.State object
-     * and processes it asynchronously using a DiagramCorrectionProcess. The method returns a CompletableFuture<Map<String, Object>>
-     * that represents the result of the asynchronous processing.
+     * Converts an ImageToDiagram state to a diagram using the {@link DiagramCorrectionProcess}.
+     * This method processes the input state asynchronously and returns a {@link CompletableFuture} with
+     * the resulting diagram data. If no results are generated, it throws a {@link RuntimeException}.
      *
-     * @param state The ImageToDiagram.State object containing the data to be processed.
-     * @return A CompletableFuture<Map<String, Object>> representing the outcome of the asynchronous operation.
+     * @param state The input state for the diagram correction process.
+     * @return A {@link CompletableFuture} that will contain the diagram data upon successful completion,
+     *         or be completed exceptionally if an error occurs during the processing.
      */
     @Override
     public CompletableFuture<Map<String, Object>> apply(ImageToDiagram.State state) {

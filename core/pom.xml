@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>langgraph4j-core-jdk8</artifactId>
+  <artifactId>langgraph4j-core</artifactId>
   <packaging>jar</packaging>
-  <name>langgraph4j::core::jdk8</name>
+  <name>langgraph4j::core</name>
   <description>A library for building stateful, multi-agents applications with LLMs</description>
 
 
@@ -72,17 +72,5 @@
   <build>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <!-- Specify the Java version
-          <source>1.8</source>
-          -->
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
+
 </project>

@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * TranslateGenericDiagramToPlantUML class implementation.
  *
- * This class implements the NodeAction<ImageToDiagram.State> interface and is responsible for translating a generic diagram to PlantUML code.
+ * This class implements the {@literal NodeAction<ImageToDiagram.State> } interface and is responsible for translating a generic diagram to PlantUML code.
  */
 public class TranslateGenericDiagramToPlantUML implements NodeAction<ImageToDiagram.State>  {
 

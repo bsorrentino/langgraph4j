@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Function;
 /**
 * The `WebSearchTool` class provides a solution for performing web searches based on user queries.
-* It implements the `Function<String, List<Content>>` interface to define how queries are processed and results are returned.
+* It implements the {@literal Function<String, List<Content>> } interface to define how queries are processed and results are returned.
 * The class utilizes an API key from Tavily to authenticate requests to their search engine.
 * 
 * @since 1.0

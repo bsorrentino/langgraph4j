@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   # Single deploy job since we're just deploying
-  # mvn -B -Pjdk-8 site:site site:stage
+  # mvn -B  site:site site:stage
   deploy:
     environment:
       name: github-pages
@@ -40,7 +40,7 @@ jobs:
           java-version: 17
       - name: Deploy site to Github pages
         run: |
-          mvn -B -Pjdk-8 site:site site:stage
+          mvn -B site:site site:stage
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
