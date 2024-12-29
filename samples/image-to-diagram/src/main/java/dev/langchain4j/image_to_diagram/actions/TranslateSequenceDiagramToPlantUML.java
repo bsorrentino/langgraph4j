@@ -14,7 +14,7 @@ import java.util.Map;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 /**
- * The `TranslateSequenceDiagramToPlantUML` class implements the `NodeAction<ImageToDiagram.State>` interface.
+ * The `TranslateSequenceDiagramToPlantUML` class implements the {@literal NodeAction<ImageToDiagram.State>} interface.
  * It is responsible for translating a sequence diagram into PlantUML code using an OpenAI chat model.
  */
 public class TranslateSequenceDiagramToPlantUML implements NodeAction<ImageToDiagram.State> {
