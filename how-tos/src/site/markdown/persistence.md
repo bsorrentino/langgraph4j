@@ -13,6 +13,7 @@ When creating any LangGraph workflow, you can set them up to persist their state
 [`Checkpointer`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/Checkpoint.html
 [`MemorySaver`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/MemorySaver.html
 
+
 ### Initialize Logger
 
 
@@ -207,7 +208,7 @@ AiMessage aiMessage = response.content();
 System.out.println( aiMessage );
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_fsD3Ik7CEHKIGyMfJzAv4EKL", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_lYOfO0LoZ0myCE1lRzLtnR4m", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
 
 
 ## Define the graph
@@ -322,7 +323,7 @@ for( var r : result ) {
 
     __START__
     agent
-    {messages=[AiMessage { text = "Remember my name?" toolExecutionRequests = null }, AiMessage { text = "I'm sorry, but I don't have the ability to remember personal information or previous interactions. How can I assist you today?" toolExecutionRequests = null }]}
+    {messages=[AiMessage { text = "Remember my name?" toolExecutionRequests = null }, AiMessage { text = "I don't have the ability to remember personal information or previous interactions. Each session is independent, so I won't remember your name or any details from past conversations. How can I assist you today?" toolExecutionRequests = null }]}
     __END__
 
 
@@ -392,7 +393,7 @@ for( var r : result ) {
 
     __START__
     agent
-    AiMessage { text = "Yes, your name is Bartolo. How can I assist you today?" toolExecutionRequests = null }
+    AiMessage { text = "Yes, your name is Bartolo. How can I help you today?" toolExecutionRequests = null }
     __END__
 
 
@@ -426,6 +427,6 @@ for( var r : result ) {
 
     __START__
     agent
-    AiMessage { text = "No, I don't know your name. I don't have access to personal data about individuals unless it has been shared with me in the course of our conversation. If you have any questions or need assistance, feel free to ask!" toolExecutionRequests = null }
+    AiMessage { text = "No, I don't know your name. I don't have access to personal data unless you provide it during our conversation. If you have any questions or need assistance, feel free to ask!" toolExecutionRequests = null }
     __END__
 
