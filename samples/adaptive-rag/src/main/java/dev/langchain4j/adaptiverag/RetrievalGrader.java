@@ -13,9 +13,8 @@ import java.util.function.Function;
 /**
  * The RetrievalGrader class implements a function to assess the relevance of a retrieved document
  * to a user's question. It uses an AI service to generate a binary score ('yes' or 'no') indicating relevance.
- *
- * @implNote This class relies on external services for processing and grading documents, making it dependent
- *           on network availability and the stability of the used API.
+ * This class relies on external services for processing and grading documents, making it dependent
+ * on network availability and the stability of the used API.
  */
 @Value(staticConstructor="of")
 public class RetrievalGrader implements Function<RetrievalGrader.Arguments, RetrievalGrader.Score> {

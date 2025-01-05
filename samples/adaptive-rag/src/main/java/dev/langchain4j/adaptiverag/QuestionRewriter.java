@@ -13,7 +13,6 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
  * This class implements a {@link Function} to rewrite questions for better vectorstore retrieval.
  * It uses an AI language model to rephrase input questions based on semantic intent and meaning.
  *
- * @Value(staticConstructor="of")
  */
 @Value(staticConstructor="of")
 public class QuestionRewriter implements Function<String, String> {

@@ -96,6 +96,7 @@
         <version>3.11.2</version>
         <configuration>
           <failOnWarnings>false</failOnWarnings>
+          <failOnError>false</failOnError>
           <doclint>none</doclint>
         </configuration>
         <reportSets>

@@ -25,6 +25,9 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
+/**
+ * AdaptiveRag
+ */
 @Slf4j( topic="AdaptiveRag")
 public class AdaptiveRag {
 
@@ -60,15 +63,23 @@ public class AdaptiveRag {
     @Getter(lazy = true)
     private final ChromaStore chroma = openChroma();
 
-    public AdaptiveRag( String openApiKey, String tavilyApiKey ) {
+    /**
+     * Constructor for the AdaptiveRag class.
+     *
+     * @param openApiKey  The API key for OpenAI, used for accessing its services.
+     * @param tavilyApiKey  The API key for Tavily, used for web search functionality.
+     *
+     * This constructor initializes the AdaptiveRag instance by validating the provided API keys.
+     * Both keys are required for the functionality of this class. If either key is null,
+     * an exception is thrown. This ensures that the AdaptiveRag instance is always properly configured.
+     */
+    public AdaptiveRag(String openApiKey, String tavilyApiKey) {
         Objects.requireNonNull(openApiKey, "no OPENAI APIKEY provided!");
         Objects.requireNonNull(tavilyApiKey, "no TAVILY APIKEY provided!");
         this.openApiKey = openApiKey;
         this.tavilyApiKey = tavilyApiKey;
-        //this.chroma = ChromaStore.of(openApiKey);
-
+        // The ChromaStore instance is lazily initialized when accessed via the getChroma() method.
     }
-
     private ChromaStore openChroma() {
         return ChromaStore.of(openApiKey);
     }
