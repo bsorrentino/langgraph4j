@@ -73,7 +73,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version></version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
