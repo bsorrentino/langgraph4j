@@ -1,5 +1,6 @@
 # Wait for User Input
 
+
 ```java
 import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -96,7 +97,7 @@ display( plantUML2PNG(plantuml) );
 
 
 
-    @startuml unnamed.puml
+    @startuml Graph_Diagram
     skinparam usecaseFontSize 14
     skinparam usecaseStereotypeFontSize 12
     skinparam hexagonFontSize 14
@@ -106,12 +107,12 @@ display( plantUML2PNG(plantuml) );
     
     powered by langgraph4j
     end footer
-    circle start<<input>>
+    circle start<<input>> as __START__
     circle stop as __END__
     usecase "step_1"<<Node>>
     usecase "human_feedback"<<Node>>
     usecase "step_3"<<Node>>
-    start -down-> "step_1"
+    "__START__" -down-> "step_1"
     "step_1" -down-> "human_feedback"
     "human_feedback" -down-> "step_3"
     "step_3" -down-> "__END__"
@@ -128,7 +129,7 @@ display( plantUML2PNG(plantuml) );
 
 
 
-    b91410fb-a67e-4793-aec8-1a043afc772c
+    c52aa015-9b8e-40d0-9f03-73e74482541b
 
 
 
@@ -174,7 +175,7 @@ System.out.println("getNext with updateConfig: " + graph.getState(updateConfig).
 
     Tell me how you want to update the state: go to step 3!
     --State after update--
-    StateSnapshot{node=step_1, state={user_feedback=go to step 3!, input=hello world, messages=[]}, config=RunnableConfig(threadId=Thread1, checkPointId=8eca3260-d011-42c4-8d4c-0f4d8a7a7dbc, nextNode=human_feedback, streamMode=VALUES)}
+    StateSnapshot{node=step_1, state={user_feedback=go to step 3!, input=hello world, messages=[]}, config=RunnableConfig(threadId=Thread1, checkPointId=c8f6377c-73d4-48ce-8e52-0f1e7a9952a4, nextNode=human_feedback, streamMode=VALUES)}
     getNext with invokeConfig: human_feedback
     getNext with updateConfig: human_feedback
 

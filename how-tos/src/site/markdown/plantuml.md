@@ -37,7 +37,7 @@ display( plantUML2PNG( code ) );
 
 
     
-![png](plantuml_files/plantuml_2_0.png)
+![png](plantuml_files/plantuml_3_0.png)
     
 
 

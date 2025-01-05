@@ -1,4 +1,6 @@
+
 ## Initialize Logger 
+
 
 ```java
 var lm = java.util.logging.LogManager.getLogManager();
