@@ -2,6 +2,132 @@
 
 
 
+<!-- "name: v1.2.0" is a release tag -->
+
+## [v1.2.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.0) (2025-01-05)
+
+### Features
+
+ *  add sample ([c74eee01cd6cd47](https://github.com/bsorrentino/langgraph4j/commit/c74eee01cd6cd47911909fe0ed74a3710aabf98c))
+     > work on #51
+   
+
+### Bug Fixes
+
+ -  **notebook**  use langgraph4j-core  instead of  langgraph4j-core-jdk8 ([efdd9fd78d38257](https://github.com/bsorrentino/langgraph4j/commit/efdd9fd78d38257562fac97b51187e5f03da3236))
+
+
+### Documentation
+
+ -  update notebook md documents ([13b4e72804efbe1](https://github.com/bsorrentino/langgraph4j/commit/13b4e72804efbe14d903a9a803653cec8bb4d5e7))
+
+ -  bump to new version ([f521c6bf08359e6](https://github.com/bsorrentino/langgraph4j/commit/f521c6bf08359e6b8c2c2651b6468df0279185ab))
+
+ -  **readme**  add release note ([63ecd62cf44ef74](https://github.com/bsorrentino/langgraph4j/commit/63ecd62cf44ef74ced719f9c2947e83dfa6584ec))
+     > resolve #54
+
+ -  improve javadoc ([a6408c326771fdc](https://github.com/bsorrentino/langgraph4j/commit/a6408c326771fdcf1a276cfd78469190be09dc33))
+
+ -  **EvaluateResult.java**  improve javadoc ([90dea651e617b5a](https://github.com/bsorrentino/langgraph4j/commit/90dea651e617b5a389ae9f1a81b17d93c42be026))
+
+ -  fix javadoc comments ([4f75dad7865f046](https://github.com/bsorrentino/langgraph4j/commit/4f75dad7865f046eaa255093bc7035ea8a63077e))
+
+ -  javadoc refinements ([c07914f61418ef5](https://github.com/bsorrentino/langgraph4j/commit/c07914f61418ef538dacb227161930a81318e1e5))
+
+ -  javadoc refinements ([d8f9a4f6131cc5b](https://github.com/bsorrentino/langgraph4j/commit/d8f9a4f6131cc5b39642c98e4c5762c9009dc36d))
+
+ -  javadoc refinements ([f412c7a6b4396dd](https://github.com/bsorrentino/langgraph4j/commit/f412c7a6b4396dd4c96bc68ce3c9a7314ab049cb))
+
+ -  javadoc refinements ([d3c87ebc620eb93](https://github.com/bsorrentino/langgraph4j/commit/d3c87ebc620eb93e7389966078c53e9e93b755a8))
+
+ -  added javadoc ([e77d61cfcfed82c](https://github.com/bsorrentino/langgraph4j/commit/e77d61cfcfed82c3e6e91a909bfae62d249ca34d))
+
+ -  added javadoc ([e1e32d18eac0ceb](https://github.com/bsorrentino/langgraph4j/commit/e1e32d18eac0cebc56df269d924f0ff7df252bad))
+
+ -  added javadoc ([0786adb2b4f420d](https://github.com/bsorrentino/langgraph4j/commit/0786adb2b4f420d5726edf756aa173f82b2f10ab))
+
+ -  **GeneratePlantUMLMindmap.java**  add Javadocs and improve implementation ([d25fa3347146a5d](https://github.com/bsorrentino/langgraph4j/commit/d25fa3347146a5d064c613f135a8aeb1875a3bbf))
+     > - Add JavaDoc annotations to describe the class and its methods for better readability and maintainability.
+     > - Improve code structure and readability by refactoring the constructor and apply method.
+
+ -  added comprehensive documentation ([5a5020ed175dd69](https://github.com/bsorrentino/langgraph4j/commit/5a5020ed175dd69774da2f998f0a05cb915a6fc3))
+
+ -  **AgenticFlow.java**  update Javadoc comments a ([c68cd27c527da40](https://github.com/bsorrentino/langgraph4j/commit/c68cd27c527da40ecf2f08b30fb0aa928a3b558a))
+
+ -  added comprehensive documentation ([f000b914754c056](https://github.com/bsorrentino/langgraph4j/commit/f000b914754c056005b184b7eaa107e6a860ed9e))
+
+ -  added comprehensive documentation ([6d9219a7cb12e1c](https://github.com/bsorrentino/langgraph4j/commit/6d9219a7cb12e1c6920270b0467e6daff32cc707))
+
+ -  added comprehensive documentation ([eb4a1ac87b37d43](https://github.com/bsorrentino/langgraph4j/commit/eb4a1ac87b37d431dcce0bcfab3c7339e733d5c8))
+
+ -  added comprehensive documentation ([516830b7f835ad8](https://github.com/bsorrentino/langgraph4j/commit/516830b7f835ad811bffed0a846c02ffbde492cc))
+
+ -  added comprehensive documentation ([b731612bd46284a](https://github.com/bsorrentino/langgraph4j/commit/b731612bd46284ab8a9f0aef7b7d2e0604665ee7))
+
+ -  added comprehensive documentation ([98868079720ad98](https://github.com/bsorrentino/langgraph4j/commit/98868079720ad98f53dacf93ab29d391c65b1988))
+
+ -  **AgentExecutor.java**  added comprehensive documentation ([8ff0cc8a4c175c1](https://github.com/bsorrentino/langgraph4j/commit/8ff0cc8a4c175c182f082136f4998bc47283bcd8))
+
+ -  **Agent.java**  add JavaDoc comments for better code readability and maintainability ([17386f5761cea4b](https://github.com/bsorrentino/langgraph4j/commit/17386f5761cea4b7d65e03b53e1f306ee9246845))
+
+ -  **ExecuteTools.java**  enhance class and method documentation, update constructor with non-null constraints, and improve error handling ([0b0424d3bfe178c](https://github.com/bsorrentino/langgraph4j/commit/0b0424d3bfe178c3bd6e7bbe4059c3413533e5b0))
+
+ -  **CallAgent.java**  add comprehensive Javadoc comments and method descriptions ([48c6c8c589ede5c](https://github.com/bsorrentino/langgraph4j/commit/48c6c8c589ede5c0747f2ddc43c39fda26871495))
+
+ -  update readme ([ac3e230b4b49e48](https://github.com/bsorrentino/langgraph4j/commit/ac3e230b4b49e48d20d309bc0ce89a14d125ab32))
+
+ -  update changeme ([c2b558473ff5059](https://github.com/bsorrentino/langgraph4j/commit/c2b558473ff5059949f2d45940bdff4a30422ae6))
+
+
+### Refactor
+
+ -  **notebook**  upgrade langgraph4j version ([253d93274c389c5](https://github.com/bsorrentino/langgraph4j/commit/253d93274c389c5e67e8f37aa39814cf1055b639))
+   
+ -  **notebook**  upgrade langgraph4j version ([64de3761fc625b0](https://github.com/bsorrentino/langgraph4j/commit/64de3761fc625b0b1dba555411a956410205ff83))
+   
+ -  remove redundant JDK-8 version configuration ([d19a8c1be8e75c4](https://github.com/bsorrentino/langgraph4j/commit/d19a8c1be8e75c4951ff54dedeb858dc07980b7c))
+    > - refactor(set-version.sh)
+ > - refactor(site-run.sh)
+ > work on #54
+
+ -  remove redundant JDK-8 version configuration ([3bdf67a05fb4b0d](https://github.com/bsorrentino/langgraph4j/commit/3bdf67a05fb4b0d4d460874e9d09e43d32856c5f))
+    > - refactor(deploy-pages.yml)
+ > - refactor(deploy-snapshot.yaml)
+ > - refactor(deploy.yaml)
+ > work on #54
+
+ -  **core**  rename module core-jdk8 to core ([58b366d81ad7fe3](https://github.com/bsorrentino/langgraph4j/commit/58b366d81ad7fe348ecb6d7bfe8615be99379b0b))
+    > work on #54
+
+ -  **core**  rename langgraph4j-core-jdk8 to langgraph4j-core ([db3b5224865e82a](https://github.com/bsorrentino/langgraph4j/commit/db3b5224865e82a9211ff6fa51ab39532ace30f2))
+    > work on #54
+
+ -  **AgentFunctionCallbackWrapper.java**  Annotate methods with @SuppressWarnings("unchecked") to suppress compiler warnings. ([a28b7d55d837e1d](https://github.com/bsorrentino/langgraph4j/commit/a28b7d55d837e1df67dd08bd46d88894d60860bf))
+   
+ -  **CallAgent.java**  remove unused imports and unnecessary imports ([3e861ce02b99202](https://github.com/bsorrentino/langgraph4j/commit/3e861ce02b992029834d8498b5a05c745e96ea1a))
+   
+
+### ALM 
+
+ -  bump version to 1.2.0 ([f01f97e3d585bda](https://github.com/bsorrentino/langgraph4j/commit/f01f97e3d585bda63023ec5f5135bd6869de8326))
+   
+ -  bump version to 1.2-SNAPSHOT ([2c82eaaa02dbd8b](https://github.com/bsorrentino/langgraph4j/commit/2c82eaaa02dbd8bed0ca21b472184c0e6a7453fe))
+   
+ -  bump javadoc plugin ([490a69d5184f368](https://github.com/bsorrentino/langgraph4j/commit/490a69d5184f368fd687d1747ca47fb4af11da7f))
+   
+ -  bump version to 1.2.0-SNAPSHOT ([c7b7fc130296de4](https://github.com/bsorrentino/langgraph4j/commit/c7b7fc130296de4ab48569917dec0d47f936b65a))
+   
+ -  update `spring-ai.version` to 1.0.0-M4 ([5b6e9ddc951665b](https://github.com/bsorrentino/langgraph4j/commit/5b6e9ddc951665b7bdb58e4f1c214d15d8f4b77c))
+   
+ -  **pom**  update version to 1.1-SNAPSHOT ([cb5c57108456537](https://github.com/bsorrentino/langgraph4j/commit/cb5c571084565372796d83c4b8f2f37f7b514e7e))
+    > - Updated child modules&#x27; versions to reflect parent-pom version
+ > - Bumped parent-pom version to 1.1-SNAPSHOT
+
+
+
+
+
+
 <!-- "name: v1.1.5" is a release tag -->
 
 ## [v1.1.5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.5) (2024-12-14)
