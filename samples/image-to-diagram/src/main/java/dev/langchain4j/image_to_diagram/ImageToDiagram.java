@@ -18,42 +18,93 @@ import java.util.*;
 import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.*;
 
+/**
+ * Represents the functionality to convert images to diagrams.
+ */
 public interface ImageToDiagram {
 
+    /**
+     * Represents the state of an agent, specifically tailored for managing diagram-related data and processes.
+     */
     class State extends AgentState {
         static Map<String, Channel<?>> SCHEMA = mapOf(
                 "diagramCode", AppenderChannel.<String>of(ArrayList::new)
         );
 
+        /**
+         * Constructs a new `State` object with the provided initialization data.
+         *
+         * @param initData a map containing initial state data
+         */
         public State(Map<String, Object> initData) {
             super(initData);
         }
 
+        /**
+         * Retrieves the image data as an {@link ImageToDiagramProcess.ImageUrlOrData}.
+         *
+         * @return An {@link Optional} containing the image data, or empty if not available.
+         */
         public Optional<ImageToDiagramProcess.ImageUrlOrData> imageData() {
             return value("imageData");
         }
+        /**
+         * Retrieves the diagram element associated with this object.
+         *
+         * @return an {@link Optional} containing the diagram element if it exists, otherwise an empty optional.
+         */
         public Optional<Diagram.Element> diagram() {
             return value("diagram");
         }
+        /**
+         * Returns a list of diagram code.
+         * If the "diagramCode" value is not present, returns an empty list.
+         *
+         * @return List of String representing the diagram code
+         */
         public List<String> diagramCode() {
             return this.<List<String>>value("diagramCode").orElseGet(Collections::emptyList);
         }
+        /**
+        * Retrieves the evaluation result as an {@link ImageToDiagramProcess.EvaluationResult}.
+        * 
+        * @return An {@link Optional} containing the evaluation result, or empty if not available.
+        */
         public Optional<ImageToDiagramProcess.EvaluationResult> evaluationResult() {
             return value("evaluationResult" );
         }
+        /**
+         * Returns an {@link Optional} containing the value associated with "evaluationError".
+         *
+         * @return an {@link Optional} containing the value associated with "evaluationError"
+         */
         public Optional<String> evaluationError() {
             return value("evaluationError" );
         }
+        /**
+         * Retrieves the type of evaluation error.
+         *
+         * @return an {@link Optional} containing the error UML type, or an empty optional if not available
+         */
         public Optional<ErrorUmlType> evaluationErrorType() {
             return value("evaluationErrorType" );
         }
 
+        /**
+        * Checks if an error of execution type has occurred.
+        * @return true if the error type is execution error, false otherwise
+        **/
         public boolean isExecutionError() {
             return evaluationErrorType()
                     .map( type -> type == ErrorUmlType.EXECUTION_ERROR )
                     .orElse(false);
         }
 
+        /**
+         * Checks if the last two diagrams in the code are equal.
+         *
+         * @return true if the last two diagrams are equal; false otherwise
+         */
         public boolean lastTwoDiagramsAreEqual() {
             if( diagramCode().size() < 2 ) return false;
 
@@ -75,6 +126,12 @@ public interface ImageToDiagram {
         UNKNOWN
     }
 
+    /**
+     * Retrieves an instance of the {@link OpenAiChatModel} configured for vision tasks.
+     *
+     * @return An {@link OpenAiChatModel} object with predefined settings suitable for processing images and videos.
+     * @throws IllegalArgumentException if no OPENAI_API_KEY is provided in the system properties.
+     */
     default OpenAiChatModel getVisionModel( ) {
 
         var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
@@ -93,6 +150,12 @@ public interface ImageToDiagram {
 
     }
 
+    /**
+     * Returns an instance of the default {@link OpenAiChatModel}.
+     * 
+     * @return a configured {@link OpenAiChatModel} with the API key obtained from the system property "OPENAI_API_KEY".
+     * @throws IllegalArgumentException if no OPENAI_API_KEY is provided as a system property.
+     */
     default OpenAiChatModel getModel( ) {
         var openApiKey = ofNullable( System.getProperty("OPENAI_API_KEY") )
                 .orElseThrow( () -> new IllegalArgumentException("no OPENAI_API_KEY provided!") );
@@ -109,6 +172,13 @@ public interface ImageToDiagram {
 
     }
 
+    /**
+     * Loads a {@link PromptTemplate} from the specified resource name.
+     *
+     * @param resourceName  the name of the resource file, must not be null or empty
+     * @return              the loaded {@code PromptTemplate}
+     * @throws Exception      if the resource is not found or an error occurs during reading
+     */
     static PromptTemplate loadPromptTemplate(String resourceName ) throws Exception {
         final ClassLoader classLoader = ImageToDiagram.class.getClassLoader();
         final InputStream inputStream = classLoader.getResourceAsStream(resourceName);

@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.1.5</version>
+  <version>1.2.0</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -93,7 +93,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.11.2</version>
+        <configuration>
+          <failOnWarnings>false</failOnWarnings>
+          <doclint>none</doclint>
+        </configuration>
         <reportSets>
           <reportSet>
             <id>aggregate</id>
@@ -180,7 +184,6 @@
         <jdk>1.8</jdk>
       </activation>
       <modules>
-        <module>core-jdk8</module>
       </modules>
       <build>
 
@@ -192,6 +195,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <modules>
+        <module>core</module>
         <module>langchain4j</module>
         <module>agent-executor</module>
         <module>studio</module>

@@ -366,7 +366,7 @@ public class CompiledGraph<State extends AgentState> {
     /**
      * Async Generator for streaming outputs.
      *
-     * @param <Output>
+     * @param <Output> the type of the output
      */
     public class AsyncNodeGenerator<Output extends NodeOutput<State>> implements AsyncGenerator<Output> {
 

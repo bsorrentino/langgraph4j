@@ -1,7 +1,7 @@
 
 # 🦜🕸️ LangGraph for Java
 
-[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.0--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core-jdk8.svg)][releases]
+[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.0--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
@@ -51,9 +51,13 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 ## Releases
 
+**Note: ‼️**
+> From release 1.2.x the miminum supported Java version is the `Java 17` and
+> the artifact `langgraph4j-core-jdk8` is replaced by `langgraph4j-core`
+
 | Date         | Release        | info
 |--------------|----------------| ---
-| Nov 26, 2024 | `1.1.5` | official release 
+| Jan 05, 2025 | `1.2.0` | official release
 
 
 ## Quick Start
@@ -66,8 +70,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>langgraph4j-core-jdk8</artifactId>
-    <version>1.1.5</version>
+    <artifactId>langgraph4j-core</artifactId>
+    <version></version>
 </dependency>
 ```
 
@@ -77,7 +81,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>langgraph4j-core-jdk8</artifactId>
+    <artifactId>langgraph4j-core</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -240,7 +244,7 @@ It is available an **embed playground webapp** able to run a Langgraph4j workflo
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-studio</artifactId>
-    <version>1.1.5</version>
+    <version></version>
 <dependency>
 ```
 

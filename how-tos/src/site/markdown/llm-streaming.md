@@ -1,5 +1,7 @@
 # Langchain4j LLM streaming
 
+
+
 ### Initialize Logger
 
 
@@ -50,25 +52,20 @@ log.info( "RESULT: {}", generator.resultValue().orElse(null) );
 
     StreamingOutput{chunk=} 
     StreamingOutput{chunk=Why} 
-    StreamingOutput{chunk= did} 
-    StreamingOutput{chunk= the} 
-    StreamingOutput{chunk= scare} 
-    StreamingOutput{chunk=crow} 
-    StreamingOutput{chunk= win} 
-    StreamingOutput{chunk= an} 
-    StreamingOutput{chunk= award} 
+    StreamingOutput{chunk= don't} 
+    StreamingOutput{chunk= scientists} 
+    StreamingOutput{chunk= trust} 
+    StreamingOutput{chunk= atoms} 
     StreamingOutput{chunk=?
     
     } 
     StreamingOutput{chunk=Because} 
-    StreamingOutput{chunk= he} 
-    StreamingOutput{chunk= was} 
-    StreamingOutput{chunk= outstanding} 
-    StreamingOutput{chunk= in} 
-    StreamingOutput{chunk= his} 
-    StreamingOutput{chunk= field} 
+    StreamingOutput{chunk= they} 
+    StreamingOutput{chunk= make} 
+    StreamingOutput{chunk= up} 
+    StreamingOutput{chunk= everything} 
     StreamingOutput{chunk=!} 
-    RESULT: {content=AiMessage { text = "Why did the scarecrow win an award?
+    RESULT: {content=AiMessage { text = "Why don't scientists trust atoms?
     
-    Because he was outstanding in his field!" toolExecutionRequests = null }} 
+    Because they make up everything!" toolExecutionRequests = null }} 
 

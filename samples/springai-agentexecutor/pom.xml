@@ -11,7 +11,7 @@
 
 	<groupId>org.bsc.langgraph4j</groupId>
 	<artifactId>langgraph4j-springai-agentexecutor</artifactId>
-	<version>1.1.5</version>
+	<version>1.2.0</version>
 	<packaging>jar</packaging>
 
 	<name>langgraph4j::sample::springai::agentexecutor</name>
@@ -29,7 +29,7 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<spring-ai.version>1.0.0-M3</spring-ai.version>
+		<spring-ai.version>1.0.0-M4</spring-ai.version>
 	</properties>
 
 	<dependencies>
@@ -40,7 +40,7 @@
 
 		<dependency>
 			<groupId>org.bsc.langgraph4j</groupId>
-			<artifactId>langgraph4j-core-jdk8</artifactId>
+			<artifactId>langgraph4j-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

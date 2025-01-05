@@ -9,9 +9,19 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
+/**
+ * Represents the result of evaluating a route.
+ */
 @Slf4j
 public class RouteEvaluationResult implements EdgeAction<ImageToDiagram.State> {
 
+    /**
+     * Determines the evaluation result based on the current state of the image-to-diagram conversion process.
+     *
+     * @param state The current state of the image-to-diagram conversion, which must contain an evaluation result.
+     * @return A string representing the name of the evaluation result.
+     * @throws IllegalArgumentException if no evaluation result is provided in the state.
+     */
     @Override
     public String apply(ImageToDiagram.State state) {
         ImageToDiagram.EvaluationResult evaluationResult = state.evaluationResult()

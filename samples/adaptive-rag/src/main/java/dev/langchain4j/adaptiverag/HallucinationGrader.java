@@ -1,5 +1,4 @@
 package dev.langchain4j.adaptiverag;
-
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.structured.StructuredPrompt;
@@ -9,11 +8,14 @@ import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import lombok.Value;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
-
+/**
+ * Provides functionality to grade the groundedness of an LLM generation with respect to a set of facts. 
+ * The class implements the {@link Function} interface, which accepts parameters of type {@link Arguments}
+ * and returns a score indicating whether the generation is grounded or not.
+ */
 @Value(staticConstructor="of")
 public class HallucinationGrader implements Function<HallucinationGrader.Arguments,HallucinationGrader.Score> {
 
@@ -26,6 +28,14 @@ public class HallucinationGrader implements Function<HallucinationGrader.Argumen
         public String binaryScore;
     }
 
+    /**
+     * Represents a set of facts and an associated LLM generation.
+     * 
+     * <p>
+     * This class is intended to encapsulate the necessary parameters for processing structured prompts,
+     * including a list of documents and a generated language model response (LLM).
+     * </p>
+     */
     @StructuredPrompt("Set of facts: \\n\\n {{documents}} \\n\\n LLM generation: {{generation}}")
     @Value(staticConstructor = "of")
     public static class Arguments {
@@ -33,8 +43,17 @@ public class HallucinationGrader implements Function<HallucinationGrader.Argumen
         String generation;
     }
 
+    /**
+     * Interface for service operations.
+     */
     interface Service {
 
+        /**
+         * Calculates the grounding score for a given user message based on whether it is grounded in/out supported by the retrieved facts.
+         *
+         * @param userMessage The user's message to be evaluated.
+         * @return A binary score 'yes' or 'no', indicating if the answer is grounded in/supported by the set of facts.
+         */
         @SystemMessage(
                 "You are a grader assessing whether an LLM generation is grounded in / supported by a set of retrieved facts. \n" +
                 "Give a binary score 'yes' or 'no'. 'Yes' means that the answer is grounded in / supported by the set of facts.")
@@ -44,6 +63,9 @@ public class HallucinationGrader implements Function<HallucinationGrader.Argumen
 
     String openApiKey;
 
+    /** Applies the provided arguments to a chat language model and returns the score. Uses OpenAI's GPT-3.5-Turbo model with specified settings. Logs requests and responses, retries twice, and has a max token limit of 2000. 
+     * @param args The arguments to be applied.
+     * @return A Score object from the AI grader's invocation. */
     @Override
     public Score apply(Arguments args) {
         ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
