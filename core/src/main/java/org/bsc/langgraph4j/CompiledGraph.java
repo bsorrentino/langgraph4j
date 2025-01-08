@@ -288,13 +288,9 @@ public class CompiledGraph<State extends AgentState> {
      */
     public Optional<State> invoke(Map<String,Object> inputs, RunnableConfig config ) throws Exception {
 
-        Iterator<NodeOutput<State>> sourceIterator = stream(inputs, config).iterator();
-
-        java.util.stream.Stream<NodeOutput<State>> result = StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
-                false);
-
-        return  result.reduce((a, b) -> b).map( NodeOutput::state);
+       return stream(inputs, config).stream()
+                                        .reduce((a, b) -> b)
+                                        .map( NodeOutput::state);
     }
 
     /**
