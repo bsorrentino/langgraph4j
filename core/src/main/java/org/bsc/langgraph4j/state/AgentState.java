@@ -35,6 +35,10 @@ public class AgentState {
         return unmodifiableMap(data);
     }
 
+    public final boolean resetDataByKey(String key) {
+        return this.data.remove(key) != null;
+    }
+
     /**
      * Retrieves the value associated with the given key, if present.
      *

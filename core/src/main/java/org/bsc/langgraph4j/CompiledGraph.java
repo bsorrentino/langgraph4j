@@ -437,6 +437,8 @@ public class CompiledGraph<State extends AgentState> {
                                 if (!(data instanceof Map)) {
                                     throw new IllegalArgumentException("Embedded generator must return a Map");
                                 }
+                                Map<String, Object> resultData = (Map<String, Object>) data;
+                                resultData.keySet().forEach( key -> currentState.remove(key));
                                 currentState = AgentState.updateState(currentState, (Map<String, Object>) data, stateGraph.getChannels());
                             }
 
