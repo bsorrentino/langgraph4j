@@ -434,10 +434,12 @@ public class CompiledGraph<State extends AgentState> {
 
                             if (data != null) {
 
-                                if (!(data instanceof Map)) {
+                                if (data instanceof Map<?,?>) {
+                                    currentState = (Map<String,Object>)data;
+                                }
+                                else {
                                     throw new IllegalArgumentException("Embedded generator must return a Map");
                                 }
-                                currentState = AgentState.updateState(currentState, (Map<String, Object>) data, stateGraph.getChannels());
                             }
 
                             nextNodeId = nextNodeId(currentNodeId, currentState);
@@ -506,11 +508,11 @@ public class CompiledGraph<State extends AgentState> {
             // GUARD: CHECK MAX ITERATION REACHED
             if( ++iteration > maxIterations ) {
                 log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
-                return Data.done();
+                return Data.done(currentState);
             }
 
             // GUARD: CHECK IF IT IS END
-            if( nextNodeId == null &&  currentNodeId == null  ) return Data.done();
+            if( nextNodeId == null &&  currentNodeId == null  ) return Data.done(currentState);
 
             try {
                 // IS IT A RESUME FROM EMBED ?
