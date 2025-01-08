@@ -506,11 +506,11 @@ public class CompiledGraph<State extends AgentState> {
             // GUARD: CHECK MAX ITERATION REACHED
             if( ++iteration > maxIterations ) {
                 log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
-                return Data.done();
+                return Data.done(currentState);
             }
 
             // GUARD: CHECK IF IT IS END
-            if( nextNodeId == null &&  currentNodeId == null  ) return Data.done();
+            if( nextNodeId == null &&  currentNodeId == null  ) return Data.done(currentState);
 
             try {
                 // IS IT A RESUME FROM EMBED ?
