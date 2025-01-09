@@ -2,6 +2,48 @@
 
 
 
+<!-- "name: v1.2.1" is a release tag -->
+
+## [v1.2.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.1) (2025-01-08)
+
+### Features
+
+ *  merge pull request #59 ([c9baa6c47ce4d6d](https://github.com/bsorrentino/langgraph4j/commit/c9baa6c47ce4d6d4075efec1daa0b86745a69656))
+     > fix issue #55
+   
+
+### Bug Fixes
+
+ -  **README.md**  update dependency version ([128f5f080d54cd7](https://github.com/bsorrentino/langgraph4j/commit/128f5f080d54cd74131c48d6daccb9ccc6cc6a01))
+     > The commit updates the dependency version in the README.md file to 1.2.0, ensuring that users can easily install the correct version of the LangGraph for Java library.
+     > - CHANGELOG: incremented langgraph4j-core dependency version
+
+ -  update javadoc ([3ed265942dabb13](https://github.com/bsorrentino/langgraph4j/commit/3ed265942dabb13de954695b9085c370c77c0946))
+
+
+### Documentation
+
+ -  update changeme ([c306defe68d2f7c](https://github.com/bsorrentino/langgraph4j/commit/c306defe68d2f7cd20b2e68dbba583c41e224c80))
+
+
+
+### ALM 
+
+ -  bump version to 1.2.1 ([3ee702eb088553f](https://github.com/bsorrentino/langgraph4j/commit/3ee702eb088553f712295f666e1bbd8adf185d17))
+   
+ -  bump version to 1.2.1 ([0f35d0a934a48d7](https://github.com/bsorrentino/langgraph4j/commit/0f35d0a934a48d7f342caae4956932c7c7b80193))
+   
+ -  update version to SNAPSHOT ([ba8e5fb20e8fa3b](https://github.com/bsorrentino/langgraph4j/commit/ba8e5fb20e8fa3b1ac072cfb430c0777807149f6))
+    > Bump the project version from 1.2.0 to 1.2-SNAPSHOT, preparing for development of the next release cycle.
+
+ -  update version to SNAPSHOT ([1cd97afed49a531](https://github.com/bsorrentino/langgraph4j/commit/1cd97afed49a5311689f3be9eac561e284c01b7d))
+    > Bump the project version from 1.2.0 to 1.2-SNAPSHOT, preparing for development of the next release cycle.
+
+
+
+
+
+
 <!-- "name: v1.2.0" is a release tag -->
 
 ## [v1.2.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.0) (2025-01-05)

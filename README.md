@@ -1,7 +1,7 @@
 
 # 🦜🕸️ LangGraph for Java
 
-[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.0--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
+[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.2--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
@@ -43,7 +43,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Jan 05, 2025 | `1.2.0` | official release
+| Jan 08, 2025 | `1.2.1` | official release
 
 
 ## Samples
@@ -73,7 +73,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 </dependency>
 ```
 
