@@ -2,6 +2,69 @@
 
 
 
+<!-- "name: v1.2.2" is a release tag -->
+
+## [v1.2.2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.2) (2025-01-10)
+
+
+### Bug Fixes
+
+ -  **core**  conditionally use input based on checkpointSaver presence ([3291e6485e199f1](https://github.com/bsorrentino/langgraph4j/commit/3291e6485e199f122ac8f90215119134d3b06407))
+     > - refactored async generator handling to conditionally use &#x60;state.data()&#x60; or an empty map (&#x60;Map.of()&#x60;) based on the presence of &#x60;checkpointSaver&#x60;
+     > work on #60
+
+
+### Documentation
+
+ -  update readme ([cfbd6fc01375103](https://github.com/bsorrentino/langgraph4j/commit/cfbd6fc013751038b132cd78d5d9830d9db442c6))
+
+ -  update changeme ([7dd3183b80c7a52](https://github.com/bsorrentino/langgraph4j/commit/7dd3183b80c7a52f062d14bb3ced67e1ac9cfb90))
+
+
+### Refactor
+
+ -  **CompiledGraph.java**  update node action initialization ([a6467614f519946](https://github.com/bsorrentino/langgraph4j/commit/a6467614f5199461a2a6d3e1a4f295402a48df39))
+    > Refactored the way node actions are initialized to use an action factory from the &#x60;StateNode&#x60; and apply it with the compile configuration. Ensured that each node has a non-null action factory before proceeding.
+ > BREAKING CHANGE: The previous approach of directly associating nodes with their actions without factories is deprecated.
+ > work on #60
+
+ -  **StateGraph**  update addSubgraph method behavior using actionFactory ([fffce294a657cf9](https://github.com/bsorrentino/langgraph4j/commit/fffce294a657cf9faf09c0759d4a922303469eca))
+    > - Deprecate the &#x60;addSubgraph(CompiledGraph)
+ > - Add &#x60;addSubgraph(StateGraph)&#x60;
+ > work on #60
+
+ -  **DiagramGenerator.java**  Refactored subgraph node action handling to use factory method ([ac0e989ad7fa674](https://github.com/bsorrentino/langgraph4j/commit/ac0e989ad7fa674d11d2d73bab37aee1be398990))
+    > work on #60
+
+ -  **Node.java**  refine class structure and add factory method ([56474015bdacf5f](https://github.com/bsorrentino/langgraph4j/commit/56474015bdacf5fada8fcf7f8b742e913957651d))
+    > - Update class to be a record for improved immutability and simplicity.
+ > - Replace constructor overloads with a single constructor for &#x60;id&#x60; only, using a lambda expression for optional action factory.
+ > - Remove deprecated fields and methods (&#x60;action&#x60; field, redundant constructors).
+ > work on #60
+
+ -  update SubgraphNodeAction constructor and method parameters ([e5254216017a072](https://github.com/bsorrentino/langgraph4j/commit/e5254216017a072bdd765071559927af349e7e4b))
+    > Refactored &#x60;SubgraphNodeAction&#x60; to accept &#x60;StateGraph&lt;State&gt;&#x60; and &#x60;CompileConfig&#x60; instead of just &#x60;CompiledGraph&lt;State&gt;&#x60;. Updated the method parameter for the stream call to use a default empty map instead of state data.
+ > work on #60
+
+ -  **StateGraphTest.java**  add debugging output to workflow stream ([1582432e6b5040f](https://github.com/bsorrentino/langgraph4j/commit/1582432e6b5040fbae5c019c35f39bf13d640199))
+   
+ -  **Channel.java**  add type casting suppression in update method ([6e3ff39cae4d930](https://github.com/bsorrentino/langgraph4j/commit/6e3ff39cae4d930521f5975df158e94fe195714e))
+   
+ -  **CompiledGraph.java**  optimize invoke method ([b55be86be761949](https://github.com/bsorrentino/langgraph4j/commit/b55be86be761949629c2aee28689663c9f2de112))
+    > Refactored the &#x60;invoke&#x60; method in &#x60;CompiledGraph.java&#x60; to streamline the reduction process. This change reduces the overhead by eliminating unnecessary intermediate collections and stream operations.
+
+
+### ALM 
+
+ -  bump version to 1.2.2 ([d2c19b620c4786b](https://github.com/bsorrentino/langgraph4j/commit/d2c19b620c4786b9e360054c4c75f552ef6fa136))
+   
+ -  bump version to SNAPSHOT ([deec2e9c480cfe5](https://github.com/bsorrentino/langgraph4j/commit/deec2e9c480cfe534b258bf7e9770ef78355cc00))
+   
+
+
+
+
+
 <!-- "name: v1.2.1" is a release tag -->
 
 ## [v1.2.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.1) (2025-01-08)
