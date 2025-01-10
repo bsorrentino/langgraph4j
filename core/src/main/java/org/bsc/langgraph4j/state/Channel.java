@@ -85,6 +85,7 @@ public interface Channel<T> {
      * @param newValue the new value to be set
      * @return the new value of the state property
      */
+    @SuppressWarnings("unchecked")
     default Object update(String key, Object oldValue, Object newValue) {
         T _new = (T)newValue;
 

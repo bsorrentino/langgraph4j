@@ -43,7 +43,7 @@ public class CompiledGraph<State extends AgentState> {
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
 
     private int maxIterations = 25;
-    private final CompileConfig compileConfig;
+    protected final CompileConfig compileConfig;
 
     /**
      * Constructs a CompiledGraph with the given StateGraph.
@@ -53,9 +53,12 @@ public class CompiledGraph<State extends AgentState> {
     protected CompiledGraph(StateGraph<State> stateGraph, CompileConfig compileConfig ) {
         this.stateGraph = stateGraph;
         this.compileConfig = compileConfig;
-        stateGraph.nodes.forEach(n ->
-                nodes.put(n.id(), n.action())
-        );
+
+        for (var n : stateGraph.nodes) {
+            var factory = n.actionFactory();
+            Objects.requireNonNull(factory, format("action factory for node id '%s' is null!", n.id()) );
+            nodes.put(n.id(), factory.apply(compileConfig));
+        }
 
         stateGraph.edges.forEach(e ->
                 edges.put(e.sourceId(), e.target())
@@ -288,13 +291,9 @@ public class CompiledGraph<State extends AgentState> {
      */
     public Optional<State> invoke(Map<String,Object> inputs, RunnableConfig config ) throws Exception {
 
-        Iterator<NodeOutput<State>> sourceIterator = stream(inputs, config).iterator();
-
-        java.util.stream.Stream<NodeOutput<State>> result = StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(sourceIterator, Spliterator.ORDERED),
-                false);
-
-        return  result.reduce((a, b) -> b).map( NodeOutput::state);
+       return stream(inputs, config).stream()
+                                        .reduce((a, b) -> b)
+                                        .map( NodeOutput::state);
     }
 
     /**
