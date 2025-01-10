@@ -13,8 +13,8 @@ class SubgraphNodeAction<State extends AgentState> implements AsyncNodeActionWit
 
     final CompiledGraph<State> subGraph;
 
-    SubgraphNodeAction(CompiledGraph<State> subGraph ) {
-        this.subGraph = subGraph;
+    SubgraphNodeAction(StateGraph<State> subGraph, CompileConfig config ) throws GraphStateException {
+        this.subGraph = subGraph.compile(config);
     }
 
     @Override
@@ -23,7 +23,7 @@ class SubgraphNodeAction<State extends AgentState> implements AsyncNodeActionWit
 
         try {
 
-            AsyncGenerator<NodeOutput<State>> generator = subGraph.stream( state.data(), config );
+            AsyncGenerator<NodeOutput<State>> generator = subGraph.stream( /*state.data()*/ Map.of(), config );
 
             future.complete( mapOf( "_subgraph", generator ) );
 
