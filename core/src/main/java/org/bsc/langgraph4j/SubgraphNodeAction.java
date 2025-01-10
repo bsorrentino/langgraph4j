@@ -22,8 +22,11 @@ class SubgraphNodeAction<State extends AgentState> implements AsyncNodeActionWit
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
 
         try {
+            final Map<String,Object> input = ( subGraph.compileConfig.checkpointSaver().isPresent() ) ?
+                                            Map.of() :
+                                            state.data() ;
 
-            AsyncGenerator<NodeOutput<State>> generator = subGraph.stream( /*state.data()*/ Map.of(), config );
+            var generator = subGraph.stream( input, config );
 
             future.complete( mapOf( "_subgraph", generator ) );
 
