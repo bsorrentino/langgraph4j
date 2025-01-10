@@ -234,7 +234,7 @@ public class StateGraph<State extends AgentState> {
      * @param subGraph the compiled subgraph to be added
      * @return this state graph instance
      * @throws GraphStateException if the node identifier is invalid or the node already exists
-     * @Deprecated This method is deprecated because since the subgraph's state with the parent graph, the compilation
+     * @deprecated This method is deprecated because since the subgraph's state with the parent graph, the compilation
      *             must be done with the same compile config of the parent to avoid unintended side effects.
      *             Use {@link #addSubgraph(String, StateGraph)} instead.
      */
