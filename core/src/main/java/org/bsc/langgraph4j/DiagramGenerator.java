@@ -63,8 +63,8 @@ public abstract class DiagramGenerator {
 
         stateGraph.nodes
                 .forEach( n -> {
-                    if( n.action() instanceof SubgraphNodeAction ) {
-                        SubgraphNodeAction<State> subgraphNodeAction = (SubgraphNodeAction<State>) n.action();
+                    var action =  n.actionFactory().apply( CompileConfig.builder().build() );
+                    if( action instanceof SubgraphNodeAction<?>  subgraphNodeAction) {
                         Context subgraphCtx = generate( subgraphNodeAction.subGraph.stateGraph,
                                                         Context.builder()
                                                                 .title( n.id() )
