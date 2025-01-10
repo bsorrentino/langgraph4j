@@ -200,11 +200,24 @@ public class StateGraphTest {
                 .addEdge("step_3", END)
                 .compile();
 
-        var result  = workflowParent.stream(Map.of());
-        for (NodeOutput<MessagesState> nodeOutput : result) {
-            System.out.println(nodeOutput);
-        }
+        var stream = workflowParent.stream(Map.of()).stream();
 
+
+        // NodeOutput{node=__START__, state={messages=[]}}
+        // NodeOutput{node=step_1, state={messages=[step1]}}
+        // NodeOutput{node=step_2, state={messages=[step1, step2]}}
+        // NodeOutput{node=__START__, state={messages=[step1, step2]}}
+        // NodeOutput{node=child:step_1, state={messages=[step1, step2, child:step1]}}
+        // NodeOutput{node=child:step_2, state={messages=[step1, step2, child:step1, child:step2]}}
+        // NodeOutput{node=child:step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
+        // NodeOutput{node=__END__, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
+        // NodeOutput{node=subgraph, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
+        // NodeOutput{node=step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3, step3]}}
+        // NodeOutput{node=__END__, state={messages=[step1, step2, child:step1, child:step2, child:step3, step3]}}
+        var result = stream.reduce((a, b) -> b).map(NodeOutput::state);
+
+        assertTrue(result.isPresent());
+        assertIterableEquals(List.of("step1", "step2", "child:step1", "child:step2", "child:step3", "step3"), result.get().messages());
 
     }
     @Test
@@ -245,11 +258,24 @@ public class StateGraphTest {
                 .addEdge("step_3", END)
                 .compile(compileConfig);
 
-        var result  = workflowParent.stream(Map.of());
-        for (NodeOutput<MessagesState> nodeOutput : result) {
-            System.out.println(nodeOutput);
-        }
+        var stream = workflowParent.stream(Map.of()).stream();
 
+
+//        NodeOutput{node=__START__, state={messages=[]}}
+//        NodeOutput{node=step_1, state={messages=[step1]}}
+//        NodeOutput{node=step_2, state={messages=[step1, step2]}}
+//        NodeOutput{node=__START__, state={messages=[step1, step2]}}
+//        NodeOutput{node=child:step_1, state={messages=[step1, step2, child:step1]}}
+//        NodeOutput{node=child:step_2, state={messages=[step1, step2, child:step1, child:step2]}}
+//        NodeOutput{node=child:step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
+//        NodeOutput{node=__END__, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
+//        NodeOutput{node=subgraph, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
+//        NodeOutput{node=step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3, step3]}}
+//        NodeOutput{node=__END__, state={messages=[step1, step2, child:step1, child:step2, child:step3, step3]}}
+        var result = stream.reduce((a, b) -> b).map(NodeOutput::state);
+
+        assertTrue(result.isPresent());
+        assertIterableEquals(List.of("step1", "step2", "child:step1", "child:step2", "child:step3", "step3"), result.get().messages());
 
     }
 
