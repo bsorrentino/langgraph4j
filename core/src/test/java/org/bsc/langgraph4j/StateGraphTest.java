@@ -180,7 +180,8 @@ public class StateGraphTest {
                 .addEdge("child:step_1", "child:step_2")
                 .addEdge("child:step_2", "child:step_3")
                 .addEdge("child:step_3", END)
-                .compile();
+                //.compile()
+                ;
         var step1 = node_async((MessagesState state) -> Map.of("messages", "step1"));
 
         var step2 = node_async((MessagesState state) -> Map.of("messages", "step2"));
