@@ -244,7 +244,12 @@ public class CompiledGraph<State extends AgentState> {
 
         return compileConfig.checkpointSaver()
                 .flatMap( saver -> saver.get( config ) )
-                .map( cp -> AgentState.updateState( cp.getState(), inputs, stateGraph.getChannels() ))
+                .map( cp -> {
+                    if (cp.getState()==null || cp.getState().isEmpty()) {
+                        return inputs;
+                    }
+                    return cp.getState();
+                })
                 .orElseGet( () -> AgentState.updateState(getInitialStateFromSchema(), inputs, stateGraph.getChannels() ));
     }
 
