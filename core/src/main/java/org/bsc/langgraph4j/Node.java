@@ -17,7 +17,11 @@ import java.util.function.Function;
  * @param actionFactory a factory function that takes a {@link CompileConfig} and returns an
  *                      {@link AsyncNodeActionWithConfig} instance for the specified {@code State}.
  */
-record Node<State extends AgentState>(String id, Function<CompileConfig,AsyncNodeActionWithConfig<State>> actionFactory) {
+record Node<State extends AgentState>(String id, ActionFactory<State> actionFactory) {
+
+    interface ActionFactory<State extends AgentState> {
+        AsyncNodeActionWithConfig<State> apply( CompileConfig config ) throws GraphStateException;
+    }
 
     /**
      * Constructor that accepts only the `id` and sets `actionFactory` to null.
