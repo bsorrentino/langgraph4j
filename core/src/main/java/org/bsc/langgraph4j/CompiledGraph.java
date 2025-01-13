@@ -50,7 +50,7 @@ public class CompiledGraph<State extends AgentState> {
      *
      * @param stateGraph the StateGraph to be used in this CompiledGraph
      */
-    protected CompiledGraph(StateGraph<State> stateGraph, CompileConfig compileConfig ) {
+    protected CompiledGraph(StateGraph<State> stateGraph, CompileConfig compileConfig ) throws GraphStateException {
         this.stateGraph = stateGraph;
         this.compileConfig = compileConfig;
 
