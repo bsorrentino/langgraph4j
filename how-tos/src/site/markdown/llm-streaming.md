@@ -2,7 +2,7 @@
 
 
 
-### Initialize Logger
+**Initialize Logger**
 
 
 ```java
