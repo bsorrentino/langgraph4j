@@ -434,7 +434,8 @@ public class CompiledGraph<State extends AgentState> {
                             if (data != null) {
 
                                 if (data instanceof Map<?,?>) {
-                                    currentState = (Map<String,Object>)data;
+                                    // Assume that subgraph return complete state
+                                    currentState = AgentState.updateState( new HashMap<>(), (Map<String,Object>)data, stateGraph.getChannels() );
                                 }
                                 else {
                                     throw new IllegalArgumentException("Embedded generator must return a Map");
