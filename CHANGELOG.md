@@ -2,6 +2,55 @@
 
 
 
+<!-- "name: v1.2.3" is a release tag -->
+
+## [v1.2.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.3) (2025-01-13)
+
+
+### Bug Fixes
+
+ -  **CompiledGraph.java**  update state handling to assume subgraph returns complete state ([3a53ae30eca8ad1](https://github.com/bsorrentino/langgraph4j/commit/3a53ae30eca8ad118ff7ced05fe459086d760030))
+     > Refactors &#x60;CompiledGraph&#x60; to update state handling by assuming that the subgraph returns a complete state.
+
+
+### Documentation
+
+ -  bump new version ([af0af71cffc60b5](https://github.com/bsorrentino/langgraph4j/commit/af0af71cffc60b5bbea57abd4dd5a51cba5f2aa9))
+
+ -  update notebook md format ([76abfb3a680f80e](https://github.com/bsorrentino/langgraph4j/commit/76abfb3a680f80e4387f475b9229c3395fd1a8d5))
+
+ -  update notebooks documentation ([89cfeb06240e8bc](https://github.com/bsorrentino/langgraph4j/commit/89cfeb06240e8bc662bb75a79e3fa369f15b0829))
+
+ -  add javadoc ([c22714110122476](https://github.com/bsorrentino/langgraph4j/commit/c2271411012247602debd68475fe37292cba3355))
+
+ -  update Javadoc ([0bbe23b77c9e69c](https://github.com/bsorrentino/langgraph4j/commit/0bbe23b77c9e69c84382f38cf4b74a4ac95ff78d))
+
+ -  update changeme ([a67842e22c4f653](https://github.com/bsorrentino/langgraph4j/commit/a67842e22c4f6532fc8abe98a00a7084a1b9a68f))
+
+
+### Refactor
+
+ -  **StateGraph.java**  the `addSubgraph(CompiledGraph)` method is no longer deprecated. ([2bf3126ae4b16e2](https://github.com/bsorrentino/langgraph4j/commit/2bf3126ae4b16e2e35ca8acc48d85810bb845679))
+   
+ -  **Nodej**  Node Action Factory Interface ([6d00585968efcd7](https://github.com/bsorrentino/langgraph4j/commit/6d00585968efcd721c1623b35a8668f87643368d))
+    > Reformatted the &#x60;Node&#x60; record to use an interface for action factory implementation.
+
+ -  **DiagramGenerator**  add graph state exception handling and update node action factory ([7a76fdb0e834254](https://github.com/bsorrentino/langgraph4j/commit/7a76fdb0e834254b855885a18805c0b62f2621af))
+   
+ -  **CompiledGraph.java**  change constructor to throw GraphStateException ([c70b5c3f27d3aa9](https://github.com/bsorrentino/langgraph4j/commit/c70b5c3f27d3aa9b4244d31f04ebf4f74031fb6e))
+   
+
+### ALM 
+
+ -  bump new version ([4c4edc0af587b58](https://github.com/bsorrentino/langgraph4j/commit/4c4edc0af587b58f3ad5121a6b4f313c4f5ae2d6))
+   
+ -  bump version to SNAPSHOT ([78acd8a4ea21266](https://github.com/bsorrentino/langgraph4j/commit/78acd8a4ea2126616644603c21d0c659b662ee15))
+   
+
+
+
+
+
 <!-- "name: v1.2.2" is a release tag -->
 
 ## [v1.2.2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.2) (2025-01-10)
