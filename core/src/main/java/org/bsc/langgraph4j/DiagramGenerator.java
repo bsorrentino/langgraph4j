@@ -4,6 +4,7 @@ package org.bsc.langgraph4j;
 import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 
 import static java.lang.String.format;
@@ -148,18 +149,23 @@ public abstract class DiagramGenerator {
 
         stateGraph.nodes
                 .forEach( n -> {
-                    var action =  n.actionFactory().apply( CompileConfig.builder().build() );
-                    if( action instanceof SubgraphNodeAction<?>  subgraphNodeAction) {
-                        Context subgraphCtx = generate( subgraphNodeAction.subGraph.stateGraph,
-                                                        Context.builder()
-                                                                .title( n.id() )
-                                                                .printConditionalEdge( ctx.printConditionalEdge )
-                                                                .isSubgraph( true )
-                                                                .build() );
-                        ctx.sb().append( subgraphCtx );
-                    }
-                    else {
-                        declareNode(ctx, n.id());
+
+                    try {
+                        var action = n.actionFactory().apply( CompileConfig.builder().build() );
+                        if( action instanceof SubgraphNodeAction<?>  subgraphNodeAction) {
+                            Context subgraphCtx = generate( subgraphNodeAction.subGraph().stateGraph,
+                                    Context.builder()
+                                            .title( n.id() )
+                                            .printConditionalEdge( ctx.printConditionalEdge )
+                                            .isSubgraph( true )
+                                            .build() );
+                            ctx.sb().append( subgraphCtx );
+                        }
+                        else {
+                            declareNode(ctx, n.id());
+                        }
+                    } catch (GraphStateException e) {
+                        throw new RuntimeException(e);
                     }
                 });
 

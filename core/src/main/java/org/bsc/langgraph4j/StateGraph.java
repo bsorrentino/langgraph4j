@@ -234,13 +234,20 @@ public class StateGraph<State extends AgentState> {
      * @param subGraph the compiled subgraph to be added
      * @return this state graph instance
      * @throws GraphStateException if the node identifier is invalid or the node already exists
-     * @deprecated This method is deprecated because since the subgraph's state with the parent graph, the compilation
-     *             must be done with the same compile config of the parent to avoid unintended side effects.
-     *             Use {@link #addSubgraph(String, StateGraph)} instead.
      */
-    @Deprecated
     public StateGraph<State> addSubgraph(String id, CompiledGraph<State> subGraph) throws GraphStateException {
-        return this.addSubgraph( id, subGraph.stateGraph );
+        if (Objects.equals(id, END)) {
+            throw Errors.invalidNodeIdentifier.exception(END);
+        }
+        var node = new Node<>(id, ( config ) -> new SubgraphNodeAction<>(subGraph) );
+
+        if (nodes.contains(node)) {
+            throw Errors.duplicateNodeError.exception(id);
+        }
+
+        nodes.add(node);
+        return this;
+
     }
 
     /**
@@ -257,11 +264,8 @@ public class StateGraph<State extends AgentState> {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
         var node = new Node<>(id, ( config ) -> {
-            try {
-                return new SubgraphNodeAction<>(subGraph, config);
-            } catch (GraphStateException e) {
-                throw new RuntimeException(e);
-            }
+            var compiledGraph = subGraph.compile(config);
+            return new SubgraphNodeAction<>(compiledGraph);
         });
 
         if (nodes.contains(node)) {
@@ -270,7 +274,6 @@ public class StateGraph<State extends AgentState> {
 
         nodes.add(node);
         return this;
-
     }
 
     /**
