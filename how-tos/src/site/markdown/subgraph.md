@@ -1,6 +1,5 @@
 # Sub-graph sample
 
-
 ```java
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
@@ -69,7 +68,6 @@ AsyncNodeAction<State> step2 = node_async(state -> Map.of( "messages", "step2") 
 
 AsyncNodeAction<State> step3 = node_async(state -> Map.of( "messages", "step3") );
 
-
 var workflowParent = new StateGraph<>(State.SCHEMA, State::new)        
                     .addNode("step_1", step1)
                     .addNode("step_2", step2)
@@ -95,9 +93,9 @@ for( var step : workflowParent.stream( Map.of() )) {
     NodeOutput{node=child:step_2, state={messages=[step1, step2, child:step1, child:step2]}}
     NodeOutput{node=child:step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
     NodeOutput{node=__END__, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
-    NodeOutput{node=subgraph, state={messages=[step1, step2]}}
-    NodeOutput{node=step_3, state={messages=[step1, step2, step3]}}
-    NodeOutput{node=__END__, state={messages=[step1, step2, step3]}}
+    NodeOutput{node=subgraph, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
+    NodeOutput{node=step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3, step3]}}
+    NodeOutput{node=__END__, state={messages=[step1, step2, child:step1, child:step2, child:step3, step3]}}
 
 
 
@@ -183,6 +181,6 @@ display( plantUML2PNG( representation.getContent() ) )
 
 
 
-    06fa0459-6c75-4619-86a9-4cab54e15768
+    0b67fc71-9474-42ba-aa47-641ac1d6472d
 
 

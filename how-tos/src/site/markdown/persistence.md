@@ -14,7 +14,7 @@ When creating any LangGraph workflow, you can set them up to persist their state
 [`MemorySaver`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/MemorySaver.html
 
 
-### Initialize Logger
+## Initialize Logger
 
 
 ```java
@@ -208,7 +208,7 @@ AiMessage aiMessage = response.content();
 System.out.println( aiMessage );
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_lYOfO0LoZ0myCE1lRzLtnR4m", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_lHd9882UGNKBxgyGTZ5516v8", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
 
 
 ## Define the graph
@@ -393,7 +393,7 @@ for( var r : result ) {
 
     __START__
     agent
-    AiMessage { text = "Yes, your name is Bartolo. How can I help you today?" toolExecutionRequests = null }
+    AiMessage { text = "Yes, your name is Bartolo. How can I assist you today?" toolExecutionRequests = null }
     __END__
 
 
@@ -427,6 +427,6 @@ for( var r : result ) {
 
     __START__
     agent
-    AiMessage { text = "No, I don't know your name. I don't have access to personal data unless you provide it during our conversation. If you have any questions or need assistance, feel free to ask!" toolExecutionRequests = null }
+    AiMessage { text = "No, I don't know your name. I don't have access to personal data about individuals unless it has been shared with me in the course of our conversation. If you have any questions or need assistance, feel free to ask!" toolExecutionRequests = null }
     __END__
 

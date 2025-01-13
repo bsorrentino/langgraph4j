@@ -1,8 +1,7 @@
 # Use case proposed in [issue #51](https://github.com/bsorrentino/langgraph4j/issues/51) by [pakamona](https://github.com/pakamona)
 
 
-
-## Initialize Logger
+**Initialize Logger**
 
 
 ```java

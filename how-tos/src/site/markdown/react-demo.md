@@ -5,8 +5,7 @@ Simple function calling using **langchain4j** framework
 ![diagram](src/site/resources/ReACT.jpg)
 
 
-
-Initialize Logger
+**Initialize Logger**
 
 
 ```java
