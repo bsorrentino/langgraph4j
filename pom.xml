@@ -95,9 +95,6 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.11.2</version>
         <configuration>
-          <failOnWarnings>false</failOnWarnings>
-          <failOnError>false</failOnError>
-          <doclint>none</doclint>
         </configuration>
         <reportSets>
           <reportSet>
@@ -121,6 +118,15 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.11.2</version>
+        <configuration>
+          <failOnWarnings>false</failOnWarnings>
+          <doclint>none</doclint>
+        </configuration>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
