@@ -201,17 +201,7 @@ public class StateGraph<State extends AgentState> {
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
     public StateGraph<State> addNode(String id, AsyncNodeAction<State> action) throws GraphStateException {
-        if (Objects.equals(id, END)) {
-            throw Errors.invalidNodeIdentifier.exception(END);
-        }
-        Node<State> node = new Node<State>(id, action);
-
-        if (nodes.contains(node)) {
-            throw Errors.duplicateNodeError.exception(id);
-        }
-
-        nodes.add(node);
-        return this;
+        return addNode( id,  AsyncNodeActionWithConfig.of(action) );
     }
 
     /**
@@ -225,7 +215,7 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
-        Node<State> node = new Node<State>(id, actionWithConfig);
+        Node<State> node = new Node<>(id, ( config ) -> actionWithConfig);
 
         if (nodes.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -246,7 +236,44 @@ public class StateGraph<State extends AgentState> {
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
     public StateGraph<State> addSubgraph(String id, CompiledGraph<State> subGraph) throws GraphStateException {
-        return addNode(id, new SubgraphNodeAction<State>(subGraph) );
+        if (Objects.equals(id, END)) {
+            throw Errors.invalidNodeIdentifier.exception(END);
+        }
+        var node = new Node<>(id, ( config ) -> new SubgraphNodeAction<>(subGraph) );
+
+        if (nodes.contains(node)) {
+            throw Errors.duplicateNodeError.exception(id);
+        }
+
+        nodes.add(node);
+        return this;
+
+    }
+
+    /**
+     * Adds a subgraph to the state graph by creating a node with the specified identifier.
+     * This implies that Subgraph share the same state with parent graph
+     *
+     * @param id the identifier of the node representing the subgraph
+     * @param subGraph the subgraph to be added. it will be compiled on compilation of the parent
+     * @return this state graph instance
+     * @throws GraphStateException if the node identifier is invalid or the node already exists
+     */
+    public StateGraph<State> addSubgraph(String id, StateGraph<State> subGraph) throws GraphStateException {
+        if (Objects.equals(id, END)) {
+            throw Errors.invalidNodeIdentifier.exception(END);
+        }
+        var node = new Node<>(id, ( config ) -> {
+            var compiledGraph = subGraph.compile(config);
+            return new SubgraphNodeAction<>(compiledGraph);
+        });
+
+        if (nodes.contains(node)) {
+            throw Errors.duplicateNodeError.exception(id);
+        }
+
+        nodes.add(node);
+        return this;
     }
 
     /**
@@ -266,7 +293,7 @@ public class StateGraph<State extends AgentState> {
             return this;
         }
 
-        Edge<State> edge = new Edge<State>(sourceId, new EdgeValue<>(targetId, null));
+        Edge<State> edge = new Edge<>(sourceId, new EdgeValue<>(targetId, null));
 
         if (edges.contains(edge)) {
             throw Errors.duplicateEdgeError.exception(sourceId);

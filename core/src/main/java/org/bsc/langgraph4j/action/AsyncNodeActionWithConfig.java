@@ -7,6 +7,11 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
+/**
+ * Represents an asynchronous action that can be executed with a configuration.
+ *
+ * @param <S> the type of the agent state
+ */
 public interface AsyncNodeActionWithConfig<S extends AgentState> extends BiFunction<S, RunnableConfig,CompletableFuture<Map<String, Object>>> {
 
     /**
@@ -18,6 +23,13 @@ public interface AsyncNodeActionWithConfig<S extends AgentState> extends BiFunct
     CompletableFuture<Map<String, Object>> apply(S t, RunnableConfig config);
 
 
+    /**
+     * Converts a synchronous {@link NodeActionWithConfig} to an asynchronous one.
+     *
+     * @param <S>   the type of agent state
+     * @param syncAction the synchronous action to be converted
+     * @return an {@link AsyncNodeActionWithConfig} representation of the given synchronous action
+     */
     static <S extends AgentState> AsyncNodeActionWithConfig<S> node_async(NodeActionWithConfig<S> syncAction) {
         return (t, config ) -> {
             CompletableFuture<Map<String, Object>> result = new CompletableFuture<>();

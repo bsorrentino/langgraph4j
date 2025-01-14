@@ -24,7 +24,7 @@ This works for [StateGraph](https://bsorrentino.github.io/langgraph4j/apidocs/or
 Below is an example.
 
 
-### Initialize logger
+**Initialize logger**
 
 
 ```java
@@ -35,7 +35,6 @@ try( var file = new java.io.FileInputStream("./logging.properties")) {
 }
 
 var log = org.slf4j.LoggerFactory.getLogger("time-travel");
-
 ```
 
 ## Define the state
@@ -223,7 +222,7 @@ result;
 
 
 
-    Optional[ToolExecutionResultMessage { id = "call_xyDCtCxKbFZEmsQfLyYm7To2" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]
+    Optional[ToolExecutionResultMessage { id = "call_Fxj8E2yoXbDgMSfAWQsCJNPt" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]
 
 
 
@@ -353,7 +352,7 @@ System.out.println(checkpoint);
 
 ```
 
-    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "Hi I'm Bartolo." }] }, AiMessage { text = "Hello Bartolo! How can I assist you today?" toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-num-1, checkPointId=f0981175-0038-4a7b-9435-0714cb3cac52, nextNode=__END__, streamMode=VALUES)}
+    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "Hi I'm Bartolo." }] }, AiMessage { text = "Hello Bartolo! How can I assist you today?" toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-num-1, checkPointId=28e31caf-9262-42f0-ba80-6ba36d6dedd7, nextNode=__END__, streamMode=VALUES)}
 
 
 The current state is the two messages we've seen above, 1. the Human Message we sent in, 2. the AIMessage we got back from the model.
@@ -432,7 +431,7 @@ for( var r : result ) {
     __START__
     {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }]}
     agent
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }]}
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }]}
 
 
 ## Get State
@@ -471,13 +470,13 @@ for( var r : result ) {
     execute: execQuery 
     RESULT:
     tools
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_jeWWgDvBKlrwFSwJQbd78NOc" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]} 
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_hFit5cdY8QSfgrcKAqLjrDoW" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]} 
     RESULT:
     agent
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_jeWWgDvBKlrwFSwJQbd78NOc" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]} 
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_hFit5cdY8QSfgrcKAqLjrDoW" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]} 
     RESULT:
     __END__
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_jeWWgDvBKlrwFSwJQbd78NOc" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]} 
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_hFit5cdY8QSfgrcKAqLjrDoW" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]} 
 
 
 ## Check full history
@@ -505,19 +504,19 @@ if (toReplay==null) {
 
     
     ---
-    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_jeWWgDvBKlrwFSwJQbd78NOc" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=d3c58e30-1d33-48f9-b265-6e0c55876030, nextNode=__END__, streamMode=VALUES)}
+    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_hFit5cdY8QSfgrcKAqLjrDoW" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=1569cd55-656e-4dfe-acf8-cdc4a2e83600, nextNode=__END__, streamMode=VALUES)}
     --- 
     
     ---
-    StateSnapshot{node=tools, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_jeWWgDvBKlrwFSwJQbd78NOc" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=df2b3eb9-d96a-48da-add7-e6a4f69cd027, nextNode=agent, streamMode=VALUES)}
+    StateSnapshot{node=tools, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_hFit5cdY8QSfgrcKAqLjrDoW" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=15aee88b-b2ff-4f59-883c-19c56d301637, nextNode=agent, streamMode=VALUES)}
     --- 
     
     ---
-    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_jeWWgDvBKlrwFSwJQbd78NOc" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=b96ebace-ac3b-4640-b977-b8aa26e2943d, nextNode=tools, streamMode=VALUES)}
+    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_hFit5cdY8QSfgrcKAqLjrDoW" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=cf1d2153-787e-477c-afaf-178826992e40, nextNode=tools, streamMode=VALUES)}
     --- 
     
     ---
-    StateSnapshot{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=40797728-1f2f-4729-a675-1ab2c30b2b56, nextNode=agent, streamMode=VALUES)}
+    StateSnapshot{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }]}, config=RunnableConfig(threadId=conversation-2, checkPointId=d2e236e3-be5f-4622-b483-00274a758dca, nextNode=agent, streamMode=VALUES)}
     --- 
 
 
@@ -537,12 +536,14 @@ for( var r : results ) {
 
     RESUME REQUEST 
     RESUME FROM tools 
+
+
     RESULT:
     agent
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_jeWWgDvBKlrwFSwJQbd78NOc" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_hFit5cdY8QSfgrcKAqLjrDoW" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
     --- 
     RESULT:
     __END__
-    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_jeWWgDvBKlrwFSwJQbd78NOc", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_jeWWgDvBKlrwFSwJQbd78NOc" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
+    {messages=[UserMessage { name = null contents = [TextContent { text = "What's the weather like in SF currently?" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_hFit5cdY8QSfgrcKAqLjrDoW", name = "execQuery", arguments = "{"query":"current weather in San Francisco"}" }] }, ToolExecutionResultMessage { id = "call_hFit5cdY8QSfgrcKAqLjrDoW" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }, AiMessage { text = "The current weather in San Francisco is cold, with a low of 13 degrees Celsius." toolExecutionRequests = null }]}
     --- 
 

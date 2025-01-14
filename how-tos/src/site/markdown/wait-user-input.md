@@ -1,6 +1,5 @@
 # Wait for User Input
 
-
 ```java
 import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.FileFormatOption;

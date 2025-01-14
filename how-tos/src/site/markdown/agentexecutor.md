@@ -1,6 +1,7 @@
 # Agent Executor
 
-Initialize Logger
+
+**Initialize Logger**
 
 
 ```java

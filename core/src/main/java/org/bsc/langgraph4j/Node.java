@@ -1,49 +1,39 @@
 package org.bsc.langgraph4j;
 
-import lombok.Value;
-import lombok.experimental.Accessors;
-import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
- * Represents a node in a graph with a unique identifier and an associated action.
+ * Represents a node in a graph, characterized by a unique identifier and a factory for creating
+ * actions to be executed by the node. This is a generic record where the state type is specified
+ * by the type parameter {@code State}.
  *
- * @param <State> the type of the state associated with the node
+ * @param <State> the type of the state associated with the node; it must extend {@link AgentState}.
+ * @param id the unique identifier for the node.
+ * @param actionFactory a factory function that takes a {@link CompileConfig} and returns an
+ *                      {@link AsyncNodeActionWithConfig} instance for the specified {@code State}.
  */
-@Value
-@Accessors(fluent = true)
-class Node<State extends AgentState> {
+record Node<State extends AgentState>(String id, ActionFactory<State> actionFactory) {
 
-    
-    /**
-     * The unique identifier for the node.
-     */
-    String id;
+    interface ActionFactory<State extends AgentState> {
+        AsyncNodeActionWithConfig<State> apply( CompileConfig config ) throws GraphStateException;
+    }
 
     /**
-     * The action to be performed asynchronously by the node.
+     * Constructor that accepts only the `id` and sets `actionFactory` to null.
+     *
+     * @param id the unique identifier for the node
      */
-    AsyncNodeActionWithConfig<State> action;
+    public Node(String id) {
+        this(id, null);
+    }
 
-    public Node( String id ) {
-        this.id = id;
-        this.action = null;
-
-    }
-    public Node( String id, AsyncNodeAction<State> action ) {
-        this.id = id;
-        this.action = AsyncNodeActionWithConfig.of(action);
-    }
-    public Node( String id, AsyncNodeActionWithConfig<State> action ) {
-        this.id = id;
-        this.action = action;
-    }
     /**
      * Checks if this node is equal to another object.
-     *
      * @param o the object to compare with
      * @return true if this node is equal to the specified object, false otherwise
      */
@@ -64,5 +54,4 @@ class Node<State extends AgentState> {
     public int hashCode() {
         return Objects.hash(id);
     }
-
 }
