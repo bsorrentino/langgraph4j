@@ -2,6 +2,55 @@
 
 
 
+<!-- "name: v1.2.4" is a release tag -->
+
+## [v1.2.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.4) (2025-01-22)
+
+### Features
+
+ *  add index_dev.html for dev purpose ([3a70023b3044cff](https://github.com/bsorrentino/langgraph4j/commit/3a70023b3044cffcb7fbe856247e0b2fcd06021c))
+     > work on #65
+   
+
+### Bug Fixes
+
+ -  **studio**  reset custom url in index.html ([3d173edfea531bd](https://github.com/bsorrentino/langgraph4j/commit/3d173edfea531bd24d0e3634420444352ee5be2b))
+     > resolve #65
+
+ -  **studio**  reset custom url in index.html ([4ec85e7623b69c2](https://github.com/bsorrentino/langgraph4j/commit/4ec85e7623b69c2ddbc1676e884ac829796131ee))
+     > resolve #65
+
+
+### Documentation
+
+ -  update documentation for new release ([6022e838e8d3de5](https://github.com/bsorrentino/langgraph4j/commit/6022e838e8d3de5b43120cb042d17ac8695f0694))
+
+ -  update changeme ([1e94eb6115e1680](https://github.com/bsorrentino/langgraph4j/commit/1e94eb6115e1680c358a49daf191f168c72b6dfb))
+
+
+### Refactor
+
+ -  **core**  update dependency version ([c85f4928a5301e0](https://github.com/bsorrentino/langgraph4j/commit/c85f4928a5301e07218fd11da8f8068682ecd968))
+    > Updated the &#x60;async-generator-jdk8&#x60; to &#x60;async-generator&#x60; and bumped its version from 2.3.0 to 3.0.0 to incorporate new features and potential bug fixes.
+
+ -  **maven-config**  update maven-javadoc-plugin configuration ([6647247eb331e62](https://github.com/bsorrentino/langgraph4j/commit/6647247eb331e62afde241c7569b5bc682590f32))
+    > This commit updates the maven-javadoc-plugin configuration to ensure it does not fail on warnings or errors and disables doclint. The changes are applied
+ > across all instances of the plugin configuration.
+
+
+### ALM 
+
+ -  bump to version 1.2.4 ([d3e201a3e4aa069](https://github.com/bsorrentino/langgraph4j/commit/d3e201a3e4aa06992218b5d28fba2222f5cc1aa3))
+   
+ -  update dev task accordly ([6551538f6b8273c](https://github.com/bsorrentino/langgraph4j/commit/6551538f6b8273c8b491e3298006a7e4bccc9af1))
+   
+ -  bump to SNAPSHOT ([c9d43a8ba839d73](https://github.com/bsorrentino/langgraph4j/commit/c9d43a8ba839d73f8b796bc4e1b51d84a92218d2))
+   
+
+
+
+
+
 <!-- "name: v1.2.3" is a release tag -->
 
 ## [v1.2.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.3) (2025-01-13)
