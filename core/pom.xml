@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-parent</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
   </parent>
 
   <artifactId>langgraph4j-core</artifactId>
@@ -31,8 +31,8 @@
 
     <dependency>
       <groupId>org.bsc.async</groupId>
-      <artifactId>async-generator-jdk8</artifactId>
-      <version>2.3.0</version>
+      <artifactId>async-generator</artifactId>
+      <version>3.0.0</version>
     </dependency>
 
     <dependency>

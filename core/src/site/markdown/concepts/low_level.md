@@ -62,7 +62,7 @@ If no [`Channel`] is specified for an item then it is assumed that all updates t
 ```java
 static class MessagesState extends AgentState {
 
-    static Map<String, Channel<?>> SCHEMA = mapOf(
+    static Map<String, Channel<?>> SCHEMA = Map.of(
             "messages", AppenderChannel.<String>of(ArrayList::new)
     );
 }
@@ -80,7 +80,7 @@ You can also specify a custom reducer for a particular state property
 ```java
 static class MyState extends AgentState {
 
-    static Map<String, Channel<?>> SCHEMA = mapOf(
+    static Map<String, Channel<?>> SCHEMA = Map.of(
             "property", Channel.<String>of( ( oldValue, newValue ) -> newValue.toUpperCase() )
     );
 }
@@ -134,7 +134,6 @@ In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeActio
 ```java
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 public class State extends AgentState {
 
@@ -149,7 +148,7 @@ public class State extends AgentState {
 
 AsyncNodeAction<State> myNode = node_async(state -> {
     System.out.println( "In myNode: " );
-    return mapOf( results: "Hello " + state.input().orElse( "" ) );  
+    return Map.of( results: "Hello " + state.input().orElse( "" ) );  
 });
 
 AsyncNodeAction<State> myOtherNode = node_async(state -> state);
@@ -215,9 +214,7 @@ graph.addEdge("nodeA", "nodeB");
 If you want to **optionally** route to 1 or more edges (or optionally terminate), you can use the [`addConditionalEdges`] method. This method accepts the name of a node and a **Functional Interface** ([`AsyncEdgeAction`]) that will be used as " routing function" to call after that node is executed:
 
 ```java
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
-
-graph.addConditionalEdges("nodeA", routingFunction, mapOf( "first": "nodeB", "second": "nodeC" ) );
+graph.addConditionalEdges("nodeA", routingFunction, Map.of( "first": "nodeB", "second": "nodeC" ) );
 ```
 
 Similar to nodes, the `routingFunction` accept the current `state` of the graph and return a string value.
@@ -245,7 +242,7 @@ A conditional entry point lets you start at different nodes depending on custom 
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
-graph.addConditionalEdges(START, routingFunction, mapOf( "first": "nodeB", "second": "nodeC" ) );
+graph.addConditionalEdges(START, routingFunction, Map.of( "first": "nodeB", "second": "nodeC" ) );
 ```
 
 You must provide an object that maps the `routingFunction`'s output to the name of the next node.
@@ -285,7 +282,7 @@ You must pass these when invoking the graph as part of the configurable part of 
 
 ```java
 
-RunnableConfig config = RunnableConfig.builder()
+var config = RunnableConfig.builder()
                                   .threadId("a")
                                   .build();
 graph.invoke(inputs, config);
