@@ -11,7 +11,7 @@
 
 	<groupId>org.bsc.langgraph4j</groupId>
 	<artifactId>langgraph4j-springai-agentexecutor</artifactId>
-	<version>1.2.4</version>
+	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>langgraph4j::sample::springai::agentexecutor</name>
