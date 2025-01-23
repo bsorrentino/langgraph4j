@@ -29,7 +29,6 @@ public class AppenderChannel<T> implements Channel<List<T>> {
         /**
          * Compares the specified element with the element at the given index.
          *
-         * @param <T>      the type of elements to compare
          * @param element  the element to be compared
          * @param atIndex  the index of the element to compare with
          * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.
@@ -103,7 +102,6 @@ public class AppenderChannel<T> implements Channel<List<T>> {
      * This method removes elements from a given list based on the specified {@link RemoveIdentifier}.
      * It creates a copy of the original list, performs the removal operation, and returns an immutable view of the result.
      *
-     * @param <T> The type of elements in the list.
      * @param list The list from which elements will be removed.
      * @param removeIdentifier An instance of {@link RemoveIdentifier} that defines how to identify elements for removal.
      * @return An unmodifiable view of the modified list with specified elements removed.
