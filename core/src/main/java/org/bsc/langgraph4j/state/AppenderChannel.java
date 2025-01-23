@@ -2,12 +2,11 @@ package org.bsc.langgraph4j.state;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.Optional.ofNullable;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 
 
 /**
@@ -19,6 +18,16 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
  */
 @Slf4j
 public class AppenderChannel<T> implements Channel<List<T>> {
+
+    /**
+     * A functional interface that is used to remove elements from a list.
+     *
+     * @param <T> the type of elements in the list
+     */
+    @FunctionalInterface
+    public interface RemoveIdentifier<T> {
+        int compareTo(T element, int atIndex );
+    }
 
     private final Reducer<List<T>> reducer;
     private final Supplier<List<T>> defaultProvider;
@@ -58,16 +67,14 @@ public class AppenderChannel<T> implements Channel<List<T>> {
     /**
      * Constructs a new instance of {@code AppenderChannel} with the specified default provider.
      *
-     * @param <T> the type of elements in the lists to be processed
      * @param defaultProvider a supplier for the default list that will be used when no other list is available
      */
-    private AppenderChannel( Supplier<List<T>> defaultProvider) {
-        this.reducer = new Reducer<List<T>>() {
+    private AppenderChannel( Supplier<List<T>> defaultProvider ) {
+        this.reducer = new Reducer<>() {
             /**
              * Combines two lists into one. If the first list is null, the second list is returned.
              * Otherwise, the second list is added to the end of the first list and the resulting list is returned.
              *
-             * @param <T>  the type of elements in the lists
              * @param left the first list; may be null
              * @param right the second list
              * @return a new list containing all elements from both input lists
@@ -84,6 +91,47 @@ public class AppenderChannel<T> implements Channel<List<T>> {
         this.defaultProvider = defaultProvider;
     }
 
+    private List<T> remove(List<T> list, RemoveIdentifier<T> removeIdentifier ) {
+        var result = new ArrayList<>(list);
+        removeFromList(result, removeIdentifier);
+        return unmodifiableList(result);
+    }
+
+    private void removeFromList(List<T> result, RemoveIdentifier<T> removeIdentifier ) {
+        for( int i = 0; i < result.size(); i++ ) {
+            if( removeIdentifier.compareTo( result.get(i), i ) == 0 ) {
+                result.remove(i);
+                break;
+            }
+        }
+    }
+
+    record RemoveData<T>( List<T> oldValues, List<?> newValues) {
+
+        // copy constructor. make sure to copy the list to make them modifiable
+        public RemoveData {
+            oldValues = new ArrayList<>(oldValues);
+            newValues = new ArrayList<>(newValues);
+        }
+    };
+
+    @SuppressWarnings("unchecked")
+    private RemoveData<T> evaluateRemoval(List<T> oldValues, List<?> newValues ) {
+
+        final var result = new RemoveData<>( oldValues, newValues );
+
+        newValues.stream()
+                 .filter( value -> value instanceof RemoveIdentifier<?> )
+                 .forEach( value -> {
+                        result.newValues().remove( value );
+                        var removeIdentifier = (RemoveIdentifier<T>) value;
+                        removeFromList( result.oldValues(), removeIdentifier );
+
+                });
+        return result;
+
+    }
+
     /**
      * Updates the value for a given key in the channel.
      * 
@@ -95,28 +143,39 @@ public class AppenderChannel<T> implements Channel<List<T>> {
      * 
      * @throws UnsupportedOperationException   If the channel does not support updates, typically due to an immutable list being used.
      */
+    @SuppressWarnings("unchecked")
     public Object update( String key, Object oldValue, Object newValue) {
 
         if( newValue == null ) {
             return oldValue;
         }
+
+        boolean oldValueIsList = oldValue instanceof List<?>;
+
         try {
+            if( oldValueIsList && newValue instanceof RemoveIdentifier<?> ) {
+                return remove( (List<T>)oldValue, (RemoveIdentifier<T>)newValue);
+            }
             List<?> list = null;
             if (newValue instanceof List) {
-                list = (List<?>) newValue;
+                list = (List<Object>) newValue;
             } else if (newValue.getClass().isArray()) {
-                list = Arrays.asList((Object[]) newValue);
+                list = Arrays.asList((T[])newValue);
             }
             if (list != null) {
                 if (list.isEmpty()) {
                     return oldValue;
+                }
+                if( oldValueIsList ) {
+                    var result = evaluateRemoval( (List<T>)oldValue, list );
+                    return Channel.super.update(key, result.oldValues(), result.newValues());
                 }
                 return Channel.super.update(key, oldValue, list);
             }
             // this is to allow single value other than List or Array
             try {
                 T typedValue = (T)newValue;
-                return Channel.super.update(key, oldValue, listOf(typedValue));
+                return Channel.super.update(key, oldValue, List.of(typedValue));
             } catch (ClassCastException e) {
                 log.error("Unsupported content type: {}", newValue.getClass());
                 throw e;
