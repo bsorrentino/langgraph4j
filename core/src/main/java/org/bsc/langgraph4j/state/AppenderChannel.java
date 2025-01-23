@@ -26,6 +26,14 @@ public class AppenderChannel<T> implements Channel<List<T>> {
      */
     @FunctionalInterface
     public interface RemoveIdentifier<T> {
+        /**
+         * Compares the specified element with the element at the given index.
+         *
+         * @param <T>      the type of elements to compare
+         * @param element  the element to be compared
+         * @param atIndex  the index of the element to compare with
+         * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.
+         */
         int compareTo(T element, int atIndex );
     }
 
@@ -91,12 +99,30 @@ public class AppenderChannel<T> implements Channel<List<T>> {
         this.defaultProvider = defaultProvider;
     }
 
+    /**
+     * This method removes elements from a given list based on the specified {@link RemoveIdentifier}.
+     * It creates a copy of the original list, performs the removal operation, and returns an immutable view of the result.
+     *
+     * @param <T> The type of elements in the list.
+     * @param list The list from which elements will be removed.
+     * @param removeIdentifier An instance of {@link RemoveIdentifier} that defines how to identify elements for removal.
+     * @return An unmodifiable view of the modified list with specified elements removed.
+     */
     private List<T> remove(List<T> list, RemoveIdentifier<T> removeIdentifier ) {
         var result = new ArrayList<>(list);
         removeFromList(result, removeIdentifier);
         return unmodifiableList(result);
     }
 
+    /**
+     * Removes an element from the list that matches the specified identifier.
+     *
+     * <p>This method iterates over the provided list and removes the first element for which the
+     * {@link RemoveIdentifier#compareTo} method returns zero.</p>
+     *
+     * @param result         the list to be modified
+     * @param removeIdentifier the identifier used to find the element to remove
+     */
     private void removeFromList(List<T> result, RemoveIdentifier<T> removeIdentifier ) {
         for( int i = 0; i < result.size(); i++ ) {
             if( removeIdentifier.compareTo( result.get(i), i ) == 0 ) {
@@ -106,6 +132,11 @@ public class AppenderChannel<T> implements Channel<List<T>> {
         }
     }
 
+    /**
+     * Represents a record for data removal operations with generic types.
+     * 
+     * @param <T> the type of elements in the old values list
+     */
     record RemoveData<T>( List<T> oldValues, List<?> newValues) {
 
         // copy constructor. make sure to copy the list to make them modifiable
@@ -115,6 +146,13 @@ public class AppenderChannel<T> implements Channel<List<T>> {
         }
     };
 
+    /**
+     * Evaluates the removal of identifiers from the new values list and updates the RemoveData object accordingly.
+     *
+     * @param oldValues   a {@code List} of old values
+     * @param newValues   a {@code List} of new values containing {@code RemoveIdentifier}s to be evaluated for removal
+     * @return            a {@literal RemoveData<T>} object with updated old and new values after removing identifiers
+     */
     @SuppressWarnings("unchecked")
     private RemoveData<T> evaluateRemoval(List<T> oldValues, List<?> newValues ) {
 
