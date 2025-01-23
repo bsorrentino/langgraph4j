@@ -73,7 +73,7 @@ var graphBuilder = new StateGraph<>( MessagesState.SCHEMA, MessagesState::new)
 
 ### AppenderChannel
 
-In the example  below we specify for `messages` property a particular channel [AppenderChannel] which use a built-in [Reducer] to accumulate values.
+In the example above we specify for `messages` property a built-in channel [AppenderChannel] which use a [Reducer] implementation to accumulate values.
 
 <a id="remove-messages"></a>
 #### Remove Messages
