@@ -21,8 +21,10 @@ LangGraph4j for Agentic Applications
 - [State](concepts/low_level.md#State)
     - [Schema](concepts/low_level.md#Schema)
     - [Reducers](concepts/low_level.md#Reducers)
-    <!-- - [MessageState](concepts/low_level.md#messagestate) -->
+    - [MessageState](concepts/low_level.md#AppenderChannel)
+        - [Remove Messages](concepts/low_level.md#remove-messages)
     - [Serializer](concepts/low_level.md#Serializer)
+        - [Out of the Box](concepts/low_level.md#seriliazer-out-of-box)
 - [Nodes](concepts/low_level.md#Nodes)
     - [`START` node](concepts/low_level.md#start-node)
     - [`END` node](concepts/low_level.md#end-node)

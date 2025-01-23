@@ -19,6 +19,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
     - [x] Reducer (_how apply  updates to the state attributes_)
     - [x] Default provider
     - [x] AppenderChannel (_values accumulator_)
+        - [x] delete messages
 - [x] Compiling graph    
 - [x] Async support (_throught [CompletableFuture]_)
 - [x] Streaming support (_throught [java-async-generator]_)

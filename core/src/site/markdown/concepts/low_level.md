@@ -4,11 +4,11 @@
 
 At its core, LangGraph4j models agent workflows as graphs. You define the behavior of your agents using three key components:
 
-1. [`State`](#State): A shared data structure that represents the current snapshot of your application. It is represented by an [`AgentState`] object.
+1. [State](#State): A shared data structure that represents the current snapshot of your application. It is represented by an [AgentState] object.
 
-2. [`Nodes`](#Nodes): A **Functional Interface** ([`AsyncNodeAction`])  that encode the logic of your agents. They receive the current `State` as input, perform some computation or side-effect, and return an updated `State`.
+2. [Nodes](#Nodes): A **Functional Interface** ([AsyncNodeAction])  that encode the logic of your agents. They receive the current `State` as input, perform some computation or side-effect, and return an updated `State`.
 
-3. [`Edges`](#Edges): A **Functional Interface**  ([`AsyncEdgeAction`]) that determine which `Node` to execute next based on the current `State`. They can be conditional branches or fixed transitions.
+3. [Edges](#Edges): A **Functional Interface**  ([AsyncEdgeAction]) that determine which `Node` to execute next based on the current `State`. They can be conditional branches or fixed transitions.
 
 By composing `Nodes` and `Edges`, you can create complex, looping workflows that evolve the `State` over time. The real power, though, comes from how LangGraph4j manages that `State`. 
 To emphasize: `Nodes` and `Edges` are like functions - they can contain an LLM or just Java code.
@@ -23,7 +23,7 @@ A super-step can be considered a single iteration over the graph nodes. Nodes th
  -->
 ### StateGraph
 
-The [`StateGraph`] class is the main graph class to uses. This is parameterized by a user defined `State` object. 
+The [StateGraph] class is the main graph class to uses. This is parameterized by a user defined `State` object. 
 
 <!-- 
 ### MessageGraph
@@ -46,16 +46,16 @@ You **MUST** compile your graph before you can use it.
 
 ## State
 
-The first thing you do when you define a graph is define the `State` of the graph. The `State` consists of the [schema of the graph](#Schema) as well as [`reducer`](#Reducers) functions which specify how to apply updates to the state. The schema of the `State` will be the input schema to all `Nodes` and `Edges` in the graph, and should be defined using a map of  [`Channel`] object. All `Nodes` will emit updates to the `State` which are then applied using the specified `reducer` function.
+The first thing you do when you define a graph is define the `State` of the graph. The `State` consists of the [schema of the graph](#Schema) as well as [reducer](#Reducers) functions which specify how to apply updates to the state. The schema of the `State` will be the input schema to all `Nodes` and `Edges` in the graph, and should be defined using a map of  [`Channel`] object. All `Nodes` will emit updates to the `State` which are then applied using the specified `reducer` function.
 
 ### Schema
 
-The way to specify the schema of a graph is by defining map of [`Channel`] objects where each key is an item in the state.
-If no [`Channel`] is specified for an item then it is assumed that all updates to that item should override it.
+The way to specify the schema of a graph is by defining map of [Channel] objects where each key is an item in the state.
+If no [Channel] is specified for an item then it is assumed that all updates to that item should override it.
 
 ### Reducers
 
-[`Reducers`][reducer] are key to understanding how updates from nodes are applied to the `State`. Each key in the `State` has its own independent reducer function. If no reducer function is explicitly specified then it is assumed that all updates to that key should override it. Let's take a look at a few examples to understand them better.
+[Reducers][reducer] are key to understanding how updates from nodes are applied to the `State`. Each key in the `State` has its own independent reducer function. If no reducer function is explicitly specified then it is assumed that all updates to that key should override it. Let's take a look at a few examples to understand them better.
 
 **Example A:**
 
@@ -71,7 +71,47 @@ var graphBuilder = new StateGraph<>( MessagesState.SCHEMA, MessagesState::new)
 
 ```
 
-In this example we specify for `messages` property a particular channel [`AppenderChannel`] which use a built-in [`Reducer`] to accumulate values.
+### AppenderChannel
+
+In the example  below we specify for `messages` property a particular channel [AppenderChannel] which use a built-in [Reducer] to accumulate values.
+
+<a id="remove-messages"></a>
+#### Remove Messages
+
+[AppenderChannel] supports the message deletion throught its nested functional interface [RemoveIdentifier]. Inheriting such interface you can create a particular value that when will be put inside a State's property, with [AppenderChannel] schema, instrucs the [Reducer] to remove the  element that match the specified conditions in [RemoveIdentifier] throught `compareTo( element, index )` method. 
+
+Langgraph4j provides a Built in [RemoveIdentifier] named [RemoveByHash] that allow to remove messages comparing their `hashCode`, below an example of its usage:
+
+```java
+class MessagesState extends AgentState {
+
+    static Map<String, Channel<?>> SCHEMA = Map.of(
+            "messages", AppenderChannel.<String>of(ArrayList::new)
+    );
+
+    public MessagesState(Map<String, Object> initData) {
+        super(initData);
+    }
+
+    List<String> messages() {
+        return this.<List<String>>value("messages").orElse( List.of() )
+    }
+}
+
+var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        .addNode("agent_1", node_async(state -> Map.of("messages", "message1")))
+        .addNode("agent_2", node_async(state -> Map.of("messages", List.of("message2", "message2.1"))))
+        .addNode("agent_3", node_async(state -> 
+            Map.of("messages", RemoveByHash.of("message2.1")) // this remove "message2.1" from messages values
+        ))
+        .addEdge("agent_1", "agent_2")
+        .addEdge("agent_2", "agent_3")
+        .addEdge(START, "agent_1")
+        .addEdge("agent_3", END);
+
+```
+
+### Custom Reducer
 
 You can also specify a custom reducer for a particular state property
 
@@ -107,6 +147,7 @@ During graph execution the state needs to be serialized (mostly for cloning purp
 
 Currently the main class for state's serialization using built-in java stream is [ObjectStreamStateSerializer]. It is also available an abstraction allowing to plug serialization techniques text based like `JSON` and/or `YAML` that is [PlainTextStateSerializer].
 
+<a id="seriliazer-out-of-box"></a>
 #### Out of the Box
 
 There are several provided Serializers out-of-the-box:
@@ -127,9 +168,9 @@ There are several provided Serializers out-of-the-box:
 ## Nodes
 
 <!--
-In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#tate), and (optionally), the **second** positional argument is a "config", containing optional [configurable parameters](#configuration) (such as a `thread_id`).
+In LangGraph4j, nodes are typically a **Functional Interface** ([AsyncNodeAction])  where the argument is the [state](#tate), and (optionally), the **second** positional argument is a "config", containing optional [configurable parameters](#configuration) (such as a `thread_id`).
 -->
-In LangGraph4j, nodes are typically a **Functional Interface** ([`AsyncNodeAction`])  where the argument is the [state](#State), you add these nodes to a graph using the [`addNode`] method:
+In LangGraph4j, nodes are typically a **Functional Interface** ([AsyncNodeAction])  where the argument is the [state](#State), you add these nodes to a graph using the [addNode] method:
 
 ```java
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
@@ -159,7 +200,7 @@ var builder = new StateGraph( State::new )
 
 ```
 
-Since [`AsyncNodeAction`] is designed to work with [`CompletableFuture`], you can use `node_async` static method that adapt it to a simpler syncronous scenario. 
+Since [AsyncNodeAction] is designed to work with [CompletableFuture], you can use `node_async` static method that adapt it to a simpler syncronous scenario. 
 
 <a id="start-node"></a>
 ### `START` Node
@@ -211,7 +252,7 @@ graph.addEdge("nodeA", "nodeB");
 <a id="conditional-edges"></a>
 ### Conditional Edges
 
-If you want to **optionally** route to 1 or more edges (or optionally terminate), you can use the [`addConditionalEdges`] method. This method accepts the name of a node and a **Functional Interface** ([`AsyncEdgeAction`]) that will be used as " routing function" to call after that node is executed:
+If you want to **optionally** route to 1 or more edges (or optionally terminate), you can use the [addConditionalEdges] method. This method accepts the name of a node and a **Functional Interface** ([AsyncEdgeAction]) that will be used as " routing function" to call after that node is executed:
 
 ```java
 graph.addConditionalEdges("nodeA", routingFunction, Map.of( "first": "nodeB", "second": "nodeC" ) );
@@ -226,7 +267,7 @@ You must provide an object that maps the `routingFunction`'s output to the name 
 <a id="entry-point"></a>
 ### Entry Point
 
-The entry point is the first node(s) that are run when the graph starts. You can use the [`addEdge`] method from the virtual `START` node to the first node to execute to specify where to enter the graph.
+The entry point is the first node(s) that are run when the graph starts. You can use the [addEdge] method from the virtual `START` node to the first node to execute to specify where to enter the graph.
 
 ```java
 import static org.bsc.langgraph4j.StateGraph.START;
@@ -236,7 +277,7 @@ graph.addEdge(START, "nodeA");
 <a id="conditional-entry-point"></a>
 ### Conditional Entry Point
 
-A conditional entry point lets you start at different nodes depending on custom logic. You can use [`addConditionalEdges`] from the virtual `START` node to accomplish this.
+A conditional entry point lets you start at different nodes depending on custom logic. You can use [addConditionalEdges] from the virtual `START` node to accomplish this.
 
 ```java
 import static org.bsc.langgraph4j.StateGraph.START;
@@ -252,7 +293,7 @@ You must provide an object that maps the `routingFunction`'s output to the name 
 
 By default, `Nodes` and `Edges` are defined ahead of time and operate on the same shared state. However, there can be cases where the exact edges are not known ahead of time and/or you may want different versions of `State` to exist at the same time. A common of example of this is with `map-reduce` design patterns. In this design pattern, a first node may generate an array of objects, and you may want to apply some other node to all those objects. The number of objects may be unknown ahead of time (meaning the number of edges may not be known) and the input `State` to the downstream `Node` should be different (one for each generated object).
 
-To support this design pattern, LangGraph4j supports returning [`Send`](/langgraphjs/reference/classes/langgraph.Send.html) objects from conditional edges. `Send` takes two arguments: first is the name of the node, and second is the state to pass to that node.
+To support this design pattern, LangGraph4j supports returning [Send](/langgraphjs/reference/classes/langgraph.Send.html) objects from conditional edges. `Send` takes two arguments: first is the name of the node, and second is the state to pass to that node.
 
 ```typescript
 const continueToJokes = (state: { subjects: string[] }) => {
@@ -264,7 +305,7 @@ graph.addConditionalEdges("nodeA", continueToJokes);
 
 ## Checkpointer
 
-LangGraph4j has a built-in persistence layer, implemented through [`Checkpointers`]. When you use a checkpointer with a graph, you can interact with the state of that graph. When you use a checkpointer with a graph, you can interact with and manage the graph's state. The checkpointer saves a _checkpoint_ of the graph state at every step, enabling several powerful capabilities:
+LangGraph4j has a built-in persistence layer, implemented through [Checkpointers]. When you use a checkpointer with a graph, you can interact with the state of that graph. When you use a checkpointer with a graph, you can interact with and manage the graph's state. The checkpointer saves a _checkpoint_ of the graph state at every step, enabling several powerful capabilities:
 
 First, checkpointers facilitate [human-in-the-loop workflows](agentic_concepts.md#human-in-the-loop) workflows by allowing humans to inspect, interrupt, and approve steps. Checkpointers are needed for these workflows as the human has to be able to view the state of a graph at any point in time, and the graph has to be to resume execution after the human has made any updates to the state.
 
@@ -302,17 +343,17 @@ When interacting with the checkpointer state, you must specify a [thread identif
 <a id="get-state"></a>
 ### Get state
 
-You can get the state of a checkpointer by calling [`graph.getState(config)`]. The config should contain `thread_id`, and the state will be fetched for that thread.
+You can get the state of a checkpointer by calling [graph.getState(config)]. The config should contain `thread_id`, and the state will be fetched for that thread.
 
 <a id="get-state-history"></a>
 ### Get state history
 
-You can also call [`graph.getStateHistory(config)`] to get a list of the history of the graph. The config should contain `thread_id`, and the state history will be fetched for that thread.
+You can also call [graph.getStateHistory(config)] to get a list of the history of the graph. The config should contain `thread_id`, and the state history will be fetched for that thread.
 
 <a id="Update-state"></a>
 ### Update state
 
-You can also interact with the state directly and update it using [`graph.updateState(config,values,asNode)`].  This takes three different components:
+You can also interact with the state directly and update it using [graph.updateState(config,values,asNode)].  This takes three different components:
 
 - `config`
 - `values`
@@ -385,7 +426,7 @@ See [this guide](../how-tos/breakpoints.html) for a full walkthrough of how to a
 
 ## Visualization
 
-It's often nice to be able to visualize graphs, especially as they get more complex. LangGraph4j comes with several built-in ways to visualize graphs using diagram-as-code tools such as [PlantUML] and [Mermaid] through the [`graph.getGraph`] method. 
+It's often nice to be able to visualize graphs, especially as they get more complex. LangGraph4j comes with several built-in ways to visualize graphs using diagram-as-code tools such as [PlantUML] and [Mermaid] through the [graph.getGraph] method. 
 
 ```java
 // for PlantUML
@@ -402,30 +443,32 @@ System.out.println(result.getContent());
 <!-- 
 There are several different streaming modes that LangGraph4j supports:
 
-- [`"values"`](../how-tos/stream-values.html): This streams the full value of the state after each step of the graph.
-- [`"updates`](../how-tos/stream-updates.html): This streams the updates to the state after each step of the graph. If multiple updates are made in the same step (e.g. multiple nodes are run) then those updates are streamed separately.
+- ["values"](../how-tos/stream-values.html): This streams the full value of the state after each step of the graph.
+- ["updates](../how-tos/stream-updates.html): This streams the updates to the state after each step of the graph. If multiple updates are made in the same step (e.g. multiple nodes are run) then those updates are streamed separately.
 
-In addition, you can use the [`streamEvents`](https://v02.api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents) method to stream back events that happen _inside_ nodes. This is useful for [streaming tokens of LLM calls](../how-tos/streaming-tokens-without-langchain.html). -->
+In addition, you can use the [streamEvents](https://v02.api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents) method to stream back events that happen _inside_ nodes. This is useful for [streaming tokens of LLM calls](../how-tos/streaming-tokens-without-langchain.html). -->
 
 [PlainTextStateSerializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/plain_text/PlainTextStateSerializer.html
 [ObjectStreamStateSerializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/std/ObjectStreamStateSerializer.html
+[RemoveByHash]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/RemoveByHash.html
+[RemoveIdentifier]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/AppenderChannel.RemoveIdentifier.html
 [Serializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/Serializer.html
 [Reducer]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/Reducer.html
-[`AgentState`]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/AgentState.html
-[`StateGraph`]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html
-[`Channel`]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/Channel.html
-[`AsyncNodeAction`]: /langgraph4j/apidocs/org/bsc/langgraph4j/action/AsyncNodeAction.html
-[`AsyncEdgeAction`]: /langgraph4j/apidocs/org/bsc/langgraph4j/action/AsyncEdgeAction.html
-[`AppenderChannel`]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/AppenderChannel.html
-[`addNode`]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#addNode-java.lang.String-org.bsc.langgraph4j.action.AsyncNodeAction-
-[`addEdge`]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#addEdge-java.lang.String-java.lang.String-
-[`addConditionalEdges`]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#addConditionalEdges-java.lang.String-org.bsc.langgraph4j.action.AsyncEdgeAction-java.util.Map-
-[`CompletableFuture`]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
-[`Checkpointers`]: /langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/BaseCheckpointSaver.html
-[`graph.updateState(config,values,asNode)`]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#updateState-org.bsc.langgraph4j.RunnableConfig-java.util.Map-java.lang.String-
-[`graph.getStateHistory(config)`]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getStateHistory-org.bsc.langgraph4j.RunnableConfig-
-[`graph.getState(config)`]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getState-org.bsc.langgraph4j.RunnableConfig-
+[AgentState]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/AgentState.html
+[StateGraph]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html
+[Channel]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/Channel.html
+[AsyncNodeAction]: /langgraph4j/apidocs/org/bsc/langgraph4j/action/AsyncNodeAction.html
+[AsyncEdgeAction]: /langgraph4j/apidocs/org/bsc/langgraph4j/action/AsyncEdgeAction.html
+[AppenderChannel]: /langgraph4j/apidocs/org/bsc/langgraph4j/state/AppenderChannel.html
+[addNode]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#addNode-java.lang.String-org.bsc.langgraph4j.action.AsyncNodeAction-
+[addEdge]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#addEdge-java.lang.String-java.lang.String-
+[addConditionalEdges]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#addConditionalEdges-java.lang.String-org.bsc.langgraph4j.action.AsyncEdgeAction-java.util.Map-
+[CompletableFuture]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
+[Checkpointers]: /langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/BaseCheckpointSaver.html
+[graph.updateState(config,values,asNode)]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#updateState-org.bsc.langgraph4j.RunnableConfig-java.util.Map-java.lang.String-
+[graph.getStateHistory(config)]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getStateHistory-org.bsc.langgraph4j.RunnableConfig-
+[graph.getState(config)]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getState-org.bsc.langgraph4j.RunnableConfig-
 [PlantUML]: https://plantuml.com
 [java-async-generator]: https://github.com/bsorrentino/java-async-generator
 [Mermaid]: https://mermaid.js.org
-[`graph.getGraph`]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getGraph-org.bsc.langgraph4j.GraphRepresentation.Type-java.lang.String-
+[graph.getGraph]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getGraph-org.bsc.langgraph4j.GraphRepresentation.Type-java.lang.String-

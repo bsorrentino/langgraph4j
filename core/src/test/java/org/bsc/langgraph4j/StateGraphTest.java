@@ -2,10 +2,7 @@ package org.bsc.langgraph4j;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppendableValue;
-import org.bsc.langgraph4j.state.AppenderChannel;
-import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.state.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -163,6 +160,76 @@ public class StateGraphTest {
     }
 
     @Test
+    void testWithAppenderOneRemove() throws Exception {
+
+        StateGraph<MessagesState> workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+                .addNode("agent_1", node_async(state -> {
+                    System.out.println("agent_1");
+                    return Map.of("messages", "message1");
+                }))
+                .addNode("agent_2", node_async(state -> {
+                    System.out.println("agent_2");
+                    return Map.of("messages", new String[]{"message2"});
+                }))
+                .addNode("agent_3", node_async(state -> {
+                    System.out.println("agent_3");
+                    int steps = state.messages().size() + 1;
+                    return Map.of("messages", RemoveByHash.of("message2"), "steps", steps);
+                }))
+                .addEdge("agent_1", "agent_2")
+                .addEdge("agent_2", "agent_3")
+                .addEdge(START, "agent_1")
+                .addEdge("agent_3", END);
+
+        CompiledGraph<MessagesState> app = workflow.compile();
+
+        Optional<MessagesState> result = app.invoke(Map.of());
+
+        assertTrue(result.isPresent());
+        System.out.println(result.get().data());
+        assertEquals(3, result.get().steps());
+        assertEquals(1, result.get().messages().size());
+        assertIterableEquals(List.of("message1"), result.get().messages());
+
+    }
+
+    @Test
+    void testWithAppenderOneAppendOneRemove() throws Exception {
+
+        StateGraph<MessagesState> workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+                .addNode("agent_1", node_async(state ->
+                    Map.of("messages", "message1")
+                ))
+                .addNode("agent_2", node_async(state ->
+                    Map.of("messages", new String[]{"message2"})
+                ))
+                .addNode("agent_3", node_async(state ->
+                    Map.of("messages", List.of( "message3", RemoveByHash.of("message2")))
+                ))
+                .addNode("agent_4", node_async(state -> {
+                    int steps = state.messages().size() + 1;
+                    return Map.of("messages", List.of("message4"), "steps", steps);
+
+                }))
+                .addEdge("agent_1", "agent_2")
+                .addEdge("agent_2", "agent_3")
+                .addEdge("agent_3", "agent_4")
+                .addEdge(START, "agent_1")
+                .addEdge("agent_4", END);
+
+        CompiledGraph<MessagesState> app = workflow.compile();
+
+        Optional<MessagesState> result = app.invoke(Map.of());
+
+        assertTrue(result.isPresent());
+        System.out.println(result.get().data());
+        assertEquals(3, result.get().steps());
+        assertEquals(3, result.get().messages().size());
+        assertIterableEquals(List.of("message1", "message3", "message4"), result.get().messages());
+
+    }
+
+    @Test
     public void testWithSubgraph() throws Exception {
 
         var childStep1 = node_async((MessagesState state) -> Map.of("messages", "child:step1"));
@@ -170,7 +237,6 @@ public class StateGraphTest {
         var childStep2 = node_async((MessagesState state) -> Map.of("messages", "child:step2"));
 
         var childStep3 = node_async((MessagesState state) -> Map.of("messages", "child:step3"));
-
 
         var workflowChild = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
                 .addNode("child:step_1", childStep1)
