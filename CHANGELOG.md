@@ -2,6 +2,50 @@
 
 
 
+<!-- "name: v1.2.5" is a release tag -->
+
+## [v1.2.5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.5) (2025-01-23)
+
+### Features
+
+ *  **AppenderChannel**  introduce functional interface and refactoring for list updates ([d95f28191e8f8f9](https://github.com/bsorrentino/langgraph4j/commit/d95f28191e8f8f9112500002fb82ec132f7eee7c))
+     > - Introduced &#x60;RemoveByHash&#x60; class.
+     > - Refactored &#x60;AppenderChannel.java&#x60; to support list updates with a functional interface &#x60;RemoveIdentifier&#x60;.
+     > - Consolidated the logic for evaluating list updates within the &#x60;evaluateRemoval&#x60; method.
+     > - Updated test cases to cover the new functionality.
+     > resolve #75
+   
+
+
+### Documentation
+
+ -  bump release to 1.2.5 ([2d2b807751423da](https://github.com/bsorrentino/langgraph4j/commit/2d2b807751423dae2dbdc0fe5a54d5ccf94368d7))
+
+ -  update javadoc ([666c25331bfeced](https://github.com/bsorrentino/langgraph4j/commit/666c25331bfeced290ca20529c32d53ed65c8c5e))
+
+ -  update documentation ([807fcab25ea0664](https://github.com/bsorrentino/langgraph4j/commit/807fcab25ea06640e16b61b2fb78e4c888d1ec4f))
+     > work on #75
+
+ -  update changeme ([385048598b72907](https://github.com/bsorrentino/langgraph4j/commit/385048598b72907d757568c0fc9af1dfbabdb131))
+
+
+### Refactor
+
+ -  **pom.xml**  consolidate profiles ([c356d9275f85339](https://github.com/bsorrentino/langgraph4j/commit/c356d9275f85339f6ed600e697f61a091d5cbae7))
+    > - Removed unused jdk-8 and jdk-17 profiles to streamline configuration and reduce complexity.
+
+
+### ALM 
+
+ -  bump to version 1.2.5 ([0d9ddfad51bec46](https://github.com/bsorrentino/langgraph4j/commit/0d9ddfad51bec464dd37f36e9d3f1ce9ce6837fb))
+   
+ -  bump version to SNAPSHOT ([c1044fd7013ca68](https://github.com/bsorrentino/langgraph4j/commit/c1044fd7013ca68befc28e7a6af5d58e08ce12f9))
+   
+
+
+
+
+
 <!-- "name: v1.2.4" is a release tag -->
 
 ## [v1.2.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.4) (2025-01-22)
