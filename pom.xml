@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.2.4</version>
+  <version>1.2.5</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -184,36 +184,18 @@
     </plugins>
  </build>
 
-  <profiles>
-    <profile>
-      <id>jdk-8</id>
-      <activation>
-        <jdk>1.8</jdk>
-      </activation>
-      <modules>
-      </modules>
-      <build>
+  <modules>
+    <module>core</module>
+    <module>langchain4j</module>
+    <module>agent-executor</module>
+    <module>studio</module>
+    <module>how-tos</module>
+    <module>samples/image-to-diagram</module>
+    <module>samples/adaptive-rag</module>
+    <module>samples/springai-agentexecutor</module>
+  </modules>
 
-      </build>
-    </profile>
-    <profile>
-      <id>jdk-17</id>
-      <activation>
-        <jdk>[17,)</jdk>
-      </activation>
-      <modules>
-        <module>core</module>
-        <module>langchain4j</module>
-        <module>agent-executor</module>
-        <module>studio</module>
-        <module>how-tos</module>
-        <module>samples/image-to-diagram</module>
-        <module>samples/adaptive-rag</module>
-        <module>samples/springai-agentexecutor</module>
-      </modules>
-      <build>
-      </build>
-    </profile>
+  <profiles>
 
     <profile>
       <id>release</id>

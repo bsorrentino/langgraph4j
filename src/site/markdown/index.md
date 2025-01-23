@@ -15,21 +15,23 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Entry Points
 - [x] Conditional Entry Points
 - [x] State
-    - [x] Schema (_a series of Channels_)
-        - [x] Reducer (_how apply  updates to the state attributes_)
-        - [x] Default provider
-        - [x] AppenderChannel (_values accumulator_)
-- [x] Compiling graph
+  - [x] Schema (_a series of Channels_)
+    - [x] Reducer (_how apply  updates to the state attributes_)
+    - [x] Default provider
+    - [x] AppenderChannel (_values accumulator_)
+        - [x] delete messages
+- [x] Compiling graph    
 - [x] Async support (_throught [CompletableFuture]_)
 - [x] Streaming support (_throught [java-async-generator]_)
 - [x] Checkpoints (_save and replay feature_)
 - [x] Graph visualization
-    - [x] [PlantUML]
-    - [x] [Mermaid]
+  - [x] [PlantUML]
+  - [x] [Mermaid]
 - [x] Playground (_Embeddable Webapp that plays with LangGraph4j_)
 - [x] Threads (_checkpointing of multiple different runs_)
 - [x] Update state (_interact with the state directly and update it_)
 - [x] Breakpoints (_pause and resume feature_)
+- [x] [Studio] (_Playground Webapp_)
 - [X] Streaming response from LLM results
 - [X] Child Graphs
 - [ ] Parallel Node Execution
@@ -57,7 +59,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Jan 22, 2025 | `1.2.4` | official release
+| Jan 23, 2025 | `1.2.4` | official release
 
 
 ## Quick Start
