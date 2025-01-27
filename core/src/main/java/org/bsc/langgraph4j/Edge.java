@@ -1,8 +1,5 @@
 package org.bsc.langgraph4j;
 
-
-import lombok.Value;
-import lombok.experimental.Accessors;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Objects;
@@ -11,20 +8,10 @@ import java.util.Objects;
  * Represents an edge in a graph with a source ID and a target value.
  *
  * @param <State> the type of the state associated with the edge
+ * @param sourceId The ID of the source node.
+ * @param target The target value associated with the edge.
  */
-@Value
-@Accessors(fluent = true)
-class Edge<State extends AgentState> {
-
-    /**
-     * The ID of the source node.
-     */
-    String sourceId;
-
-    /**
-     * The target value associated with the edge.
-     */
-    EdgeValue<State> target;
+record Edge<State extends AgentState>(String sourceId, EdgeValue<State> target) {
 
     /**
      * Checks if this edge is equal to another object.
