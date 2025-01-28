@@ -2,14 +2,12 @@ package org.bsc.langgraph4j.state;
 
 import java.util.*;
 
-import static java.util.Collections.unmodifiableList;
-
 /**
  * Represents a value that can be appended to and provides various utility methods.
  *
  * @param <T> the type of the value
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public interface AppendableValue<T> {
 
     /**

@@ -14,7 +14,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @param <T> the type of the value
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class AppendableValueRW<T> implements AppendableValue<T>, Externalizable {
     private List<T> values;
 
@@ -111,6 +111,7 @@ public class AppendableValueRW<T> implements AppendableValue<T>, Externalizable 
         out.writeObject(values);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         values = (List<T>) in.readObject();
