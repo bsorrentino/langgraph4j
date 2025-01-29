@@ -19,17 +19,16 @@ public class MessagesState<T> extends AgentState {
         super( initData  );
     }
 
-    List<T> messages() {
+    public List<T> messages() {
         return this.<List<T>>value( "messages" )
                 .orElseThrow( () -> new RuntimeException( "messages not found" ) );
     }
 
-    Optional<T> lastMessage() {
-        List<T> messages = messages();
-        if( messages.isEmpty() ) {
-            return Optional.empty();
-        }
-        return Optional.of(messages.get( messages.size() - 1 ));
+    public Optional<T> lastMessage() {
+        var messages = messages();
+        return ( messages.isEmpty() ) ?
+                Optional.empty() :
+                Optional.of(messages.get( messages.size() - 1 ));
     }
 
 }
