@@ -1,6 +1,5 @@
 # Use case proposed in [issue #51](https://github.com/bsorrentino/langgraph4j/issues/51) by [pakamona](https://github.com/pakamona)
 
-
 **Initialize Logger**
 
 
@@ -83,13 +82,6 @@ class OrchestratorAgent implements NodeAction<MyAgentState> {
 
 
 ```
-
-
-
-
-    REPL.$JShell$26K$OrchestratorAgent@852cd4
-
-
 
 
 ```java

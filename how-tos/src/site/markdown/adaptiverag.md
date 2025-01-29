@@ -1,6 +1,5 @@
 # Adaptive RAG
 
-
 ## Initialize Logger
 
 

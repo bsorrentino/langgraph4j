@@ -91,7 +91,7 @@ AiMessage aiMessage = response.content();
 log.info(  "{}", aiMessage );
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_9OKOcR9aYBkAEwn4Yw5TufNn", name = "execTest", arguments = "{"message":"bartolomeo"}" }] } 
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_O5Gb0hZnedKX4HG4DOF9ZiCe", name = "execTest", arguments = "{"message":"bartolomeo"}" }] } 
 
 
 
@@ -262,5 +262,5 @@ log.info(  "{}", aiMessage );
 
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_YUdoTKazH8bVI6NQ3kiJre07", name = "execQuery", arguments = "{"query":"100m competition winner Olympic 2024 Paris"}" }] } 
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_fEm1bKZmq1gwI2PWn5qMrI5T", name = "execQuery", arguments = "{"query":"100m competition winner Olympic 2024 Paris"}" }] } 
 

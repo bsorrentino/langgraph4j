@@ -11,3 +11,4 @@ They are a collection of how-to(_s_) for LangGraph4j implemented using the [Java
 * [Wait for user input](wait-user-input.md)
 * [Langchain4j LLM Streaming](llm-streaming.md)
 * [Subgraph](subgraph.md)
+* [parallel branch execution](parallel-branch.md)
