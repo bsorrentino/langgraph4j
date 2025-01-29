@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class MessagesState<T> extends AgentState {
 
-    static Map<String, Channel<?>> SCHEMA = Map.of(
+    public static final Map<String, Channel<?>> SCHEMA = Map.of(
             "messages", AppenderChannel.of(ArrayList::new)
     );
 
