@@ -14,7 +14,7 @@ When creating any LangGraph workflow, you can set them up to persist their state
 [`MemorySaver`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/MemorySaver.html
 
 
-### Initialize Logger
+ **Initialize Logger**
 
 
 ```java
