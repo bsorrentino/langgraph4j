@@ -3,6 +3,7 @@ package org.bsc.langgraph4j;
 import lombok.extern.slf4j.Slf4j;
 
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.*;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,19 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @Slf4j
 public class StateGraphTest {
+
+    static class State extends MessagesState<String> {
+
+        public State(Map<String, Object> initData) {
+            super( initData  );
+        }
+
+        int steps() {
+            return this.<Integer>value("steps").orElse(0);
+        }
+
+    }
+
     public static <T> List<Map.Entry<String, T>> sortMap(Map<String, T> map) {
         return map.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
@@ -99,31 +113,10 @@ public class StateGraphTest {
     }
 
 
-    static class MessagesState extends AgentState {
-
-        static Map<String, Channel<?>> SCHEMA = Map.of(
-                "messages", AppenderChannel.<String>of(ArrayList::new)
-        );
-
-        public MessagesState(Map<String, Object> initData) {
-            super(initData);
-        }
-
-        int steps() {
-            return this.<Integer>value("steps").orElse(0);
-        }
-
-        List<String> messages() {
-            return this.<List<String>>value("messages")
-                    .orElseThrow(() -> new RuntimeException("messages not found"));
-        }
-
-    }
-
     @Test
     void testWithAppender() throws Exception {
 
-        StateGraph<MessagesState> workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        StateGraph<State> workflow = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("agent_1", node_async(state -> {
                     System.out.println("agent_1");
                     return Map.of("messages", "message1");
@@ -142,9 +135,9 @@ public class StateGraphTest {
                 .addEdge(START, "agent_1")
                 .addEdge("agent_3", END);
 
-        CompiledGraph<MessagesState> app = workflow.compile();
+        CompiledGraph<State> app = workflow.compile();
 
-        Optional<MessagesState> result = app.invoke(Map.of());
+        Optional<State> result = app.invoke(Map.of());
 
         assertTrue(result.isPresent());
         System.out.println(result.get().data());
@@ -157,7 +150,7 @@ public class StateGraphTest {
     @Test
     void testWithAppenderOneRemove() throws Exception {
 
-        StateGraph<MessagesState> workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        StateGraph<State> workflow = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("agent_1", node_async(state -> {
                     log.info("agent_1");
                     return Map.of("messages", "message1");
@@ -176,9 +169,9 @@ public class StateGraphTest {
                 .addEdge(START, "agent_1")
                 .addEdge("agent_3", END);
 
-        CompiledGraph<MessagesState> app = workflow.compile();
+        CompiledGraph<State> app = workflow.compile();
 
-        Optional<MessagesState> result = app.invoke(Map.of());
+        Optional<State> result = app.invoke(Map.of());
 
         assertTrue(result.isPresent());
         log.info("{}", result.get().data());
@@ -191,7 +184,7 @@ public class StateGraphTest {
     @Test
     void testWithAppenderOneAppendOneRemove() throws Exception {
 
-        StateGraph<MessagesState> workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        StateGraph<State> workflow = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("agent_1", node_async(state ->
                     Map.of("messages", "message1")
                 ))
@@ -212,9 +205,9 @@ public class StateGraphTest {
                 .addEdge(START, "agent_1")
                 .addEdge("agent_4", END);
 
-        CompiledGraph<MessagesState> app = workflow.compile();
+        CompiledGraph<State> app = workflow.compile();
 
-        Optional<MessagesState> result = app.invoke(Map.of());
+        Optional<State> result = app.invoke(Map.of());
 
         assertTrue(result.isPresent());
         System.out.println(result.get().data());
@@ -227,13 +220,13 @@ public class StateGraphTest {
     @Test
     public void testWithSubgraph() throws Exception {
 
-        var childStep1 = node_async((MessagesState state) -> Map.of("messages", "child:step1"));
+        var childStep1 = node_async((State state) -> Map.of("messages", "child:step1"));
 
-        var childStep2 = node_async((MessagesState state) -> Map.of("messages", "child:step2"));
+        var childStep2 = node_async((State state) -> Map.of("messages", "child:step2"));
 
-        var childStep3 = node_async((MessagesState state) -> Map.of("messages", "child:step3"));
+        var childStep3 = node_async((State state) -> Map.of("messages", "child:step3"));
 
-        var workflowChild = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var workflowChild = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("child:step_1", childStep1)
                 .addNode("child:step_2", childStep2)
                 .addNode("child:step_3", childStep3)
@@ -243,13 +236,13 @@ public class StateGraphTest {
                 .addEdge("child:step_3", END)
                 //.compile()
                 ;
-        var step1 = node_async((MessagesState state) -> Map.of("messages", "step1"));
+        var step1 = node_async((State state) -> Map.of("messages", "step1"));
 
-        var step2 = node_async((MessagesState state) -> Map.of("messages", "step2"));
+        var step2 = node_async((State state) -> Map.of("messages", "step2"));
 
-        var step3 = node_async((MessagesState state) -> Map.of("messages", "step3"));
+        var step3 = node_async((State state) -> Map.of("messages", "step3"));
 
-        var workflowParent = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var workflowParent = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("step_1", step1)
                 .addNode("step_2", step2)
                 .addNode("step_3", step3)
@@ -272,7 +265,7 @@ public class StateGraphTest {
 
     }
 
-    private  AsyncNodeAction<MessagesState> makeNode(String id ) {
+    private  AsyncNodeAction<State> makeNode(String id ) {
         return node_async(state -> {
             log.info("call node {}", id);
             return Map.of("messages", id);
@@ -282,7 +275,7 @@ public class StateGraphTest {
     @Test
     void testWithParallelBranch() throws Exception {
 
-        var workflow = new StateGraph<MessagesState>(MessagesState.SCHEMA, MessagesState::new)
+        var workflow = new StateGraph<State>(State.SCHEMA, State::new)
                 .addNode("A", makeNode("A"))
                 .addNode("A1", makeNode("A1"))
                 .addNode("A2", makeNode("A2"))
@@ -309,7 +302,7 @@ public class StateGraphTest {
         assertTrue(result.isPresent());
         assertIterableEquals(List.of("A", "A1", "A2", "A3", "B", "C"), result.get().messages());
 
-        workflow = new StateGraph<MessagesState>(MessagesState.SCHEMA, MessagesState::new)
+        workflow = new StateGraph<State>(State.SCHEMA, State::new)
                 //.addNode("A", makeNode("A"))
                 .addNode("A1", makeNode("A1"))
                 .addNode("A2", makeNode("A2"))
@@ -342,7 +335,7 @@ public class StateGraphTest {
     void testWithParallelBranchWithErrors() throws Exception {
 
         // ONLY ONE TARGET
-        var onlyOneTarget = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var onlyOneTarget = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("A", makeNode("A"))
                 .addNode("A1", makeNode("A1"))
                 .addNode("A2", makeNode("A2"))
@@ -362,7 +355,7 @@ public class StateGraphTest {
         var exception = assertThrows( GraphStateException.class, onlyOneTarget::compile);
         assertEquals("parallel node [A] must have only one target, but [B, C] have been found!", exception.getMessage());
 
-        var noConditionalEdge = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var noConditionalEdge = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("A", makeNode("A"))
                 .addNode("A1", makeNode("A1"))
                 .addNode("A2", makeNode("A2"))
@@ -383,7 +376,7 @@ public class StateGraphTest {
                 Map.of( "next", "A2") ) );
         assertEquals("conditional edge from 'A' already exist!", exception.getMessage());
 
-        var noConditionalEdgeOnBranch = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var noConditionalEdgeOnBranch = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("A", makeNode("A"))
                 .addNode("A1", makeNode("A1"))
                 .addNode("A2", makeNode("A2"))
@@ -405,7 +398,7 @@ public class StateGraphTest {
         exception = assertThrows( GraphStateException.class, noConditionalEdgeOnBranch::compile);
         assertEquals("parallel node doesn't support conditional branch, but on [A] a conditional branch on [A3] have been found!", exception.getMessage());
 
-        var noDuplicateTarget = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var noDuplicateTarget = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("A", makeNode("A"))
                 .addNode("A1", makeNode("A1"))
                 .addNode("A2", makeNode("A2"))

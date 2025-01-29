@@ -2,12 +2,13 @@ package org.bsc.langgraph4j;
 
 
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
+import org.bsc.langgraph4j.prebuilt.MessagesStateGraph;
 import org.bsc.langgraph4j.state.AgentState;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
@@ -42,26 +43,28 @@ public class StateGraphRepresentationTest {
         GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
         assertEquals(GraphRepresentation.Type.PLANTUML, result.getType());
 
-        assertEquals("@startuml Graph_Diagram\n" +
-                "skinparam usecaseFontSize 14\n" +
-                "skinparam usecaseStereotypeFontSize 12\n" +
-                "skinparam hexagonFontSize 14\n" +
-                "skinparam hexagonStereotypeFontSize 12\n" +
-                "title \"Graph Diagram\"\n" +
-                "footer\n" +
-                "\n" +
-                "powered by langgraph4j\n" +
-                "end footer\n" +
-                "circle start<<input>> as __START__\n" +
-                "circle stop as __END__\n" +
-                "usecase \"agent_3\"<<Node>>\n" +
-                "usecase \"agent_1\"<<Node>>\n" +
-                "usecase \"agent_2\"<<Node>>\n" +
-                "\"__START__\" -down-> \"agent_1\"\n" +
-                "\"agent_2\" -down-> \"__END__\"\n" +
-                "\"agent_1\" -down-> \"agent_3\"\n" +
-                "\"agent_3\" -down-> \"agent_2\"\n" +
-                "@enduml\n", result.getContent());
+        assertEquals("""
+                @startuml Graph_Diagram
+                skinparam usecaseFontSize 14
+                skinparam usecaseStereotypeFontSize 12
+                skinparam hexagonFontSize 14
+                skinparam hexagonStereotypeFontSize 12
+                title "Graph Diagram"
+                footer
+                
+                powered by langgraph4j
+                end footer
+                circle start<<input>> as __START__
+                circle stop as __END__
+                usecase "agent_3"<<Node>>
+                usecase "agent_1"<<Node>>
+                usecase "agent_2"<<Node>>
+                "__START__" -down-> "agent_1"
+                "agent_2" -down-> "__END__"
+                "agent_1" -down-> "agent_3"
+                "agent_3" -down-> "agent_2"
+                @enduml
+                """, result.getContent());
 
         // System.out.println( result.getContent() );
     }
@@ -87,31 +90,33 @@ public class StateGraphRepresentationTest {
         GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
         assertEquals(GraphRepresentation.Type.PLANTUML, result.getType());
 
-        assertEquals("@startuml Graph_Diagram\n" +
-                        "skinparam usecaseFontSize 14\n" +
-                        "skinparam usecaseStereotypeFontSize 12\n" +
-                        "skinparam hexagonFontSize 14\n" +
-                        "skinparam hexagonStereotypeFontSize 12\n" +
-                        "title \"Graph Diagram\"\n" +
-                        "footer\n" +
-                        "\n" +
-                        "powered by langgraph4j\n" +
-                        "end footer\n" +
-                        "circle start<<input>> as __START__\n" +
-                        "circle stop as __END__\n" +
-                        "usecase \"evaluate_result\"<<Node>>\n" +
-                        "usecase \"agent_review\"<<Node>>\n" +
-                        "hexagon \"check state\" as condition1<<Condition>>\n" +
-                        "\"__START__\" -down-> \"evaluate_result\"\n" +
-                        "\"agent_review\" -down-> \"evaluate_result\"\n" +
-                        "\"evaluate_result\" -down-> \"condition1\"\n" +
-                        "\"condition1\" -down-> \"agent_review\": \"ERROR\"\n" +
-                        "'\"evaluate_result\" -down-> \"agent_review\": \"ERROR\"\n" +
-                        "\"condition1\" -down-> \"__END__\": \"UNKNOWN\"\n" +
-                        "'\"evaluate_result\" -down-> \"__END__\": \"UNKNOWN\"\n" +
-                        "\"condition1\" -down-> \"__END__\": \"OK\"\n" +
-                        "'\"evaluate_result\" -down-> \"__END__\": \"OK\"\n" +
-                        "@enduml\n",
+        assertEquals("""
+                        @startuml Graph_Diagram
+                        skinparam usecaseFontSize 14
+                        skinparam usecaseStereotypeFontSize 12
+                        skinparam hexagonFontSize 14
+                        skinparam hexagonStereotypeFontSize 12
+                        title "Graph Diagram"
+                        footer
+                        
+                        powered by langgraph4j
+                        end footer
+                        circle start<<input>> as __START__
+                        circle stop as __END__
+                        usecase "evaluate_result"<<Node>>
+                        usecase "agent_review"<<Node>>
+                        hexagon "check state" as condition1<<Condition>>
+                        "__START__" -down-> "evaluate_result"
+                        "agent_review" -down-> "evaluate_result"
+                        "evaluate_result" -down-> "condition1"
+                        "condition1" -down-> "agent_review": "ERROR"
+                        '"evaluate_result" -down-> "agent_review": "ERROR"
+                        "condition1" -down-> "__END__": "UNKNOWN"
+                        '"evaluate_result" -down-> "__END__": "UNKNOWN"
+                        "condition1" -down-> "__END__": "OK"
+                        '"evaluate_result" -down-> "__END__": "OK"
+                        @enduml
+                        """,
                 result.getContent());
 
         // System.out.println( result.getContent() );
@@ -137,29 +142,31 @@ public class StateGraphRepresentationTest {
         GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
         assertEquals(GraphRepresentation.Type.PLANTUML, result.getType());
 
-        assertEquals("@startuml Graph_Diagram\n" +
-                        "skinparam usecaseFontSize 14\n" +
-                        "skinparam usecaseStereotypeFontSize 12\n" +
-                        "skinparam hexagonFontSize 14\n" +
-                        "skinparam hexagonStereotypeFontSize 12\n" +
-                        "title \"Graph Diagram\"\n" +
-                        "footer\n" +
-                        "\n" +
-                        "powered by langgraph4j\n" +
-                        "end footer\n" +
-                        "circle start<<input>> as __START__\n" +
-                        "circle stop as __END__\n" +
-                        "usecase \"agent\"<<Node>>\n" +
-                        "usecase \"action\"<<Node>>\n" +
-                        "hexagon \"check state\" as condition1<<Condition>>\n" +
-                        "\"__START__\" -down-> \"agent\"\n" +
-                        "\"agent\" -down-> \"condition1\"\n" +
-                        "\"condition1\" -down-> \"action\": \"continue\"\n" +
-                        "'\"agent\" -down-> \"action\": \"continue\"\n" +
-                        "\"condition1\" -down-> \"__END__\": \"end\"\n" +
-                        "'\"agent\" -down-> \"__END__\": \"end\"\n" +
-                        "\"action\" -down-> \"agent\"\n" +
-                        "@enduml\n",
+        assertEquals("""
+                        @startuml Graph_Diagram
+                        skinparam usecaseFontSize 14
+                        skinparam usecaseStereotypeFontSize 12
+                        skinparam hexagonFontSize 14
+                        skinparam hexagonStereotypeFontSize 12
+                        title "Graph Diagram"
+                        footer
+                        
+                        powered by langgraph4j
+                        end footer
+                        circle start<<input>> as __START__
+                        circle stop as __END__
+                        usecase "agent"<<Node>>
+                        usecase "action"<<Node>>
+                        hexagon "check state" as condition1<<Condition>>
+                        "__START__" -down-> "agent"
+                        "agent" -down-> "condition1"
+                        "condition1" -down-> "action": "continue"
+                        '"agent" -down-> "action": "continue"
+                        "condition1" -down-> "__END__": "end"
+                        '"agent" -down-> "__END__": "end"
+                        "action" -down-> "agent"
+                        @enduml
+                        """,
                 result.getContent());
 
         // System.out.println( result.getContent() );
@@ -188,33 +195,35 @@ public class StateGraphRepresentationTest {
         GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
         assertEquals(GraphRepresentation.Type.PLANTUML, result.getType());
 
-        assertEquals("@startuml Graph_Diagram\n" +
-                        "skinparam usecaseFontSize 14\n" +
-                        "skinparam usecaseStereotypeFontSize 12\n" +
-                        "skinparam hexagonFontSize 14\n" +
-                        "skinparam hexagonStereotypeFontSize 12\n" +
-                        "title \"Graph Diagram\"\n" +
-                        "footer\n" +
-                        "\n" +
-                        "powered by langgraph4j\n" +
-                        "end footer\n" +
-                        "circle start<<input>> as __START__\n" +
-                        "circle stop as __END__\n" +
-                        "usecase \"agent_describer\"<<Node>>\n" +
-                        "usecase \"agent_sequence_plantuml\"<<Node>>\n" +
-                        "usecase \"agent_generic_plantuml\"<<Node>>\n" +
-                        "usecase \"evaluate_result\"<<Node>>\n" +
-                        "hexagon \"check state\" as condition1<<Condition>>\n" +
-                        "\"__START__\" -down-> \"agent_describer\"\n" +
-                        "\"agent_describer\" -down-> \"condition1\"\n" +
-                        "\"condition1\" -down-> \"agent_sequence_plantuml\": \"sequence\"\n" +
-                        "'\"agent_describer\" -down-> \"agent_sequence_plantuml\": \"sequence\"\n" +
-                        "\"condition1\" -down-> \"agent_generic_plantuml\": \"generic\"\n" +
-                        "'\"agent_describer\" -down-> \"agent_generic_plantuml\": \"generic\"\n" +
-                        "\"agent_sequence_plantuml\" -down-> \"evaluate_result\"\n" +
-                        "\"agent_generic_plantuml\" -down-> \"evaluate_result\"\n" +
-                        "\"evaluate_result\" -down-> \"__END__\"\n" +
-                        "@enduml\n",
+        assertEquals("""
+                        @startuml Graph_Diagram
+                        skinparam usecaseFontSize 14
+                        skinparam usecaseStereotypeFontSize 12
+                        skinparam hexagonFontSize 14
+                        skinparam hexagonStereotypeFontSize 12
+                        title "Graph Diagram"
+                        footer
+                        
+                        powered by langgraph4j
+                        end footer
+                        circle start<<input>> as __START__
+                        circle stop as __END__
+                        usecase "agent_describer"<<Node>>
+                        usecase "agent_sequence_plantuml"<<Node>>
+                        usecase "agent_generic_plantuml"<<Node>>
+                        usecase "evaluate_result"<<Node>>
+                        hexagon "check state" as condition1<<Condition>>
+                        "__START__" -down-> "agent_describer"
+                        "agent_describer" -down-> "condition1"
+                        "condition1" -down-> "agent_sequence_plantuml": "sequence"
+                        '"agent_describer" -down-> "agent_sequence_plantuml": "sequence"
+                        "condition1" -down-> "agent_generic_plantuml": "generic"
+                        '"agent_describer" -down-> "agent_generic_plantuml": "generic"
+                        "agent_sequence_plantuml" -down-> "evaluate_result"
+                        "agent_generic_plantuml" -down-> "evaluate_result"
+                        "evaluate_result" -down-> "__END__"
+                        @enduml
+                        """,
                 result.getContent());
 
         result = app.getGraph(GraphRepresentation.Type.MERMAID, "Graph Diagram", false);
@@ -247,7 +256,7 @@ public class StateGraphRepresentationTest {
                 """, result.getContent() );
     }
 
-    private  AsyncNodeAction<StateGraphTest.MessagesState> makeNode(String id ) {
+    private  AsyncNodeAction<MessagesState<String>> makeNode(String id ) {
         return node_async(state -> {
             return Map.of("messages", id);
         });
@@ -257,7 +266,7 @@ public class StateGraphRepresentationTest {
     void testWithParallelBranch() throws Exception {
 
 
-        var workflow = new StateGraph<StateGraphTest.MessagesState>(StateGraphTest.MessagesState.SCHEMA, StateGraphTest.MessagesState::new)
+        var workflow = new MessagesStateGraph<String>()
                 .addNode("A", makeNode("A"))
                 .addNode("A1", makeNode("A1"))
                 .addNode("A2", makeNode("A2"))
@@ -340,7 +349,7 @@ public class StateGraphRepresentationTest {
     @Test
     void testWithParallelBranchOnStart() throws Exception {
 
-        var workflow = new StateGraph<StateGraphTest.MessagesState>(StateGraphTest.MessagesState.SCHEMA, StateGraphTest.MessagesState::new)
+        var workflow = new MessagesStateGraph<String>()
                 .addNode("A1", makeNode("A1"))
                 .addNode("A2", makeNode("A2"))
                 .addNode("A3", makeNode("A3"))
