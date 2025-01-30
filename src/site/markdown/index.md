@@ -34,7 +34,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] [Studio] (_Playground Webapp_)
 - [X] Streaming response from LLM results
 - [X] Child Graphs
-- [ ] Parallel Node Execution
+- [X] Parallel Node Execution
+    - _With some constraints_ 
 
 ## Samples
 
