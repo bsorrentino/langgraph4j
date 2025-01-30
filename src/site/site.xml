@@ -16,7 +16,7 @@
     </custom>
 
     <bannerLeft>
-        <name>LangGraph4j</name>
+        <!-- <name>LangGraph4j</name> -->
         <href>/</href>
         <src>langgraph4j.png</src>
     </bannerLeft>
