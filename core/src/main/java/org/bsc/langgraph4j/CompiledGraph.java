@@ -16,8 +16,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -60,9 +61,56 @@ public class CompiledGraph<State extends AgentState> {
             nodes.put(n.id(), factory.apply(compileConfig));
         }
 
-        stateGraph.edges.forEach(e ->
-                edges.put(e.sourceId(), e.target())
-        );
+        for( var e : stateGraph.edges ) {
+            var targets = e.targets();
+            if (targets.size() == 1) {
+                edges.put(e.sourceId(), targets.get(0));
+            }
+            else {
+                Supplier<Stream<EdgeValue<State>>> parallelNodeStream = () ->
+                        targets.stream().filter( target -> nodes.containsKey(target.id()) );
+
+                var parallelNodeEdges = parallelNodeStream.get()
+                        .map( target -> new Edge<State>(target.id()))
+                        .filter( ee -> stateGraph.edges.contains( ee ) )
+                        .map(  ee -> stateGraph.edges.indexOf( ee ) )
+                        .map( index -> stateGraph.edges.get(index) )
+                        .toList();
+
+                var  parallelNodeTargets = parallelNodeEdges.stream()
+                                                .map( ee -> ee.target().id() )
+                                                .collect(Collectors.toSet());
+
+                if( parallelNodeTargets.size() > 1  ) {
+
+                    var conditionalEdges = parallelNodeEdges.stream()
+                                                .filter( ee -> ee.target().value() != null )
+                                                .toList();
+                    if(!conditionalEdges.isEmpty()) {
+                        throw StateGraph.Errors.unsupportedConditionalEdgeOnParallelNode.exception(
+                                e.sourceId(),
+                                conditionalEdges.stream().map(Edge::sourceId).toList() );
+                    }
+                    throw StateGraph.Errors.illegalMultipleTargetsOnParallelNode.exception(e.sourceId(), parallelNodeTargets );
+                }
+
+                var actions = parallelNodeStream.get()
+                                    //.map( target -> nodes.remove(target.id()) )
+                                    .map( target -> nodes.get(target.id()) )
+                                    .toList();
+
+                var parallelNode = Node.parallel( e.sourceId(), actions, stateGraph.getChannels() );
+
+                nodes.put( parallelNode.id(), parallelNode.actionFactory().apply(compileConfig) );
+
+                edges.put( e.sourceId(), new EdgeValue<>( parallelNode.id(), null  ) );
+
+                edges.put( parallelNode.id(), new EdgeValue<>( parallelNodeTargets.iterator().next(), null  ));
+
+            }
+
+
+        }
     }
 
     public Collection<StateSnapshot<State>> getStateHistory( RunnableConfig config ) {
@@ -146,12 +194,12 @@ public class CompiledGraph<State extends AgentState> {
         return updateState(config, values, null);
     }
 
-    @Deprecated
+    @Deprecated( forRemoval = true )
     public EdgeValue<State> getEntryPoint() {
         return stateGraph.getEntryPoint();
     }
 
-    @Deprecated
+    @Deprecated( forRemoval = true )
     public String getFinishPoint() {
         return stateGraph.getFinishPoint();
     }
@@ -204,7 +252,8 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     private String getEntryPoint( Map<String,Object> state ) throws Exception {
-        return nextNodeId(stateGraph.getEntryPoint(), state, "entryPoint");
+        var entryPoint = this.edges.get(START);
+        return nextNodeId(entryPoint, state, "entryPoint");
     }
 
     private boolean shouldInterruptBefore(@NonNull String nodeId, String previousNodeId ) {
@@ -558,6 +607,5 @@ public class CompiledGraph<State extends AgentState> {
         }
     }
 
-
-
 }
+

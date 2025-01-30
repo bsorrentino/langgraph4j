@@ -1,8 +1,6 @@
 # Langchain4j LLM streaming
 
-
 **Initialize Logger**
-
 
 ```java
 try( var file = new java.io.FileInputStream("./logging.properties")) {
@@ -51,47 +49,38 @@ log.info( "RESULT: {}", generator.resultValue().orElse(null) );
 //Thread.sleep( 1000 );
 ```
 
+    StreamingOutput{chunk=} 
+    StreamingOutput{chunk=Why} 
+    StreamingOutput{chunk= did} 
+    StreamingOutput{chunk= the} 
+    StreamingOutput{chunk= scare} 
+    StreamingOutput{chunk=crow} 
+    StreamingOutput{chunk= win} 
+    StreamingOutput{chunk= an} 
+    StreamingOutput{chunk= award} 
+    StreamingOutput{chunk=?
+    
+    } 
+    StreamingOutput{chunk=Because} 
+    StreamingOutput{chunk= he} 
+    StreamingOutput{chunk= was} 
+    StreamingOutput{chunk= outstanding} 
+    StreamingOutput{chunk= in} 
+    StreamingOutput{chunk= his} 
+    StreamingOutput{chunk= field} 
+    StreamingOutput{chunk=!} 
+    RESULT: {content=AiMessage { text = "Why did the scarecrow win an award?
+    
+    Because he was outstanding in his field!" toolExecutionRequests = null }} 
+
+
 ## Use LLMStreamGenerator in Agent
-
-### Define State
-
-
-```java
-import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.Channel;
-import org.bsc.langgraph4j.state.AppenderChannel;
-import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.UserMessage;
-
-public class MessageState extends AgentState {
-
-    static Map<String, Channel<?>> SCHEMA = Map.of(
-            "messages", AppenderChannel.<ChatMessage>of(ArrayList::new)
-    );
-
-    public MessageState(Map<String, Object> initData) {
-        super( initData  );
-    }
-
-    List<ChatMessage> messages() {
-        return this.<List<ChatMessage>>value( "messages" )
-                .orElseThrow( () -> new RuntimeException( "messages not found" ) );
-    }
-
-    // utility method to quick access to last message
-    Optional<ChatMessage> lastMessage() {
-        List<ChatMessage> messages = messages();
-        return ( messages.isEmpty() ) ? 
-            Optional.empty() :
-            Optional.of(messages.get( messages.size() - 1 ));
-    }
-}
-```
 
 ### Define Serializers
 
 
 ```java
+import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -101,8 +90,9 @@ import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ChatMesssageSerializer;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionRequestSerializer;
 import org.bsc.langgraph4j.state.AgentStateFactory;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 
-var stateSerializer = new ObjectStreamStateSerializer<MessageState>( MessageState::new );
+var stateSerializer = new ObjectStreamStateSerializer<MessagesState<ChatMessage>>( MessagesState::new );
 stateSerializer.mapper()
     // Setup custom serializer for Langchain4j ToolExecutionRequest
     .register(ToolExecutionRequest.class, new ToolExecutionRequestSerializer() )
@@ -110,6 +100,17 @@ stateSerializer.mapper()
     .register(ChatMessage.class, new ChatMesssageSerializer() );
 
 ```
+
+
+
+
+    SerializerMapper: 
+    java.util.Map
+    java.util.Collection
+    dev.langchain4j.agent.tool.ToolExecutionRequest
+    dev.langchain4j.data.message.ChatMessage
+
+
 
 ## Set up the tools
 
@@ -146,7 +147,7 @@ public class SearchTool {
 ```java
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.StateGraph.END;
-import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.prebuilt.MessagesStateGraph;
 import org.bsc.langgraph4j.action.EdgeAction;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import org.bsc.langgraph4j.action.NodeAction;
@@ -171,10 +172,10 @@ var tools = ToolNode.builder()
               .specification( new SearchTool() ) 
               .build(); 
 
-NodeAction<MessageState> callModel = state -> {
+NodeAction<MessagesState<ChatMessage>> callModel = state -> {
   log.info("CallModel:\n{}", state.messages());
 
-  var generator = LLMStreamingGenerator.<AiMessage, MessageState>builder()
+  var generator = LLMStreamingGenerator.<AiMessage, MessagesState<ChatMessage>>builder()
           .mapResult(response -> {
               log.info("MapResult: {}", response);
               return Map.of("messages", response.content());
@@ -192,7 +193,7 @@ NodeAction<MessageState> callModel = state -> {
 };
             
 // Route Message
-EdgeAction<MessageState> routeMessage = state -> {
+EdgeAction<MessagesState<ChatMessage>> routeMessage = state -> {
     log.info("routeMessage:\n{}", state.messages());
 
     var lastMessage = state.lastMessage()
@@ -208,7 +209,7 @@ EdgeAction<MessageState> routeMessage = state -> {
 };
             
 // Invoke Tool
-NodeAction<MessageState> invokeTool = state -> {
+NodeAction<MessagesState<ChatMessage>> invokeTool = state -> {
     log.info("invokeTool:\n{}", state.messages());
 
     var lastMessage = state.lastMessage()
@@ -228,7 +229,7 @@ NodeAction<MessageState> invokeTool = state -> {
 };
             
 // Define Graph
-var workflow = new StateGraph<MessageState>(MessageState.SCHEMA, stateSerializer)
+var workflow = new MessagesStateGraph<ChatMessage>(stateSerializer)
         .addNode("agent", node_async(callModel))
         .addNode("tools", node_async(invokeTool))
         .addEdge(START, "agent")
@@ -261,17 +262,17 @@ for( var out : app.stream( Map.of( "messages", UserMessage.from( "what is the wh
     START 
     CallModel:
     [UserMessage { name = null contents = [TextContent { text = "what is the whether today?" }] }] 
-    MapResult: Response { content = AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_ycvEnAG6NCrreo0WqSoxS5jJ", name = "execQuery", arguments = "{"query":"current weather"}" }] }, tokenUsage = TokenUsage { inputTokenCount = 71, outputTokenCount = 15, totalTokenCount = 86 }, finishReason = TOOL_EXECUTION, metadata = {} } 
+    MapResult: Response { content = AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }, tokenUsage = TokenUsage { inputTokenCount = 71, outputTokenCount = 16, totalTokenCount = 87 }, finishReason = TOOL_EXECUTION, metadata = {} } 
     routeMessage:
-    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_ycvEnAG6NCrreo0WqSoxS5jJ", name = "execQuery", arguments = "{"query":"current weather"}" }] }] 
+    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }] 
     NodeOutput{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "what is the whether today?" }] }]}} 
     invokeTool:
-    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_ycvEnAG6NCrreo0WqSoxS5jJ", name = "execQuery", arguments = "{"query":"current weather"}" }] }] 
+    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }] 
     execute: execQuery 
-    NodeOutput{node=agent, state={messages=[AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_ycvEnAG6NCrreo0WqSoxS5jJ", name = "execQuery", arguments = "{"query":"current weather"}" }] }]}} 
+    NodeOutput{node=agent, state={messages=[AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }]}} 
     CallModel:
-    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_ycvEnAG6NCrreo0WqSoxS5jJ", name = "execQuery", arguments = "{"query":"current weather"}" }] }, ToolExecutionResultMessage { id = "call_ycvEnAG6NCrreo0WqSoxS5jJ" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }] 
-    NodeOutput{node=tools, state={messages=[AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_ycvEnAG6NCrreo0WqSoxS5jJ", name = "execQuery", arguments = "{"query":"current weather"}" }] }, ToolExecutionResultMessage { id = "call_ycvEnAG6NCrreo0WqSoxS5jJ" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}} 
+    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }, ToolExecutionResultMessage { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }] 
+    NodeOutput{node=tools, state={messages=[AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }, ToolExecutionResultMessage { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}} 
     StreamingOutput{node=agent, chunk= } 
     StreamingOutput{node=agent, chunk=The } 
     StreamingOutput{node=agent, chunk= current } 
@@ -304,7 +305,7 @@ for( var out : app.stream( Map.of( "messages", UserMessage.from( "what is the wh
     StreamingOutput{node=agent, chunk= free } 
     StreamingOutput{node=agent, chunk= to } 
     StreamingOutput{node=agent, chunk= ask } 
-    MapResult: Response { content = AiMessage { text = "The current weather is cold, with a low of 13 degrees. If you need more specific information or details about a particular location, feel free to ask!" toolExecutionRequests = null }, tokenUsage = TokenUsage { inputTokenCount = 93, outputTokenCount = 33, totalTokenCount = 126 }, finishReason = STOP, metadata = {} } 
+    MapResult: Response { content = AiMessage { text = "The current weather is cold, with a low of 13 degrees. If you need more specific information or details about a particular location, feel free to ask!" toolExecutionRequests = null }, tokenUsage = TokenUsage { inputTokenCount = 93, outputTokenCount = 34, totalTokenCount = 127 }, finishReason = STOP, metadata = {} } 
     routeMessage:
     [AiMessage { text = "The current weather is cold, with a low of 13 degrees. If you need more specific information or details about a particular location, feel free to ask!" toolExecutionRequests = null }] 
     StreamingOutput{node=agent, chunk=! } 

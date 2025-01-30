@@ -1,5 +1,6 @@
 # Wait for User Input
 
+
 ```java
 import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -24,7 +25,7 @@ static java.awt.Image plantUML2PNG( String code ) throws IOException {
 
 ```java
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import dev.langchain4j.data.message.AiMessage;
@@ -37,11 +38,7 @@ import org.bsc.langgraph4j.CompileConfig;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 
-public class State extends AgentState {
-
-    static Map<String, Channel<?>> SCHEMA = Map.of(
-            "messages", AppenderChannel.<AiMessage>of(ArrayList::new)
-    );
+public class State extends MessagesState {
 
     public State(Map<String, Object> initData) {
         super( initData  );
@@ -121,14 +118,14 @@ display( plantUML2PNG(plantuml) );
 
 
     
-![png](wait-user-input_files/wait-user-input_5_2.png)
+![png](wait-user-input_files/wait-user-input_4_2.png)
     
 
 
 
 
 
-    c52aa015-9b8e-40d0-9f03-73e74482541b
+    c1ce6176-a34b-4110-953e-0923f3918f51
 
 
 
@@ -174,7 +171,7 @@ System.out.println("getNext with updateConfig: " + graph.getState(updateConfig).
 
     Tell me how you want to update the state: go to step 3!
     --State after update--
-    StateSnapshot{node=step_1, state={user_feedback=go to step 3!, input=hello world, messages=[]}, config=RunnableConfig(threadId=Thread1, checkPointId=c8f6377c-73d4-48ce-8e52-0f1e7a9952a4, nextNode=human_feedback, streamMode=VALUES)}
+    StateSnapshot{node=step_1, state={user_feedback=go to step 3!, input=hello world, messages=[]}, config=RunnableConfig(threadId=Thread1, checkPointId=5a31577e-2b4a-4db8-a969-9a58dae4a080, nextNode=human_feedback, streamMode=VALUES)}
     getNext with invokeConfig: human_feedback
     getNext with updateConfig: human_feedback
 

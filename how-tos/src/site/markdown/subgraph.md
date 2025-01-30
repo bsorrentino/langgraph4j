@@ -1,22 +1,15 @@
 # Sub-graph sample
 
 ```java
-import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.AppenderChannel;
 
-public class State extends AgentState {
-
-    static Map<String, Channel<?>> SCHEMA = Map.of(
-            "messages", AppenderChannel.<String>of(ArrayList::new)
-    );
+public class State extends MessagesState<String> {
 
     public State(Map<String, Object> initData) {
         super( initData  );
     }
-
-    List<String> messages() { return this.<List<String>>value("messages").get(); } 
-    
 }
 
 ```
@@ -174,13 +167,13 @@ display( plantUML2PNG( representation.getContent() ) )
 
 
     
-![png](subgraph_files/subgraph_9_0.png)
+![png](subgraph_files/subgraph_8_0.png)
     
 
 
 
 
 
-    0b67fc71-9474-42ba-aa47-641ac1d6472d
+    cf5b3b68-c6d9-4fdf-a123-6a133b46b164
 
 

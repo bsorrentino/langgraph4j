@@ -6,16 +6,13 @@ import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppenderChannel;
-import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.StateSnapshot;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.LogManager;
@@ -35,13 +32,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 public class StateGraphPersistenceTest
 {
-    static class MessagesState extends AgentState {
+    static class State extends MessagesState<String> {
 
-        static Map<String, Channel<?>> SCHEMA = Map.of(
-                "messages", AppenderChannel.<String>of(ArrayList::new)
-        );
-
-        public MessagesState(Map<String, Object> initData) {
+        public State(Map<String, Object> initData) {
             super( initData  );
         }
 
@@ -49,22 +42,9 @@ public class StateGraphPersistenceTest
             return this.<Integer>value("steps").orElse(0);
         }
 
-        List<String> messages() {
-            return this.<List<String>>value( "messages" )
-                    .orElseThrow( () -> new RuntimeException( "messages not found" ) );
-        }
-
-        Optional<String> lastMessage() {
-                List<String> messages = messages();
-            if( messages.isEmpty() ) {
-                return Optional.empty();
-            }
-            return Optional.of(messages.get( messages.size() - 1 ));
-        }
-
     }
 
-    NodeAction<MessagesState> agent_whether = state -> {
+    NodeAction<State> agent_whether = state -> {
         String lastMessage = state.lastMessage().orElseThrow( () -> new IllegalStateException("No last message!") );
 
         if( lastMessage.contains( "temperature")) {
@@ -83,10 +63,10 @@ public class StateGraphPersistenceTest
     };
 
     // Simulate LLM agent
-    NodeAction<MessagesState> tool_whether = state ->
+    NodeAction<State> tool_whether = state ->
             Map.of( "messages", "temperature in Napoli is 30 degree");
 
-    EdgeAction<MessagesState> shouldContinue_whether = state ->
+    EdgeAction<State> shouldContinue_whether = state ->
             state.lastMessage().filter( m -> m.equals("tool_calls")  )
                     .map( m -> "tools" )
                     .orElse(END);
@@ -174,13 +154,13 @@ public class StateGraphPersistenceTest
     public void testCheckpointSaverResubmit() throws Exception {
         int expectedSteps = 5;
 
-        NodeAction<MessagesState> agent_1 = state -> {
+        NodeAction<State> agent_1 = state -> {
             int steps = state.steps() + 1;
             log.info( "agent_1: step: {}", steps );
             return Map.of("steps", steps, "messages", format( "agent_1:step %d", steps ));
         };
 
-        EdgeAction<MessagesState> shouldContinue = state -> {
+        EdgeAction<State> shouldContinue = state -> {
             int steps = state.steps();
             if (steps >= expectedSteps) {
                 return "exit";
@@ -188,7 +168,7 @@ public class StateGraphPersistenceTest
             return "next";
         };
 
-        var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var workflow = new StateGraph<>(State.SCHEMA, State::new)
                 .addEdge(START, "agent_1")
                 .addNode("agent_1", node_async(agent_1))
                 .addConditionalEdges( "agent_1",
@@ -262,7 +242,7 @@ public class StateGraphPersistenceTest
     @Test
     public void testViewAndUpdatePastGraphState() throws Exception {
 
-        var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var workflow = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("agent", node_async(agent_whether) )
                 .addNode("tools", node_async(tool_whether) )
                 .addEdge(START, "agent")
@@ -308,7 +288,7 @@ public class StateGraphPersistenceTest
         assertNotNull( stateHistory );
         assertEquals( 4, stateHistory.size() );
 
-        for( StateSnapshot<MessagesState> s : stateHistory ) {
+        for( StateSnapshot<State> s : stateHistory ) {
             log.info( "SNAPSHOT HISTORY:\n{}\n", s );
         }
 
@@ -320,7 +300,7 @@ public class StateGraphPersistenceTest
         assertTrue( results.get(0).state().lastMessage().isPresent() );
         assertEquals( "whether in Naples is sunny", results.get(0).state().lastMessage().get() );
 
-        Optional<StateSnapshot<MessagesState>> firstSnapshot = stateHistory.stream().reduce( (first, second) -> second); // take the last
+        Optional<StateSnapshot<State>> firstSnapshot = stateHistory.stream().reduce( (first, second) -> second); // take the last
         assertTrue( firstSnapshot.isPresent() );
         assertTrue( firstSnapshot.get().state().lastMessage().isPresent() );
         assertEquals( "whether in Naples?", firstSnapshot.get().state().lastMessage().get() );
@@ -342,7 +322,7 @@ public class StateGraphPersistenceTest
     @Test
     public void testPauseAndUpdatePastGraphState() throws Exception {
 
-        var workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        var workflow = new StateGraph<>(State.SCHEMA, State::new)
                 .addNode("agent", node_async(agent_whether) )
                 .addNode("tools", node_async(tool_whether) )
                 .addEdge(START, "agent")

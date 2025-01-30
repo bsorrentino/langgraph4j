@@ -2,14 +2,11 @@ package org.bsc.langgraph4j;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.checkpoint.FileSystemSaver;
-import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppenderChannel;
-import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.StateSnapshot;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,31 +26,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 public class StateGraphFileSystemPersistenceTest
 {
-    static class MessagesState extends AgentState {
+    static class State extends MessagesState<String> {
 
-        static Map<String, Channel<?>> SCHEMA = mapOf(
-                "messages", AppenderChannel.<String>of(ArrayList::new)
-        );
-
-        public MessagesState(Map<String, Object> initData) {
+        public State(Map<String, Object> initData) {
             super( initData  );
         }
 
         int steps() {
             return this.<Integer>value("steps").orElse(0);
-        }
-
-        List<String> messages() {
-            return this.<List<String>>value( "messages" )
-                    .orElseThrow( () -> new RuntimeException( "messages not found" ) );
-        }
-
-        Optional<String> lastMessage() {
-                List<String> messages = messages();
-            if( messages.isEmpty() ) {
-                return Optional.empty();
-            }
-            return Optional.of(messages.get( messages.size() - 1 ));
         }
 
     }
@@ -64,7 +44,7 @@ public class StateGraphFileSystemPersistenceTest
     public void testCheckpointSaverResubmit() throws Exception {
         int expectedSteps = 5;
 
-        StateGraph<MessagesState> workflow = new StateGraph<>(MessagesState.SCHEMA, MessagesState::new)
+        StateGraph<State> workflow = new StateGraph<>(State.SCHEMA, State::new)
                 .addEdge(START, "agent_1")
                 .addNode("agent_1", node_async( state -> {
                     int steps = state.steps() + 1;
@@ -86,7 +66,7 @@ public class StateGraphFileSystemPersistenceTest
                 .checkpointSaver(saver)
                 .build();
 
-        CompiledGraph<MessagesState> app = workflow.compile( compileConfig );
+        CompiledGraph<State> app = workflow.compile( compileConfig );
 
         RunnableConfig runnableConfig_1 = RunnableConfig.builder()
                                     .threadId("thread_1")
@@ -100,7 +80,7 @@ public class StateGraphFileSystemPersistenceTest
 
             for (int execution = 0; execution < 2; execution++) {
 
-                Optional<MessagesState> state = app.invoke( mapOf(), runnableConfig_1);
+                Optional<State> state = app.invoke( mapOf(), runnableConfig_1);
 
                 assertTrue(state.isPresent());
                 assertEquals(expectedSteps + (execution * 2), state.get().steps());
@@ -115,7 +95,7 @@ public class StateGraphFileSystemPersistenceTest
                     assertEquals(format("agent_1:step %d", (i + 1)), messages.get(i));
                 }
 
-                StateSnapshot<MessagesState> snapshot = app.getState(runnableConfig_1);
+                StateSnapshot<State> snapshot = app.getState(runnableConfig_1);
 
                 assertNotNull(snapshot);
                 log.info("SNAPSHOT:\n{}\n", snapshot);

@@ -14,7 +14,7 @@ When creating any LangGraph workflow, you can set them up to persist their state
 [`MemorySaver`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/MemorySaver.html
 
 
-## Initialize Logger
+ **Initialize Logger**
 
 
 ```java
@@ -27,44 +27,28 @@ try( var file = new java.io.FileInputStream("./logging.properties")) {
 
 ## Define the state
 
-State is an (immutable) data class, inheriting from [`AgentState`], shared with all nodes in our graph. A state is basically a wrapper of a `Map<String,Object>` that provides some enhancers:
+State is an (immutable) data class, inheriting from prebuilt [MessagesState], shared with all nodes in our graph. A state is basically a wrapper of a `Map<String,Object>` that provides some enhancers:
 
 1. Schema (optional), that is a `Map<String,Channel>` where each [`Channel`] describe behaviour of the related property
 1. `value()` accessors that inspect Map an return an Optional of value contained and cast to the required type
 
 [`Channel`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/state/Channel.html
-[`AgentState`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/state/AgentState.html
+[MessagesState]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/prebuilt/MessagesState.html
 
 
 ```java
-import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 
-public class MessageState extends AgentState {
-
-    static Map<String, Channel<?>> SCHEMA = Map.of(
-            "messages", AppenderChannel.<AiMessage>of(ArrayList::new)
-    );
+public class MessageState extends MessagesState<ChatMessage> {
 
     public MessageState(Map<String, Object> initData) {
         super( initData  );
     }
 
-    List<? extends ChatMessage> messages() {
-        return this.<List<? extends ChatMessage>>value( "messages" )
-                .orElseThrow( () -> new RuntimeException( "messages not found" ) );
-    }
-
-    // utility method to quick access to last message
-    Optional<? extends ChatMessage> lastMessage() {
-        List<? extends ChatMessage> messages = messages();
-        return ( messages.isEmpty() ) ? 
-            Optional.empty() :
-            Optional.of(messages.get( messages.size() - 1 ));
-    }
 }
 ```
 
@@ -208,7 +192,7 @@ AiMessage aiMessage = response.content();
 System.out.println( aiMessage );
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_lHd9882UGNKBxgyGTZ5516v8", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_cY6AkdeFMBtWc0A9jCrZBfnw", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
 
 
 ## Define the graph
@@ -323,7 +307,7 @@ for( var r : result ) {
 
     __START__
     agent
-    {messages=[AiMessage { text = "Remember my name?" toolExecutionRequests = null }, AiMessage { text = "I don't have the ability to remember personal information or previous interactions. Each session is independent, so I won't remember your name or any details from past conversations. How can I assist you today?" toolExecutionRequests = null }]}
+    {messages=[AiMessage { text = "Remember my name?" toolExecutionRequests = null }, AiMessage { text = "I don't have the ability to remember personal information or previous interactions. Each session is independent, and I don't have access to past conversations. How can I assist you today?" toolExecutionRequests = null }]}
     __END__
 
 
