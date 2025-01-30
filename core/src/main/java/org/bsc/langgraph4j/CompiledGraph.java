@@ -95,7 +95,8 @@ public class CompiledGraph<State extends AgentState> {
                 }
 
                 var actions = parallelNodeStream.get()
-                                    .map( target -> nodes.remove(target.id()) )
+                                    //.map( target -> nodes.remove(target.id()) )
+                                    .map( target -> nodes.get(target.id()) )
                                     .toList();
 
                 var parallelNode = Node.parallel( e.sourceId(), actions, stateGraph.getChannels() );
