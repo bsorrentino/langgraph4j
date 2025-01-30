@@ -1,7 +1,7 @@
 
 # 🦜🕸️ LangGraph for Java
 
-[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.2--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
+[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.3--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
@@ -34,7 +34,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] [Studio] (_Playground Webapp_)
 - [X] Streaming response from LLM results
 - [X] Child Graphs
-- [ ] Parallel Node Execution
+- [X] Parallel Node Execution
+    - _With some constraints_ 
 
 ## Releases
 
