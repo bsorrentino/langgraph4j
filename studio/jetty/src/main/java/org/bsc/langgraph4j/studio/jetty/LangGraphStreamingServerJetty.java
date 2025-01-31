@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j.studio.jetty;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;

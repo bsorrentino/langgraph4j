@@ -188,11 +188,12 @@
     <module>core</module>
     <module>langchain4j</module>
     <module>agent-executor</module>
-    <module>studio</module>
     <module>how-tos</module>
     <module>samples/image-to-diagram</module>
     <module>samples/adaptive-rag</module>
     <module>samples/springai-agentexecutor</module>
+    <module>studio/core</module>
+    <module>studio/jetty</module>
   </modules>
 
   <profiles>

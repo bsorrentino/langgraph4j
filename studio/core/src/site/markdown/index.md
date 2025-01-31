@@ -13,7 +13,10 @@ An **embed playground webapp** that runs a Langgraph4j workflow in visual way.
 - [x] Allow edit state data and resume execution
 - [ ] Manage Interruptions
 
-## Demo Code
+## Demo Code 
+
+### Use Jetty implementation
+
 ```java
 StateGraph<AgentState> workflow = new StateGraph<>( AgentState::new );
 
