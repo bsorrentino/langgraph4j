@@ -194,6 +194,7 @@
     <module>samples/springai-agentexecutor</module>
     <module>studio/core</module>
     <module>studio/jetty</module>
+    <module>studio/springboot</module>
   </modules>
 
   <profiles>
