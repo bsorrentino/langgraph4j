@@ -8,7 +8,7 @@ public abstract class AbstractLangGraphStudioConfig {
     public abstract LangGraphFlow getFlow();
 
     @Bean
-    public final ServletRegistrationBean<LangGraphStreamingServer.GraphInitServlet> initServletBean() {
+    public ServletRegistrationBean<LangGraphStreamingServer.GraphInitServlet> initServletBean() {
 
         var flow = getFlow();
 
@@ -20,7 +20,7 @@ public abstract class AbstractLangGraphStudioConfig {
     }
 
     @Bean
-    public final ServletRegistrationBean<LangGraphStreamingServer.GraphStreamServlet> streamingServletBean() {
+    public ServletRegistrationBean<LangGraphStreamingServer.GraphStreamServlet> streamingServletBean() {
 
         var flow = getFlow();
 
