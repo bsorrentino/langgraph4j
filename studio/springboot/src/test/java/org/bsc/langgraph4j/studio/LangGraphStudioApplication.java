@@ -4,10 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LangGraphStudioSpringbootApplication {
+public class LangGraphStudioApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LangGraphStudioSpringbootApplication.class, args);
+
+		SpringApplication.run(LangGraphStudioApplication.class, args);
 	}
 
 }
