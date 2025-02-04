@@ -32,6 +32,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] Update state (_interact with the state directly and update it_)
 - [x] Breakpoints (_pause and resume feature_)
 - [x] [Studio] (_Playground Webapp_)
+  - [x] [Spring Boot]
+  - [x] [Jetty]
 - [X] Streaming response from LLM results
 - [X] Child Graphs
 - [X] Parallel Node Execution
@@ -74,7 +76,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version></version>
+    <version>1.3.1</version>
 </dependency>
 ```
 
@@ -85,7 +87,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.3-SNAPSHOT</version>
 </dependency>
 ```
 
