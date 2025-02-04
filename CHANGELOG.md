@@ -2,6 +2,60 @@
 
 
 
+<!-- "name: v1.3.1" is a release tag -->
+
+## [v1.3.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.3.1) (2025-02-04)
+
+### Features
+
+ *  **studio**  add spring boot reference implementation ([c72c00be62a5459](https://github.com/bsorrentino/langgraph4j/commit/c72c00be62a54592daee02c317e4d0e049594324))
+   
+ *  **studio**  deploy webui to spring boot implementation ([fdea8c674098c32](https://github.com/bsorrentino/langgraph4j/commit/fdea8c674098c32af0bded71ad88f2d26d0d403c))
+   
+ *  **studio**  setup new module for run studio from springboot ([1df22b7aa8dc43e](https://github.com/bsorrentino/langgraph4j/commit/1df22b7aa8dc43e459a899b2905eeac809204f35))
+   
+
+
+### Documentation
+
+ -  bump to new version 1.3.1 ([1c5e2c0d25eb556](https://github.com/bsorrentino/langgraph4j/commit/1c5e2c0d25eb556d08984d55e144a3c05a5fab18))
+
+ -  **how-to**  update notebook documentation ([f7e1fe67fc83bf2](https://github.com/bsorrentino/langgraph4j/commit/f7e1fe67fc83bf28e995d5efccf785928e99770b))
+     > work on #78
+
+ -  **studio**  update jetty  and add spring boot documentation ([ae3df659f933062](https://github.com/bsorrentino/langgraph4j/commit/ae3df659f933062dda6d5e6ed130ac66494b5f84))
+
+ -  **site**  remove name from bannerLeft ([e54b2807cd6b1ea](https://github.com/bsorrentino/langgraph4j/commit/e54b2807cd6b1eafa862fba218962f8bbfa41e49))
+
+ -  **site**  Update XML structure to use Maven Site schema ([05ef8e6d5631d73](https://github.com/bsorrentino/langgraph4j/commit/05ef8e6d5631d734b7a6b55071968969ea39f3d3))
+     > - Switched from &#x60;site&#x60; to &#x60;project&#x60; namespace for improved flexibility
+
+ -  **hot-tos**  add parallel-branch images ([fc594ed27e4f1fc](https://github.com/bsorrentino/langgraph4j/commit/fc594ed27e4f1fc73ebd4e8d464a78690c407e70))
+
+ -  update project documentation and feature status ([3ab3454f0adc1bd](https://github.com/bsorrentino/langgraph4j/commit/3ab3454f0adc1bdcb2cdee216bd96676a9348a86))
+
+ -  update changeme ([8134fb24858b1a4](https://github.com/bsorrentino/langgraph4j/commit/8134fb24858b1a4d86ceb1e3ad35736fc1020469))
+
+
+### Refactor
+
+ -  **AbstractLangGraphStudioConfig.java**  remove final method qualifier ([333bf29418aeae0](https://github.com/bsorrentino/langgraph4j/commit/333bf29418aeae0d113b11f977567c4d0876e544))
+   
+ -  **studio**  change modules layout for studio implementation ([fbad211339b1440](https://github.com/bsorrentino/langgraph4j/commit/fbad211339b1440df0bb20891c1c0ee684cd188f))
+    > - Make it more flexible to allow different studio server implementation
+
+
+### ALM 
+
+ -  bump to new version 1.3.1 ([903a9a1dc9b5d09](https://github.com/bsorrentino/langgraph4j/commit/903a9a1dc9b5d09619af005ae82e73873802c829))
+   
+ -  bump version to SNAPSHOT ([39dfc39a7213689](https://github.com/bsorrentino/langgraph4j/commit/39dfc39a72136892a9e57c511d25bb7e25414628))
+   
+
+
+
+
+
 <!-- "name: v1.3.0" is a release tag -->
 
 ## [v1.3.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.3.0) (2025-01-30)
