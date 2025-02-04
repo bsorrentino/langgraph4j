@@ -21,7 +21,7 @@ An **embed playground webapp** that runs a Langgraph4j workflow in visual way.
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>llanggraph4j-studio-jetty</artifactId>
+    <artifactId>langgraph4j-studio-jetty</artifactId>
     <version>1.3.1</version>
 </dependency>
 ```
@@ -57,7 +57,7 @@ public static void main(String[] args) throws Exception {
 ```xml
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
-    <artifactId>llanggraph4j-studio-jetty</artifactId>
+    <artifactId>langgraph4j-studio-springboot</artifactId>
     <version>1.3.1</version>
 </dependency>
 ```
