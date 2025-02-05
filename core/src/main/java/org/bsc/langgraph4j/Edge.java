@@ -38,6 +38,26 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
         return targets.get(0);
     }
 
+    public boolean anyMatchByTargetId( String targetId ) {
+        return  targets().stream().anyMatch(v ->
+                        ( v.id() != null ) ?
+                                Objects.equals( v.id(), targetId ) :
+                                v.value().mappings().containsValue( targetId )
+
+                );
+    }
+
+    public Edge<State> withSourceAndTargetIdsUpdated(Node<State> node,
+                                                     Function<String,String> newSourceId,
+                                                     Function<String,String> newTargetId ) {
+
+        var newTargets = targets().stream()
+                .map( t -> t.withTargetIdUpdated( node.id(),  newTargetId ))
+                .toList();
+        return new Edge<>( newSourceId.apply(sourceId), newTargets);
+
+    }
+
     public void validate( @NonNull Collection<Node<State>> nodes) throws GraphStateException {
         if ( !Objects.equals(sourceId(),START) && !nodes.contains(new Node<State>(sourceId()))) {
             throw StateGraph.Errors.missingNodeReferencedByEdge.exception(sourceId());
