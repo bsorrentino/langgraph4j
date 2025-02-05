@@ -1,14 +1,15 @@
 package org.bsc.langgraph4j;
 
+import lombok.NonNull;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import static java.lang.String.format;
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 /**
  * Represents a node in a graph, characterized by a unique identifier and a factory for creating
@@ -16,16 +17,22 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
  * by the type parameter {@code State}.
  *
  * @param <State> the type of the state associated with the node; it must extend {@link AgentState}.
- * @param id the unique identifier for the node.
- * @param actionFactory a factory function that takes a {@link CompileConfig} and returns an
- *                      {@link AsyncNodeActionWithConfig} instance for the specified {@code State}.
+ *
  */
-record Node<State extends AgentState>(String id, ActionFactory<State> actionFactory)  {
+class Node<State extends AgentState> {
 
     public static final String PARALLEL_PREFIX = "__PARALLEL__";
 
     interface ActionFactory<State extends AgentState> {
         AsyncNodeActionWithConfig<State> apply( CompileConfig config ) throws GraphStateException;
+    }
+
+    private final String id;
+    private final ActionFactory<State> actionFactory;
+
+    public Node(String id, ActionFactory<State> actionFactory ) {
+       this.id = id;
+       this.actionFactory = actionFactory;
     }
 
     /**
@@ -37,8 +44,29 @@ record Node<State extends AgentState>(String id, ActionFactory<State> actionFact
         this(id, null);
     }
 
+    /**
+     * id
+     * @return  the unique identifier for the node.
+     */
+    public String id() {
+        return id;
+    }
+
+    /**
+     * actionFactory
+     * @return a factory function that takes a {@link CompileConfig} and returns an
+     *                   {@link AsyncNodeActionWithConfig} instance for the specified {@code State}.
+     */
+    public ActionFactory<State> actionFactory() {
+        return actionFactory;
+    }
+
     public boolean isParallel() {
         return id.startsWith(PARALLEL_PREFIX);
+    }
+
+    public Node<State> withIdUpdated( Function<String,String> newId ) {
+        return new Node<>( newId.apply( id), actionFactory );
     }
 
     /**
@@ -65,32 +93,57 @@ record Node<State extends AgentState>(String id, ActionFactory<State> actionFact
         return Objects.hash(id);
     }
 
-    static <State extends AgentState> Node<State> parallel(String id, List<AsyncNodeActionWithConfig<State>> actions, Map<String, Channel<?>> channels) {
-        return new Node<>( format( "%s(%s)", PARALLEL_PREFIX, id), (config ) -> new AsyncParallelNodeAction<>( actions, channels ));
-    }
-
-}
-
-record AsyncParallelNodeAction<State extends AgentState>(
-        List<AsyncNodeActionWithConfig<State>> actions,
-        Map<String, Channel<?>> channels ) implements AsyncNodeActionWithConfig<State> {
-
     @Override
-    public CompletableFuture<Map<String, Object>> apply(State state, RunnableConfig config) {
-        final var partialMergedStates = new HashMap<String, Object>();
-        var futures = actions.stream()
-                .map(action ->
-                        action.apply(state, config).thenApply(partialState -> {
-                            var updatedState = AgentState.updateState( partialMergedStates, partialState, channels);
-                            partialMergedStates.putAll(updatedState);
-                            return action;
-                        }) )
-                //.map( future -> supplyAsync(future::join) )
-                .toList()
-                .toArray(new CompletableFuture[0]);
-        return CompletableFuture.allOf(futures)
-                .thenApply((p) -> partialMergedStates);
+    public String toString() {
+        return format( "Node(%s,%s)", id, actionFactory!=null ? "actionFactory" : "null" );
     }
-
 }
 
+
+class ParallelNode<State extends AgentState> extends Node<State> {
+
+    record AsyncParallelNodeAction<State extends AgentState>(
+            List<AsyncNodeActionWithConfig<State>> actions,
+            Map<String, Channel<?>> channels ) implements AsyncNodeActionWithConfig<State> {
+
+        @Override
+        public CompletableFuture<Map<String, Object>> apply(State state, RunnableConfig config) {
+            final var partialMergedStates = new HashMap<String, Object>();
+            var futures = actions.stream()
+                    .map(action ->
+                            action.apply(state, config).thenApply(partialState -> {
+                                var updatedState = AgentState.updateState( partialMergedStates, partialState, channels);
+                                partialMergedStates.putAll(updatedState);
+                                return action;
+                            }) )
+                    //.map( future -> supplyAsync(future::join) )
+                    .toList()
+                    .toArray(new CompletableFuture[0]);
+            return CompletableFuture.allOf(futures)
+                    .thenApply((p) -> partialMergedStates);
+        }
+
+    }
+
+    public ParallelNode(String id, List<AsyncNodeActionWithConfig<State>> actions, Map<String, Channel<?>> channels) {
+        super(format( "%s(%s)", PARALLEL_PREFIX, id), (config ) -> new AsyncParallelNodeAction<>( actions, channels ));
+    }
+}
+
+class SubGraphNode<State extends AgentState> extends Node<State> {
+
+    private final StateGraph<State> subGraph;
+
+    public SubGraphNode(@NonNull String id, @NonNull  StateGraph<State> subGraph ) {
+        super(id);
+        this.subGraph = subGraph;
+    }
+
+    public StateGraph<State> subGraph() {
+        return subGraph;
+    }
+
+    public String formatId( String nodeId ) {
+        return format("%s@%s", id(), nodeId );
+    }
+}
