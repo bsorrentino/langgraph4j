@@ -170,7 +170,7 @@ public abstract class DiagramGenerator {
 
         final int[] conditionalEdgeCount = { 0 };
 
-        stateGraph.edges.stream()
+        stateGraph.edges.elements.stream()
             .filter( e -> !Objects.equals(e.sourceId(), START) )
                 .filter( e -> !e.isParallel() )
             .forEach( e -> {
@@ -181,7 +181,7 @@ public abstract class DiagramGenerator {
                 }
             });
 
-        var edgeStart = stateGraph.edges.stream()
+        var edgeStart = stateGraph.edges.elements.stream()
                 .filter( e -> Objects.equals( e.sourceId(), START) )
                 .findFirst()
                 .orElseThrow();
@@ -202,7 +202,7 @@ public abstract class DiagramGenerator {
 
         conditionalEdgeCount[0] = 0; // reset
 
-        stateGraph.edges.stream()
+        stateGraph.edges.elements.stream()
             .filter( e -> !Objects.equals(e.sourceId(), START) )
             .forEach( v -> {
 
