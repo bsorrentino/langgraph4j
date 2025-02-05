@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,12 +57,38 @@ public class CompiledGraph<State extends AgentState> {
         this.compileConfig = compileConfig;
 
         for (var n : stateGraph.nodes) {
-            var factory = n.actionFactory();
-            Objects.requireNonNull(factory, format("action factory for node id '%s' is null!", n.id()) );
-            nodes.put(n.id(), factory.apply(compileConfig));
+
+            if( n instanceof SubGraphNode<State> subgraphNode ) {
+
+                var sgWorkflow = subgraphNode.subGraph();
+
+                // validate subgraph
+                sgWorkflow.validateGraph();
+
+                var sgEdgeStart = sgWorkflow.edges.findEdgeBySourceId(START).orElseThrow();
+
+                if( sgEdgeStart.isParallel() ) {
+                    throw new UnsupportedOperationException("subgraph not support start with parallel branches yet!");
+                }
+                var edgesWithSubgraphTargetId =  stateGraph.edges.findEdgesByTargetId(subgraphNode.id());
+
+                for( var edgeWithSubgraphTargetId : edgesWithSubgraphTargetId ) {
+
+                    edgeWithSubgraphTargetId.withSourceAndTargetIdsUpdated( subgraphNode,
+                            Function.identity(),
+                            ( id ) -> subgraphNode.formatId(sgEdgeStart.sourceId()) );
+                }
+
+
+            }
+            else {
+                var factory = n.actionFactory();
+                Objects.requireNonNull(factory, format("action factory for node id '%s' is null!", n.id()));
+                nodes.put(n.id(), factory.apply(compileConfig));
+            }
         }
 
-        for( var e : stateGraph.edges ) {
+        for( var e : stateGraph.edges.elements ) {
             var targets = e.targets();
             if (targets.size() == 1) {
                 edges.put(e.sourceId(), targets.get(0));
@@ -72,9 +99,9 @@ public class CompiledGraph<State extends AgentState> {
 
                 var parallelNodeEdges = parallelNodeStream.get()
                         .map( target -> new Edge<State>(target.id()))
-                        .filter( ee -> stateGraph.edges.contains( ee ) )
-                        .map(  ee -> stateGraph.edges.indexOf( ee ) )
-                        .map( index -> stateGraph.edges.get(index) )
+                        .filter( ee -> stateGraph.edges.elements.contains( ee ) )
+                        .map(  ee -> stateGraph.edges.elements.indexOf( ee ) )
+                        .map( index -> stateGraph.edges.elements.get(index) )
                         .toList();
 
                 var  parallelNodeTargets = parallelNodeEdges.stream()
@@ -99,7 +126,7 @@ public class CompiledGraph<State extends AgentState> {
                                     .map( target -> nodes.get(target.id()) )
                                     .toList();
 
-                var parallelNode = Node.parallel( e.sourceId(), actions, stateGraph.getChannels() );
+                var parallelNode = new ParallelNode<>( e.sourceId(), actions, stateGraph.getChannels() );
 
                 nodes.put( parallelNode.id(), parallelNode.actionFactory().apply(compileConfig) );
 
@@ -192,16 +219,6 @@ public class CompiledGraph<State extends AgentState> {
      */
     public RunnableConfig updateState( RunnableConfig config, Map<String,Object> values ) throws Exception {
         return updateState(config, values, null);
-    }
-
-    @Deprecated( forRemoval = true )
-    public EdgeValue<State> getEntryPoint() {
-        return stateGraph.getEntryPoint();
-    }
-
-    @Deprecated( forRemoval = true )
-    public String getFinishPoint() {
-        return stateGraph.getFinishPoint();
     }
 
     /**
