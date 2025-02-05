@@ -92,7 +92,7 @@ public class StateGraph<State extends AgentState> {
     public static String START = "__START__";
 
     Set<Node<State>> nodes = new LinkedHashSet<>();
-    List<Edge<State>> edges =  new LinkedList<>();
+    Edges<State> edges = new Edges<>();
 
     private EdgeValue<State> entryPoint;
     @Deprecated
@@ -153,9 +153,7 @@ public class StateGraph<State extends AgentState> {
 
     @Deprecated( forRemoval = true )
     public EdgeValue<State> getEntryPoint() {
-        return edges.stream()
-                .filter( e -> Objects.equals(e.sourceId(), START) )
-                .findFirst()
+        return edges.findEdgeBySourceId( START )
                 .map( Edge::target )
                 .orElse( null );
     }
@@ -251,7 +249,8 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
-        var node = new Node<>(id, (config ) -> new SubgraphNodeAction<>(subGraph) );
+
+        var node = new SubGraphNode<>( id, subGraph.stateGraph );
 
         if (nodes.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -275,6 +274,16 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
+
+        var node = new SubGraphNode<>( id, subGraph );
+
+        if (nodes.contains(node)) {
+            throw Errors.duplicateNodeError.exception(id);
+        }
+
+        nodes.add(node);
+
+        /*
         var node = new Node<State>(id, (config ) -> {
             var compiledGraph = subGraph.compile(config);
             return new SubgraphNodeAction<>(compiledGraph);
@@ -285,6 +294,7 @@ public class StateGraph<State extends AgentState> {
         }
 
         nodes.add(node);
+         */
         return this;
     }
 
@@ -307,14 +317,14 @@ public class StateGraph<State extends AgentState> {
 
         var newEdge = new Edge<>(sourceId, new EdgeValue<State>(targetId, null) );
 
-        int index = edges.indexOf( newEdge );
+        int index = edges.elements.indexOf( newEdge );
         if( index >= 0 ) {
-            var newTargets = new ArrayList<>(edges.get(index).targets());
+            var newTargets = new ArrayList<>(edges.elements.get(index).targets());
             newTargets.add( newEdge.target() );
-            edges.set( index, new Edge<>(sourceId, newTargets) );
+            edges.elements.set( index, new Edge<>(sourceId, newTargets) );
         }
         else {
-            edges.add( newEdge );
+            edges.elements.add( newEdge );
         }
 
         return this;
@@ -343,13 +353,25 @@ public class StateGraph<State extends AgentState> {
 
         var newEdge =  new Edge<>(sourceId, new EdgeValue<>(null, new EdgeCondition<>(condition, mappings)) );
 
-        if( edges.contains( newEdge ) ) {
+        if( edges.elements.contains( newEdge ) ) {
             throw Errors.duplicateConditionalEdgeError.exception(sourceId);
         }
         else {
-            edges.add( newEdge );
+            edges.elements.add( newEdge );
         }
         return this;
+    }
+
+    void validateGraph( ) throws GraphStateException {
+        var edgeStart = edges.findEdgeBySourceId(START)
+                .orElseThrow(Errors.missingEntryPoint::exception);
+
+        edgeStart.validate( nodes );
+
+        for (Edge<State> edge : edges.elements) {
+            edge.validate(nodes);
+        }
+
     }
 
     /**
@@ -362,30 +384,7 @@ public class StateGraph<State extends AgentState> {
     public CompiledGraph<State> compile( CompileConfig config ) throws GraphStateException {
         Objects.requireNonNull(config, "config cannot be null");
 
-        var edgeStart = this.edges.stream()
-                        .filter( e -> Objects.equals(e.sourceId(),START) )
-                        .findFirst()
-                        .orElseThrow(Errors.missingEntryPoint::exception);
-
-        edgeStart.validate( nodes );
-
-//        if (entryPoint == null) {
-//            throw Errors.missingEntryPoint.exception();
-//        }
-
-//        if( entryPoint.id()!=null && !nodes.contains( new NodeImpl<State>(entryPoint.id()))) {
-//            throw Errors.entryPointNotExist.exception(entryPoint.id());
-//        }
-
-//        if (finishPoint != null) {
-//            if (!nodes.contains( new Node<State>(finishPoint))) {
-//                throw Errors.finishPointNotExist.exception(finishPoint);
-//            }
-//        }
-
-        for (Edge<State> edge : edges) {
-            edge.validate(nodes);
-        }
+        validateGraph();
 
         return new CompiledGraph<>(this, config);
     }
@@ -430,4 +429,30 @@ public class StateGraph<State extends AgentState> {
     }
 
 
+    static class Edges<State extends AgentState> {
+
+        public final List<Edge<State>> elements;
+
+        public Edges( Collection<Edge<State>> elements ) {
+            this.elements = new LinkedList<>(elements);
+        }
+
+        public Edges( ) {
+            this.elements = new LinkedList<>();
+        }
+
+        public Optional<Edge<State>> findEdgeBySourceId( String sourceId ) {
+            return elements.stream()
+                    .filter( e -> Objects.equals( e.sourceId(), sourceId ))
+                    .findFirst();
+        }
+
+        public List<Edge<State>> findEdgesByTargetId( String targetId ) {
+            return elements.stream()
+                    .filter( e -> e.anyMatchByTargetId(targetId)).toList();
+        }
+
+
+    }
 }
+
