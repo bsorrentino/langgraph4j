@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j;
 
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,9 +38,7 @@ public class CompiledGraph<State extends AgentState> {
         SNAPSHOTS
     }
     final StateGraph<State> stateGraph;
-    @Getter
     final Map<String, AsyncNodeActionWithConfig<State>> nodes = new LinkedHashMap<>();
-    @Getter
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
 
     private int maxIterations = 25;
@@ -56,39 +53,15 @@ public class CompiledGraph<State extends AgentState> {
         this.stateGraph = stateGraph;
         this.compileConfig = compileConfig;
 
-        for (var n : stateGraph.nodes) {
+        var stateGraphNodesAndEdges = StateGraphNodesAndEdges.process( stateGraph );
 
-            if( n instanceof SubGraphNode<State> subgraphNode ) {
-
-                var sgWorkflow = subgraphNode.subGraph();
-
-                // validate subgraph
-                sgWorkflow.validateGraph();
-
-                var sgEdgeStart = sgWorkflow.edges.findEdgeBySourceId(START).orElseThrow();
-
-                if( sgEdgeStart.isParallel() ) {
-                    throw new UnsupportedOperationException("subgraph not support start with parallel branches yet!");
-                }
-                var edgesWithSubgraphTargetId =  stateGraph.edges.findEdgesByTargetId(subgraphNode.id());
-
-                for( var edgeWithSubgraphTargetId : edgesWithSubgraphTargetId ) {
-
-                    edgeWithSubgraphTargetId.withSourceAndTargetIdsUpdated( subgraphNode,
-                            Function.identity(),
-                            ( id ) -> subgraphNode.formatId(sgEdgeStart.sourceId()) );
-                }
-
-
-            }
-            else {
-                var factory = n.actionFactory();
-                Objects.requireNonNull(factory, format("action factory for node id '%s' is null!", n.id()));
-                nodes.put(n.id(), factory.apply(compileConfig));
-            }
+        for (var n : stateGraphNodesAndEdges.nodes().elements ) {
+            var factory = n.actionFactory();
+            Objects.requireNonNull(factory, format("action factory for node id '%s' is null!", n.id()));
+            nodes.put(n.id(), factory.apply(compileConfig));
         }
 
-        for( var e : stateGraph.edges.elements ) {
+        for( var e : stateGraphNodesAndEdges.edges().elements ) {
             var targets = e.targets();
             if (targets.size() == 1) {
                 edges.put(e.sourceId(), targets.get(0));
@@ -99,9 +72,9 @@ public class CompiledGraph<State extends AgentState> {
 
                 var parallelNodeEdges = parallelNodeStream.get()
                         .map( target -> new Edge<State>(target.id()))
-                        .filter( ee -> stateGraph.edges.elements.contains( ee ) )
-                        .map(  ee -> stateGraph.edges.elements.indexOf( ee ) )
-                        .map( index -> stateGraph.edges.elements.get(index) )
+                        .filter( ee -> stateGraphNodesAndEdges.edges().elements.contains( ee ) )
+                        .map(  ee -> stateGraphNodesAndEdges.edges().elements.indexOf( ee ) )
+                        .map( index -> stateGraphNodesAndEdges.edges().elements.get(index) )
                         .toList();
 
                 var  parallelNodeTargets = parallelNodeEdges.stream()
@@ -136,9 +109,9 @@ public class CompiledGraph<State extends AgentState> {
 
             }
 
-
         }
     }
+
 
     public Collection<StateSnapshot<State>> getStateHistory( RunnableConfig config ) {
         BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
@@ -626,3 +599,94 @@ public class CompiledGraph<State extends AgentState> {
 
 }
 
+record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State> nodes, StateGraph.Edges<State> edges ) {
+
+    StateGraphNodesAndEdges( StateGraph<State> stateGraph ) {
+        this( stateGraph.nodes, stateGraph.edges );
+    }
+
+    static <State extends AgentState> StateGraphNodesAndEdges<State> process(StateGraph<State> stateGraph ) throws GraphStateException {
+
+        var subgraphNodes = stateGraph.nodes.subGraphNodes();
+
+        if( subgraphNodes.isEmpty() ) {
+            return new StateGraphNodesAndEdges<>( stateGraph );
+        }
+
+        var resultNodes = new StateGraph.Nodes<>( stateGraph.nodes.withoutSubGraphNodes() );
+        var resultEdges = new StateGraph.Edges<>( stateGraph.edges.elements);
+
+        for( var subgraphNode : subgraphNodes ) {
+
+            var sgWorkflow = subgraphNode.subGraph();
+
+            // validate subgraph
+            sgWorkflow.validateGraph();
+
+            // Process START Node
+            var sgEdgeStart = sgWorkflow.edges.edgeBySourceId(START).orElseThrow();
+
+            if( sgEdgeStart.isParallel() ) {
+                throw new GraphStateException( "subgraph not support start with parallel branches yet!"  );
+            }
+
+            var edgesWithSubgraphTargetId =  stateGraph.edges.edgesByTargetId( subgraphNode.id() );
+
+            if( edgesWithSubgraphTargetId.isEmpty() ) {
+                throw new GraphStateException( format("the node '%s' has not present as target in graph!", subgraphNode.id())  );
+            }
+
+            for( var edgeWithSubgraphTargetId :edgesWithSubgraphTargetId  ) {
+
+                var sgEdgeStartTarget = sgEdgeStart.target();
+
+                if( sgEdgeStartTarget.id() == null ) {
+                    throw new GraphStateException( format("the target for node '%s' is null!", subgraphNode.id())  );
+                }
+
+                var newEdge = edgeWithSubgraphTargetId.withSourceAndTargetIdsUpdated( subgraphNode,
+                        Function.identity(),
+                        ( id ) -> subgraphNode.formatId( sgEdgeStartTarget.id() ) );
+
+                resultEdges.elements.remove(edgeWithSubgraphTargetId);
+                resultEdges.elements.add( newEdge );
+
+            }
+
+            // Process END Nodes
+            var sgEdgesEnd = sgWorkflow.edges.edgesByTargetId(END);
+
+            var edgeWithSubgraphSourceId = stateGraph.edges.edgeBySourceId( subgraphNode.id() ).orElseThrow();
+
+            sgEdgesEnd.stream()
+                    .map( e -> e.withSourceAndTargetIdsUpdated( subgraphNode,
+                            subgraphNode::formatId,
+                            ( id ) -> edgeWithSubgraphSourceId.target().id())
+                    )
+                    .forEach(resultEdges.elements::add);
+            resultEdges.elements.remove(edgeWithSubgraphSourceId);
+
+            // Process edges
+            sgWorkflow.edges.elements.stream()
+                    .filter( e -> !Objects.equals( e.sourceId(),START) )
+                    .filter( e -> !e.anyMatchByTargetId(END) )
+                    .map( e ->
+                            e.withSourceAndTargetIdsUpdated( subgraphNode,
+                                    subgraphNode::formatId,
+                                    subgraphNode::formatId) )
+                    .forEach(resultEdges.elements::add);
+
+            // Process nodes
+
+            sgWorkflow.nodes.elements.stream()
+                    .map( n -> n.withIdUpdated( subgraphNode::formatId ) )
+                    .forEach(resultNodes.elements::add);
+
+        }
+
+
+        return new StateGraphNodesAndEdges<>( resultNodes, resultEdges );
+
+    }
+
+}
