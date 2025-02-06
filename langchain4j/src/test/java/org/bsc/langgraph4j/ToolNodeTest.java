@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import dev.langchain4j.agent.tool.*;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
+import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.service.tool.ToolExecutor;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Optional;
 
-import static dev.langchain4j.agent.tool.JsonSchemaProperty.description;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,8 +47,10 @@ public class ToolNodeTest {
 
         toolSpecification = ToolSpecification.builder()
                 .name("specialSumTwoNumbers")
-                .addParameter("operand1", JsonSchemaProperty.type("float"), description("Operand 1 for specialK operation"))
-                .addParameter("operand2", JsonSchemaProperty.type("float"), description("Operand 2 for specialK operation"))
+                .parameters(JsonObjectSchema.builder()
+                        .addNumberProperty("operand1","Operand 1 for specialK operation" )
+                        .addNumberProperty( "operand2", "Operand 2 for specialK operation" )
+                        .build())
                 .description("Returns a Float - sum of two numbers")
                 .build();
 
