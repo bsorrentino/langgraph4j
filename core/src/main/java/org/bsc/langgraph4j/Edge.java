@@ -58,8 +58,8 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
 
     }
 
-    public void validate( @NonNull Collection<Node<State>> nodes) throws GraphStateException {
-        if ( !Objects.equals(sourceId(),START) && !nodes.contains(new Node<State>(sourceId()))) {
+    public void validate( @NonNull StateGraph.Nodes<State> nodes ) throws GraphStateException {
+        if ( !Objects.equals(sourceId(),START) && !nodes.anyMatchById(sourceId())) {
             throw StateGraph.Errors.missingNodeReferencedByEdge.exception(sourceId());
         }
 
@@ -82,14 +82,14 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
 
     }
 
-    private void validate( EdgeValue<State> target, Collection<Node<State>> nodes ) throws GraphStateException {
+    private void validate( EdgeValue<State> target, StateGraph.Nodes<State> nodes ) throws GraphStateException {
         if (target.id() != null) {
-            if (!Objects.equals(target.id(), StateGraph.END) && !nodes.contains(new Node<State>(target.id()))) {
+            if (!Objects.equals(target.id(), StateGraph.END) && !nodes.anyMatchById(target.id())) {
                 throw StateGraph.Errors.missingNodeReferencedByEdge.exception(target.id());
             }
         } else if (target.value() != null) {
             for (String nodeId : target.value().mappings().values()) {
-                if (!Objects.equals(nodeId, StateGraph.END) && !nodes.contains(new Node<State>(nodeId))) {
+                if (!Objects.equals(nodeId, StateGraph.END) && !nodes.anyMatchById(nodeId)) {
                     throw StateGraph.Errors.missingNodeInEdgeMapping.exception(sourceId(), nodeId);
                 }
             }
