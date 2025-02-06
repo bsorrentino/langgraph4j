@@ -250,9 +250,7 @@ public class StateGraph<State extends AgentState> {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
 
-        var node = new Node<>(id, (config ) ->
-            new SubgraphNodeAction<>(subGraph)
-        );
+        var node = new SubCompiledGraphNode<>(id, subGraph);
 
         if (nodes.elements.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -279,7 +277,7 @@ public class StateGraph<State extends AgentState> {
 
         subGraph.validateGraph();
 
-        var node = new SubGraphNode<>( id, subGraph );
+        var node = new SubStateGraphNode<>( id, subGraph );
 
         if (nodes.elements.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -435,16 +433,16 @@ public class StateGraph<State extends AgentState> {
                     .anyMatch( n -> Objects.equals( n.id(), id) );
         }
 
-        public List<SubGraphNode<State>> subGraphNodes() {
+        public List<SubStateGraphNode<State>> onlySubStateGraphNodes() {
             return elements.stream()
-                    .filter(n -> n instanceof SubGraphNode<State>)
-                    .map(n -> (SubGraphNode<State>) n)
+                    .filter(n -> n instanceof SubStateGraphNode<State>)
+                    .map(n -> (SubStateGraphNode<State>) n)
                     .toList();
         }
 
-        public List<Node<State>> withoutSubGraphNodes() {
+        public List<Node<State>> exceptSubStateGraphNodes() {
             return elements.stream()
-                    .filter(n ->  !(n instanceof SubGraphNode<State>) )
+                    .filter(n ->  !(n instanceof SubStateGraphNode<State>) )
                     .toList();
         }
     }
