@@ -607,14 +607,15 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
 
     static <State extends AgentState> StateGraphNodesAndEdges<State> process(StateGraph<State> stateGraph ) throws GraphStateException {
 
-        var subgraphNodes = stateGraph.nodes.subGraphNodes();
+        var subgraphNodes = stateGraph.nodes.onlySubStateGraphNodes();
 
         if( subgraphNodes.isEmpty() ) {
             return new StateGraphNodesAndEdges<>( stateGraph );
         }
 
-        var resultNodes = new StateGraph.Nodes<>( stateGraph.nodes.withoutSubGraphNodes() );
-        var resultEdges = new StateGraph.Edges<>( stateGraph.edges.elements);
+        var result = new StateGraphNodesAndEdges<>(
+                    new StateGraph.Nodes<>( stateGraph.nodes.exceptSubStateGraphNodes() ),
+                    new StateGraph.Edges<>( stateGraph.edges.elements) );
 
         for( var subgraphNode : subgraphNodes ) {
 
@@ -648,8 +649,8 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
                         Function.identity(),
                         ( id ) -> subgraphNode.formatId( sgEdgeStartTarget.id() ) );
 
-                resultEdges.elements.remove(edgeWithSubgraphTargetId);
-                resultEdges.elements.add( newEdge );
+                result.edges().elements.remove(edgeWithSubgraphTargetId);
+                result.edges().elements.add( newEdge );
 
             }
 
@@ -663,8 +664,8 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
                             subgraphNode::formatId,
                             ( id ) -> edgeWithSubgraphSourceId.target().id())
                     )
-                    .forEach(resultEdges.elements::add);
-            resultEdges.elements.remove(edgeWithSubgraphSourceId);
+                    .forEach(result.edges().elements::add);
+            result.edges().elements.remove(edgeWithSubgraphSourceId);
 
             // Process edges
             sgWorkflow.edges.elements.stream()
@@ -674,18 +675,18 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
                             e.withSourceAndTargetIdsUpdated( subgraphNode,
                                     subgraphNode::formatId,
                                     subgraphNode::formatId) )
-                    .forEach(resultEdges.elements::add);
+                    .forEach(result.edges().elements::add);
 
             // Process nodes
 
             sgWorkflow.nodes.elements.stream()
                     .map( n -> n.withIdUpdated( subgraphNode::formatId ) )
-                    .forEach(resultNodes.elements::add);
+                    .forEach(result.nodes().elements::add);
 
         }
 
 
-        return new StateGraphNodesAndEdges<>( resultNodes, resultEdges );
+        return result;
 
     }
 
