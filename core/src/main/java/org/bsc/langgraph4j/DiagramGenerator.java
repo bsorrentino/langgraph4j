@@ -146,7 +146,7 @@ public abstract class DiagramGenerator {
 
         appendHeader( ctx );
 
-        stateGraph.nodes
+        stateGraph.nodes.elements
                 .forEach( n -> {
 
                     try {
