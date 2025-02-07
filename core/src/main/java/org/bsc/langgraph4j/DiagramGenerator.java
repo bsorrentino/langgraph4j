@@ -146,31 +146,26 @@ public abstract class DiagramGenerator {
 
         appendHeader( ctx );
 
-        stateGraph.nodes
-                .forEach( n -> {
+        for( var n :  stateGraph.nodes.elements )  {
 
-                    try {
-                        var action = n.actionFactory().apply( CompileConfig.builder().build() );
-                        if( action instanceof SubgraphNodeAction<?>  subgraphNodeAction) {
-                            Context subgraphCtx = generate( subgraphNodeAction.subGraph().stateGraph,
-                                    Context.builder()
-                                            .title( n.id() )
-                                            .printConditionalEdge( ctx.printConditionalEdge )
-                                            .isSubgraph( true )
-                                            .build() );
-                            ctx.sb().append( subgraphCtx );
-                        }
-                        else {
-                            declareNode(ctx, n.id());
-                        }
-                    } catch (GraphStateException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+            if( n instanceof SubGraphNode<?> subGraph ) {
+
+                    Context subgraphCtx = generate( subGraph.subGraph(),
+                            Context.builder()
+                                    .title( n.id() )
+                                    .printConditionalEdge( ctx.printConditionalEdge )
+                                    .isSubgraph( true )
+                                    .build() );
+                    ctx.sb().append( subgraphCtx );
+            }
+            else {
+                declareNode(ctx, n.id());
+            }
+        }
 
         final int[] conditionalEdgeCount = { 0 };
 
-        stateGraph.edges.stream()
+        stateGraph.edges.elements.stream()
             .filter( e -> !Objects.equals(e.sourceId(), START) )
                 .filter( e -> !e.isParallel() )
             .forEach( e -> {
@@ -181,7 +176,7 @@ public abstract class DiagramGenerator {
                 }
             });
 
-        var edgeStart = stateGraph.edges.stream()
+        var edgeStart = stateGraph.edges.elements.stream()
                 .filter( e -> Objects.equals( e.sourceId(), START) )
                 .findFirst()
                 .orElseThrow();
@@ -202,7 +197,7 @@ public abstract class DiagramGenerator {
 
         conditionalEdgeCount[0] = 0; // reset
 
-        stateGraph.edges.stream()
+        stateGraph.edges.elements.stream()
             .filter( e -> !Objects.equals(e.sourceId(), START) )
             .forEach( v -> {
 

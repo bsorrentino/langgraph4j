@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j;
 
 import lombok.NonNull;
+import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.*;
@@ -38,8 +39,28 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
         return targets.get(0);
     }
 
-    public void validate( @NonNull Collection<Node<State>> nodes) throws GraphStateException {
-        if ( !Objects.equals(sourceId(),START) && !nodes.contains(new Node<State>(sourceId()))) {
+    public boolean anyMatchByTargetId( String targetId ) {
+        return  targets().stream().anyMatch(v ->
+                        ( v.id() != null ) ?
+                                Objects.equals( v.id(), targetId ) :
+                                v.value().mappings().containsValue( targetId )
+
+                );
+    }
+
+    public Edge<State> withSourceAndTargetIdsUpdated(Node<State> node,
+                                                     Function<String,String> newSourceId,
+                                                     Function<String,String> newTargetId ) {
+
+        var newTargets = targets().stream()
+                .map( t -> t.withTargetIdsUpdated( newTargetId ))
+                .toList();
+        return new Edge<>( newSourceId.apply(sourceId), newTargets);
+
+    }
+
+    public void validate( @NonNull StateGraph.Nodes<State> nodes ) throws GraphStateException {
+        if ( !Objects.equals(sourceId(),START) && !nodes.anyMatchById(sourceId())) {
             throw StateGraph.Errors.missingNodeReferencedByEdge.exception(sourceId());
         }
 
@@ -62,14 +83,14 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
 
     }
 
-    private void validate( EdgeValue<State> target, Collection<Node<State>> nodes ) throws GraphStateException {
+    private void validate( EdgeValue<State> target, StateGraph.Nodes<State> nodes ) throws GraphStateException {
         if (target.id() != null) {
-            if (!Objects.equals(target.id(), StateGraph.END) && !nodes.contains(new Node<State>(target.id()))) {
+            if (!Objects.equals(target.id(), StateGraph.END) && !nodes.anyMatchById(target.id())) {
                 throw StateGraph.Errors.missingNodeReferencedByEdge.exception(target.id());
             }
         } else if (target.value() != null) {
             for (String nodeId : target.value().mappings().values()) {
-                if (!Objects.equals(nodeId, StateGraph.END) && !nodes.contains(new Node<State>(nodeId))) {
+                if (!Objects.equals(nodeId, StateGraph.END) && !nodes.anyMatchById(nodeId)) {
                     throw StateGraph.Errors.missingNodeInEdgeMapping.exception(sourceId(), nodeId);
                 }
             }
@@ -105,3 +126,43 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
 
 }
 
+/**
+ *
+ * @param <State>
+ * @param id The unique identifier for the edge value.
+ * @param value The condition associated with the edge value.
+ */
+record EdgeValue<State extends AgentState>( String id, EdgeCondition<State> value) {
+
+    EdgeValue<State> withTargetIdsUpdated(Function<String, String> targetId) {
+        if( id != null ) {
+            return new EdgeValue<>( targetId.apply( id ), null );
+        }
+
+        var newMappings = value.mappings().entrySet().stream()
+                .collect(Collectors.toMap( Map.Entry::getKey, e -> targetId.apply( e.getValue() ) ));
+
+        return new EdgeValue<>(null, new EdgeCondition<>( value.action(), newMappings));
+
+    }
+
+
+ }
+
+/**
+ * Represents a condition associated with an edge in a graph.
+ *
+ * @param <S> the type of the state associated with the edge
+ * @param action The action to be performed asynchronously when the edge condition is met.
+ * @param mappings A map of string key-value pairs representing additional mappings for the edge condition.
+ */
+record EdgeCondition<S extends AgentState>( AsyncEdgeAction<S> action, Map<String, String> mappings ) {
+
+    @Override
+    public String toString() {
+        return format( "EdgeCondition[ %s, mapping=%s",
+                action!=null ? "action" : "null",
+                mappings);
+    }
+
+}
