@@ -21,8 +21,6 @@ import static java.lang.String.format;
  */
 class Node<State extends AgentState> {
 
-    public static final String PARALLEL_PREFIX = "__PARALLEL__";
-
     interface ActionFactory<State extends AgentState> {
         AsyncNodeActionWithConfig<State> apply( CompileConfig config ) throws GraphStateException;
     }
@@ -62,7 +60,8 @@ class Node<State extends AgentState> {
     }
 
     public boolean isParallel() {
-        return id.startsWith(PARALLEL_PREFIX);
+        // return id.startsWith(PARALLEL_PREFIX);
+        return false;
     }
 
     public Node<State> withIdUpdated( Function<String,String> newId ) {
@@ -98,12 +97,13 @@ class Node<State extends AgentState> {
 
     @Override
     public String toString() {
-        return format( "Node(%s,%s)", id, actionFactory!=null ? "actionFactory" : "null" );
+        return format( "Node(%s,%s)", id, actionFactory!=null ? "action" : "null" );
     }
 }
 
 
 class ParallelNode<State extends AgentState> extends Node<State> {
+    public static final String PARALLEL_PREFIX = "__PARALLEL__";
 
     record AsyncParallelNodeAction<State extends AgentState>(
             List<AsyncNodeActionWithConfig<State>> actions,
@@ -131,11 +131,11 @@ class ParallelNode<State extends AgentState> extends Node<State> {
     public ParallelNode(String id, List<AsyncNodeActionWithConfig<State>> actions, Map<String, Channel<?>> channels) {
         super(format( "%s(%s)", PARALLEL_PREFIX, id), (config ) -> new AsyncParallelNodeAction<>( actions, channels ));
     }
-}
 
-interface SubGraphNode<State extends AgentState> {
-
-    StateGraph<State> subGraph();
+    @Override
+    public final boolean isParallel() {
+        return true;
+    }
 
 }
 
@@ -152,9 +152,10 @@ class SubStateGraphNode<State extends AgentState> extends Node<State> implements
         return subGraph;
     }
 
-    public String formatId( String nodeId ) {
-        return format("%s@%s", id(), nodeId );
+    public String formatId(String nodeId ) {
+        return SubGraphNode.formatId( id(), nodeId );
     }
+
 }
 
 class SubCompiledGraphNode<State extends AgentState> extends Node<State> implements SubGraphNode<State> {
@@ -162,7 +163,7 @@ class SubCompiledGraphNode<State extends AgentState> extends Node<State> impleme
     private final CompiledGraph<State> subGraph;
 
     public SubCompiledGraphNode(@NonNull String id, @NonNull  CompiledGraph<State> subGraph ) {
-        super(id, (config ) -> new SubgraphNodeAction<>(subGraph) );
+        super(id, (config ) -> new SubCompiledGraphNodeAction<>(subGraph) );
         this.subGraph = subGraph;
     }
 
@@ -182,7 +183,7 @@ class SubCompiledGraphNode<State extends AgentState> extends Node<State> impleme
  * @see CompiledGraph
  * @see AsyncNodeActionWithConfig
  */
-record SubgraphNodeAction<State extends AgentState>(
+record SubCompiledGraphNodeAction<State extends AgentState>(
         CompiledGraph<State> subGraph) implements AsyncNodeActionWithConfig<State> {
 
     /**
