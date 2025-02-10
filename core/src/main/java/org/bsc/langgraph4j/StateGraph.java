@@ -43,6 +43,7 @@ public class StateGraph<State extends AgentState> {
         duplicateEdgeTargetError("edge [%s] has duplicate targets %s!"),
         unsupportedConditionalEdgeOnParallelNode("parallel node doesn't support conditional branch, but on [%s] a conditional branch on %s have been found!"),
         illegalMultipleTargetsOnParallelNode("parallel node [%s] must have only one target, but %s have been found!"),
+        interruptionNodeNotExist( "node '%s' configured as interruption doesn't exist!")
         ;
 
         private final String errorMessage;
