@@ -30,27 +30,37 @@ public class SubGraphTest {
         }
     }
 
-    private AsyncNodeAction<MessagesState<String>> makeNode( String id ) {
+    private AsyncNodeAction<MessagesState<String>> _makeNode(String id ) {
         return node_async(state ->
                 Map.of("messages", id)
         );
     }
 
+    private List<String> _execute(CompiledGraph<?> workflow,
+                                  Map<String,Object> input ) throws Exception {
+        return workflow.stream(input)
+                .stream()
+                .peek(System.out::println)
+                .map(NodeOutput::node)
+                .toList();
+    }
+
+
     @Test
     public void testMergeSubgraph01() throws Exception {
 
         var workflowChild = new MessagesStateGraph<String>()
-                .addNode("B1", makeNode("B1") )
-                .addNode("B2", makeNode( "B2" ) )
+                .addNode("B1", _makeNode("B1") )
+                .addNode("B2", _makeNode( "B2" ) )
                 .addEdge(START, "B1")
                 .addEdge("B1", "B2")
                 .addEdge("B2", END)
                 ;
 
         var workflowParent = new MessagesStateGraph<String>()
-                .addNode("A", makeNode("A") )
+                .addNode("A", _makeNode("A") )
                 .addSubgraph("B",  workflowChild )
-                .addNode("C", makeNode("C") )
+                .addNode("C", _makeNode("C") )
                 .addEdge(START, "A")
                 .addEdge("A", "B")
                 .addEdge("B", "C")
@@ -89,17 +99,17 @@ public class SubGraphTest {
     public void testMergeSubgraph02() throws Exception {
 
         var workflowChild = new MessagesStateGraph<String>()
-                .addNode("B1", makeNode("B1") )
-                .addNode("B2", makeNode( "B2" ) )
+                .addNode("B1", _makeNode("B1") )
+                .addNode("B2", _makeNode( "B2" ) )
                 .addEdge(START, "B1")
                 .addEdge("B1", "B2")
                 .addEdge("B2", END)
                 ;
 
         var workflowParent = new MessagesStateGraph<String>()
-                .addNode("A", makeNode("A") )
+                .addNode("A", _makeNode("A") )
                 .addSubgraph("B",  workflowChild )
-                .addNode("C", makeNode("C") )
+                .addNode("C", _makeNode("C") )
                 .addConditionalEdges(START,
                         edge_async(state -> "a"),
                         Map.of( "a", "A", "b", "B") )
@@ -136,12 +146,6 @@ public class SubGraphTest {
 
         var app = workflowParent.compile();
 
-        var output = app.stream(Map.of())
-                .stream()
-                .peek(System.out::println)
-                .map(NodeOutput::node)
-                .toList();
-
         assertIterableEquals( List.of(
                 START,
                 "A",
@@ -149,7 +153,7 @@ public class SubGraphTest {
                 B_B2,
                 "C",
                 END
-        ), output );
+        ), _execute( app, Map.of() ) );
 
     }
 
@@ -157,9 +161,9 @@ public class SubGraphTest {
     public void testMergeSubgraph03() throws Exception {
 
         var workflowChild = new MessagesStateGraph<String>()
-                .addNode("B1", makeNode("B1") )
-                .addNode("B2", makeNode( "B2" ) )
-                .addNode("C", makeNode( "subgraph(C)" ) )
+                .addNode("B1", _makeNode("B1") )
+                .addNode("B2", _makeNode( "B2" ) )
+                .addNode("C", _makeNode( "subgraph(C)" ) )
                 .addEdge(START, "B1")
                 .addEdge("B1", "B2")
                 .addConditionalEdges( "B2",
@@ -169,9 +173,9 @@ public class SubGraphTest {
                 ;
 
         var workflowParent = new MessagesStateGraph<String>()
-                .addNode("A", makeNode("A") )
+                .addNode("A", _makeNode("A") )
                 .addSubgraph("B",  workflowChild )
-                .addNode("C", makeNode("C") )
+                .addNode("C", _makeNode("C") )
                 .addConditionalEdges(START,
                         edge_async(state -> "a"),
                         Map.of( "a", "A", "b", "B") )
@@ -216,11 +220,56 @@ public class SubGraphTest {
 
         var app = workflowParent.compile();
 
-        var output = app.stream(Map.of())
-                .stream()
-                .peek(System.out::println)
-                .map(NodeOutput::node)
-                .toList();
+        assertIterableEquals( List.of(
+                START,
+                "A",
+                B_B1,
+                B_B2,
+                B_C,
+                "C",
+                END
+        ), _execute( app, Map.of() ) );
+
+    }
+
+    @Test
+    public void testMergeSubgraphWithInterruption() throws Exception {
+
+        var workflowChild = new MessagesStateGraph<String>()
+                .addNode("B1", _makeNode("B1") )
+                .addNode("B2", _makeNode( "B2" ) )
+                .addNode("C", _makeNode( "subgraph(C)" ) )
+                .addEdge(START, "B1")
+                .addEdge("B1", "B2")
+                .addConditionalEdges( "B2",
+                        edge_async(state -> "c"),
+                        Map.of( END, END, "c", "C") )
+                .addEdge("C", END)
+                ;
+
+        var workflowParent = new MessagesStateGraph<String>()
+                .addNode("A", _makeNode("A") )
+                .addSubgraph("B",  workflowChild )
+                .addNode("C", _makeNode("C") )
+                .addConditionalEdges(START,
+                        edge_async(state -> "a"),
+                        Map.of( "a", "A", "b", "B") )
+                .addEdge("A", "B")
+                .addEdge("B", "C")
+                .addEdge("C", END)
+                //.compile(compileConfig)
+                ;
+
+        var B_B1    = SubGraphNode.formatId( "B", "B1");
+        var B_B2    = SubGraphNode.formatId( "B", "B2");
+        var B_C     = SubGraphNode.formatId( "B", "C");
+
+        var saver = new MemorySaver();
+
+        var withSaver = workflowParent.compile(
+                CompileConfig.builder()
+                    .checkpointSaver(saver)
+                    .build());
 
         assertIterableEquals( List.of(
                 START,
@@ -230,7 +279,78 @@ public class SubGraphTest {
                 B_C,
                 "C",
                 END
-        ), output );
+        ), _execute( withSaver, Map.of()) );
+
+        // INTERRUPT AFTER B1
+        var interruptAfterB1 = workflowParent.compile(
+                CompileConfig.builder()
+                        .checkpointSaver(saver)
+                        .interruptAfter( B_B1 )
+                        .build());
+        assertIterableEquals( List.of(
+                START,
+                "A",
+                B_B1
+        ), _execute( interruptAfterB1, Map.of() ) );
+
+        // RESUME AFTER B1
+        assertIterableEquals( List.of(
+                B_B2,
+                B_C,
+                "C",
+                END
+        ), _execute( interruptAfterB1, null ) );
+
+        // INTERRUPT AFTER B2
+        var interruptAfterB2 = workflowParent.compile(
+                    CompileConfig.builder()
+                        .checkpointSaver(saver)
+                        .interruptAfter( B_B2 )
+                        .build());
+
+        assertIterableEquals( List.of(
+                START,
+                "A",
+                B_B1,
+                B_B2
+        ), _execute( interruptAfterB2, Map.of() ) );
+
+        // RESUME AFTER B2
+        assertIterableEquals( List.of(
+                B_C,
+                "C",
+                END
+        ), _execute( interruptAfterB2, null ) );
+
+        // INTERRUPT BEFORE C
+        var interruptBeforeC = workflowParent.compile(
+                CompileConfig.builder()
+                        .checkpointSaver(saver)
+                        .interruptBefore( "C" )
+                        .build());
+
+        assertIterableEquals( List.of(
+                START,
+                "A",
+                B_B1,
+                B_B2,
+                B_C
+        ), _execute( interruptBeforeC, Map.of() ) );
+
+        // RESUME AFTER B2
+        assertIterableEquals( List.of(
+                "C",
+                END
+        ), _execute( interruptBeforeC, null ) );
+
+        // INTERRUPT BEFORE SUBGRAPH B
+        var exception = assertThrows(GraphStateException.class, () -> workflowParent.compile(
+                CompileConfig.builder()
+                        .checkpointSaver(saver)
+                        .interruptBefore( "B" )
+                        .build()));
+        System.out.println(exception.getMessage());
+        assertEquals("node 'B' configured as interruption doesn't exist!", exception.getMessage());
 
     }
 
@@ -240,9 +360,9 @@ public class SubGraphTest {
         var compileConfig = CompileConfig.builder().checkpointSaver(new MemorySaver()).build();
 
         var workflowChild = new MessagesStateGraph<String>()
-                .addNode("step_1", makeNode("child:step1") )
-                .addNode("step_2", makeNode("child:step2") )
-                .addNode("step_3", makeNode("child:step3") )
+                .addNode("step_1", _makeNode("child:step1") )
+                .addNode("step_2", _makeNode("child:step2") )
+                .addNode("step_3", _makeNode("child:step3") )
                 .addEdge(START, "step_1")
                 .addEdge("step_1", "step_2")
                 .addEdge("step_2", "step_3")
@@ -251,9 +371,9 @@ public class SubGraphTest {
                 ;
 
         var workflowParent = new MessagesStateGraph<String>()
-                .addNode("step_1", makeNode( "step1"))
-                .addNode("step_2", makeNode("step2"))
-                .addNode("step_3",  makeNode("step3"))
+                .addNode("step_1", _makeNode( "step1"))
+                .addNode("step_2", _makeNode("step2"))
+                .addNode("step_3",  _makeNode("step3"))
                 .addSubgraph("subgraph", workflowChild)
                 .addEdge(START, "step_1")
                 .addEdge("step_1", "step_2")
