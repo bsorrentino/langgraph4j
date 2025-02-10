@@ -117,9 +117,9 @@ public class CompiledGraph<State extends AgentState> {
 
                 nodes.put( parallelNode.id(), parallelNode.actionFactory().apply(compileConfig) );
 
-                edges.put( e.sourceId(), new EdgeValue<>( parallelNode.id(), null  ) );
+                edges.put( e.sourceId(), new EdgeValue<>( parallelNode.id() ) );
 
-                edges.put( parallelNode.id(), new EdgeValue<>( parallelNodeTargets.iterator().next(), null  ));
+                edges.put( parallelNode.id(), new EdgeValue<>( parallelNodeTargets.iterator().next() ));
 
             }
 
@@ -658,8 +658,8 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
 
                 var newEdge = edgeWithSubgraphTargetId.withSourceAndTargetIdsUpdated( subgraphNode,
                         Function.identity(),
-                        ( id ) -> Objects.equals( id, subgraphNode.id() ) ?
-                                            subgraphNode.formatId( sgEdgeStartTarget.id()  ) : id );
+                        id -> new EdgeValue<>( (Objects.equals( id, subgraphNode.id() ) ?
+                                            subgraphNode.formatId( sgEdgeStartTarget.id()  ) : id)));
                 result.edges().elements.remove(edgeWithSubgraphTargetId);
                 result.edges().elements.add( newEdge );
 
@@ -672,12 +672,12 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
 
             sgEdgesEnd.stream()
                     .map( e -> e.withSourceAndTargetIdsUpdated( subgraphNode,
-                            subgraphNode::formatId,
-                            ( id ) -> Objects.equals(id,END) ?
-                                    edgeWithSubgraphSourceId.target().id() :
-                                    subgraphNode.formatId(id) )
+                                    subgraphNode::formatId,
+                                    id  -> (Objects.equals(id,END) ?
+                                                    edgeWithSubgraphSourceId.target() :
+                                                    new EdgeValue<>(subgraphNode.formatId(id)) ) )
                     )
-                    .forEach(result.edges().elements::add);
+                    .forEach( result.edges().elements::add);
             result.edges().elements.remove(edgeWithSubgraphSourceId);
 
             // Process edges
@@ -687,7 +687,7 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
                     .map( e ->
                             e.withSourceAndTargetIdsUpdated( subgraphNode,
                                     subgraphNode::formatId,
-                                    subgraphNode::formatId) )
+                                    id  -> new EdgeValue<>( subgraphNode.formatId(id))) )
                     .forEach(result.edges().elements::add);
 
             // Process nodes
