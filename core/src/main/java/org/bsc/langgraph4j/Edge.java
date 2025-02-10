@@ -50,10 +50,10 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
 
     public Edge<State> withSourceAndTargetIdsUpdated(Node<State> node,
                                                      Function<String,String> newSourceId,
-                                                     Function<String,String> newTargetId ) {
+                                                     Function<String,EdgeValue<State>> newTarget ) {
 
         var newTargets = targets().stream()
-                .map( t -> t.withTargetIdsUpdated( newTargetId ))
+                .map( t -> t.withTargetIdsUpdated( newTarget ))
                 .toList();
         return new Edge<>( newSourceId.apply(sourceId), newTargets);
 
@@ -134,13 +134,24 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
  */
 record EdgeValue<State extends AgentState>( String id, EdgeCondition<State> value) {
 
-    EdgeValue<State> withTargetIdsUpdated(Function<String, String> targetId) {
+    public EdgeValue( String id ) {
+        this( id, null );
+    }
+
+    public EdgeValue( EdgeCondition<State> value  ) {
+        this( null, value );
+    }
+    EdgeValue<State> withTargetIdsUpdated(Function<String, EdgeValue<State>> target) {
         if( id != null ) {
-            return new EdgeValue<>( targetId.apply( id ), null );
+            return target.apply( id );
         }
 
         var newMappings = value.mappings().entrySet().stream()
-                .collect(Collectors.toMap( Map.Entry::getKey, e -> targetId.apply( e.getValue() ) ));
+                .collect(Collectors.toMap( Map.Entry::getKey,
+                        e -> {
+                                                var v = target.apply( e.getValue() );
+                                                return ( v.id() != null ) ? v.id() : e.getValue();
+                                            }));
 
         return new EdgeValue<>(null, new EdgeCondition<>( value.action(), newMappings));
 
