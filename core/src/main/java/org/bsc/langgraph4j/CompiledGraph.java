@@ -55,12 +55,26 @@ public class CompiledGraph<State extends AgentState> {
 
         var stateGraphNodesAndEdges = StateGraphNodesAndEdges.process( stateGraph );
 
+        // CHECK INTERRUPTIONS
+        for (String interruption : compileConfig.getInterruptBefore() ) {
+            if (!stateGraphNodesAndEdges.nodes().anyMatchById( interruption )) {
+                throw StateGraph.Errors.interruptionNodeNotExist.exception(interruption);
+            }
+        }
+        for (String interruption : compileConfig.getInterruptBefore() ) {
+            if (!stateGraphNodesAndEdges.nodes().anyMatchById( interruption )) {
+                throw StateGraph.Errors.interruptionNodeNotExist.exception(interruption);
+            }
+        }
+
+        // EVALUATES NODES
         for (var n : stateGraphNodesAndEdges.nodes().elements ) {
             var factory = n.actionFactory();
             Objects.requireNonNull(factory, format("action factory for node id '%s' is null!", n.id()));
             nodes.put(n.id(), factory.apply(compileConfig));
         }
 
+        // EVALUATE EDGES
         for( var e : stateGraphNodesAndEdges.edges().elements ) {
             var targets = e.targets();
             if (targets.size() == 1) {
