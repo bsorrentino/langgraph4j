@@ -301,11 +301,11 @@ public class StateGraph<State extends AgentState> {
         }
 
 //        if (Objects.equals(sourceId, START)) {
-//            this.entryPoint = new EdgeValue<>(targetId, null);
+//            this.entryPoint = new EdgeValue<>(targetId);
 //            return this;
 //        }
 
-        var newEdge = new Edge<>(sourceId, new EdgeValue<State>(targetId, null) );
+        var newEdge = new Edge<>(sourceId, new EdgeValue<State>(targetId) );
 
         int index = edges.elements.indexOf( newEdge );
         if( index >= 0 ) {
@@ -337,11 +337,11 @@ public class StateGraph<State extends AgentState> {
         }
 
 //        if (Objects.equals(sourceId, START)) {
-//            this.entryPoint = new EdgeValue<>(null, new EdgeCondition<>(condition, mappings));
+//            this.entryPoint = new EdgeValue<>(new EdgeCondition<>(condition, mappings));
 //            return this;
 //        }
 
-        var newEdge =  new Edge<>(sourceId, new EdgeValue<>(null, new EdgeCondition<>(condition, mappings)) );
+        var newEdge =  new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>(condition, mappings)) );
 
         if( edges.elements.contains( newEdge ) ) {
             throw Errors.duplicateConditionalEdgeError.exception(sourceId);
