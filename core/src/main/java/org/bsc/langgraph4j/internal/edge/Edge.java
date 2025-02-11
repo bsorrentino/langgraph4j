@@ -1,6 +1,9 @@
-package org.bsc.langgraph4j;
+package org.bsc.langgraph4j.internal.edge;
 
 import lombok.NonNull;
+import org.bsc.langgraph4j.GraphStateException;
+import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.internal.node.Node;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.*;
@@ -17,7 +20,7 @@ import static org.bsc.langgraph4j.StateGraph.START;
  * @param sourceId The ID of the source node.
  * @param targets The targets value associated with the edge.
  */
-record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> targets) {
+public record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> targets) {
 
     public Edge(String sourceId, EdgeValue<State> target) {
         this(sourceId, List.of(target));
@@ -38,8 +41,28 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
         return targets.get(0);
     }
 
-    public void validate( @NonNull Collection<Node<State>> nodes) throws GraphStateException {
-        if ( !Objects.equals(sourceId(),START) && !nodes.contains(new Node<State>(sourceId()))) {
+    public boolean anyMatchByTargetId( String targetId ) {
+        return  targets().stream().anyMatch(v ->
+                        ( v.id() != null ) ?
+                                Objects.equals( v.id(), targetId ) :
+                                v.value().mappings().containsValue( targetId )
+
+                );
+    }
+
+    public Edge<State> withSourceAndTargetIdsUpdated(Node<State> node,
+                                                     Function<String,String> newSourceId,
+                                                     Function<String,EdgeValue<State>> newTarget ) {
+
+        var newTargets = targets().stream()
+                .map( t -> t.withTargetIdsUpdated( newTarget ))
+                .toList();
+        return new Edge<>( newSourceId.apply(sourceId), newTargets);
+
+    }
+
+    public void validate( @NonNull StateGraph.Nodes<State> nodes ) throws GraphStateException {
+        if ( !Objects.equals(sourceId(),START) && !nodes.anyMatchById(sourceId())) {
             throw StateGraph.Errors.missingNodeReferencedByEdge.exception(sourceId());
         }
 
@@ -62,14 +85,14 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
 
     }
 
-    private void validate( EdgeValue<State> target, Collection<Node<State>> nodes ) throws GraphStateException {
+    private void validate( EdgeValue<State> target, StateGraph.Nodes<State> nodes ) throws GraphStateException {
         if (target.id() != null) {
-            if (!Objects.equals(target.id(), StateGraph.END) && !nodes.contains(new Node<State>(target.id()))) {
+            if (!Objects.equals(target.id(), StateGraph.END) && !nodes.anyMatchById(target.id())) {
                 throw StateGraph.Errors.missingNodeReferencedByEdge.exception(target.id());
             }
         } else if (target.value() != null) {
             for (String nodeId : target.value().mappings().values()) {
-                if (!Objects.equals(nodeId, StateGraph.END) && !nodes.contains(new Node<State>(nodeId))) {
+                if (!Objects.equals(nodeId, StateGraph.END) && !nodes.anyMatchById(nodeId)) {
                     throw StateGraph.Errors.missingNodeInEdgeMapping.exception(sourceId(), nodeId);
                 }
             }
@@ -104,4 +127,5 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
     }
 
 }
+
 

@@ -1,12 +1,12 @@
-package org.bsc.langgraph4j;
+package org.bsc.langgraph4j.internal.node;
 
+import org.bsc.langgraph4j.CompiledGraph;
+import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 /**
  * Represents an action to perform a subgraph on a given state with a specific configuration.
@@ -19,7 +19,7 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
  * @see CompiledGraph
  * @see AsyncNodeActionWithConfig
  */
-record SubgraphNodeAction<State extends AgentState>(
+public record SubCompiledGraphNodeAction<State extends AgentState>(
         CompiledGraph<State> subGraph) implements AsyncNodeActionWithConfig<State> {
 
     /**
@@ -41,7 +41,7 @@ record SubgraphNodeAction<State extends AgentState>(
 
             var generator = subGraph.stream(input, config);
 
-            future.complete(mapOf("_subgraph", generator));
+            future.complete(Map.of("_subgraph", generator));
 
         } catch (Exception e) {
 
