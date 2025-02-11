@@ -1,9 +1,7 @@
 package org.bsc.langgraph4j;
 
 
-import lombok.Builder;
-import lombok.Value;
-import lombok.experimental.Accessors;
+import org.bsc.langgraph4j.internal.edge.EdgeCondition;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Objects;
@@ -17,22 +15,38 @@ import static org.bsc.langgraph4j.StateGraph.START;
  */
 public abstract class DiagramGenerator {
 
-    /**
-     * Class that represents a context with various properties and methods.
-     * This class is designed to store and manipulate context-specific data such as
-     * a string builder, title, and conditional edge printing status. It also provides
-     * a method for converting the title to snake case. The class is annotated with {@code @Value},
-     * {@code @Accessors(fluent = true)}, and {@code @Builder} to facilitate value semantics,
-     * fluent interfaces, and builder patterns respectively.
-     */
-    @Value
-    @Accessors(fluent = true)
-    @Builder
-    public static class Context {
-        StringBuilder sb = new StringBuilder();
-        String title;
-        boolean printConditionalEdge;
-        boolean isSubgraph;
+    public record Context( StringBuilder sb,
+                            String title,
+                            boolean printConditionalEdge,
+                            boolean isSubgraph ) {
+
+        static Builder builder() { return new Builder(); }
+
+        static public class Builder {
+                String title;
+                boolean printConditionalEdge ;
+                boolean IsSubgraph;
+
+                private Builder() {}
+
+                public Builder title( String title ) {
+                    this.title = title;
+                    return this;
+                }
+                public Builder printConditionalEdge( boolean value ) {
+                    this.printConditionalEdge = value;
+                    return this;
+                }
+                public Builder isSubgraph( boolean value ) {
+                    this.IsSubgraph = value;
+                    return this;
+                }
+
+                public Context build() {
+                    return new Context( new StringBuilder(), title,printConditionalEdge, IsSubgraph );
+                }
+
+        }
 
         /**
          * Converts a given title string to snake_case format by replacing all non-alphanumeric characters with underscores.
@@ -65,7 +79,7 @@ public abstract class DiagramGenerator {
      *
      * @param ctx Context object containing the necessary information.
      */
-    protected abstract void appendFooter(Context ctx) ;
+    protected abstract void appendFooter( Context ctx ) ;
     /**
      * This method is an abstract method that must be implemented by subclasses.
      * It is used to initiate a communication call between two parties identified by their phone numbers.
@@ -119,14 +133,15 @@ public abstract class DiagramGenerator {
     /**
      * Generate a textual representation of the given graph.
      *
-     * @param stateGraph The graph to generate a diagram from.
+     * @param nodes       the state graph nodes used to generate the context, which must not be null
+     * @param edges       the state graph edges used to generate the context, which must not be null
      * @param title The title of the graph.
      * @param printConditionalEdge Whether to print the conditional edge condition.
      * @return A string representation of the graph.
      */
-    public final <State extends AgentState> String generate( StateGraph<State> stateGraph, String title, boolean printConditionalEdge ) {
+    public final <State extends AgentState> String generate( StateGraph.Nodes<State> nodes,  StateGraph.Edges<State> edges, String title, boolean printConditionalEdge ) {
 
-        return generate( stateGraph, Context.builder()
+        return generate( nodes, edges, Context.builder()
                                         .title( title )
                                         .isSubgraph( false )
                                         .printConditionalEdge( printConditionalEdge )
@@ -138,20 +153,25 @@ public abstract class DiagramGenerator {
      * Generates a context based on the given state graph.
      *
      * @param <State>     the type of agent state, constrained to extend {@link AgentState}
-     * @param stateGraph  the state graph used to generate the context, which must not be null
+     * @param nodes       the state graph nodes used to generate the context, which must not be null
+     * @param edges       the state graph edges used to generate the context, which must not be null
      * @param ctx         the initial context, which must not be null
      * @return            the generated context, which will not be null
      */
-    protected final <State extends AgentState> Context generate( StateGraph<State> stateGraph, Context ctx) {
+    protected final <State extends AgentState> Context generate( StateGraph.Nodes<State> nodes, StateGraph.Edges<State> edges, Context ctx) {
 
         appendHeader( ctx );
 
-        for( var n :  stateGraph.nodes.elements )  {
+        for( var n :  nodes.elements )  {
 
-            if( n instanceof SubGraphNode<?> subGraph ) {
+            if( n instanceof SubGraphNode<?> subGraphNode ) {
 
-                    Context subgraphCtx = generate( subGraph.subGraph(),
-                            Context.builder()
+                    @SuppressWarnings("unchecked")
+                    var subGraph = (StateGraph<State>) subGraphNode.subGraph();
+                    Context subgraphCtx = generate(
+                                subGraph.nodes,
+                                subGraph.edges,
+                                Context.builder()
                                     .title( n.id() )
                                     .printConditionalEdge( ctx.printConditionalEdge )
                                     .isSubgraph( true )
@@ -165,7 +185,7 @@ public abstract class DiagramGenerator {
 
         final int[] conditionalEdgeCount = { 0 };
 
-        stateGraph.edges.elements.stream()
+        edges.elements.stream()
             .filter( e -> !Objects.equals(e.sourceId(), START) )
                 .filter( e -> !e.isParallel() )
             .forEach( e -> {
@@ -176,7 +196,7 @@ public abstract class DiagramGenerator {
                 }
             });
 
-        var edgeStart = stateGraph.edges.elements.stream()
+        var edgeStart = edges.elements.stream()
                 .filter( e -> Objects.equals( e.sourceId(), START) )
                 .findFirst()
                 .orElseThrow();
@@ -197,7 +217,7 @@ public abstract class DiagramGenerator {
 
         conditionalEdgeCount[0] = 0; // reset
 
-        stateGraph.edges.elements.stream()
+        edges.elements.stream()
             .filter( e -> !Objects.equals(e.sourceId(), START) )
             .forEach( v -> {
 
