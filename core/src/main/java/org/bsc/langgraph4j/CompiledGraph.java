@@ -51,31 +51,37 @@ public class CompiledGraph<State extends AgentState> {
      */
     protected CompiledGraph(StateGraph<State> stateGraph, CompileConfig compileConfig ) throws GraphStateException {
         this.stateGraph = stateGraph;
-        this.compileConfig = compileConfig;
 
-        var stateGraphNodesAndEdges = StateGraphNodesAndEdges.process( stateGraph );
+        var stateGraphNodesEdgesAndConfig = StateGraphNodesEdgesAndConfig.process( stateGraph, compileConfig );
+
 
         // CHECK INTERRUPTIONS
-        for (String interruption : compileConfig.getInterruptBefore() ) {
-            if (!stateGraphNodesAndEdges.nodes().anyMatchById( interruption )) {
+        for (String interruption : stateGraphNodesEdgesAndConfig.interruptsBefore() ) {
+            if (!stateGraphNodesEdgesAndConfig.nodes().anyMatchById( interruption )) {
                 throw StateGraph.Errors.interruptionNodeNotExist.exception(interruption);
             }
         }
-        for (String interruption : compileConfig.getInterruptBefore() ) {
-            if (!stateGraphNodesAndEdges.nodes().anyMatchById( interruption )) {
+        for (String interruption : stateGraphNodesEdgesAndConfig.interruptsBefore() ) {
+            if (!stateGraphNodesEdgesAndConfig.nodes().anyMatchById( interruption )) {
                 throw StateGraph.Errors.interruptionNodeNotExist.exception(interruption);
             }
         }
 
+        // RE-CREATE THE EVENTUALLY UPDATED COMPILE CONFIG
+        this.compileConfig = CompileConfig.builder(compileConfig)
+                                .interruptsBefore(stateGraphNodesEdgesAndConfig.interruptsBefore())
+                                .interruptsAfter(stateGraphNodesEdgesAndConfig.interruptsAfter())
+                                .build();
+
         // EVALUATES NODES
-        for (var n : stateGraphNodesAndEdges.nodes().elements ) {
+        for (var n : stateGraphNodesEdgesAndConfig.nodes().elements ) {
             var factory = n.actionFactory();
             Objects.requireNonNull(factory, format("action factory for node id '%s' is null!", n.id()));
             nodes.put(n.id(), factory.apply(compileConfig));
         }
 
         // EVALUATE EDGES
-        for( var e : stateGraphNodesAndEdges.edges().elements ) {
+        for( var e : stateGraphNodesEdgesAndConfig.edges().elements ) {
             var targets = e.targets();
             if (targets.size() == 1) {
                 edges.put(e.sourceId(), targets.get(0));
@@ -86,9 +92,9 @@ public class CompiledGraph<State extends AgentState> {
 
                 var parallelNodeEdges = parallelNodeStream.get()
                         .map( target -> new Edge<State>(target.id()))
-                        .filter( ee -> stateGraphNodesAndEdges.edges().elements.contains( ee ) )
-                        .map(  ee -> stateGraphNodesAndEdges.edges().elements.indexOf( ee ) )
-                        .map( index -> stateGraphNodesAndEdges.edges().elements.get(index) )
+                        .filter( ee -> stateGraphNodesEdgesAndConfig.edges().elements.contains( ee ) )
+                        .map(  ee -> stateGraphNodesEdgesAndConfig.edges().elements.indexOf( ee ) )
+                        .map( index -> stateGraphNodesEdgesAndConfig.edges().elements.get(index) )
                         .toList();
 
                 var  parallelNodeTargets = parallelNodeEdges.stream()
@@ -613,23 +619,33 @@ public class CompiledGraph<State extends AgentState> {
 
 }
 
-record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State> nodes, StateGraph.Edges<State> edges ) {
+record StateGraphNodesEdgesAndConfig<State extends AgentState>(
+        StateGraph.Nodes<State> nodes,
+        StateGraph.Edges<State> edges,
+        List<String> interruptsBefore,
+        List<String> interruptsAfter) {
 
-    StateGraphNodesAndEdges( StateGraph<State> stateGraph ) {
-        this( stateGraph.nodes, stateGraph.edges );
+    StateGraphNodesEdgesAndConfig(StateGraph<State> stateGraph, CompileConfig config) {
+        this(   stateGraph.nodes,
+                stateGraph.edges,
+                config.interruptsBefore(),
+                config.interruptsAfter() );
     }
 
-    static <State extends AgentState> StateGraphNodesAndEdges<State> process(StateGraph<State> stateGraph ) throws GraphStateException {
+    static <State extends AgentState> StateGraphNodesEdgesAndConfig<State> process(StateGraph<State> stateGraph, CompileConfig config ) throws GraphStateException {
 
         var subgraphNodes = stateGraph.nodes.onlySubStateGraphNodes();
 
         if( subgraphNodes.isEmpty() ) {
-            return new StateGraphNodesAndEdges<>( stateGraph );
+            return new StateGraphNodesEdgesAndConfig<>( stateGraph, config );
         }
 
-        var result = new StateGraphNodesAndEdges<>(
-                    new StateGraph.Nodes<>( stateGraph.nodes.exceptSubStateGraphNodes() ),
-                    new StateGraph.Edges<>( stateGraph.edges.elements) );
+        var result = new StateGraphNodesEdgesAndConfig<>(
+                        new StateGraph.Nodes<>( stateGraph.nodes.exceptSubStateGraphNodes() ),
+                        new StateGraph.Edges<>( stateGraph.edges.elements),
+                        new ArrayList<>(config.interruptsBefore()),
+                        new ArrayList<>(config.interruptsAfter()) );
+
 
         for( var subgraphNode : subgraphNodes ) {
 
@@ -642,6 +658,21 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
                 throw new GraphStateException( "subgraph not support start with parallel branches yet!"  );
             }
 
+            var sgEdgeStartTarget = sgEdgeStart.target();
+
+            if( sgEdgeStartTarget.id() == null ) {
+                throw new GraphStateException( format("the target for node '%s' is null!", subgraphNode.id())  );
+            }
+
+            var sgEdgeStartRealTargetId = subgraphNode.formatId( sgEdgeStartTarget.id()  );
+
+            // Process Interruption (Before)
+            result.interruptsBefore().replaceAll( interrupt ->
+                Objects.equals( subgraphNode.id(), interrupt ) ?
+                        sgEdgeStartRealTargetId :
+                        interrupt
+            );
+
             var edgesWithSubgraphTargetId =  stateGraph.edges.edgesByTargetId( subgraphNode.id() );
 
             if( edgesWithSubgraphTargetId.isEmpty() ) {
@@ -649,12 +680,6 @@ record StateGraphNodesAndEdges<State extends AgentState>(StateGraph.Nodes<State>
             }
 
             for( var edgeWithSubgraphTargetId : edgesWithSubgraphTargetId  ) {
-
-                var sgEdgeStartTarget = sgEdgeStart.target();
-
-                if( sgEdgeStartTarget.id() == null ) {
-                    throw new GraphStateException( format("the target for node '%s' is null!", subgraphNode.id())  );
-                }
 
                 var newEdge = edgeWithSubgraphTargetId.withSourceAndTargetIdsUpdated( subgraphNode,
                         Function.identity(),
