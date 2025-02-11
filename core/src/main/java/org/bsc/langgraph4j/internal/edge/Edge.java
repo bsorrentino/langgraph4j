@@ -1,7 +1,9 @@
-package org.bsc.langgraph4j;
+package org.bsc.langgraph4j.internal.edge;
 
 import lombok.NonNull;
-import org.bsc.langgraph4j.action.AsyncEdgeAction;
+import org.bsc.langgraph4j.GraphStateException;
+import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.internal.node.Node;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.*;
@@ -18,7 +20,7 @@ import static org.bsc.langgraph4j.StateGraph.START;
  * @param sourceId The ID of the source node.
  * @param targets The targets value associated with the edge.
  */
-record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> targets) {
+public record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> targets) {
 
     public Edge(String sourceId, EdgeValue<State> target) {
         this(sourceId, List.of(target));
@@ -126,54 +128,4 @@ record Edge<State extends AgentState>(String sourceId, List<EdgeValue<State>> ta
 
 }
 
-/**
- *
- * @param <State>
- * @param id The unique identifier for the edge value.
- * @param value The condition associated with the edge value.
- */
-record EdgeValue<State extends AgentState>( String id, EdgeCondition<State> value) {
 
-    public EdgeValue( String id ) {
-        this( id, null );
-    }
-
-    public EdgeValue( EdgeCondition<State> value  ) {
-        this( null, value );
-    }
-    EdgeValue<State> withTargetIdsUpdated(Function<String, EdgeValue<State>> target) {
-        if( id != null ) {
-            return target.apply( id );
-        }
-
-        var newMappings = value.mappings().entrySet().stream()
-                .collect(Collectors.toMap( Map.Entry::getKey,
-                        e -> {
-                                                var v = target.apply( e.getValue() );
-                                                return ( v.id() != null ) ? v.id() : e.getValue();
-                                            }));
-
-        return new EdgeValue<>(null, new EdgeCondition<>( value.action(), newMappings));
-
-    }
-
-
- }
-
-/**
- * Represents a condition associated with an edge in a graph.
- *
- * @param <S> the type of the state associated with the edge
- * @param action The action to be performed asynchronously when the edge condition is met.
- * @param mappings A map of string key-value pairs representing additional mappings for the edge condition.
- */
-record EdgeCondition<S extends AgentState>( AsyncEdgeAction<S> action, Map<String, String> mappings ) {
-
-    @Override
-    public String toString() {
-        return format( "EdgeCondition[ %s, mapping=%s",
-                action!=null ? "action" : "null",
-                mappings);
-    }
-
-}
