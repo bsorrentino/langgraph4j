@@ -106,7 +106,7 @@ public class SubGraphTest {
                 //.compile(compileConfig)
                 ;
 
-        var processed = StateGraphNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
+        var processed = ProcessedNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
         processed.nodes().elements.forEach( System.out::println );
         processed.edges().elements.forEach( System.out::println );
 
@@ -157,7 +157,7 @@ public class SubGraphTest {
                 //.compile(compileConfig)
                 ;
 
-        var processed = StateGraphNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
+        var processed = ProcessedNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
         processed.nodes().elements.forEach( System.out::println );
         processed.edges().elements.forEach( System.out::println );
 
@@ -354,7 +354,7 @@ public class SubGraphTest {
                 .addEdge("C", END)
                 ;
 
-        var processed = StateGraphNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
+        var processed = ProcessedNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
         processed.nodes().elements.forEach( System.out::println );
         processed.edges().elements.forEach( System.out::println );
 
