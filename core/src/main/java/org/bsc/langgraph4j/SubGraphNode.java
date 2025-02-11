@@ -4,7 +4,7 @@ import org.bsc.langgraph4j.state.AgentState;
 
 import static java.lang.String.format;
 
-interface SubGraphNode<State extends AgentState> {
+public interface SubGraphNode<State extends AgentState> {
     String PREFIX_FORMAT = "(%s)%s";
 
     StateGraph<State> subGraph();

@@ -3,8 +3,9 @@ package org.bsc.langgraph4j;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
@@ -16,13 +17,13 @@ import static java.util.Optional.ofNullable;
 public class CompileConfig {
 
     private BaseCheckpointSaver checkpointSaver;
-    private List<String> interruptsBefore = List.of();
-    private List<String> interruptsAfter = List.of();
+    private Set<String> interruptsBefore = Set.of();
+    private Set<String> interruptsAfter = Set.of();
 
     /**
      * Returns the array of interrupts that will occur before the specified node.
      *
-     * @return an array of iterruptable nodes.
+     * @return an array of interruptible nodes.
      */
     @Deprecated
     public String[] getInterruptBefore() { return interruptsBefore.toArray( new String[0]); }
@@ -30,7 +31,7 @@ public class CompileConfig {
     /**
      * Returns the array of interrupts that will occur after the specified node.
      *
-     * @return an array of iterruptable nodes.
+     * @return an array of interruptible nodes.
      */
     @Deprecated
     public String[] getInterruptAfter() { return interruptsAfter.toArray( new String[0]); }
@@ -38,16 +39,16 @@ public class CompileConfig {
     /**
      * Returns the array of interrupts that will occur before the specified node.
      *
-     * @return an unmodifiable {@link List} of iterruptable nodes.
+     * @return an unmodifiable {@link Set} of interruptible nodes.
      */
-    public List<String> interruptsBefore() { return interruptsBefore; }
+    public Set<String> interruptsBefore() { return interruptsBefore; }
 
     /**
      * Returns the array of interrupts that will occur after the specified node.
      *
-     * @return an unmodifiable {@link List} of iterruptable nodes.
+     * @return an unmodifiable {@link Set} of interruptible nodes.
      */
-    public List<String> interruptsAfter() { return interruptsAfter; }
+    public Set<String> interruptsAfter() { return interruptsAfter; }
  
     /**
      * Returns the current {@code BaseCheckpointSaver} instance if it is not {@code null},
@@ -108,7 +109,7 @@ public class CompileConfig {
          * @return a reference to the current instance of Builder
          */
         public Builder interruptBefore(String... interruptBefore) {
-            this.config.interruptsBefore = List.of(interruptBefore);
+            this.config.interruptsBefore = Set.of(interruptBefore);
             return this;
         }
         /**
@@ -118,7 +119,7 @@ public class CompileConfig {
          * @return The current Builder instance, allowing method chaining.
          */
         public Builder interruptAfter(String... interruptAfter) {
-            this.config.interruptsAfter = List.of(interruptAfter);
+            this.config.interruptsAfter = Set.of(interruptAfter);
             return this;
         }
         /**
@@ -128,7 +129,7 @@ public class CompileConfig {
          * @return This builder instance for method chaining.
          */
         public Builder interruptsBefore(Collection<String> interruptsBefore) {
-            this.config.interruptsBefore = interruptsBefore.stream().toList();
+            this.config.interruptsBefore = interruptsBefore.stream().collect(Collectors.toUnmodifiableSet());
             return this;
         }
         /**
@@ -138,7 +139,7 @@ public class CompileConfig {
          * @return The current Builder instance for method chaining
          */
         public Builder interruptsAfter(Collection<String> interruptsAfter) {
-            this.config.interruptsAfter = interruptsAfter.stream().toList();
+            this.config.interruptsAfter = interruptsAfter.stream().collect(Collectors.toUnmodifiableSet());;
             return this;
         }
         /**

@@ -1,11 +1,15 @@
 package org.bsc.langgraph4j;
 
-
-import lombok.Getter;
 import lombok.NonNull;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
+import org.bsc.langgraph4j.internal.edge.Edge;
+import org.bsc.langgraph4j.internal.edge.EdgeCondition;
+import org.bsc.langgraph4j.internal.edge.EdgeValue;
+import org.bsc.langgraph4j.internal.node.Node;
+import org.bsc.langgraph4j.internal.node.SubCompiledGraphNode;
+import org.bsc.langgraph4j.internal.node.SubStateGraphNode;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
@@ -16,7 +20,6 @@ import java.util.*;
 
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 /**
  * Represents a state graph with nodes and edges.
@@ -27,7 +30,7 @@ public class StateGraph<State extends AgentState> {
     /**
      * Enum representing various error messages related to graph state.
      */
-    enum Errors {
+    public enum Errors {
         invalidNodeIdentifier("END is not a valid node id!"),
         invalidEdgeIdentifier("END is not a valid edge sourceId!"),
         duplicateNodeError("node with id: %s already exist!"),
@@ -58,7 +61,7 @@ public class StateGraph<State extends AgentState> {
          * @param args the arguments to format the error message
          * @return a new GraphStateException
          */
-        GraphStateException exception(Object... args) {
+        public GraphStateException exception(Object... args) {
             return new GraphStateException(format(errorMessage, (Object[]) args));
         }
     }
@@ -92,16 +95,16 @@ public class StateGraph<State extends AgentState> {
     public static String END = "__END__";
     public static String START = "__START__";
 
-    Nodes<State> nodes = new Nodes<>();
-    Edges<State> edges = new Edges<>();
+    final Nodes<State> nodes = new Nodes<>();
+    final Edges<State> edges = new Edges<>();
 
     private EdgeValue<State> entryPoint;
-    @Deprecated
+
+    @Deprecated( forRemoval = true )
     private String finishPoint;
 
     private final Map<String, Channel<?>> channels;
 
-    @Getter
     private final StateSerializer<State> stateSerializer;
 
     /**
@@ -121,7 +124,7 @@ public class StateGraph<State extends AgentState> {
      * @param stateSerializer the serializer to serialize the state
      */
     public StateGraph(@NonNull StateSerializer<State> stateSerializer) {
-        this( mapOf(), stateSerializer );
+        this( Map.of(), stateSerializer );
 
     }
 
@@ -131,7 +134,7 @@ public class StateGraph<State extends AgentState> {
      * @param stateFactory the factory to create agent states
      */
     public StateGraph(AgentStateFactory<State> stateFactory) {
-        this( mapOf(), stateFactory);
+        this( Map.of(), stateFactory);
 
     }
 
@@ -142,6 +145,10 @@ public class StateGraph<State extends AgentState> {
      */
     public StateGraph(Map<String, Channel<?>> channels, AgentStateFactory<State> stateFactory) {
         this( channels, new ObjectStreamStateSerializer<>(stateFactory) );
+    }
+
+    public StateSerializer<State> getStateSerializer() {
+         return stateSerializer;
     }
 
     public final AgentStateFactory<State> getStateFactory() {
@@ -399,7 +406,7 @@ public class StateGraph<State extends AgentState> {
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type, String title, boolean printConditionalEdges ) {
 
-        String content = type.generator.generate( this, title, printConditionalEdges);
+        String content = type.generator.generate( nodes, edges, title, printConditionalEdges);
 
         return new GraphRepresentation( type, content );
     }
@@ -413,12 +420,12 @@ public class StateGraph<State extends AgentState> {
      */
     public GraphRepresentation getGraph( GraphRepresentation.Type type, String title ) {
 
-        String content = type.generator.generate( this, title, true);
+        String content = type.generator.generate( nodes, edges, title, true);
 
         return new GraphRepresentation( type, content );
     }
 
-    static class Nodes<State extends AgentState> {
+    public static class Nodes<State extends AgentState> {
         public final Set<Node<State>> elements;
 
         public Nodes( Collection<Node<State>> elements ) {
@@ -448,7 +455,7 @@ public class StateGraph<State extends AgentState> {
         }
     }
 
-    static class Edges<State extends AgentState> {
+    public static class Edges<State extends AgentState> {
 
         public final List<Edge<State>> elements;
 

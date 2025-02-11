@@ -103,7 +103,15 @@ public class SubGraphTest {
                 .addEdge("A", "B")
                 .addEdge("B", "C")
                 .addEdge("C", END)
+                //.compile(compileConfig)
                 ;
+
+        var processed = ProcessedNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
+        processed.nodes().elements.forEach( System.out::println );
+        processed.edges().elements.forEach( System.out::println );
+
+        assertEquals( 4, processed.nodes().elements.size() );
+        assertEquals( 5, processed.edges().elements.size() );
 
         var B_B1 = SubGraphNode.formatId( "B", "B1");
         var B_B2 = SubGraphNode.formatId( "B", "B2");
@@ -146,7 +154,15 @@ public class SubGraphTest {
                 .addEdge("A", "B")
                 .addEdge("B", "C")
                 .addEdge("C", END)
+                //.compile(compileConfig)
                 ;
+
+        var processed = ProcessedNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
+        processed.nodes().elements.forEach( System.out::println );
+        processed.edges().elements.forEach( System.out::println );
+
+        assertEquals( 5, processed.nodes().elements.size() );
+        assertEquals( 6, processed.edges().elements.size() );
 
         var B_B1    = SubGraphNode.formatId( "B", "B1");
         var B_B2    = SubGraphNode.formatId( "B", "B2");
@@ -278,13 +294,34 @@ public class SubGraphTest {
         ), _execute( interruptBeforeC, null ) );
 
         // INTERRUPT BEFORE SUBGRAPH B
-        var exception = assertThrows(GraphStateException.class, () -> workflowParent.compile(
+         var interruptBeforeSubgraphB = workflowParent.compile(
                 CompileConfig.builder()
                         .checkpointSaver(saver)
                         .interruptBefore( "B" )
-                        .build()));
-        System.out.println(exception.getMessage());
-        assertEquals("node 'B' configured as interruption doesn't exist!", exception.getMessage());
+                        .build());
+        assertIterableEquals( List.of(
+                START,
+                "A"
+        ), _execute( interruptBeforeSubgraphB, Map.of() ) );
+
+        // RESUME AFTER SUBGRAPH B
+        assertIterableEquals( List.of(
+                B_B1,
+                B_B2,
+                B_C,
+                "C",
+                END
+        ), _execute( interruptBeforeSubgraphB, null ) );
+
+        // INTERRUPT AFTER SUBGRAPH B
+        var exception = assertThrows( GraphStateException.class,
+                () -> workflowParent.compile(
+                        CompileConfig.builder()
+                                .checkpointSaver(saver)
+                                .interruptAfter( "B" )
+                                .build()));
+
+        assertEquals( "'interruption after' on subgraph is not supported yet! consider to use 'interruption before' node: 'C'", exception.getMessage());
 
     }
 
@@ -317,7 +354,7 @@ public class SubGraphTest {
                 .addEdge("C", END)
                 ;
 
-        var processed = StateGraphNodesAndEdges.process( workflowParent );
+        var processed = ProcessedNodesEdgesAndConfig.process( workflowParent, CompileConfig.builder().build() );
         processed.nodes().elements.forEach( System.out::println );
         processed.edges().elements.forEach( System.out::println );
 
@@ -453,20 +490,44 @@ public class SubGraphTest {
                 "C1"
         ), _execute( interruptBeforeC, Map.of() ) );
 
-        // RESUME AFTER B2
+        // RESUME BEFORE C
         assertIterableEquals( List.of(
                 "C",
                 END
         ), _execute( interruptBeforeC, null ) );
 
         // INTERRUPT BEFORE SUBGRAPH B
-        var exception = assertThrows(GraphStateException.class, () -> workflowParent.compile(
+        var interruptBeforeB = workflowParent.compile(
                 CompileConfig.builder()
                         .checkpointSaver(saver)
                         .interruptBefore( "B" )
+                        .build());
+        assertIterableEquals( List.of(
+                START,
+                "A"
+        ), _execute( interruptBeforeB, Map.of() ) );
+
+        // RESUME BEFORE SUBGRAPH B
+        assertIterableEquals( List.of(
+                B_B1,
+                B_B2,
+                B_C,
+                "C1",
+                "C",
+                END
+        ), _execute( interruptBeforeB, null ) );
+
+        //
+        // INTERRUPT AFTER SUBGRAPH B
+        //
+        var exception = assertThrows( GraphStateException.class,
+                () -> workflowParent.compile(
+                    CompileConfig.builder()
+                        .checkpointSaver(saver)
+                        .interruptAfter( "B" )
                         .build()));
-        System.out.println(exception.getMessage());
-        assertEquals("node 'B' configured as interruption doesn't exist!", exception.getMessage());
+
+        assertEquals( "'interruption after' on subgraph is not supported yet!", exception.getMessage());
 
     }
 
