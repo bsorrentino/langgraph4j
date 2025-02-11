@@ -76,24 +76,41 @@ public class MermaidGenerator extends DiagramGenerator {
     }
 
     @Override
-    protected void call(Context ctx, String from, String to) {
+    protected void call(Context ctx, String from, String to, CallStyle style) {
         ctx.sb().append('\t');
+
         if( ctx.isSubgraph() ) {
-            ctx.sb().append( format("%1$c%2$s:::%1$c%2$s --> %1$c%3$s:::%1$c%3$s\n", SUBGRAPH_PREFIX, from, to) );
+            ctx.sb().append(
+                switch( style ) {
+                    case CONDITIONAL -> format("%1$c%2$s:::%1$c%2$s -.-> %1$c%3$s:::%1$c%3$s\n", SUBGRAPH_PREFIX, from, to);
+                    default ->  format("%1$c%2$s:::%1$c%2$s --> %1$c%3$s:::%1$c%3$s\n", SUBGRAPH_PREFIX, from, to);
+                });
         }
         else {
-            ctx.sb().append( format("%1$s:::%1$s --> %2$s:::%2$s\n", from, to) );
+            ctx.sb().append(
+                switch( style ) {
+                    case CONDITIONAL -> format("%1$s:::%1$s -.-> %2$s:::%2$s\n", from, to);
+                    default ->  format("%1$s:::%1$s --> %2$s:::%2$s\n", from, to);
+            });
         }
     }
 
     @Override
-    protected void call(Context ctx, String from, String to, String description) {
+    protected void call(Context ctx, String from, String to, String description, CallStyle style) {
         ctx.sb().append('\t');
         if( ctx.isSubgraph() ) {
-            ctx.sb().append(format("%1$s%2$s:::%1$c%2$s -->|%3$s| %1$s%4$s:::%1$c%4$s\n", SUBGRAPH_PREFIX, from, description, to));
+            ctx.sb().append(
+                switch( style ) {
+                    case CONDITIONAL -> format("%1$s%2$s:::%1$c%2$s -.->|%3$s| %1$s%4$s:::%1$c%4$s\n", SUBGRAPH_PREFIX, from, description, to);
+                    default ->  format("%1$s%2$s:::%1$c%2$s -->|%3$s| %1$s%4$s:::%1$c%4$s\n", SUBGRAPH_PREFIX, from, description, to);
+                });
         }
         else {
-            ctx.sb().append(format("%1$s:::%1$s -->|%2$s| %3$s:::%3$s\n", from, description, to));
+            ctx.sb().append(
+                switch( style ) {
+                    case CONDITIONAL -> format("%1$s:::%1$s -.->|%2$s| %3$s:::%3$s\n", from, description, to);
+                    default ->  format("%1$s:::%1$s -->|%2$s| %3$s:::%3$s\n", from, description, to);
+                });
         }
 
     }

@@ -15,6 +15,14 @@ import static org.bsc.langgraph4j.StateGraph.START;
  */
 public abstract class DiagramGenerator {
 
+    public enum CallStyle {
+        DEFAULT,
+        START,
+        END,
+        CONDITIONAL,
+        PARALLEL
+    }
+
     public record Context( StringBuilder sb,
                             String title,
                             boolean printConditionalEdge,
@@ -88,7 +96,7 @@ public abstract class DiagramGenerator {
      * @param from The phone number of the caller.
      * @param to The phone number of the recipient.
      */
-    protected abstract void call( Context ctx, String from, String to ) ;
+    protected abstract void call( Context ctx, String from, String to, CallStyle style  ) ;
     /**
      * Abstract method that must be implemented by subclasses to handle the logic of making a call.
      *
@@ -97,7 +105,7 @@ public abstract class DiagramGenerator {
      * @param to The phone number of the recipient.
      * @param description A brief description of the call.
      */
-    protected abstract void call( Context ctx, String from, String to, String description );
+    protected abstract void call( Context ctx, String from, String to, String description, CallStyle style );
     /**
      * Declares a conditional element in the configuration or template.
      * This method is used to mark the start of a conditional section based on the provided {@code name}.
@@ -202,11 +210,11 @@ public abstract class DiagramGenerator {
                 .orElseThrow();
         if( edgeStart.isParallel() ) {
             edgeStart.targets().forEach( target -> {
-                call( ctx, START, target.id() );
+                call( ctx, START, target.id(), CallStyle.START );
             });
         }
         else if( edgeStart.target().id() != null  ) {
-            call( ctx, START, edgeStart.target().id() );
+            call( ctx, START, edgeStart.target().id(), CallStyle.START );
         }
         else if( edgeStart.target().value() != null ) {
             String conditionName = "startcondition";
@@ -223,11 +231,11 @@ public abstract class DiagramGenerator {
 
                 if( v.isParallel()) {
                     v.targets().forEach( target -> {
-                        call(ctx, v.sourceId(), target.id());
+                        call(ctx, v.sourceId(), target.id(), CallStyle.PARALLEL);
                     });
                 }
                 else if( v.target().id() != null ) {
-                    call(ctx, v.sourceId(), v.target().id());
+                    call(ctx, v.sourceId(), v.target().id(), CallStyle.DEFAULT);
                 }
                 else if( v.target().value() != null ) {
                     conditionalEdgeCount[0] += 1;
@@ -257,13 +265,13 @@ public abstract class DiagramGenerator {
                                                           String k,
                                                           String conditionName) {
         commentLine( ctx, !ctx.printConditionalEdge() );
-        call( ctx,  k, conditionName);
+        call( ctx,  k, conditionName, CallStyle.CONDITIONAL);
 
         condition.mappings().forEach( (cond, to) -> {
                 commentLine( ctx, !ctx.printConditionalEdge() );
-                call( ctx, conditionName, to, cond );
+                call( ctx, conditionName, to, cond, CallStyle.CONDITIONAL );
                 commentLine( ctx, ctx.printConditionalEdge() );
-                call( ctx, k, to, cond );
+                call( ctx, k, to, cond, CallStyle.CONDITIONAL );
         });
     }
 
