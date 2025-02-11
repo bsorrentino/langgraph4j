@@ -108,13 +108,13 @@ public class StateGraphRepresentationTest {
                         hexagon "check state" as condition1<<Condition>>
                         "__START__" -down-> "evaluate_result"
                         "agent_review" -down-> "evaluate_result"
-                        "evaluate_result" -down-> "condition1"
-                        "condition1" -down-> "agent_review": "ERROR"
-                        '"evaluate_result" -down-> "agent_review": "ERROR"
-                        "condition1" -down-> "__END__": "UNKNOWN"
-                        '"evaluate_result" -down-> "__END__": "UNKNOWN"
-                        "condition1" -down-> "__END__": "OK"
-                        '"evaluate_result" -down-> "__END__": "OK"
+                        "evaluate_result" .down.> "condition1"
+                        "condition1" .down.> "agent_review": "ERROR"
+                        '"evaluate_result" .down.> "agent_review": "ERROR"
+                        "condition1" .down.> "__END__": "UNKNOWN"
+                        '"evaluate_result" .down.> "__END__": "UNKNOWN"
+                        "condition1" .down.> "__END__": "OK"
+                        '"evaluate_result" .down.> "__END__": "OK"
                         @enduml
                         """,
                 result.getContent());
@@ -159,11 +159,11 @@ public class StateGraphRepresentationTest {
                         usecase "action"<<Node>>
                         hexagon "check state" as condition1<<Condition>>
                         "__START__" -down-> "agent"
-                        "agent" -down-> "condition1"
-                        "condition1" -down-> "action": "continue"
-                        '"agent" -down-> "action": "continue"
-                        "condition1" -down-> "__END__": "end"
-                        '"agent" -down-> "__END__": "end"
+                        "agent" .down.> "condition1"
+                        "condition1" .down.> "action": "continue"
+                        '"agent" .down.> "action": "continue"
+                        "condition1" .down.> "__END__": "end"
+                        '"agent" .down.> "__END__": "end"
                         "action" -down-> "agent"
                         @enduml
                         """,
@@ -214,11 +214,11 @@ public class StateGraphRepresentationTest {
                         usecase "evaluate_result"<<Node>>
                         hexagon "check state" as condition1<<Condition>>
                         "__START__" -down-> "agent_describer"
-                        "agent_describer" -down-> "condition1"
-                        "condition1" -down-> "agent_sequence_plantuml": "sequence"
-                        '"agent_describer" -down-> "agent_sequence_plantuml": "sequence"
-                        "condition1" -down-> "agent_generic_plantuml": "generic"
-                        '"agent_describer" -down-> "agent_generic_plantuml": "generic"
+                        "agent_describer" .down.> "condition1"
+                        "condition1" .down.> "agent_sequence_plantuml": "sequence"
+                        '"agent_describer" .down.> "agent_sequence_plantuml": "sequence"
+                        "condition1" .down.> "agent_generic_plantuml": "generic"
+                        '"agent_describer" .down.> "agent_generic_plantuml": "generic"
                         "agent_sequence_plantuml" -down-> "evaluate_result"
                         "agent_generic_plantuml" -down-> "evaluate_result"
                         "evaluate_result" -down-> "__END__"
@@ -230,30 +230,30 @@ public class StateGraphRepresentationTest {
         assertEquals(GraphRepresentation.Type.MERMAID, result.getType());
 
         assertEquals("""
-                ---
-                title: Graph Diagram
-                ---
-                flowchart TD
-                	__START__((start))
-                	__END__((stop))
-                	agent_describer("agent_describer")
-                	agent_sequence_plantuml("agent_sequence_plantuml")
-                	agent_generic_plantuml("agent_generic_plantuml")
-                	evaluate_result("evaluate_result")
-                	%%	condition1{"check state"}
-                	__START__:::__START__ --> agent_describer:::agent_describer
-                	%%	agent_describer:::agent_describer --> condition1:::condition1
-                	%%	condition1:::condition1 -->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
-                	agent_describer:::agent_describer -->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
-                	%%	condition1:::condition1 -->|generic| agent_generic_plantuml:::agent_generic_plantuml
-                	agent_describer:::agent_describer -->|generic| agent_generic_plantuml:::agent_generic_plantuml
-                	agent_sequence_plantuml:::agent_sequence_plantuml --> evaluate_result:::evaluate_result
-                	agent_generic_plantuml:::agent_generic_plantuml --> evaluate_result:::evaluate_result
-                	evaluate_result:::evaluate_result --> __END__:::__END__
-                
-                	classDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;
-                	classDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;
-                """, result.getContent() );
+---
+title: Graph Diagram
+---
+flowchart TD
+	__START__((start))
+	__END__((stop))
+	agent_describer("agent_describer")
+	agent_sequence_plantuml("agent_sequence_plantuml")
+	agent_generic_plantuml("agent_generic_plantuml")
+	evaluate_result("evaluate_result")
+	%%	condition1{"check state"}
+	__START__:::__START__ --> agent_describer:::agent_describer
+	%%	agent_describer:::agent_describer -.-> condition1:::condition1
+	%%	condition1:::condition1 -.->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
+	agent_describer:::agent_describer -.->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
+	%%	condition1:::condition1 -.->|generic| agent_generic_plantuml:::agent_generic_plantuml
+	agent_describer:::agent_describer -.->|generic| agent_generic_plantuml:::agent_generic_plantuml
+	agent_sequence_plantuml:::agent_sequence_plantuml --> evaluate_result:::evaluate_result
+	agent_generic_plantuml:::agent_generic_plantuml --> evaluate_result:::evaluate_result
+	evaluate_result:::evaluate_result --> __END__:::__END__
+
+	classDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;
+	classDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;
+                            """, result.getContent() );
     }
 
     private  AsyncNodeAction<MessagesState<String>> makeNode(String id ) {
