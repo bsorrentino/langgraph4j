@@ -42,6 +42,7 @@ LangGraph4j for Agentic Applications
 - [Breakpoints](concepts/low_level.md#Breakpoints)
 - [Visualization](concepts/low_level.md#Visualization)
 - [Streaming](concepts/streaming.md)
+- [Subgraph](concepts/subgraph.md)
 
 <!-- 
 Common Agentic Patterns

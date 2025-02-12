@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project xmlns="http://maven.apache.org/DECORATION/1.8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 https://maven.apache.org/xsd/decoration-1.8.0.xsd"
-         name="Maven">
-
+<site xmlns="http://maven.apache.org/SITE/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SITE/2.0.0 https://maven.apache.org/xsd/site-2.0.0.xsd"
+  name="how to" >
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
@@ -34,7 +33,11 @@
             <item name="How to view and update past graph state" href="time-travel.html"/>
             <item name="Wait for user input" href="wait-user-input.html"/>
             <item name="Langchain4j LLM Streaming" href="llm-streaming.html"/>
-            <item name="Subgraph" href="subgraph.html"/>
+            <item name="Subgraph">
+                <item name="Subgraph as state graph" href="subgraph-as-stategraph.html"/>
+                <item name="Subgraph as compiled graph" href="subgraph-as-compiledgraph.html"/>
+                <item name="Subgraph as node action" href="subgraph-as-nodeaction.html"/>
+            </item>
         </menu>
     </body>
-</project>
+</site>
