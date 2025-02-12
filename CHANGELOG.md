@@ -46,6 +46,10 @@
 
 ### Documentation
 
+ -  **how-tos**  add subgraph images ([43b966e50bd0eda](https://github.com/bsorrentino/langgraph4j/commit/43b966e50bd0edaada19832f18fe562a16db9957))
+
+ -  update changeme ([b7be4727f4efe06](https://github.com/bsorrentino/langgraph4j/commit/b7be4727f4efe0648e368500a37d40dc36100c15))
+
  -  **how-tos**  add subgraph how-to ([8f6d15a57295d68](https://github.com/bsorrentino/langgraph4j/commit/8f6d15a57295d68c5c0755a389d9d078b6b34052))
 
  -  update changeme ([e104c17be828273](https://github.com/bsorrentino/langgraph4j/commit/e104c17be82827307de3e52921d054df0ef731a4))
