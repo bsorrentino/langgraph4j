@@ -10,5 +10,8 @@ They are a collection of how-to(_s_) for LangGraph4j implemented using the [Java
 * [How to view and update past graph state](time-travel.md)
 * [Wait for user input](wait-user-input.md)
 * [Langchain4j LLM Streaming](llm-streaming.md)
-* [Subgraph](subgraph.md)
+* Subgraphs
+    * [Subgraph as state graph](subgraph-as-stategraph.md)
+    * [Subgraph as compiled graph](subgraph-as-compiledgraph.md)
+    * [Subgraph as node action](subgraph-as-nodeaction.md)
 * [parallel branch execution](parallel-branch.md)
