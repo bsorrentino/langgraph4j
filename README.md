@@ -88,7 +88,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.4-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -268,5 +268,4 @@ return  app.stream( inputs );
 [java-async-generator]: https://github.com/bsorrentino/java-async-generator
 [Mermaid]: https://mermaid.js.org
 
-[snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/langgraph4j-jdk8/1.3-SNAPSHOT
 [releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
