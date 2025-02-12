@@ -2,9 +2,9 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v1.4.0-beta2" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+## [v1.4.0-beta2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.0-beta2) (2025-02-12)
 
 ### Features
 
@@ -46,7 +46,24 @@
 
 ### Documentation
 
+ -  bump version ([aa9d0d0881aff06](https://github.com/bsorrentino/langgraph4j/commit/aa9d0d0881aff068b88866e1eae3311ec51a4c50))
+
+ -  **howto**  update index ([f26af20fbe63a44](https://github.com/bsorrentino/langgraph4j/commit/f26af20fbe63a446b7c23c4b78e9ec1b24e4f4d9))
+
+ -  remove useless infos ([57b8555df55282d](https://github.com/bsorrentino/langgraph4j/commit/57b8555df55282d3c7abd867e535c5156ccec532))
+
+ -  **RemoveByHash.java**  remove unnecessary generic parameter in javadoc ([9ca0cfd8b5cf3ae](https://github.com/bsorrentino/langgraph4j/commit/9ca0cfd8b5cf3ae035926f8d6d7128d4974ff219))
+
+ -  **subgraph**  add subgraph documentation ([40269ef1b1f3c59](https://github.com/bsorrentino/langgraph4j/commit/40269ef1b1f3c5983e0af8068c93a62eea9ec55d))
+     > - update markdown files
+     > - update related notebooks
+     > resolve #49
+
+ -  update changeme ([8b72c64cf3cd415](https://github.com/bsorrentino/langgraph4j/commit/8b72c64cf3cd4156e6c4956813630fa322b1181e))
+
  -  **how-tos**  add subgraph images ([43b966e50bd0eda](https://github.com/bsorrentino/langgraph4j/commit/43b966e50bd0edaada19832f18fe562a16db9957))
+
+ -  update subgraph images ([ffb6d02cfad30fa](https://github.com/bsorrentino/langgraph4j/commit/ffb6d02cfad30fa9f03e91a6b015bdd4f7be715d))
 
  -  update changeme ([b7be4727f4efe06](https://github.com/bsorrentino/langgraph4j/commit/b7be4727f4efe0648e368500a37d40dc36100c15))
 
@@ -75,6 +92,8 @@
 
 ### Refactor
 
+ -  **CompiledGraph.java**  streamline method signatures by removing unnecessary exceptions ([3d7522603f9c97c](https://github.com/bsorrentino/langgraph4j/commit/3d7522603f9c97cb160547a1ce58ab4645c6bf24))
+   
  -  create package internal containing internal classes ([f2af63d2b9c1780](https://github.com/bsorrentino/langgraph4j/commit/f2af63d2b9c1780988710c0e27ca60e769979712))
     > prepare for java  module integration
 
@@ -167,6 +186,8 @@
 
 ### ALM 
 
+ -  move to next SNAPSHOT ([3ee93e64565e9b4](https://github.com/bsorrentino/langgraph4j/commit/3ee93e64565e9b45c3f245ddc917d3b50724c1ae))
+   
  -  move to next release 1.4.0-beta1 ([f8e200092f5e1a4](https://github.com/bsorrentino/langgraph4j/commit/f8e200092f5e1a4ff5a6eaabfd7a1d2c2ae118d1))
    
  -  bump to next SNAPSHOT ([c22c68c7412c347](https://github.com/bsorrentino/langgraph4j/commit/c22c68c7412c3473d122e014e467d4f57f5b11d5))
