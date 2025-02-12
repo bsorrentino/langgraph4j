@@ -329,9 +329,8 @@ public class CompiledGraph<State extends AgentState> {
      * @param inputs the input map
      * @param config the invoke configuration
      * @return an AsyncGenerator stream of NodeOutput
-     * @throws Exception if there is an error creating the stream
      */
-    public AsyncGenerator<NodeOutput<State>> stream( Map<String,Object> inputs, RunnableConfig config ) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> stream( Map<String,Object> inputs, RunnableConfig config ) {
         Objects.requireNonNull(config, "config cannot be null");
         final AsyncNodeGenerator<NodeOutput<State>> generator = new AsyncNodeGenerator<>( inputs, config );
 
@@ -343,9 +342,8 @@ public class CompiledGraph<State extends AgentState> {
      *
      * @param inputs the input map
      * @return an AsyncGenerator stream of NodeOutput
-     * @throws Exception if there is an error creating the stream
      */
-    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> stream(Map<String,Object> inputs ) {
         return this.stream( inputs, RunnableConfig.builder().build() );
     }
     /**
@@ -354,9 +352,8 @@ public class CompiledGraph<State extends AgentState> {
      * @param inputs the input map
      * @param config the invoke configuration
      * @return an Optional containing the final state if present, otherwise an empty Optional
-     * @throws Exception if there is an error during invocation
      */
-    public Optional<State> invoke(Map<String,Object> inputs, RunnableConfig config ) throws Exception {
+    public Optional<State> invoke(Map<String,Object> inputs, RunnableConfig config ) {
 
        return stream(inputs, config).stream()
                                         .reduce((a, b) -> b)
@@ -368,9 +365,8 @@ public class CompiledGraph<State extends AgentState> {
      *
      * @param inputs the input map
      * @return an Optional containing the final state if present, otherwise an empty Optional
-     * @throws Exception if there is an error during invocation
      */
-    public Optional<State> invoke(Map<String,Object> inputs ) throws Exception {
+    public Optional<State> invoke(Map<String,Object> inputs )  {
         return this.invoke( inputs, RunnableConfig.builder().build() );
     }
 
@@ -382,7 +378,7 @@ public class CompiledGraph<State extends AgentState> {
      * @return an AsyncGenerator stream of NodeOutput
      * @throws Exception if there is an error creating the stream
      */
-    public AsyncGenerator<NodeOutput<State>> streamSnapshots( Map<String,Object> inputs, RunnableConfig config ) throws Exception {
+    public AsyncGenerator<NodeOutput<State>> streamSnapshots( Map<String,Object> inputs, RunnableConfig config )  {
         Objects.requireNonNull(config, "config cannot be null");
 
         final AsyncNodeGenerator<NodeOutput<State>> generator = new AsyncNodeGenerator<>( inputs, config.withStreamMode(StreamMode.SNAPSHOTS) );
@@ -443,7 +439,7 @@ public class CompiledGraph<State extends AgentState> {
         RunnableConfig config;
         boolean resumedFromEmbed = false;
 
-        protected AsyncNodeGenerator(Map<String,Object> inputs, RunnableConfig config ) throws Exception {
+        protected AsyncNodeGenerator(Map<String,Object> inputs, RunnableConfig config )  {
             final boolean isResumeRequest =  (inputs == null);
 
             if( isResumeRequest ) {

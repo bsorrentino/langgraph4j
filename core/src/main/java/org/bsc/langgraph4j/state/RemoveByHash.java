@@ -11,7 +11,6 @@ public record RemoveByHash<T>(T value ) implements AppenderChannel.RemoveIdentif
     /**
      * Compares the hash code of this object with another element at a specific index.
      * 
-     * @param <T> the type parameter of the element to compare with
      * @param element the element to compare with
      * @param atIndex the index of the element in the context (ignored in comparison)
      * @return the difference between the hash codes of this object and the given element
