@@ -311,7 +311,7 @@ First, checkpointers facilitate [human-in-the-loop workflows](agentic_concepts.m
 
 Second, it allows for ["memory"](agentic_concepts.md#memory) between interactions. You can use checkpointers to create threads and save the state of a thread after a graph executes. In the case of repeated human interactions (like conversations) any follow up messages can be sent to that checkpoint, which will retain its memory of previous ones.
 
-See [this guide](/langgraph4j/how-tos/persistence.html) for how to add a checkpointer to your graph.
+See [this guide](/langgraph4j/how-tos/langgraph4j-howtos/persistence.html) for how to add a checkpointer to your graph.
 
 ## Threads
 
@@ -329,7 +329,7 @@ var config = RunnableConfig.builder()
 graph.invoke(inputs, config);
 ```
 
-See [this guide](/langgraph4j/how-tos/persistence.html) for how to use threads.
+See [this guide](/langgraph4j/how-tos/langgraph4j-howtos/persistence.html) for how to use threads.
 
 <a id="checkpointer-state"></a>
 ## Checkpointer state
@@ -403,7 +403,7 @@ const nodeA = (state, config) => {
     
 ```
 
-See [this guide](../langgraph4j/how-tos/configuration.html) for a full breakdown on configuration 
+See [this guide](/langgraph4j/how-tos/langgraph4j-howtos/configuration.html) for a full breakdown on configuration 
 -->
 
 ## Breakpoints
@@ -422,7 +422,7 @@ graph.invoke(inputs, config);
 graph.invoke(null, config);
 ```
 
-See [this guide](../langgraph4j/how-tos/breakpoints.html) for a full walkthrough of how to add breakpoints.
+See [this guide](/langgraph4j/how-tos/langgraph4j-howtos/breakpoints.html) for a full walkthrough of how to add breakpoints.
 
 ## Visualization
 
@@ -443,10 +443,10 @@ System.out.println(result.getContent());
 <!-- 
 There are several different streaming modes that LangGraph4j supports:
 
-- ["values"](../langgraph4j/how-tos/stream-values.html): This streams the full value of the state after each step of the graph.
-- ["updates](../langgraph4j/how-tos/stream-updates.html): This streams the updates to the state after each step of the graph. If multiple updates are made in the same step (e.g. multiple nodes are run) then those updates are streamed separately.
+- ["values"](/langgraph4j/how-tos/langgraph4j-howtos/stream-values.html): This streams the full value of the state after each step of the graph.
+- ["updates](/langgraph4j/how-tos/langgraph4j-howtos/stream-updates.html): This streams the updates to the state after each step of the graph. If multiple updates are made in the same step (e.g. multiple nodes are run) then those updates are streamed separately.
 
-In addition, you can use the [streamEvents](https://v02.api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents) method to stream back events that happen _inside_ nodes. This is useful for [streaming tokens of LLM calls](../langgraph4j/how-tos/streaming-tokens-without-langchain.html). -->
+In addition, you can use the [streamEvents](https://v02.api.js.langchain.com/classes/langchain_core_runnables.Runnable.html#streamEvents) method to stream back events that happen _inside_ nodes. This is useful for [streaming tokens of LLM calls](/langgraph4j/how-tos/langgraph4j-howtos/streaming-tokens-without-langchain.html). -->
 
 [PlainTextStateSerializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/plain_text/PlainTextStateSerializer.html
 [ObjectStreamStateSerializer]: /langgraph4j/apidocs/org/bsc/langgraph4j/serializer/std/ObjectStreamStateSerializer.html
