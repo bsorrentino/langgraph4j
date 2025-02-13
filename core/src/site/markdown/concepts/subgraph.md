@@ -67,11 +67,12 @@ see [example][node_sample]
 It's often important to be able to visualize graphs, especially as they get more complex. LangGraph4j comes with [`StateGraph.getGraph()`][sg_getgraph] method to get a visualization format (ie. diagram-as-a-code representation [PlantUML],[Mermaid.js]): 
 
 **Note**
-Only in the case of  **state subgraph** visualization, since adding it implies its merging into parent, if you call [`StateGraph.getGraph()][sgetgraph] you will got a visualization format before merging process, while if you call [`CompiledGraph.getGraph()][cg_getgraph] you got a visualization format after merging process.
+Only in the case of  **state subgraph** visualization, since adding it implies its merging into parent, if you call [`StateGraph.getGraph()`][sg_getgraph] you will got a visualization format before merging process, while if you call [`CompiledGraph.getGraph()`][cg_getgraph] you got a visualization format after merging process.
 
 ## Streaming
 
 In the  adding both **state subgraph** and **compiled subgraph** the streaming is automatically enabled, while in the **subgraph as node action** the streaming is up to you
+
 
 [formatid]: /langgraph4j/apidocs/org/bsc/langgraph4j/SubGraphNode.html#formatId
 [action]: /langgraph4j/apidocs/org/bsc/langgraph4j/action/AsyncNodeAction.html

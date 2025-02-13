@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.studio;
+package org.bsc.langgraph4j.studio.springboot;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

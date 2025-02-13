@@ -1,5 +1,6 @@
-package org.bsc.langgraph4j.studio;
+package org.bsc.langgraph4j.studio.springboot;
 
+import org.bsc.langgraph4j.studio.LangGraphStreamingServer;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
