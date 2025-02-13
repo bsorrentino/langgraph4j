@@ -65,7 +65,7 @@ public static void main(String[] args) throws Exception {
 **Create a Custom Configuration Bean**
 
 ```java
-import org.bsc.langgraph4j.studio.AbstractLangGraphStudioConfig;
+import org.bsc.langgraph4j.studio.springboot.AbstractLangGraphStudioConfig;
 
 import javax.management.InvalidApplicationException;
 
