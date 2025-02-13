@@ -1,9 +1,10 @@
-package org.bsc.langgraph4j.studio;
+package org.bsc.langgraph4j.studio.springboot;
 
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.studio.LangGraphStreamingServer;
 
 import java.util.ArrayList;
 import java.util.List;

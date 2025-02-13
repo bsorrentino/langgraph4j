@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.studio;
+package org.bsc.langgraph4j.studio.springboot;
 
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
