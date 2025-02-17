@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -88,6 +89,11 @@ public interface LangGraphStreamingServer {
             var module = new SimpleModule();
             module.addSerializer(NodeOutput.class, new NodeOutputSerializer());
             objectMapper.registerModule(module);
+        }
+
+        @Override
+        public void init(ServletConfig config) throws ServletException {
+            super.init(config);
         }
 
         /**
@@ -330,7 +336,7 @@ public interface LangGraphStreamingServer {
 
         final StateGraph<? extends AgentState> stateGraph;
         final ObjectMapper objectMapper = new ObjectMapper();
-        final InitData initData;
+        InitData initData;
 
         /**
          * Constructs a GraphInitServlet.
@@ -342,14 +348,27 @@ public interface LangGraphStreamingServer {
         public GraphInitServlet(StateGraph<? extends AgentState> stateGraph, String title, List<ArgumentMetadata> args) {
             Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
             this.stateGraph = stateGraph;
+            this.initData = new InitData(title, null, args);
+        }
+
+        @Override
+        public void init(ServletConfig config) throws ServletException {
+            super.init(config);
 
             var module = new SimpleModule();
             module.addSerializer(InitData.class, new InitDataSerializer(InitData.class));
             objectMapper.registerModule(module);
 
-            var graph = stateGraph.getGraph(GraphRepresentation.Type.MERMAID, title, false);
+            try {
+                var compiledGraph = stateGraph.compile();
 
-            initData = new InitData(title, graph.getContent(), args);
+                var graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID, initData.title(), false);
+
+                initData = new InitData(initData.title(), graph.content(), initData.args(), initData.threads());
+            }
+            catch( GraphStateException ex ) {
+                throw new ServletException(ex);
+            }
         }
 
         /**

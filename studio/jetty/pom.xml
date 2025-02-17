@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.4-SNAPSHOT</version>
+        <version>1.4.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -74,7 +74,7 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>${langchai4j.version}</version>
+            <version>${langchain4j.version}</version>
         </dependency>
 
         <dependency>

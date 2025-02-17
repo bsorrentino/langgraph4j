@@ -26,14 +26,14 @@ public abstract class DiagramGenerator {
     public record Context( StringBuilder sb,
                             String title,
                             boolean printConditionalEdge,
-                            boolean isSubgraph ) {
+                            boolean isSubGraph ) {
 
         static Builder builder() { return new Builder(); }
 
         static public class Builder {
                 String title;
                 boolean printConditionalEdge ;
-                boolean IsSubgraph;
+                boolean IsSubGraph;
 
                 private Builder() {}
 
@@ -45,13 +45,13 @@ public abstract class DiagramGenerator {
                     this.printConditionalEdge = value;
                     return this;
                 }
-                public Builder isSubgraph( boolean value ) {
-                    this.IsSubgraph = value;
+                public Builder isSubGraph( boolean value ) {
+                    this.IsSubGraph = value;
                     return this;
                 }
 
                 public Context build() {
-                    return new Context( new StringBuilder(), title,printConditionalEdge, IsSubgraph );
+                    return new Context( new StringBuilder(), title,printConditionalEdge, IsSubGraph );
                 }
 
         }
@@ -151,7 +151,7 @@ public abstract class DiagramGenerator {
 
         return generate( nodes, edges, Context.builder()
                                         .title( title )
-                                        .isSubgraph( false )
+                                        .isSubGraph( false )
                                         .printConditionalEdge( printConditionalEdge )
                                         .build() ).toString();
 
@@ -182,7 +182,7 @@ public abstract class DiagramGenerator {
                                 Context.builder()
                                     .title( n.id() )
                                     .printConditionalEdge( ctx.printConditionalEdge )
-                                    .isSubgraph( true )
+                                    .isSubGraph( true )
                                     .build() );
                     ctx.sb().append( subgraphCtx );
             }
