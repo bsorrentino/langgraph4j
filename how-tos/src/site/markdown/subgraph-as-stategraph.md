@@ -1,8 +1,6 @@
 # Subgraph as state graph sample
 
-
 **utility to render graph respresentation in PlantUML**
-
 
 ```java
 import net.sourceforge.plantuml.SourceStringReader;
@@ -108,9 +106,9 @@ for( var step : compiledWorkflow.stream( Map.of() )) {
     NodeOutput{node=__START__, state={messages=[]}}
     NodeOutput{node=step_1, state={messages=[step1]}}
     NodeOutput{node=step_2, state={messages=[step1, step2]}}
-    NodeOutput{node=(subgraph)child:step_1, state={messages=[step1, step2, child:step1]}}
-    NodeOutput{node=(subgraph)child:step_2, state={messages=[step1, step2, child:step1, child:step2]}}
-    NodeOutput{node=(subgraph)child:step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
+    NodeOutput{node=subgraph-child:step_1, state={messages=[step1, step2, child:step1]}}
+    NodeOutput{node=subgraph-child:step_2, state={messages=[step1, step2, child:step1, child:step2]}}
+    NodeOutput{node=subgraph-child:step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3]}}
     NodeOutput{node=step_3, state={messages=[step1, step2, child:step1, child:step2, child:step3, step3]}}
     NodeOutput{node=__END__, state={messages=[step1, step2, child:step1, child:step2, child:step3, step3]}}
 
