@@ -36,7 +36,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <langchai4j.version>0.36.2</langchai4j.version>
+    <langchain4j.version>1.0.0-beta1</langchain4j.version>
   </properties>
 
   <distributionManagement>
