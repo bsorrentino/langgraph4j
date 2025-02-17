@@ -39,6 +39,20 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [X] Parallel Node Execution
     - _With some constraints_ 
 
+## How To - _(Java Notebook)_
+
+* [How to add persistence ("memory") to your graph](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/persistence.ipynb)
+* [How to view and update past graph state](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/time-travel.ipynb)
+* [How to parallel branch](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/parallel-branch.ipynb)
+* [How to wait for user input](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/wait-user-input.ipynb)
+* **How to sub-graph**
+  * [How to add a sub-grah in a node](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/subgraph-as-nodeaction.ipynb)
+  * [How to add a compiled sub-graph (by composition)](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/subgraph-as-compiledgraph.ipynb)
+  * [How to add a state sub-graph (by merging)](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/subgraph-as-stategraph.ipynb)
+* **Use Case**
+  * [How to multi-agent supervisor](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/multi-agent-supervisor.ipynb)
+
+
 ## Samples
 
 | Project         | Integrated With        
@@ -48,11 +62,6 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 [Image To PlantUML Diagram][image-to-diagram]   | [Langchain4j][langchain4j]
 [Adaptive RAG][adaptive-rag] | [Langchain4j][langchain4j]
 
-
-## How To(s)
-
-* [How to add persistence ("memory") to your graph][howto-presistence]
-* [How to view and update past graph state][howto-timetravel]
 
 ## Releases
 
@@ -181,7 +190,7 @@ Below you can find a piece of code of the `AgentExecutor` to give you an idea of
 public static class State implements AgentState {
 
     // the state's (partial) schema 
-    static Map<String, Channel<?>> SCHEMA = mapOf(
+    static Map<String, Channel<?>> SCHEMA = Map.of(
         "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
     );
 
@@ -229,7 +238,7 @@ var app = new StateGraph<>(State.SCHEMA,State::new)
                             }
                             return "continue";
                         }),
-                        mapOf("continue", "action", "end", END)
+                        Map.of("continue", "action", "end", END)
                 )
                 .addEdge("action", "agent")
                 .compile();
