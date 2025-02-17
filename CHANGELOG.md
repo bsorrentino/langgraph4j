@@ -2,6 +2,79 @@
 
 
 
+<!-- "name: v1.4.0" is a release tag -->
+
+## [v1.4.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.0) (2025-02-17)
+
+### Features
+
+ *  **studio/LangGraphStreamingServer.java**  compile the state graph before extract graph representation to support subgraph merge . ([dbc2394340779aa](https://github.com/bsorrentino/langgraph4j/commit/dbc2394340779aa2e0c812bde905dab0876ebd49))
+     > work on #73
+   
+
+### Bug Fixes
+
+ -  **how-tos/pom.xml**  ensure up-to-date versions for langchain4j dependencies ([dcc434268363bb1](https://github.com/bsorrentino/langgraph4j/commit/dcc434268363bb15df85f40daee62077b448460b))
+
+ -  align doc with new versions and links ([afd521d3deb51ca](https://github.com/bsorrentino/langgraph4j/commit/afd521d3deb51ca0b5ac07713bfc473a1598600c))
+
+
+### Documentation
+
+ -  bump ton next relase ([281c8bb37d469e2](https://github.com/bsorrentino/langgraph4j/commit/281c8bb37d469e2fd76c16b8dc4659a7c37a37b2))
+
+ -  **how-tos**  update notebook documentation ([8ecb252c88b294b](https://github.com/bsorrentino/langgraph4j/commit/8ecb252c88b294b99079763257275b8a5c5e3b64))
+
+ -  **how-to**  update links toward how-tos ([07574c854abf79e](https://github.com/bsorrentino/langgraph4j/commit/07574c854abf79ecdd4963a51f25d574cd748c3c))
+
+ -  **how-to**  update links to include /langgraph4j prefix ([d14547298a463e6](https://github.com/bsorrentino/langgraph4j/commit/d14547298a463e6129562f054bcebca442c22bda))
+
+ -  align documentation ([e213b96933e337d](https://github.com/bsorrentino/langgraph4j/commit/e213b96933e337da42a90b18a6801155c6a18bfc))
+     > - fix links
+     > - fix studio springboot javadoc adding package &#x27;pringboot&#x27;
+     > - assign right names to site pages
+
+ -  update changeme ([c5d8e914af2d506](https://github.com/bsorrentino/langgraph4j/commit/c5d8e914af2d506606f259214c940ccbb818c0e4))
+
+
+### Refactor
+
+ -  **howtos**  bump to last langchain4j version ([0e9d8a513298aa2](https://github.com/bsorrentino/langgraph4j/commit/0e9d8a513298aa24e634e2b561748f2c74cdb30d))
+   
+ -  **pom.xml**  update dependencies and versions ([f9e2c8d9335c37f](https://github.com/bsorrentino/langgraph4j/commit/f9e2c8d9335c37f832d372c328f51e98577afc7b))
+    > - Updated Langchain4j dependencies across all projects to version 1.0.0-beta1
+ > - Added Ollama dependency in the how-tos sub-project
+
+ -  correct typo in MermaidGenerator and PlantUMLGenerator ([e19ca4395beee6f](https://github.com/bsorrentino/langgraph4j/commit/e19ca4395beee6f4885a85a9c5dbd40bec577c34))
+    > - Fixed incorrect method name &#x27;isSubgraph&#x27; to &#x27;isSubGraph&#x27; across both classes.
+
+ -  **DiagramGenerator.java**  fix field name inconsistencies ([321b54c99c8d9a1](https://github.com/bsorrentino/langgraph4j/commit/321b54c99c8d9a18f372da4b4aa122c38eb39c6c))
+    > - Changed &#x27;isSubgraph&#x27; to &#x27;isSubGraph&#x27;
+ > - Updated related method names to maintain consistency
+
+ -  **GraphRepresentation.java**  update class structure using a record ([c074d6176bdcca4](https://github.com/bsorrentino/langgraph4j/commit/c074d6176bdcca41b077821fbd668bde4680de29))
+    > - Updated &#x60;GraphRepresentation&#x60; to use Java&#x27;s &#x60;record&#x60; feature for better encapsulation.
+ > - Deprecated the old fields and methods in favor of the new record components.
+ > - Added documentation for improved clarity and future maintenance.
+
+ -  **core/SubGraphNode.java**  update node identifier format ([886c9cc54c287ed](https://github.com/bsorrentino/langgraph4j/commit/886c9cc54c287ed95bfd36d75f406ab825afa374))
+    > Updated the PREFIX_FORMAT to &quot;%s-%s&quot; and added methods for retrieving the unique identifier and formatting subgraph IDs.
+ > - add the &#x60;id()&#x60; method to return the unique identifier for the node.
+ > - Added a default implementation of &#x60;formatId(String nodeId)&#x60; that formats the given node ID with a predefined prefix.
+ > - Refactored existing static method &#x60;formatId(String subGraphNodeId, String nodeId)&#x60; to use the new format.
+
+
+### ALM 
+
+ -  bump to next relase ([2be780df0a171da](https://github.com/bsorrentino/langgraph4j/commit/2be780df0a171daf4abb4268f48a7bd4e284a815))
+   
+ -  **studio/springboot**  add Lombok dependency for developer productivity ([eef9616cff424b4](https://github.com/bsorrentino/langgraph4j/commit/eef9616cff424b439996f1243adf0e75377efc31))
+   
+
+
+
+
+
 <!-- "name: v1.4.0-beta2" is a release tag -->
 
 ## [v1.4.0-beta2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.0-beta2) (2025-02-12)
