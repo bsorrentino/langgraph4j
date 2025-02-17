@@ -2,6 +2,24 @@
 
 
 
+<!-- "name: Unreleased" is a release tag -->
+
+## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+
+
+
+### Documentation
+
+ -  update changeme ([a8938bab782f499](https://github.com/bsorrentino/langgraph4j/commit/a8938bab782f4998dd2275750e218318671de9ed))
+
+
+
+
+
+
+
+
+
 <!-- "name: v1.4.0" is a release tag -->
 
 ## [v1.4.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.0) (2025-02-17)
@@ -70,6 +88,18 @@
    
  -  **studio/springboot**  add Lombok dependency for developer productivity ([eef9616cff424b4](https://github.com/bsorrentino/langgraph4j/commit/eef9616cff424b439996f1243adf0e75377efc31))
    
+
+### Test 
+
+ -  **how-tos**  add MultiAgentSupervisor test case ([3d5818a97884593](https://github.com/bsorrentino/langgraph4j/commit/3d5818a9788459327c74d21d488439e7480795a9))
+    > work on #79
+
+ -  **how-tos**  add MultiAgentSupervisor test case ([cfd5aaf91f3f8f1](https://github.com/bsorrentino/langgraph4j/commit/cfd5aaf91f3f8f12348d0aa0de9b78f6d3593925))
+    > work on #79
+
+ -  **studio/springboot**  test merge subgraph execution ([2a6baaa390977f3](https://github.com/bsorrentino/langgraph4j/commit/2a6baaa390977f32e4110b1a4f6cf9750f32850c))
+    > work on #73
+
 
 
 
@@ -266,6 +296,25 @@
  -  bump to next SNAPSHOT ([c22c68c7412c347](https://github.com/bsorrentino/langgraph4j/commit/c22c68c7412c3473d122e014e467d4f57f5b11d5))
    
 
+### Test 
+
+ -  **SubGraphTest.java**  Add tests for subgraph interruption ([f69afebc18ae52b](https://github.com/bsorrentino/langgraph4j/commit/f69afebc18ae52ba3b84eafbfc3e166c7347dfa9))
+    > work on #73
+
+ -  **subgraph**  add more subgraph tests ([80dff74c93fa5d1](https://github.com/bsorrentino/langgraph4j/commit/80dff74c93fa5d1b2a9fca05d326795b38f74319))
+    > work on #73
+
+ -  add unit tests for subgraph interruptions ([5a1363b11c3c787](https://github.com/bsorrentino/langgraph4j/commit/5a1363b11c3c78704317002ab261c5598701eb3b))
+    > work on #73
+
+ -  add new test cases for subgraph merge ([38a21cc0381c288](https://github.com/bsorrentino/langgraph4j/commit/38a21cc0381c2886819af359a46252265d813ba3))
+    > - Added new test cases to cover different scenarios in merging subgraphs.
+ > work on #73
+
+ -  **mergedgraph**  test of merging edges and nodes logic into parent graph ([69cf1c3c068c40c](https://github.com/bsorrentino/langgraph4j/commit/69cf1c3c068c40c6d0e765454f560b5b46cd72cd))
+    > work on #73
+
+
 
 
 
@@ -439,6 +488,25 @@
  -  bump to next SNAPSHOT ([bb7e66dcf22d0b4](https://github.com/bsorrentino/langgraph4j/commit/bb7e66dcf22d0b4fa59c9866468b973288cbd4ef))
    
 
+### Test 
+
+ -  **core/SubGraphTest.java**  Add tests for subgraph interruption ([a22d70d974f1064](https://github.com/bsorrentino/langgraph4j/commit/a22d70d974f1064a72c0ad5f642290ce9d2828d9))
+    > work on #73
+
+ -  add new test cases for subgraph merge ([b267d71d1d02b38](https://github.com/bsorrentino/langgraph4j/commit/b267d71d1d02b38bc83400b9b0c024d203573606))
+    > - Added new test cases to cover different scenarios in merging subgraphs.
+ > work on #73
+
+ -  add unit tests for subgraph interruptions ([3c0937713fe38c2](https://github.com/bsorrentino/langgraph4j/commit/3c0937713fe38c2e018c542687f7a3557a628f2d))
+    > work on #73
+
+ -  **subgraph**  add more subgraph tests ([70c2ac6963a2088](https://github.com/bsorrentino/langgraph4j/commit/70c2ac6963a2088ed714257b990d4658771c05fd))
+    > work on #73
+
+ -  **mergedgraph**  test of merging edges and nodes logic into parent graph ([103becc148243b2](https://github.com/bsorrentino/langgraph4j/commit/103becc148243b23e7b6a2fee5d74f9580f74579))
+    > work on #73
+
+
 
 
 
@@ -492,6 +560,12 @@
    
  -  bump version to SNAPSHOT ([39dfc39a7213689](https://github.com/bsorrentino/langgraph4j/commit/39dfc39a72136892a9e57c511d25bb7e25414628))
    
+
+### Test 
+
+ -  **how-to**  create notebook to verify issue #78 ([3a3527430d6fabc](https://github.com/bsorrentino/langgraph4j/commit/3a3527430d6fabc8da31c45624c50e817e7396ea))
+    > work on #78
+
 
 
 
@@ -594,6 +668,16 @@
  -  bump version to SNAPSHOT ([ac13077033d2be0](https://github.com/bsorrentino/langgraph4j/commit/ac13077033d2be017c18be60bae637090337a2c9))
    
 
+### Test 
+
+ -  **how-to**  refactor notebooks to use MessagesState utility ([e08804bede6ec27](https://github.com/bsorrentino/langgraph4j/commit/e08804bede6ec27a2cddc169810aa6a916d3741a))
+   
+ -  **core**  refactor to use MessagesState utility ([6c68b52491679a3](https://github.com/bsorrentino/langgraph4j/commit/6c68b52491679a334f670094f13cf77fd27193fe))
+   
+ -  add unit test concerning parallel branch ([60b7194d4d76cce](https://github.com/bsorrentino/langgraph4j/commit/60b7194d4d76cce360ed2f2fcbbd0f8cb9e5659e))
+    > resolve #72
+
+
 
 
 
@@ -637,6 +721,7 @@
    
  -  bump version to SNAPSHOT ([c1044fd7013ca68](https://github.com/bsorrentino/langgraph4j/commit/c1044fd7013ca68befc28e7a6af5d58e08ce12f9))
    
+
 
 
 
@@ -691,6 +776,7 @@
 
 
 
+
 <!-- "name: v1.2.3" is a release tag -->
 
 ## [v1.2.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.2.3) (2025-01-13)
@@ -734,6 +820,19 @@
  -  bump new version ([4c4edc0af587b58](https://github.com/bsorrentino/langgraph4j/commit/4c4edc0af587b58f3ad5121a6b4f313c4f5ae2d6))
    
  -  bump version to SNAPSHOT ([78acd8a4ea21266](https://github.com/bsorrentino/langgraph4j/commit/78acd8a4ea2126616644603c21d0c659b662ee15))
+   
+
+### Test 
+
+ -  update llm-straming notebook ([6eb924591ae348d](https://github.com/bsorrentino/langgraph4j/commit/6eb924591ae348de65c7a3480e7f908d8ac21251))
+   
+ -  **how-tos**  add complete streaming example in notebook ([c2e517fd4377ef5](https://github.com/bsorrentino/langgraph4j/commit/c2e517fd4377ef554698e70e1f31e70ca6078c5a))
+   
+ -  **how-tos**  add streaming test ([e7bf6c7649868f7](https://github.com/bsorrentino/langgraph4j/commit/e7bf6c7649868f7172d3491f97e99efac707ac3d))
+   
+ -  **SubGraphText**  add a test class for SubGraph unit test ([984628bda6d1ab3](https://github.com/bsorrentino/langgraph4j/commit/984628bda6d1ab34719b77afed524dae6294a83b))
+   
+ -  set logging options for unit test ([c576c796595908c](https://github.com/bsorrentino/langgraph4j/commit/c576c796595908c4f22e8902f0e493606fe99e8a))
    
 
 
@@ -799,6 +898,11 @@
  -  bump version to SNAPSHOT ([deec2e9c480cfe5](https://github.com/bsorrentino/langgraph4j/commit/deec2e9c480cfe534b258bf7e9770ef78355cc00))
    
 
+### Test 
+
+ -  creation of test cases for workflows that integrate subgraphs. ([ada1e3df6333254](https://github.com/bsorrentino/langgraph4j/commit/ada1e3df633325447d9f7e69a7c63bd184189031))
+   
+
 
 
 
@@ -840,6 +944,13 @@
  -  update version to SNAPSHOT ([1cd97afed49a531](https://github.com/bsorrentino/langgraph4j/commit/1cd97afed49a5311689f3be9eac561e284c01b7d))
     > Bump the project version from 1.2.0 to 1.2-SNAPSHOT, preparing for development of the next release cycle.
 
+
+### Test 
+
+ -  **core**  add subgraph unit test ([5837687bde1ed94](https://github.com/bsorrentino/langgraph4j/commit/5837687bde1ed9400e7f4843a6873f8a234bc5d2))
+   
+ -  **subgraph.ipynb**  relaunch notebook ([c0372d2b7f42a66](https://github.com/bsorrentino/langgraph4j/commit/c0372d2b7f42a66fb764bb1fc9e709ea3062686f))
+   
 
 
 
@@ -971,6 +1082,7 @@
 
 
 
+
 <!-- "name: v1.1.5" is a release tag -->
 
 ## [v1.1.5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.5) (2024-12-14)
@@ -1012,6 +1124,7 @@
 
 
 
+
 <!-- "name: v1.1.4" is a release tag -->
 
 ## [v1.1.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.4) (2024-12-11)
@@ -1047,6 +1160,12 @@
    
  -  **AgentExecutor**  add support for Azure OpenAI using langchain4j ([3d7a7a68dd5f8ce](https://github.com/bsorrentino/langgraph4j/commit/3d7a7a68dd5f8ce3502c604a0857ed457716c148))
     > work on #50
+
+
+### Test 
+
+ -  **AgentExecutor**  refactor unit test for supporting both OpneAI and AzureOpneAI ([0e93aa132eb30b2](https://github.com/bsorrentino/langgraph4j/commit/0e93aa132eb30b2f7829f4f925d9418736697348))
+    > resolve #50
 
 
 
@@ -1120,6 +1239,13 @@
  -  update versions to SNAPSHOT across all modules ([5465d89c19776b9](https://github.com/bsorrentino/langgraph4j/commit/5465d89c19776b9bff9754b30400283864e72a79))
    
 
+### Test 
+
+ -  **GsonSerializer**  unit test refinements ([2d160c2bae0adbb](https://github.com/bsorrentino/langgraph4j/commit/2d160c2bae0adbb22040ffaf380b21a9c4d71cc3))
+   
+ -  **image-to-diagram**  refine unit test ([59150ac455a0dfc](https://github.com/bsorrentino/langgraph4j/commit/59150ac455a0dfc521cb4eb27d466749dc9b2438))
+   
+
 
 
 
@@ -1158,6 +1284,7 @@
 
 
 
+
 <!-- "name: v1.1.1" is a release tag -->
 
 ## [v1.1.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.1.1) (2024-11-26)
@@ -1191,6 +1318,11 @@
  -  bump to next release ([3cff8a5ee5630ff](https://github.com/bsorrentino/langgraph4j/commit/3cff8a5ee5630ff8451aeecd07499dd97a4a54a2))
    
  -  bump next SNAPSHOT ([c7a966f4c78278a](https://github.com/bsorrentino/langgraph4j/commit/c7a966f4c78278af008f0988df14d007cc9d9e8c))
+   
+
+### Test 
+
+ -  **subgraph**  adds a notebbok ([d619829c2240a9e](https://github.com/bsorrentino/langgraph4j/commit/d619829c2240a9e66eaefb265b035e2c8000cd09))
    
 
 
@@ -1271,6 +1403,15 @@
  -  **mapifyai**  update project artifact id ([e80eee6d877d9d3](https://github.com/bsorrentino/langgraph4j/commit/e80eee6d877d9d356ce2b4f59b79f727ae7394be))
    
 
+### Test 
+
+ -  **image-to-diagram**  finalize subgraph support ([59f2a056b61c5b0](https://github.com/bsorrentino/langgraph4j/commit/59f2a056b61c5b07828912ea076abe882099d29c))
+    > work on #39
+
+ -  **image-to-diagram**  adds subgraph support ([14fc442935588e7](https://github.com/bsorrentino/langgraph4j/commit/14fc442935588e74333960cd45a033a8b948f52d))
+    > work on #39
+
+
 
 
 
@@ -1307,6 +1448,7 @@
 
 
 
+
 <!-- "name: v1.0-20241113" is a release tag -->
 
 ## [v1.0-20241113](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20241113) (2024-11-13)
@@ -1328,6 +1470,11 @@
  -  bump next intermediate version ([a2da7cc63ab9751](https://github.com/bsorrentino/langgraph4j/commit/a2da7cc63ab975168c4afb1d5ea73703aa9519bd))
    
  -  bump to snapshot ([511fb622550973a](https://github.com/bsorrentino/langgraph4j/commit/511fb622550973a0a1889f903056a8b6559dfa5e))
+   
+
+### Test 
+
+ -  add script to build and run site locally ([eb987a529aaa73c](https://github.com/bsorrentino/langgraph4j/commit/eb987a529aaa73c2ec55d7ca1806c33e44ed2fb4))
    
 
 
@@ -1366,6 +1513,11 @@
  -  bump to next intermediate version ([bb5dcce671d766f](https://github.com/bsorrentino/langgraph4j/commit/bb5dcce671d766f0952ac67a4caa7b3201a0559b))
    
  -  bump SNAPSHOT ([f20897527b8f644](https://github.com/bsorrentino/langgraph4j/commit/f20897527b8f644a73d10e1851b0deabcc6f5a73))
+   
+
+### Test 
+
+ -  update PlantUMLgenerator tests ([9e2c92a8644f217](https://github.com/bsorrentino/langgraph4j/commit/9e2c92a8644f2178ff9f46ce02223a0ca4ba65b2))
    
 
 
@@ -1435,6 +1587,18 @@
  -  bump to SNAPSHOT ([232eead50f7e2b9](https://github.com/bsorrentino/langgraph4j/commit/232eead50f7e2b9850af57112eb1e22c5cb2d94d))
    
 
+### Test 
+
+ -  **AgentExecutor**  complete test of LLM streaming on AgentExecutor sample ([d81a4a78336546d](https://github.com/bsorrentino/langgraph4j/commit/d81a4a78336546d802b0ffcbdb2cb90953be0af0))
+    > resolve #31
+
+ -  verify LLM streaming on AgentExecutor sample ([712e21ae4ab9802](https://github.com/bsorrentino/langgraph4j/commit/712e21ae4ab9802e544228b2f3fb8a00360eb35b))
+    > work on #31
+
+ -  add notebook to test LLMStreamingGenerator ([d51193d8b354ad7](https://github.com/bsorrentino/langgraph4j/commit/d51193d8b354ad734c3555af2366c585ab8f326a))
+    > work on #31
+
+
 
 
 
@@ -1479,6 +1643,11 @@
  -  update actions ([39ac81de3847ea4](https://github.com/bsorrentino/langgraph4j/commit/39ac81de3847ea41af472d3de62a32a3a7b2d20d))
    
 
+### Test 
+
+ -  **studio**  DTS refactoring ([01a61fc4fc2e8bb](https://github.com/bsorrentino/langgraph4j/commit/01a61fc4fc2e8bb1453b2b0f96cf08ac62b1d0e8))
+   
+
 
 
 
@@ -1518,6 +1687,7 @@
    
  -  **image-to-diagram**  skip release ([5a9c47e4efa952b](https://github.com/bsorrentino/langgraph4j/commit/5a9c47e4efa952bf4720de1e6b443034e4384738))
    
+
 
 
 
@@ -1576,6 +1746,11 @@
     > remove JDK 8
 
 
+### Test 
+
+ -  **serializer**  update unit tests ([5f97207ecfe746a](https://github.com/bsorrentino/langgraph4j/commit/5f97207ecfe746ab5c7cf6a2e0e6d2d4fb47496e))
+   
+
 
 
 
@@ -1598,6 +1773,7 @@
 
  -  bump to new version ([edf8bad65f537ec](https://github.com/bsorrentino/langgraph4j/commit/edf8bad65f537ecfd089e71a5bbaf8bfd94eab3a))
    
+
 
 
 
@@ -1665,6 +1841,7 @@
 
  -  bump to next developer version ([80ff8fdae63cbee](https://github.com/bsorrentino/langgraph4j/commit/80ff8fdae63cbee19ec997915ef9ec8ec5ed3ede))
    
+
 
 
 
@@ -1776,6 +1953,11 @@
  -  bump to SNAPSHOT ([4b2e260aea75814](https://github.com/bsorrentino/langgraph4j/commit/4b2e260aea75814fb8442f7004d18e8740f07570))
    
 
+### Test 
+
+ -  add generation of json schema ([9cd4003e282bab5](https://github.com/bsorrentino/langgraph4j/commit/9cd4003e282bab5d73693a3d7639e515fc8611e1))
+   
+
 
 
 
@@ -1826,6 +2008,12 @@
  -  bump to SNAPSHOT ([3225dd47184425f](https://github.com/bsorrentino/langgraph4j/commit/3225dd47184425f37fa38ce7b1542514a9179c58))
    
 
+### Test 
+
+ -  add new test ([508d8912a450ffa](https://github.com/bsorrentino/langgraph4j/commit/508d8912a450ffa5117bac85c8bc6aeda7158f44))
+    > work on #32
+
+
 
 
 
@@ -1855,6 +2043,7 @@
 
  -  bump to SNAPSHOT version ([e009e33b2149ab6](https://github.com/bsorrentino/langgraph4j/commit/e009e33b2149ab6a747565aa4d9b45cca088ac69))
    
+
 
 ### Continuous Integration
 
@@ -2008,6 +2197,7 @@
 
 
 
+
 <!-- "name: v1.0-20240915" is a release tag -->
 
 ## [v1.0-20240915](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240915) (2024-09-15)
@@ -2020,6 +2210,7 @@
 
  -  bump new intermediate version ([683a8ab92e407da](https://github.com/bsorrentino/langgraph4j/commit/683a8ab92e407da2f2234d68516a176433bb34b6))
    
+
 
 
 
@@ -2056,6 +2247,11 @@
  -  add set-version shell ([d8c034974444d65](https://github.com/bsorrentino/langgraph4j/commit/d8c034974444d65215c0ab91d289d92395c99fa8))
    
 
+### Test 
+
+ -  **notebook**  test notebook from @hide212131 ([fe4ea4c2a93bc0e](https://github.com/bsorrentino/langgraph4j/commit/fe4ea4c2a93bc0ef1f28042c9552fb0abee40166))
+   
+
 
 
 
@@ -2089,6 +2285,7 @@
    
  -  bump to developer release ([e8a2f07f273fe59](https://github.com/bsorrentino/langgraph4j/commit/e8a2f07f273fe5903a9a39525991e062968732a1))
    
+
 
 
 
@@ -2149,6 +2346,7 @@
 
 
 
+
 <!-- "name: v1.0-20240905" is a release tag -->
 
 ## [v1.0-20240905](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240905) (2024-09-05)
@@ -2189,6 +2387,7 @@
 
  -  move to next dev release ([e8b0735d16687bf](https://github.com/bsorrentino/langgraph4j/commit/e8b0735d16687bfe7922dbcea2095e90c42dc8d9))
    
+
 
 
 
@@ -2284,6 +2483,7 @@
 
 
 
+
 <!-- "name: v1.0-20240828" is a release tag -->
 
 ## [v1.0-20240828](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240828) (2024-08-28)
@@ -2358,6 +2558,14 @@
  -  add changelog update shell ([cc44dfea071d6f7](https://github.com/bsorrentino/langgraph4j/commit/cc44dfea071d6f7333ebe68d32a41142a8b2a2b5))
    
 
+### Test 
+
+ -  updateState tests ([0ed422a1bee5410](https://github.com/bsorrentino/langgraph4j/commit/0ed422a1bee54102207c50ca535bfd54704ddd70))
+   
+ -  add unit test for threadId support ([3dc0089ff93a40f](https://github.com/bsorrentino/langgraph4j/commit/3dc0089ff93a40f799d9ac1364617f6b40f20611))
+    > resolve #20
+
+
 
 
 
@@ -2391,6 +2599,7 @@
 
 
 
+
 <!-- "name: v1.0-20240809" is a release tag -->
 
 ## [v1.0-20240809](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.0-20240809) (2024-08-09)
@@ -2411,6 +2620,11 @@
 
 
 
+
+### Test 
+
+ -  verify checkpoint on agentexecutor ([9776cbd69e5ca2f](https://github.com/bsorrentino/langgraph4j/commit/9776cbd69e5ca2f776fec3b62f67efb104c0591d))
+   
 
 
 
@@ -2444,6 +2658,7 @@
 
  -  use graph fluent interface ([b6ee47b842bde7c](https://github.com/bsorrentino/langgraph4j/commit/b6ee47b842bde7c7da33d5c7b178c686f14ddc6b))
    
+
 
 
 ### Continuous Integration
@@ -2506,6 +2721,7 @@
     > work on #11
 
 
+
 ### Continuous Integration
 
  -  add deploy snapshot action ([93074fbd0e0beef](https://github.com/bsorrentino/langgraph4j/commit/93074fbd0e0beef4d84284d290910ebc2e499415))
@@ -2557,6 +2773,7 @@
  -  update version to next release ([6c4d365ded24b5a](https://github.com/bsorrentino/langgraph4j/commit/6c4d365ded24b5ad83aace0bdfab848a0fe2887e))
    
 
+
 ### Continuous Integration
 
  -  add maven plugin for deployment ([3a195394e5b3379](https://github.com/bsorrentino/langgraph4j/commit/3a195394e5b33792b7340590ef6bd6195c1fb6ce))
@@ -2600,6 +2817,7 @@
 
  -  update distribution ([7082a1fbb7692db](https://github.com/bsorrentino/langgraph4j/commit/7082a1fbb7692db8b3095d46c5410dbe60312034))
    
+
 
 
 
@@ -2650,6 +2868,13 @@
  -  **server**  update dist ([b640ce23393f190](https://github.com/bsorrentino/langgraph4j/commit/b640ce23393f19058a6fd08aa0b648b13aa86c03))
    
  -  **server-jetty**  update dist ([6577e93f7cd9520](https://github.com/bsorrentino/langgraph4j/commit/6577e93f7cd9520c181a92af02336f00624e9a9b))
+   
+
+### Test 
+
+ -  **fromend**  add adaptiverag flow as test ([cfe8486d4578731](https://github.com/bsorrentino/langgraph4j/commit/cfe8486d4578731749e4e76062ba3afdf66a9841))
+   
+ -  **server-jetty**  adaptiverag test refinements ([53c15da4b3a8b44](https://github.com/bsorrentino/langgraph4j/commit/53c15da4b3a8b44401daa334ef4ca9e4716b1a3a))
    
 
 
@@ -2808,6 +3033,25 @@
     > work on #9
 
 
+### Test 
+
+ -  add agent executor dep ([fa6d4f313a2a646](https://github.com/bsorrentino/langgraph4j/commit/fa6d4f313a2a64669f7065c3ccbdc235bd83b6fd))
+    > work on #9
+
+ -  add agent executor sample refinements ([1ba559ab80943ff](https://github.com/bsorrentino/langgraph4j/commit/1ba559ab80943ff6d7d679f8778c2f723e6b29fd))
+    > work on #9
+
+ -  reset steps counter after ending graph ([acf32a7da40195b](https://github.com/bsorrentino/langgraph4j/commit/acf32a7da40195b4282b9f81c301f8707676c5e5))
+    > work on #9
+
+ -  **jetty**  graph test refinements ([16c873cfc91132d](https://github.com/bsorrentino/langgraph4j/commit/16c873cfc91132d1d0d919578e45beacdb16f0cb))
+    > reduce number of iteration
+ > work on #9
+
+ -  test refinements ([880a7c7db56533e](https://github.com/bsorrentino/langgraph4j/commit/880a7c7db56533e47b149f3843ad9ccecb722158))
+    > work on #9
+
+
 
 
 
@@ -2862,6 +3106,11 @@
  > - chroma: start Chroma Server
  > - app: start demo app
 
+
+### Test 
+
+ -  **adaptive-rag**  add getGraph() test ([6e79ee6b44e5d9b](https://github.com/bsorrentino/langgraph4j/commit/6e79ee6b44e5d9b5cf626a18350d45b3ec3667f3))
+   
 
 
 
@@ -2953,6 +3202,15 @@
  -  upgrade langchain4j version ([9a78ff59429e326](https://github.com/bsorrentino/langgraph4j/commit/9a78ff59429e326ff3205b33563c490d6180c36e))
    
 
+### Test 
+
+ -  chroma test ([4b4cc5338449377](https://github.com/bsorrentino/langgraph4j/commit/4b4cc5338449377976998ec2780641fcc9b97986))
+    > work on #6
+
+ -  update test ([b592b0d9436d6f0](https://github.com/bsorrentino/langgraph4j/commit/b592b0d9436d6f0377c40d37f3a4b665bd8f1b9b))
+    > work on #6
+
+
 
 
 
@@ -2982,6 +3240,7 @@
 
  -  diagram code generation method ([6be2a8e7e2ced6a](https://github.com/bsorrentino/langgraph4j/commit/6be2a8e7e2ced6af76fc61d85dbf92ab83899490))
    
+
 
 
 ### Continuous Integration
@@ -3024,6 +3283,11 @@
 
 
 
+### Test 
+
+ -  refine generate graph tests ([393003c0017abaa](https://github.com/bsorrentino/langgraph4j/commit/393003c0017abaad556dbb7475c87bdd6faaab65))
+   
+
 
 
 
@@ -3044,6 +3308,11 @@
 
 
 
+
+### Test 
+
+ -  improve unit tests ([ef8a8e9c1454b6b](https://github.com/bsorrentino/langgraph4j/commit/ef8a8e9c1454b6bd50460631530b0037807c0caf))
+   
 
 
 
@@ -3104,6 +3373,7 @@
    
  -  upgrade langchain4j deps ([d80fdc6d9d38d86](https://github.com/bsorrentino/langgraph4j/commit/d80fdc6d9d38d867a2555de85d306bf570b068a3))
    
+
 
 
 
@@ -3198,6 +3468,11 @@
  -  update ignore ([12218f697c9cfc1](https://github.com/bsorrentino/langgraph4j/commit/12218f697c9cfc1f0d60d3eece1e21611a3bd204))
    
  -  add git ignore ([b3c0a9ee7056bcd](https://github.com/bsorrentino/langgraph4j/commit/b3c0a9ee7056bcd35b05722bd7f9d397e3c9ff1e))
+   
+
+### Test 
+
+ -  test refinements ([abead3b505119c3](https://github.com/bsorrentino/langgraph4j/commit/abead3b505119c314549389f112098a59e8c16c7))
    
 
 
