@@ -17,7 +17,7 @@ public class MermaidGenerator extends DiagramGenerator {
 
     @Override
     protected void appendHeader( Context ctx ) {
-        if( ctx.isSubgraph() ) {
+        if( ctx.isSubGraph() ) {
             ctx.sb()
                 .append(format("subgraph %s\n", ctx.title()))
                 .append(format("\t%1$c%2$s((start)):::%1$c%2$s\n", SUBGRAPH_PREFIX,START))
@@ -38,7 +38,7 @@ public class MermaidGenerator extends DiagramGenerator {
 
     @Override
     protected void appendFooter(Context ctx) {
-        if( ctx.isSubgraph() ) {
+        if( ctx.isSubGraph() ) {
             ctx.sb().append("end\n");
         }
         else {
@@ -52,21 +52,21 @@ public class MermaidGenerator extends DiagramGenerator {
    @Override
    protected void declareConditionalStart(Context ctx, String name) {
        ctx.sb().append('\t');
-       if( ctx.isSubgraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
+       if( ctx.isSubGraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
        ctx.sb().append( format("%s{\"check state\"}\n", name) );
    }
 
    @Override
    protected void declareNode(Context ctx, String name) {
        ctx.sb().append('\t');
-       if( ctx.isSubgraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
+       if( ctx.isSubGraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
        ctx.sb().append( format( "%s(\"%s\")\n", name, name ) );
    }
 
    @Override
    protected void declareConditionalEdge(Context ctx, int ordinal) {
        ctx.sb().append('\t');
-       if( ctx.isSubgraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
+       if( ctx.isSubGraph() ) ctx.sb().append(SUBGRAPH_PREFIX);
        ctx.sb().append( format("condition%d{\"check state\"}\n", ordinal) );
    }
 
@@ -79,7 +79,7 @@ public class MermaidGenerator extends DiagramGenerator {
     protected void call(Context ctx, String from, String to, CallStyle style) {
         ctx.sb().append('\t');
 
-        if( ctx.isSubgraph() ) {
+        if( ctx.isSubGraph() ) {
             ctx.sb().append(
                 switch( style ) {
                     case CONDITIONAL -> format("%1$c%2$s:::%1$c%2$s -.-> %1$c%3$s:::%1$c%3$s\n", SUBGRAPH_PREFIX, from, to);
@@ -98,7 +98,7 @@ public class MermaidGenerator extends DiagramGenerator {
     @Override
     protected void call(Context ctx, String from, String to, String description, CallStyle style) {
         ctx.sb().append('\t');
-        if( ctx.isSubgraph() ) {
+        if( ctx.isSubGraph() ) {
             ctx.sb().append(
                 switch( style ) {
                     case CONDITIONAL -> format("%1$s%2$s:::%1$c%2$s -.->|%3$s| %1$s%4$s:::%1$c%4$s\n", SUBGRAPH_PREFIX, from, description, to);
