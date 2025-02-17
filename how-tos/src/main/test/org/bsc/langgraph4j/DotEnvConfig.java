@@ -1,4 +1,4 @@
-package org.gsc.langgraph4j;
+package org.bsc.langgraph4j;
 
 
 import java.io.FileReader;
