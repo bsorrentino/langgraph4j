@@ -49,6 +49,18 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 |--------------|----------------| ---
 | Feb 17, 2025 | `1.4.0` | official release
 
+## How To - _(Java Notebook)_
+
+* [How to add persistence ("memory") to your graph](how-tos/persistence.ipynb)
+* [How to view and update past graph state](how-tos/time-travel.ipynb)
+* [How to parallel branch](how-tos/parallel-branch.ipynb)
+* [How to wait for user input](how-tos/wait-user-input.ipynb)
+* **How to sub-graph**
+  * [How to add a sub-grah in a node](how-tos/subgraph-as-nodeaction.ipynb)
+  * [How to add a compiled sub-graph (by composition)](how-tos/subgraph-as-compiledgraph.ipynb)
+  * [How to add a state sub-graph (by merging)](how-tos/subgraph-as-stategraph.ipynb)
+* **Use Case**
+  * [How to multi-agent supervisor](how-tos/multi-agent-supervisor.ipynb)
 
 ## Samples
 
@@ -58,13 +70,6 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 [Agent Executor][agent-executor] |  [Langchain4j][langchain4j]
 [Image To PlantUML Diagram][image-to-diagram]   | [Langchain4j][langchain4j]
 [Adaptive RAG][adaptive-rag] | [Langchain4j][langchain4j]
-
-
-## How To(s)
-
-* [How to add persistence ("memory") to your graph][howto-presistence]
-* [How to view and update past graph state][howto-timetravel]
-
 
 ## Quick Start 
 
@@ -182,7 +187,7 @@ Below you can find a piece of code of the `AgentExecutor` to give you an idea of
 public static class State implements AgentState {
 
     // the state's (partial) schema 
-    static Map<String, Channel<?>> SCHEMA = mapOf(
+    static Map<String, Channel<?>> SCHEMA = Map.of(
         "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
     );
 
@@ -228,7 +233,7 @@ var app = new StateGraph<>(State.SCHEMA,State::new)
                             }
                             return "continue";
                         }),
-                        mapOf("continue", "action", "end", END)
+                        Map.of("continue", "action", "end", END)
                 )
                 .addEdge("action", "agent")
                 .compile();
@@ -249,8 +254,7 @@ return  app.stream( inputs );
 [agent-executor]: agent-executor/
 [adaptive-rag]: samples/adaptive-rag
 [image-to-diagram]: samples/image-to-diagram/
-[howto-presistence]: how-tos/persistence.ipynb
-[howto-timetravel]: how-tos/time-travel.ipynb
+
 
 
 [SpringAI]: https://spring.io/projects/spring-ai
