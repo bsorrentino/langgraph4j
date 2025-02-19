@@ -41,7 +41,7 @@
             <item name="Core module" href="core/langgraph4j-core/index.html"/>
             <item name="Langchain4j integration module" href="langchain4j/langgraph4j-langchain4j/index.html"/>
             <item name="Agent Executor" href="agent-executor/langgraph4j-agent-executor/index.html"/>
-            <item name="Studio" href="studio/core/studio/langgraph4j-studio/index.html"/>
+            <item name="Studio" href="studio/base/studio/langgraph4j-studio/index.html"/>
         </menu>
         <menu name="References">
             <item name="How To(s)" href="how-tos/langgraph4j-howtos/index.html"/>
