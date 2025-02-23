@@ -1,4 +1,4 @@
-package org.bsc.quarkus.app;
+package org.bsc.quarkus.impl;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.annotations.QuarkusMain;

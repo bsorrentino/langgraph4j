@@ -1,13 +1,14 @@
-package org.bsc.quarkus.app;
+package org.bsc.quarkus.impl;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.quarkus.LangGraphFlow;
-import org.bsc.quarkus.LangGraphFlowService;
 
 import java.util.Map;
 
@@ -16,17 +17,17 @@ import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
-@Singleton
-public class LangGraphFlowServiceImpl implements LangGraphFlowService {
+@ApplicationScoped
+public class LangGraphFlowServiceImpl  {
 
-    final LangGraphFlow flow;
+    private LangGraphFlow flow;
 
-    public LangGraphFlowServiceImpl() throws GraphStateException {
-        this.flow = sampleFlow();
+    @PostConstruct
+    void init() throws GraphStateException {
+        flow = sampleFlow();
     }
-
-    @Override
-    public LangGraphFlow getFlow() throws GraphStateException {
+    @Produces
+    public LangGraphFlow getFlow()  {
         return flow;
     }
 

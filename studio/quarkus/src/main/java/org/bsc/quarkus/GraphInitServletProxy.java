@@ -12,26 +12,16 @@ import java.io.IOException;
 @WebServlet(name = "GraphInitServlet", urlPatterns = "/init")
 public class GraphInitServletProxy extends HttpServlet {
 
-    private Servlet servlet;
+    private final Servlet servlet;
 
-    @Inject
-    LangGraphFlowService flowService;
-
-    public GraphInitServletProxy() {
+    public GraphInitServletProxy( LangGraphFlow flow ) {
         super();
+        servlet = new LangGraphStreamingServer.GraphInitServlet(flow.stateGraph(), flow.title(), flow.inputArgs());
     }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        try {
-            var flow = flowService.getFlow();
-
-            servlet = new LangGraphStreamingServer.GraphInitServlet(flow.stateGraph(), flow.title(), flow.inputArgs());
-
-            servlet.init(config);
-        } catch (GraphStateException e) {
-            throw new ServletException(e);
-        }
+        servlet.init(config);
     }
 
     @Override

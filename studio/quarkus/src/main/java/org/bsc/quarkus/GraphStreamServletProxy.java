@@ -12,26 +12,16 @@ import java.io.IOException;
 @WebServlet(name = "GraphStreamServlet", urlPatterns = "/stream", asyncSupported = true)
 public class GraphStreamServletProxy extends HttpServlet {
 
-    private Servlet servlet;
+    private final Servlet servlet;
 
-    @Inject
-    LangGraphFlowService flowService;
-
-    public GraphStreamServletProxy() {
+    public GraphStreamServletProxy( LangGraphFlow flow ) {
         super();
+        servlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.saver());
     }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        try {
-            var flow = flowService.getFlow();
-
-            servlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.saver());
-
-            servlet.init(config);
-        } catch (GraphStateException e) {
-            throw new ServletException(e);
-        }
+        servlet.init(config);
     }
 
     @Override
