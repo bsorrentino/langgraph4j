@@ -17,7 +17,7 @@ public class TestTool {
     @Tool("tool for test AI agent executor")
     String execTest(@P("test message") String message) {
 
-        lastResult = format( "test tool executed: %s", message);
+        lastResult = format( "test tool ('%s') executed with result 'OK'", message);
         return lastResult;
     }
 }

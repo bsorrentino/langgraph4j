@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.4.0</version>
+  <version>1.4.1</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -36,6 +36,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <langchain4j.version>1.0.0-beta1</langchain4j.version>
   </properties>
 
@@ -195,6 +196,7 @@
     <module>studio/base</module>
     <module>studio/jetty</module>
     <module>studio/springboot</module>
+    <module>studio/quarkus</module>
   </modules>
 
   <profiles>

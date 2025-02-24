@@ -20,8 +20,10 @@ import java.util.function.Function;
  *
  * @param <T> the type of the data being processed
  * @param <State> the type of the state extending AgentState
+ * @deprecated use {@link StreamingChatGenerator} instead
  */
 @Slf4j
+@Deprecated
 public class LLMStreamingGenerator<T, State extends AgentState> extends AsyncGenerator.WithResult<StreamingOutput<State>> {
 
     /**

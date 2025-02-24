@@ -2,21 +2,20 @@ package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.*;
-import dev.langchain4j.model.StreamingResponseHandler;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
-import dev.langchain4j.model.input.PromptTemplate;
-import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.ChatRequestParameters;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import lombok.Builder;
 import lombok.Singular;
-import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
-import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 
 /**
  * Represents an agent that can process chat messages and execute actions using specified tools.
@@ -37,62 +36,53 @@ public class Agent {
         return streamingChatLanguageModel != null;
     }
 
-    /**
-     * Prepares a list of chat messages based on the input and intermediate steps.
-     *
-     * @param input the input string to process.
-     * @param intermediateSteps a list of intermediate steps to consider.
-     * @return a list of prepared chat messages.
-     */
-    private List<ChatMessage> prepareMessages(String input, List<IntermediateStep> intermediateSteps) {
-        var userMessageTemplate = PromptTemplate.from("{{input}}")
-                .apply(Map.of("input", input));
+    private ChatRequest prepareRequest(List<ChatMessage> messages ) {
 
-        var messages = new ArrayList<ChatMessage>();
+//        var text =  CollectionsUtils.last(messages).map( m ->
+//            switch( m.type() ) {
+//                case AI -> ((AiMessage)m).text() ;
+//                case USER -> ((UserMessage)m).singleText();
+//                case SYSTEM -> ((SystemMessage)m).text();
+//                case TOOL_EXECUTION_RESULT -> ((ToolExecutionResultMessage)m).text();
+//                case CUSTOM -> ((CustomMessage)m).text();
+//            }
+//        ).orElseThrow();
 
-        messages.add(new SystemMessage("You are a helpful assistant"));
-        messages.add(new UserMessage(userMessageTemplate.text()));
+        var reqMessages = new ArrayList<ChatMessage>( messages );
+        reqMessages.add(SystemMessage.from("You are a helpful assistant"));
 
-        if (!intermediateSteps.isEmpty()) {
 
-            var toolRequests = intermediateSteps.stream()
-                    .map(IntermediateStep::action)
-                    .map(AgentAction::toolExecutionRequest)
-                    .collect(Collectors.toList());
-
-            messages.add(new AiMessage(toolRequests)); // reply with tool requests
-
-            for (IntermediateStep step : intermediateSteps) {
-                var toolRequest = step.action().toolExecutionRequest();
-
-                messages.add(new ToolExecutionResultMessage(toolRequest.id(), toolRequest.name(), step.observation()));
-            }
-        }
-        return messages;
+        var parameters = ChatRequestParameters.builder()
+                .toolSpecifications(tools)
+                .build();
+        return ChatRequest.builder()
+                .messages( reqMessages )
+                .parameters(parameters)
+                .build();
     }
 
     /**
      * Executes the agent's action based on the input and intermediate steps, using a streaming response handler.
      *
-     * @param input the input string to process.
-     * @param intermediateSteps a list of intermediate steps to consider.
+     * @param messages the messages to process.
      * @param handler the handler for streaming responses.
      */
-    public void execute(String input, List<IntermediateStep> intermediateSteps, StreamingResponseHandler<AiMessage> handler) {
+    public void execute(List<ChatMessage> messages, StreamingChatResponseHandler handler) {
         Objects.requireNonNull(streamingChatLanguageModel, "streamingChatLanguageModel is required!");
 
-        streamingChatLanguageModel.generate(prepareMessages(input, intermediateSteps), tools, handler);
+        streamingChatLanguageModel.chat(prepareRequest(messages), handler);
+
     }
 
     /**
      * Executes the agent's action based on the input and intermediate steps, returning a response.
      *
-     * @param input the input string to process.
-     * @param intermediateSteps a list of intermediate steps to consider.
+     * @param messages the messages to process.
      * @return a response containing the generated AI message.
      */
-    public Response<AiMessage> execute(String input, List<IntermediateStep> intermediateSteps) {
+    public ChatResponse execute(List<ChatMessage> messages ) {
         Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
-        return chatLanguageModel.generate(prepareMessages(input, intermediateSteps), tools);
+
+       return chatLanguageModel.chat(prepareRequest(messages));
     }
 }

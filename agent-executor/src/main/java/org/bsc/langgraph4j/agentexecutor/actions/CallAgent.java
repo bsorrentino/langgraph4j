@@ -1,15 +1,11 @@
 package org.bsc.langgraph4j.agentexecutor.actions;
 
-import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
-import dev.langchain4j.model.output.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.agentexecutor.*;
-import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
-import org.bsc.langgraph4j.agentexecutor.state.AgentFinish;
-import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
-import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
+import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;
 
 import java.util.Map;
 
@@ -38,22 +34,17 @@ public class CallAgent implements NodeAction<AgentExecutor.State> {
      * @return a map containing the agent's outcome
      * @throws IllegalStateException if the finish reason of the response is unsupported
      */
-    private Map<String,Object> mapResult( Response<AiMessage> response )  {
+    private Map<String,Object> mapResult( ChatResponse response )  {
 
-        var content = response.content();
+        var content = response.aiMessage();
 
         if( response.finishReason() == FinishReason.STOP ) {
-            var result = content.text();
-            var finish = new AgentFinish(Map.of("returnValues", result), result);
-            return Map.of("agent_outcome", new AgentOutcome(null, finish));
+            return Map.of("agent_response", content.text());
         }
 
-        if (response.finishReason() == FinishReason.TOOL_EXECUTION || response.content().hasToolExecutionRequests() ) {
+        if (response.finishReason() == FinishReason.TOOL_EXECUTION || content.hasToolExecutionRequests() ) {
 
-            var toolExecutionRequests = response.content().toolExecutionRequests();
-            var action = new AgentAction(toolExecutionRequests.get(0), "");
-
-            return Map.of("agent_outcome", new AgentOutcome(action, null));
+            return Map.of("messages", content);
 
         }
 
@@ -70,24 +61,28 @@ public class CallAgent implements NodeAction<AgentExecutor.State> {
     @Override
     public Map<String,Object> apply( AgentExecutor.State state )  {
         log.trace( "callAgent" );
-        var input = state.input()
-                .orElseThrow(() -> new IllegalArgumentException("no input provided!"));
+        var messages = state.messages();
 
-        var intermediateSteps = state.intermediateSteps();
+        if( messages.isEmpty() ) {
+            throw new IllegalArgumentException("no input provided!");
+        }
+
 
         if( agent.isStreaming()) {
 
-            var generator = LLMStreamingGenerator.<AiMessage, AgentExecutor.State>builder()
+            var generator = StreamingChatGenerator.<AgentExecutor.State>builder()
                     .mapResult( this::mapResult )
                     .startingNode("agent")
                     .startingState( state )
                     .build();
-            agent.execute(input, intermediateSteps, generator.handler());
+            agent.execute(messages, generator.handler());
 
-            return Map.of( "agent_outcome", generator);
+            return Map.of( "_generator", generator);
+
+
         }
         else {
-            var response = agent.execute(input, intermediateSteps);
+            var response = agent.execute(messages);
 
             return mapResult(response);
         }

@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j.agentexecutor;
 
+import dev.langchain4j.data.message.UserMessage;
 import org.bsc.langgraph4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.FinishReason;
@@ -8,8 +9,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
@@ -34,18 +36,21 @@ public class AgentTest {
                 .maxTokens(2000)
                 .build();
 
-        var tool = new TestTool();
+        var toolNode = ToolNode.builder()
+                .specification( new TestTool() )
+                .build();
+
         var agent = Agent.builder()
                 .chatLanguageModel(chatLanguageModel)
-                .tools( ToolNode.of(tool).toolSpecifications() )
+                .tools( toolNode.toolSpecifications() )
                 .build();
 
         var msg = "hello world";
-        var response = agent.execute( format("this is an AI test with message: '%s'", msg), emptyList() );
+        var response = agent.execute( List.of( UserMessage.from(format("this is an AI test with message: '%s'", msg) )));
 
         assertNotNull(response);
-        assertEquals(response.finishReason(), FinishReason.TOOL_EXECUTION );
-        var content = response.content();
+        assertEquals(FinishReason.TOOL_EXECUTION, response.finishReason() );
+        var content = response.aiMessage();
         assertNotNull(content);
         assertNull( content.text());
         assertTrue(content.hasToolExecutionRequests());

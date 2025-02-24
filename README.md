@@ -47,7 +47,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Feb 17, 2025 | `1.4.0` | official release
+| Feb 24, 2025 | `1.4.1` | official release
 
 ## How To - _(Java Notebook)_
 
@@ -82,7 +82,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
 </dependency>
 ```
 
@@ -184,55 +184,45 @@ Below you can find a piece of code of the `AgentExecutor` to give you an idea of
 
 ```java
 
-public static class State implements AgentState {
-
-    // the state's (partial) schema 
-    static Map<String, Channel<?>> SCHEMA = Map.of(
-        "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
-    );
+/**
+ * Represents the state of an agent.
+ */
+class State extends MessagesState<ChatMessage> {
 
     public State(Map<String, Object> initData) {
-        super(initData);
+            super(initData);
     }
 
-    Optional<String> input() {
-        return value("input");
+    public Optional<String> finalResponse() {
+        return value("agent_response");
     }
-    Optional<AgentOutcome> agentOutcome() {
-        return value("agent_outcome");
-    }
-    List<IntermediateStep> intermediateSteps() {
-        return this.<List<IntermediateStep>>value("intermediate_steps").orElseGet(emptyList());
-    }
-   
+
 }
 
-var toolInfo = ToolNode.builder()
-                        .specification( objectsWithTools )
-                        .build();
+var toolNode = ToolNode.builder()
+                    .toolSpecification( tools )
+                    .build();
 
-var agentRunnable = Agent.builder()
-                        .chatLanguageModel( chatLanguageModel )
-                        .tools( toolInfo.specifications() )
-                        .build();
+var agent = Agent.builder()
+        .chatLanguageModel(chatLanguageModel)
+        .tools(toolNode.toolSpecifications())
+        .build();
 
+var callAgent = new CallAgent(agent);
+var executeTools = new ExecuteTools(agent, toolNode);
+                                 
 // Fluent Interface
-var app = new StateGraph<>(State.SCHEMA,State::new)
+var app = new StateGraph<>(State.SCHEMA, State::new)
                 .addEdge(START,"agent")
-                .addNode( "agent", node_async( state ->
-                    runAgent(agentRunnable, state))
-                )
-                .addNode( "action", node_async( state ->
-                    executeTools(toolInfoList, state))
-                )
+                .addNode("agent", node_async(callAgent))
+                .addNode("action", node_async(executeTools))
                 .addConditionalEdges(
                         "agent",
-                        edge_async( state -> {
-                            if (state.agentOutcome().map(AgentOutcome::finish).isPresent()) {
-                                return "end";
-                            }
-                            return "continue";
-                        }),
+                        edge_async( state -> 
+                            state.finalResponse()
+                                .map(res -> "end")
+                                .orElse("continue");
+                        ),
                         Map.of("continue", "action", "end", END)
                 )
                 .addEdge("action", "agent")

@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -10,12 +11,8 @@ import org.bsc.langgraph4j.agentexecutor.actions.CallAgent;
 import org.bsc.langgraph4j.agentexecutor.actions.ExecuteTools;
 import org.bsc.langgraph4j.agentexecutor.serializer.jackson.JSONStateSerializer;
 import org.bsc.langgraph4j.agentexecutor.serializer.std.STDStateSerializer;
-import org.bsc.langgraph4j.agentexecutor.state.AgentOutcome;
-import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.StateSerializer;
-import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppenderChannel;
-import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
 import java.util.*;
@@ -33,11 +30,7 @@ public interface AgentExecutor {
     /**
      * Represents the state of an agent.
      */
-    class State extends AgentState {
-        static Map<String, Channel<?>> SCHEMA = Map.of(
-                "intermediate_steps", AppenderChannel.<IntermediateStep>of(ArrayList::new)
-        );
-
+    class State extends MessagesState<ChatMessage> {
         /**
          * Constructs a new State with the given initialization data.
          *
@@ -48,31 +41,15 @@ public interface AgentExecutor {
         }
 
         /**
-         * Retrieves the input value.
+         * Retrieves the agent final response.
          *
-         * @return an Optional containing the input value if present
+         * @return an Optional containing the agent final response if present
          */
-        public Optional<String> input() {
-            return value("input");
+        public Optional<String> finalResponse() {
+            return value("agent_response");
         }
 
-        /**
-         * Retrieves the agent outcome.
-         *
-         * @return an Optional containing the agent outcome if present
-         */
-        public Optional<AgentOutcome> agentOutcome() {
-            return value("agent_outcome");
-        }
 
-        /**
-         * Retrieves the list of intermediate steps.
-         *
-         * @return a list of intermediate steps
-         */
-        public List<IntermediateStep> intermediateSteps() {
-            return this.<List<IntermediateStep>>value("intermediate_steps").orElseGet(ArrayList::new);
-        }
     }
 
     /**
@@ -222,9 +199,8 @@ public interface AgentExecutor {
             final var callAgent = new CallAgent(agent);
             final var executeTools = new ExecuteTools(agent, toolNode);
             final EdgeAction<State> shouldContinue = (state) ->
-                    state.agentOutcome()
-                            .map(AgentOutcome::finish)
-                            .map(finish -> "end")
+                    state.finalResponse()
+                            .map(res -> "end")
                             .orElse("continue");
 
             return new StateGraph<>(State.SCHEMA, stateSerializer)
