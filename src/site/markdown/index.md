@@ -34,6 +34,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] [Studio] (_Playground Webapp_)
   - [x] [Spring Boot]
   - [x] [Jetty]
+  - [x] [Quarkus]
 - [X] Streaming response from LLM results
 - [X] Child Graphs
 - [X] Parallel Node Execution
@@ -46,7 +47,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 * [How to parallel branch](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/parallel-branch.ipynb)
 * [How to wait for user input](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/wait-user-input.ipynb)
 * **How to sub-graph**
-  * [How to add a sub-grah in a node](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/subgraph-as-nodeaction.ipynb)
+  * [How to add a sub-graph in a node](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/subgraph-as-nodeaction.ipynb)
   * [How to add a compiled sub-graph (by composition)](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/subgraph-as-compiledgraph.ipynb)
   * [How to add a state sub-graph (by merging)](https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/subgraph-as-stategraph.ipynb)
 * **Use Case**
@@ -281,6 +282,10 @@ server.start().join();
 * [LangGraph - LangChain Blog][langgraph.blog]
 * [AI Agent in Java with LangGraph4j - Bartolomeo Blog][article01]
 * [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
+
+[Jetty]: https://jetty.org
+[Spring Boot]: https://spring.io/projects/spring-boot
+[Quarkus]: https://quarkus.io
 
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [springai-agentexecutor]: https://github.com/bsorrentino/langgraph4j/blob/main/samples/springai-agentexecutor
