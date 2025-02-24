@@ -34,6 +34,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [x] [Studio] (_Playground Webapp_)
   - [x] [Spring Boot]
   - [x] [Jetty]
+  - [x] [Quarkus]
 - [X] Streaming response from LLM results
 - [X] Child Graphs
 - [X] Parallel Node Execution
@@ -56,7 +57,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 * [How to parallel branch](how-tos/parallel-branch.ipynb)
 * [How to wait for user input](how-tos/wait-user-input.ipynb)
 * **How to sub-graph**
-  * [How to add a sub-grah in a node](how-tos/subgraph-as-nodeaction.ipynb)
+  * [How to add a sub-graph in a node](how-tos/subgraph-as-nodeaction.ipynb)
   * [How to add a compiled sub-graph (by composition)](how-tos/subgraph-as-compiledgraph.ipynb)
   * [How to add a state sub-graph (by merging)](how-tos/subgraph-as-stategraph.ipynb)
 * **Use Case**
@@ -239,13 +240,15 @@ return  app.stream( inputs );
 * [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 
 
+[Jetty]: https://jetty.org
+[Spring Boot]: https://spring.io/projects/spring-boot
+[Quarkus]: https://quarkus.io
+
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [springai-agentexecutor]: samples/springai-agentexecutor
 [agent-executor]: agent-executor/
 [adaptive-rag]: samples/adaptive-rag
 [image-to-diagram]: samples/image-to-diagram/
-
-
 
 [SpringAI]: https://spring.io/projects/spring-ai
 [Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
@@ -263,3 +266,4 @@ return  app.stream( inputs );
 [Mermaid]: https://mermaid.js.org
 
 [releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
+
