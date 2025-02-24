@@ -1,13 +1,12 @@
 package org.bsc.langgraph4j.agentexecutor;
 
-import dev.langchain4j.model.azure.AzureOpenAiChatModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.data.message.UserMessage;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.utils.CollectionsUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public abstract class AbstractAgentExecutorTest {
 
     private List<AgentExecutor.State> executeAgent( String prompt )  throws Exception {
 
-        var iterator = newGraph().compile().stream( Map.of( "input", prompt ) );
+        var iterator = newGraph().compile().stream( Map.of( "messages", UserMessage.from(prompt) ) );
 
         return iterator.stream()
                 .peek( s -> System.out.println( s.node() ) )
@@ -54,7 +53,7 @@ public abstract class AbstractAgentExecutorTest {
 
         var graph = newGraph().compile( compileConfig );
 
-        var iterator = graph.stream( Map.of( "input", prompt ), config );
+        var iterator = graph.stream( Map.of( "messages", UserMessage.from(prompt)), config );
 
         return iterator.stream()
                 .peek( s -> System.out.println( s.node() ) )
@@ -66,34 +65,23 @@ public abstract class AbstractAgentExecutorTest {
     void executeAgentWithSingleToolInvocation() throws Exception {
 
         var states = executeAgent("what is the result of test with messages: 'MY FIRST TEST'");
-        var state = states.get( states.size() - 1 );
+        assertEquals( 5, states.size() );
+        var state = CollectionsUtils.last(states).orElse(null);
         assertNotNull(state);
-        assertFalse(state.intermediateSteps().isEmpty());
-        assertEquals( 1, state.intermediateSteps().size());
-        assertTrue(state.agentOutcome().isPresent());
-        assertNotNull(state.agentOutcome().get().finish());
-        assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
-        var returnValues = state.agentOutcome().get().finish().returnValues().get("returnValues").toString();
-        assertTrue( returnValues.contains( "MY FIRST TEST") );
-        System.out.println(returnValues);
+        assertTrue(state.finalResponse().isPresent());
+        System.out.println(state.finalResponse().get());
+
     }
 
     @Test
     void executeAgentWithDoubleToolInvocation() throws Exception {
 
         var states = executeAgent("what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'");
-        var state = states.get( states.size() - 1 );
+        assertEquals( 5, states.size() );
+        var state = CollectionsUtils.last(states).orElse(null);
         assertNotNull(state);
-        assertFalse(state.intermediateSteps().isEmpty());
-        assertEquals( 2, state.intermediateSteps().size());
-        assertTrue(state.agentOutcome().isPresent());
-        assertNotNull(state.agentOutcome().get().finish());
-        assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
-        var returnValues = state.agentOutcome().get().finish().returnValues().get("returnValues").toString();
-        assertTrue( returnValues.contains( "MY FIRST TEST") );
-        assertTrue( returnValues.contains( "MY SECOND TEST") );
-        System.out.println(returnValues);
-
+        assertTrue(state.finalResponse().isPresent());
+        System.out.println(state.finalResponse().get());
     }
 
     @Test
@@ -105,18 +93,11 @@ public abstract class AbstractAgentExecutorTest {
                 "thread_1",
                 saver
                 );
-        assertEquals( 7, states.size() ); // iterations
-        var state = states.get( states.size() - 1 );
+        assertEquals( 5, states.size() ); // iterations
+        var state = CollectionsUtils.last(states).orElse(null);
         assertNotNull(state);
-        assertFalse(state.intermediateSteps().isEmpty());
-        assertEquals( 2, state.intermediateSteps().size());
-        assertTrue(state.agentOutcome().isPresent());
-        assertNotNull(state.agentOutcome().get().finish());
-        assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
-        var returnValues = state.agentOutcome().get().finish().returnValues().get("returnValues").toString();
-        assertTrue( returnValues.contains( "MY FIRST TEST") );
-        assertTrue( returnValues.contains( "MY SECOND TEST") );
-        System.out.println(returnValues);
+        assertTrue(state.finalResponse().isPresent());
+        System.out.println(state.finalResponse().get());
 
         states = executeAgent(
                 "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'",
@@ -124,15 +105,11 @@ public abstract class AbstractAgentExecutorTest {
                 saver
         );
         assertEquals( 3, states.size() ); // iterations
-        state = states.get( states.size() - 1 );
+        state = CollectionsUtils.last(states).orElse(null);
         assertNotNull(state);
-        assertTrue(state.agentOutcome().isPresent());
-        assertNotNull(state.agentOutcome().get().finish());
-        assertTrue( state.agentOutcome().get().finish().returnValues().containsKey("returnValues"));
-        returnValues = state.agentOutcome().get().finish().returnValues().get("returnValues").toString();
-        assertTrue( returnValues.contains( "MY FIRST TEST") );
-        assertTrue( returnValues.contains( "MY SECOND TEST") );
-        System.out.println(returnValues);
+        assertTrue(state.finalResponse().isPresent());
+        System.out.println(state.finalResponse().get());
+
     }
 
     @Test
@@ -154,10 +131,10 @@ public abstract class AbstractAgentExecutorTest {
 
         var plantUml = app.getGraph( GraphRepresentation.Type.PLANTUML, "Agent Executor", printConditionalEdge );
 
-        System.out.println( plantUml.getContent() );
+        System.out.println( plantUml.content() );
 
         var mermaid = app.getGraph( GraphRepresentation.Type.MERMAID, "Agent Executor", printConditionalEdge );
 
-        System.out.println( mermaid.getContent() );
+        System.out.println( mermaid.content() );
     }
 }

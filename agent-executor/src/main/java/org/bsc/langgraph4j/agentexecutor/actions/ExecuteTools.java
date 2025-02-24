@@ -1,18 +1,16 @@
 package org.bsc.langgraph4j.agentexecutor.actions;
 
-import dev.langchain4j.data.message.ToolExecutionResultMessage;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessageType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.agentexecutor.Agent;
-import org.bsc.langgraph4j.agentexecutor.state.AgentAction;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
-import org.bsc.langgraph4j.agentexecutor.state.IntermediateStep;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
 import java.util.Map;
-
-import static java.util.Optional.ofNullable;
+import java.util.Optional;
 
 /**
  * The ExecuteTools class implements the NodeAction interface for handling 
@@ -54,17 +52,20 @@ public class ExecuteTools implements NodeAction<AgentExecutor.State> {
     public Map<String,Object> apply(AgentExecutor.State state )  {
         log.trace( "executeTools" );
 
-        var agentOutcome = state.agentOutcome().orElseThrow(() -> new IllegalArgumentException("no agentOutcome provided!"));
+        var toolExecutionRequests = state.lastMessage()
+                .filter( m -> ChatMessageType.AI==m.type() )
+                .map( m -> (AiMessage)m )
+                .filter(AiMessage::hasToolExecutionRequests)
+                .map(AiMessage::toolExecutionRequests)
+                .orElseThrow(() -> new IllegalArgumentException("no tool execution request found!"));
 
-        var toolExecutionRequest = ofNullable(agentOutcome.action())
-                .map(AgentAction::toolExecutionRequest)
-                .orElseThrow(() -> new IllegalStateException("no action provided!" ))
-                ;
-        var result = toolNode.execute( toolExecutionRequest )
-                .map( ToolExecutionResultMessage::text )
-                .orElseThrow(() -> new IllegalStateException("no tool found for: " + toolExecutionRequest.name()));
+        var result = toolExecutionRequests.stream()
+                        .map(toolNode::execute)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList();
 
-        return Map.of("intermediate_steps", new IntermediateStep( agentOutcome.action(), result ) );
+        return Map.of("messages", result );
 
     }
 
