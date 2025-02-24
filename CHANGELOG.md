@@ -2,18 +2,60 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v1.4.1" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+## [v1.4.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.1) (2025-02-24)
 
+### Features
+
+ *  add new class for LLM streaming support ([4d8977fbf779471](https://github.com/bsorrentino/langgraph4j/commit/4d8977fbf7794718bd5283ee398e317bf589d21c))
+     > - add StreamingChatGeneraror
+     > - deprecate LLMStreaminGenerator
+     > - update notebook
+     > resolve #82
+   
+ *  **studio**  add support for Quarkus in Studio ([5321eb1f716299a](https://github.com/bsorrentino/langgraph4j/commit/5321eb1f716299aff9c235e1aa155781fcbc5425))
+     > resolve #81
+   
+
+### Bug Fixes
+
+ -  **site.xml**  update Studio menu item to correct base path ([16eb0bdf07e7ae1](https://github.com/bsorrentino/langgraph4j/commit/16eb0bdf07e7ae1a37c3e1264332569468c1d4a4))
+
+ -  **changelog**  add 'test' support in changelog generation template ([74be5d31e6019e9](https://github.com/bsorrentino/langgraph4j/commit/74be5d31e6019e95b3df57c523407a04720a6572))
 
 
 ### Documentation
 
+ -  bump to next release ([ee36919d3a25c4a](https://github.com/bsorrentino/langgraph4j/commit/ee36919d3a25c4a1ebbb53e112da521496db086c))
+
+ -  update documentation ([87170d9dec82a3b](https://github.com/bsorrentino/langgraph4j/commit/87170d9dec82a3b8111eb07ec6d5516905fe21dd))
+     > add more &#x27;how to&#x27;
+
  -  update changeme ([a8938bab782f499](https://github.com/bsorrentino/langgraph4j/commit/a8938bab782f4998dd2275750e218318671de9ed))
 
 
+### Refactor
 
+ -  **agent-executor**  update  agent-executor  implementation ([f8d11303458190b](https://github.com/bsorrentino/langgraph4j/commit/f8d11303458190bce1ffc9981b6d09df8bf7fd92))
+    > - remove deprecated usage
+ > - Simplify implementation using MessagesState
+
+ -  **agent-executor**  update  agent-executor  implementation ([bb880109b2e5d58](https://github.com/bsorrentino/langgraph4j/commit/bb880109b2e5d580eb705be4ba5550cafea68991))
+    > - remove deprecated usage
+ > - Simplify implementation using MessagesState
+
+ -  **studio/quarkus**  quarkus impl refinements ([317bf09a5958cc3](https://github.com/bsorrentino/langgraph4j/commit/317bf09a5958cc381e0d48635802edb25664cffb))
+    > using of @Produces to inject flow
+ > work on #81
+
+
+### ALM 
+
+ -  bump to next release ([20b62ce590197bc](https://github.com/bsorrentino/langgraph4j/commit/20b62ce590197bc6afcf72409ce4ba7196b7ea0d))
+   
+ -  move to next SNAPSHOT ([4250364d58d0ff9](https://github.com/bsorrentino/langgraph4j/commit/4250364d58d0ff9b95a19a922c06d78e0912b93f))
+   
 
 
 
