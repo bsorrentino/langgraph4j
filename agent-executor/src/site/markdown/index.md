@@ -43,13 +43,20 @@ public void main( String args[] ) throws Exception
             .build();
 
 
-    return AgentExecutor.graphBuilder()
+    var agentExecutor = AgentExecutor.graphBuilder()
                 .chatLanguageModel(chatLanguageModel)
                 // add object with tool
                 .toolSpecification(new TestTool())
                 // add dynamic tool
                 .toolExecutor(toolSpecification, toolExecutor)
                 .build();
+
+    var workflow = agentExecutor..compile();
+
+    for( var step: workflow.stream( Map.of( "messages", UserMessage.from("Run my test!") ) ) ) {
+
+        ...
+    }  
 
 }
 ```
