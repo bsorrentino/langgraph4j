@@ -1,6 +1,8 @@
 # Langchain4j LLM streaming
 
+
 **Initialize Logger**
+
 
 ```java
 try( var file = new java.io.FileInputStream("./logging.properties")) {
@@ -10,35 +12,38 @@ try( var file = new java.io.FileInputStream("./logging.properties")) {
 }
 
 var log = org.slf4j.LoggerFactory.getLogger("llm-streaming");
-
 ```
 
-## How to use LLMStreamingGenerator
+## How to use StreamingChatGenerator
 
 
 ```java
 import dev.langchain4j.model.StreamingResponseHandler;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
-import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.output.Response;
-import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
-import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
+import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.streaming.StreamingOutput;
+import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
 
-var generator = LLMStreamingGenerator.<AiMessage,AgentState>builder()
-                        .mapResult( r -> Map.of( "content", r.content() ) )
+var generator = StreamingChatGenerator.<AgentState>builder()
+                        .mapResult( r -> Map.of( "content", r.aiMessage().text() ) )
                         .build();
 
-StreamingChatLanguageModel model = OpenAiStreamingChatModel.builder()
-    .apiKey(System.getenv("OPENAI_API_KEY"))
-    .modelName(GPT_4_O_MINI)
+var model = OllamaStreamingChatModel.builder()
+    .baseUrl( "http://localhost:11434" )
+    .temperature(0.0)
+    .logRequests(true)
+    .logResponses(true)
+    .modelName("llama3.1:latest")
     .build();
 
-String userMessage = "Tell me a joke";
-
-model.generate(userMessage, generator.handler() );
+var request = ChatRequest.builder()
+        .messages( UserMessage.from("Tell me a joke") )
+        .build();
+model.chat(request, generator.handler() );
 
 for( var r : generator ) {
     log.info( "{}", r);
@@ -49,32 +54,54 @@ log.info( "RESULT: {}", generator.resultValue().orElse(null) );
 //Thread.sleep( 1000 );
 ```
 
-    StreamingOutput{chunk=} 
-    StreamingOutput{chunk=Why} 
-    StreamingOutput{chunk= did} 
-    StreamingOutput{chunk= the} 
-    StreamingOutput{chunk= scare} 
-    StreamingOutput{chunk=crow} 
-    StreamingOutput{chunk= win} 
-    StreamingOutput{chunk= an} 
-    StreamingOutput{chunk= award} 
+    StreamingOutput{chunk=Here} 
+    StreamingOutput{chunk='s} 
+    StreamingOutput{chunk= one} 
+    StreamingOutput{chunk=:
+    
+    } 
+    StreamingOutput{chunk=What} 
+    StreamingOutput{chunk= do} 
+    StreamingOutput{chunk= you} 
+    StreamingOutput{chunk= call} 
+    StreamingOutput{chunk= a} 
+    StreamingOutput{chunk= fake} 
+    StreamingOutput{chunk= nood} 
+    StreamingOutput{chunk=le} 
     StreamingOutput{chunk=?
     
     } 
-    StreamingOutput{chunk=Because} 
-    StreamingOutput{chunk= he} 
-    StreamingOutput{chunk= was} 
-    StreamingOutput{chunk= outstanding} 
-    StreamingOutput{chunk= in} 
-    StreamingOutput{chunk= his} 
-    StreamingOutput{chunk= field} 
-    StreamingOutput{chunk=!} 
-    RESULT: {content=AiMessage { text = "Why did the scarecrow win an award?
+    StreamingOutput{chunk=An} 
+    StreamingOutput{chunk= imp} 
+    StreamingOutput{chunk=asta} 
+    StreamingOutput{chunk=!
     
-    Because he was outstanding in his field!" toolExecutionRequests = null }} 
+    } 
+    StreamingOutput{chunk=Hope} 
+    StreamingOutput{chunk= that} 
+    StreamingOutput{chunk= made} 
+    StreamingOutput{chunk= you} 
+    StreamingOutput{chunk= laugh} 
+    StreamingOutput{chunk=!} 
+    StreamingOutput{chunk= Do} 
+    StreamingOutput{chunk= you} 
+    StreamingOutput{chunk= want} 
+    StreamingOutput{chunk= to} 
+    StreamingOutput{chunk= hear} 
+    StreamingOutput{chunk= another} 
+    StreamingOutput{chunk= one} 
+    StreamingOutput{chunk=?} 
+    StreamingOutput{chunk=} 
+    RESULT: {content=Here's one:
+    
+    What do you call a fake noodle?
+    
+    An impasta!
+    
+    Hope that made you laugh! Do you want to hear another one?} 
 
 
-## Use LLMStreamGenerator in Agent
+## Use StreamingChatGenerator in Agent
 
 ### Define Serializers
 
@@ -155,17 +182,16 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import dev.langchain4j.service.tool.DefaultToolExecutor;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-
+import dev.langchain4j.model.chat.request.ChatRequestParameters;
 
 // setup streaming model
-var model = OpenAiStreamingChatModel.builder()
-  .apiKey( System.getenv("OPENAI_API_KEY") )
-  .modelName( "gpt-4o-mini" )
-  .logResponses(true)
-  .temperature(0.0)
-  .maxTokens(2000)
-  .build();
+var model = OllamaStreamingChatModel.builder()
+    .baseUrl( "http://localhost:11434" )
+    .temperature(0.0)
+    .logRequests(true)
+    .logResponses(true)
+    .modelName("llama3.1:latest")
+    .build();
 
 // setup tools 
 var tools = ToolNode.builder()
@@ -173,48 +199,52 @@ var tools = ToolNode.builder()
               .build(); 
 
 NodeAction<MessagesState<ChatMessage>> callModel = state -> {
-  log.info("CallModel:\n{}", state.messages());
+        log.info( "CallModel" );
 
-  var generator = LLMStreamingGenerator.<AiMessage, MessagesState<ChatMessage>>builder()
-          .mapResult(response -> {
-              log.info("MapResult: {}", response);
-              return Map.of("messages", response.content());
-          })
-          .startingNode("agent")
-          .startingState(state)
-          .build();
+        var generator = StreamingChatGenerator.<MessagesState<ChatMessage>>builder()
+                .mapResult( response -> Map.of("messages", response.aiMessage()) )
+                .startingNode("agent")
+                .startingState(state)
+                .build();
 
-    model.generate(
-            state.messages(),
-            tools.toolSpecifications(),
-            generator.handler());
+        var parameters = ChatRequestParameters.builder()
+                .toolSpecifications(tools.toolSpecifications())
+                .build();        
+        var request = ChatRequest.builder()
+                .messages( state.messages() )
+                .build();
+        
+        model.chat( request, generator.handler() );
 
-    return Map.of("messages", generator);
+        return Map.of("_streaming_messages", generator);
 };
             
 // Route Message
 EdgeAction<MessagesState<ChatMessage>> routeMessage = state -> {
-    log.info("routeMessage:\n{}", state.messages());
 
-    var lastMessage = state.lastMessage()
+        var lastMessage = state.lastMessage()
             .orElseThrow(() -> (new IllegalStateException("last message not found!")));
 
-    if (lastMessage instanceof AiMessage message) {
-        // If tools should be called
-        if (message.hasToolExecutionRequests()) return "next";
-    }
+        log.info("routeMessage:\n{}", lastMessage );
+        
+        if (lastMessage instanceof AiMessage message) {
+                // If tools should be called
+                if (message.hasToolExecutionRequests()) { 
+                        return "next";
+                }
+        }
 
-    // If no tools are called, we can finish (respond to the user)
-    return "exit";
+        // If no tools are called, we can finish (respond to the user)
+        return "exit";
 };
             
 // Invoke Tool
 NodeAction<MessagesState<ChatMessage>> invokeTool = state -> {
-    log.info("invokeTool:\n{}", state.messages());
 
     var lastMessage = state.lastMessage()
             .orElseThrow(() -> (new IllegalStateException("last message not found!")));
 
+    log.info("invokeTool:\n{}", lastMessage );
 
     if (lastMessage instanceof AiMessage lastAiMessage) {
 
@@ -254,61 +284,285 @@ for( var out : app.stream( Map.of( "messages", UserMessage.from( "what is the wh
   else {
     log.info( "{}", out );
   }
-
 }
 
 ```
 
     START 
-    CallModel:
-    [UserMessage { name = null contents = [TextContent { text = "what is the whether today?" }] }] 
-    MapResult: Response { content = AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }, tokenUsage = TokenUsage { inputTokenCount = 71, outputTokenCount = 16, totalTokenCount = 87 }, finishReason = TOOL_EXECUTION, metadata = {} } 
-    routeMessage:
-    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }] 
+    CallModel 
     NodeOutput{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "what is the whether today?" }] }]}} 
-    invokeTool:
-    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }] 
-    execute: execQuery 
-    NodeOutput{node=agent, state={messages=[AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }]}} 
-    CallModel:
-    [AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }, ToolExecutionResultMessage { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }] 
-    NodeOutput{node=tools, state={messages=[AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp", name = "execQuery", arguments = "{"query":"current weather"}" }] }, ToolExecutionResultMessage { id = "call_VSMGzPIUc51ZkdtXHsNK3Ekp" toolName = "execQuery" text = "Cold, with a low of 13 degrees" }]}} 
-    StreamingOutput{node=agent, chunk= } 
-    StreamingOutput{node=agent, chunk=The } 
+    StreamingOutput{node=agent, chunk=However } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= I } 
+    StreamingOutput{node=agent, chunk='m } 
+    StreamingOutput{node=agent, chunk= a } 
+    StreamingOutput{node=agent, chunk= large } 
+    StreamingOutput{node=agent, chunk= language } 
+    StreamingOutput{node=agent, chunk= model } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= I } 
+    StreamingOutput{node=agent, chunk= don } 
+    StreamingOutput{node=agent, chunk='t } 
+    StreamingOutput{node=agent, chunk= have } 
+    StreamingOutput{node=agent, chunk= real } 
+    StreamingOutput{node=agent, chunk=-time } 
+    StreamingOutput{node=agent, chunk= access } 
+    StreamingOutput{node=agent, chunk= to } 
     StreamingOutput{node=agent, chunk= current } 
     StreamingOutput{node=agent, chunk= weather } 
-    StreamingOutput{node=agent, chunk= is } 
-    StreamingOutput{node=agent, chunk= cold } 
-    StreamingOutput{node=agent, chunk=, } 
-    StreamingOutput{node=agent, chunk= with } 
-    StreamingOutput{node=agent, chunk= a } 
-    StreamingOutput{node=agent, chunk= low } 
-    StreamingOutput{node=agent, chunk= of } 
-    StreamingOutput{node=agent, chunk=  } 
-    StreamingOutput{node=agent, chunk=13 } 
-    StreamingOutput{node=agent, chunk= degrees } 
+    StreamingOutput{node=agent, chunk= conditions } 
     StreamingOutput{node=agent, chunk=. } 
-    StreamingOutput{node=agent, chunk= If } 
+    StreamingOutput{node=agent, chunk= But } 
+    StreamingOutput{node=agent, chunk= I } 
+    StreamingOutput{node=agent, chunk= can } 
+    StreamingOutput{node=agent, chunk= suggest } 
+    StreamingOutput{node=agent, chunk= some } 
+    StreamingOutput{node=agent, chunk= ways } 
+    StreamingOutput{node=agent, chunk= for } 
     StreamingOutput{node=agent, chunk= you } 
-    StreamingOutput{node=agent, chunk= need } 
-    StreamingOutput{node=agent, chunk= more } 
-    StreamingOutput{node=agent, chunk= specific } 
-    StreamingOutput{node=agent, chunk= information } 
-    StreamingOutput{node=agent, chunk= or } 
-    StreamingOutput{node=agent, chunk= details } 
-    StreamingOutput{node=agent, chunk= about } 
-    StreamingOutput{node=agent, chunk= a } 
-    StreamingOutput{node=agent, chunk= particular } 
-    StreamingOutput{node=agent, chunk= location } 
-    StreamingOutput{node=agent, chunk=, } 
-    StreamingOutput{node=agent, chunk= feel } 
-    StreamingOutput{node=agent, chunk= free } 
     StreamingOutput{node=agent, chunk= to } 
-    StreamingOutput{node=agent, chunk= ask } 
-    MapResult: Response { content = AiMessage { text = "The current weather is cold, with a low of 13 degrees. If you need more specific information or details about a particular location, feel free to ask!" toolExecutionRequests = null }, tokenUsage = TokenUsage { inputTokenCount = 93, outputTokenCount = 34, totalTokenCount = 127 }, finishReason = STOP, metadata = {} } 
-    routeMessage:
-    [AiMessage { text = "The current weather is cold, with a low of 13 degrees. If you need more specific information or details about a particular location, feel free to ask!" toolExecutionRequests = null }] 
+    StreamingOutput{node=agent, chunk= find } 
+    StreamingOutput{node=agent, chunk= out } 
+    StreamingOutput{node=agent, chunk= the } 
+    StreamingOutput{node=agent, chunk= weather } 
+    StreamingOutput{node=agent, chunk= in } 
+    StreamingOutput{node=agent, chunk= your } 
+    StreamingOutput{node=agent, chunk= area } 
+    StreamingOutput{node=agent, chunk=:
+    
+     } 
+    StreamingOutput{node=agent, chunk=1 } 
+    StreamingOutput{node=agent, chunk=. } 
+    StreamingOutput{node=agent, chunk= ** } 
+    StreamingOutput{node=agent, chunk=Check } 
+    StreamingOutput{node=agent, chunk= online } 
+    StreamingOutput{node=agent, chunk= weather } 
+    StreamingOutput{node=agent, chunk= websites } 
+    StreamingOutput{node=agent, chunk=**: } 
+    StreamingOutput{node=agent, chunk= You } 
+    StreamingOutput{node=agent, chunk= can } 
+    StreamingOutput{node=agent, chunk= visit } 
+    StreamingOutput{node=agent, chunk= websites } 
+    StreamingOutput{node=agent, chunk= like } 
+    StreamingOutput{node=agent, chunk= Acc } 
+    StreamingOutput{node=agent, chunk=u } 
+    StreamingOutput{node=agent, chunk=Weather } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= Weather } 
+    StreamingOutput{node=agent, chunk=.com } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= or } 
+    StreamingOutput{node=agent, chunk= the } 
+    StreamingOutput{node=agent, chunk= National } 
+    StreamingOutput{node=agent, chunk= Weather } 
+    StreamingOutput{node=agent, chunk= Service } 
+    StreamingOutput{node=agent, chunk= ( } 
+    StreamingOutput{node=agent, chunk=N } 
+    StreamingOutput{node=agent, chunk=WS } 
+    StreamingOutput{node=agent, chunk=) } 
+    StreamingOutput{node=agent, chunk= website } 
+    StreamingOutput{node=agent, chunk= to } 
+    StreamingOutput{node=agent, chunk= get } 
+    StreamingOutput{node=agent, chunk= the } 
+    StreamingOutput{node=agent, chunk= current } 
+    StreamingOutput{node=agent, chunk= weather } 
+    StreamingOutput{node=agent, chunk= conditions } 
+    StreamingOutput{node=agent, chunk= and } 
+    StreamingOutput{node=agent, chunk= forecast } 
+    StreamingOutput{node=agent, chunk=.
+     } 
+    StreamingOutput{node=agent, chunk=2 } 
+    StreamingOutput{node=agent, chunk=. } 
+    StreamingOutput{node=agent, chunk= ** } 
+    StreamingOutput{node=agent, chunk=Use } 
+    StreamingOutput{node=agent, chunk= a } 
+    StreamingOutput{node=agent, chunk= mobile } 
+    StreamingOutput{node=agent, chunk= app } 
+    StreamingOutput{node=agent, chunk=**: } 
+    StreamingOutput{node=agent, chunk= Download } 
+    StreamingOutput{node=agent, chunk= a } 
+    StreamingOutput{node=agent, chunk= weather } 
+    StreamingOutput{node=agent, chunk= app } 
+    StreamingOutput{node=agent, chunk= on } 
+    StreamingOutput{node=agent, chunk= your } 
+    StreamingOutput{node=agent, chunk= smartphone } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= such } 
+    StreamingOutput{node=agent, chunk= as } 
+    StreamingOutput{node=agent, chunk= Dark } 
+    StreamingOutput{node=agent, chunk= Sky } 
+    StreamingOutput{node=agent, chunk= or } 
+    StreamingOutput{node=agent, chunk= Weather } 
+    StreamingOutput{node=agent, chunk= Underground } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= which } 
+    StreamingOutput{node=agent, chunk= can } 
+    StreamingOutput{node=agent, chunk= provide } 
+    StreamingOutput{node=agent, chunk= you } 
+    StreamingOutput{node=agent, chunk= with } 
+    StreamingOutput{node=agent, chunk= real } 
+    StreamingOutput{node=agent, chunk=-time } 
+    StreamingOutput{node=agent, chunk= weather } 
+    StreamingOutput{node=agent, chunk= updates } 
+    StreamingOutput{node=agent, chunk=.
+     } 
+    StreamingOutput{node=agent, chunk=3 } 
+    StreamingOutput{node=agent, chunk=. } 
+    StreamingOutput{node=agent, chunk= ** } 
+    StreamingOutput{node=agent, chunk=Check } 
+    StreamingOutput{node=agent, chunk= social } 
+    StreamingOutput{node=agent, chunk= media } 
+    StreamingOutput{node=agent, chunk=**: } 
+    StreamingOutput{node=agent, chunk= Follow } 
+    StreamingOutput{node=agent, chunk= local } 
+    StreamingOutput{node=agent, chunk= news } 
+    StreamingOutput{node=agent, chunk= outlets } 
+    StreamingOutput{node=agent, chunk= or } 
+    StreamingOutput{node=agent, chunk= meteor } 
+    StreamingOutput{node=agent, chunk=ologists } 
+    StreamingOutput{node=agent, chunk= on } 
+    StreamingOutput{node=agent, chunk= social } 
+    StreamingOutput{node=agent, chunk= media } 
+    StreamingOutput{node=agent, chunk= platforms } 
+    StreamingOutput{node=agent, chunk= like } 
+    StreamingOutput{node=agent, chunk= Twitter } 
+    StreamingOutput{node=agent, chunk= or } 
+    StreamingOutput{node=agent, chunk= Facebook } 
+    StreamingOutput{node=agent, chunk= to } 
+    StreamingOutput{node=agent, chunk= get } 
+    StreamingOutput{node=agent, chunk= the } 
+    StreamingOutput{node=agent, chunk= latest } 
+    StreamingOutput{node=agent, chunk= weather } 
+    StreamingOutput{node=agent, chunk= updates } 
+    StreamingOutput{node=agent, chunk=.
+    
+     } 
+    StreamingOutput{node=agent, chunk=If } 
+    StreamingOutput{node=agent, chunk= you } 
+    StreamingOutput{node=agent, chunk='d } 
+    StreamingOutput{node=agent, chunk= like } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= I } 
+    StreamingOutput{node=agent, chunk= can } 
+    StreamingOutput{node=agent, chunk= also } 
+    StreamingOutput{node=agent, chunk= suggest } 
+    StreamingOutput{node=agent, chunk= some } 
+    StreamingOutput{node=agent, chunk= general } 
+    StreamingOutput{node=agent, chunk= questions } 
+    StreamingOutput{node=agent, chunk= about } 
+    StreamingOutput{node=agent, chunk= the } 
+    StreamingOutput{node=agent, chunk= weather } 
+    StreamingOutput{node=agent, chunk= that } 
+    StreamingOutput{node=agent, chunk= might } 
+    StreamingOutput{node=agent, chunk= help } 
+    StreamingOutput{node=agent, chunk= me } 
+    StreamingOutput{node=agent, chunk= provide } 
+    StreamingOutput{node=agent, chunk= more } 
+    StreamingOutput{node=agent, chunk= information } 
+    StreamingOutput{node=agent, chunk=:
+    
+     } 
+    StreamingOutput{node=agent, chunk=* } 
+    StreamingOutput{node=agent, chunk= What } 
+    StreamingOutput{node=agent, chunk= city } 
+    StreamingOutput{node=agent, chunk= or } 
+    StreamingOutput{node=agent, chunk= region } 
+    StreamingOutput{node=agent, chunk= are } 
+    StreamingOutput{node=agent, chunk= you } 
+    StreamingOutput{node=agent, chunk= interested } 
+    StreamingOutput{node=agent, chunk= in } 
+    StreamingOutput{node=agent, chunk=?
+     } 
+    StreamingOutput{node=agent, chunk=* } 
+    StreamingOutput{node=agent, chunk= Are } 
+    StreamingOutput{node=agent, chunk= you } 
+    StreamingOutput{node=agent, chunk= looking } 
+    StreamingOutput{node=agent, chunk= for } 
+    StreamingOutput{node=agent, chunk= a } 
+    StreamingOutput{node=agent, chunk= specific } 
+    StreamingOutput{node=agent, chunk= type } 
+    StreamingOutput{node=agent, chunk= of } 
+    StreamingOutput{node=agent, chunk= weather } 
+    StreamingOutput{node=agent, chunk= ( } 
+    StreamingOutput{node=agent, chunk=e } 
+    StreamingOutput{node=agent, chunk=.g } 
+    StreamingOutput{node=agent, chunk=., } 
+    StreamingOutput{node=agent, chunk= sunny } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= rainy } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= hot } 
+    StreamingOutput{node=agent, chunk=, } 
+    StreamingOutput{node=agent, chunk= cold } 
+    StreamingOutput{node=agent, chunk=)?
+     } 
+    StreamingOutput{node=agent, chunk=* } 
+    StreamingOutput{node=agent, chunk= Do } 
+    StreamingOutput{node=agent, chunk= you } 
+    StreamingOutput{node=agent, chunk= have } 
+    StreamingOutput{node=agent, chunk= any } 
+    StreamingOutput{node=agent, chunk= specific } 
+    StreamingOutput{node=agent, chunk= dates } 
+    StreamingOutput{node=agent, chunk= or } 
+    StreamingOutput{node=agent, chunk= times } 
+    StreamingOutput{node=agent, chunk= in } 
+    StreamingOutput{node=agent, chunk= mind } 
+    StreamingOutput{node=agent, chunk=?
+    
+     } 
+    StreamingOutput{node=agent, chunk=Let } 
+    StreamingOutput{node=agent, chunk= me } 
+    StreamingOutput{node=agent, chunk= know } 
+    StreamingOutput{node=agent, chunk= if } 
+    StreamingOutput{node=agent, chunk= there } 
+    StreamingOutput{node=agent, chunk='s } 
+    StreamingOutput{node=agent, chunk= anything } 
+    StreamingOutput{node=agent, chunk= else } 
+    StreamingOutput{node=agent, chunk= I } 
+    StreamingOutput{node=agent, chunk= can } 
+    StreamingOutput{node=agent, chunk= do } 
+    StreamingOutput{node=agent, chunk= to } 
+    StreamingOutput{node=agent, chunk= help } 
     StreamingOutput{node=agent, chunk=! } 
-    NodeOutput{node=agent, state={messages=[AiMessage { text = "The current weather is cold, with a low of 13 degrees. If you need more specific information or details about a particular location, feel free to ask!" toolExecutionRequests = null }]}} 
-    NodeOutput{node=__END__, state={messages=[AiMessage { text = "The current weather is cold, with a low of 13 degrees. If you need more specific information or details about a particular location, feel free to ask!" toolExecutionRequests = null }]}} 
+    routeMessage:
+    AiMessage { text = "However, I'm a large language model, I don't have real-time access to current weather conditions. But I can suggest some ways for you to find out the weather in your area:
+    
+    1. **Check online weather websites**: You can visit websites like AccuWeather, Weather.com, or the National Weather Service (NWS) website to get the current weather conditions and forecast.
+    2. **Use a mobile app**: Download a weather app on your smartphone, such as Dark Sky or Weather Underground, which can provide you with real-time weather updates.
+    3. **Check social media**: Follow local news outlets or meteorologists on social media platforms like Twitter or Facebook to get the latest weather updates.
+    
+    If you'd like, I can also suggest some general questions about the weather that might help me provide more information:
+    
+    * What city or region are you interested in?
+    * Are you looking for a specific type of weather (e.g., sunny, rainy, hot, cold)?
+    * Do you have any specific dates or times in mind?
+    
+    Let me know if there's anything else I can do to help!" toolExecutionRequests = null } 
+    StreamingOutput{node=agent, chunk= } 
+    NodeOutput{node=agent, state={messages=[AiMessage { text = "However, I'm a large language model, I don't have real-time access to current weather conditions. But I can suggest some ways for you to find out the weather in your area:
+    
+    1. **Check online weather websites**: You can visit websites like AccuWeather, Weather.com, or the National Weather Service (NWS) website to get the current weather conditions and forecast.
+    2. **Use a mobile app**: Download a weather app on your smartphone, such as Dark Sky or Weather Underground, which can provide you with real-time weather updates.
+    3. **Check social media**: Follow local news outlets or meteorologists on social media platforms like Twitter or Facebook to get the latest weather updates.
+    
+    If you'd like, I can also suggest some general questions about the weather that might help me provide more information:
+    
+    * What city or region are you interested in?
+    * Are you looking for a specific type of weather (e.g., sunny, rainy, hot, cold)?
+    * Do you have any specific dates or times in mind?
+    
+    Let me know if there's anything else I can do to help!" toolExecutionRequests = null }]}} 
+    NodeOutput{node=__END__, state={messages=[AiMessage { text = "However, I'm a large language model, I don't have real-time access to current weather conditions. But I can suggest some ways for you to find out the weather in your area:
+    
+    1. **Check online weather websites**: You can visit websites like AccuWeather, Weather.com, or the National Weather Service (NWS) website to get the current weather conditions and forecast.
+    2. **Use a mobile app**: Download a weather app on your smartphone, such as Dark Sky or Weather Underground, which can provide you with real-time weather updates.
+    3. **Check social media**: Follow local news outlets or meteorologists on social media platforms like Twitter or Facebook to get the latest weather updates.
+    
+    If you'd like, I can also suggest some general questions about the weather that might help me provide more information:
+    
+    * What city or region are you interested in?
+    * Are you looking for a specific type of weather (e.g., sunny, rainy, hot, cold)?
+    * Do you have any specific dates or times in mind?
+    
+    Let me know if there's anything else I can do to help!" toolExecutionRequests = null }]}} 
 
