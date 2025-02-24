@@ -266,4 +266,5 @@ return  app.stream( inputs );
 [Mermaid]: https://mermaid.js.org
 
 [releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
+[snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/
 
