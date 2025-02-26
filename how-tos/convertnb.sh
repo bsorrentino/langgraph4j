@@ -1,10 +1,12 @@
 #!/bin/bash
+
+# Activate the virtual environment
 source .venv/bin/activate
 
-# Loop through all Jupyter notebooks in the current directory
-for notebook in *.ipynb; do
-    # Convert the notebook to markdown
-    jupyter nbconvert --to markdown "$notebook" --output-dir=src/site/markdown
-done
+# Set the notebook argument, defaulting to all .ipynb files if not provided
+NB="${1:-*.ipynb}"
+
+# Convert the specified notebook(s) to markdown
+jupyter nbconvert --to markdown $NB --output-dir=src/site/markdown
 
 echo "Conversion complete!"
