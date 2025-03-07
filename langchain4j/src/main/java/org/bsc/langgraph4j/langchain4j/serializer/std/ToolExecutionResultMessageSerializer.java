@@ -1,7 +1,7 @@
 package org.bsc.langgraph4j.langchain4j.serializer.std;
 
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
-import org.bsc.langgraph4j.serializer.Serializer;
+import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -12,7 +12,7 @@ import java.io.ObjectOutput;
  * instances of ToolExecutionResultMessage. It implements the 
  * Serializer interface to provide custom serialization logic.
  */
-public class ToolExecutionResultMessageSerializer implements Serializer<ToolExecutionResultMessage> {
+public class ToolExecutionResultMessageSerializer implements NullableObjectSerializer<ToolExecutionResultMessage> {
 
     /**
      * Serializes the given ToolExecutionResultMessage object to the 
@@ -24,7 +24,7 @@ public class ToolExecutionResultMessageSerializer implements Serializer<ToolExec
      */
     @Override
     public void write(ToolExecutionResultMessage object, ObjectOutput out) throws IOException {
-        out.writeUTF( object.id() );
+        writeNullableUTF( object.id(), out );
         out.writeUTF( object.toolName() );
         out.writeUTF( object.text() );
     }
@@ -41,7 +41,7 @@ public class ToolExecutionResultMessageSerializer implements Serializer<ToolExec
      */
     @Override
     public ToolExecutionResultMessage read(ObjectInput in) throws IOException, ClassNotFoundException {
-        String id = in.readUTF();
+        String id = readNullableUTF( in ).orElse( null );
         String toolName = in.readUTF();
         String text = in.readUTF();
         return new ToolExecutionResultMessage( id, toolName, text );
