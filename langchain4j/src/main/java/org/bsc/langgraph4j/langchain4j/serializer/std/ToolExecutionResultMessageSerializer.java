@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.langchain4j.serializer.std;
 
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.ObjectOutput;
  * instances of ToolExecutionResultMessage. It implements the 
  * Serializer interface to provide custom serialization logic.
  */
+@Slf4j
 public class ToolExecutionResultMessageSerializer implements NullableObjectSerializer<ToolExecutionResultMessage> {
 
     /**
@@ -24,6 +26,9 @@ public class ToolExecutionResultMessageSerializer implements NullableObjectSeria
      */
     @Override
     public void write(ToolExecutionResultMessage object, ObjectOutput out) throws IOException {
+        if( object.id() == null ) {
+            log.warn( "ToolExecutionResultMessage id is null!" );
+        }
         writeNullableUTF( object.id(), out );
         out.writeUTF( object.toolName() );
         out.writeUTF( object.text() );

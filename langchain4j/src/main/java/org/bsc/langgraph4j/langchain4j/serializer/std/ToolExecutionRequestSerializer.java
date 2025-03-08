@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.langchain4j.serializer.std;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.ObjectOutput;
  * for the ToolExecutionRequest type. It provides methods to serialize and 
  * deserialize ToolExecutionRequest objects.
  */
+@Slf4j
 public class ToolExecutionRequestSerializer implements NullableObjectSerializer<ToolExecutionRequest> {
 
     /**
@@ -23,6 +25,9 @@ public class ToolExecutionRequestSerializer implements NullableObjectSerializer<
      */
     @Override
     public void write(ToolExecutionRequest object, ObjectOutput out) throws IOException {
+        if( object.id() == null ) {
+            log.warn( "ToolExecutionRequest id is null!" );
+        }
         writeNullableUTF(object.id(), out);
         out.writeUTF( object.name() );
         out.writeUTF( object.arguments() );
