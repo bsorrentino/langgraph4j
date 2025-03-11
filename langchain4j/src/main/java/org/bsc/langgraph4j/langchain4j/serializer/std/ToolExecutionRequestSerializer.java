@@ -1,7 +1,8 @@
 package org.bsc.langgraph4j.langchain4j.serializer.std;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
-import org.bsc.langgraph4j.serializer.Serializer;
+import lombok.extern.slf4j.Slf4j;
+import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -12,7 +13,8 @@ import java.io.ObjectOutput;
  * for the ToolExecutionRequest type. It provides methods to serialize and 
  * deserialize ToolExecutionRequest objects.
  */
-public class ToolExecutionRequestSerializer implements Serializer<ToolExecutionRequest> {
+@Slf4j
+public class ToolExecutionRequestSerializer implements NullableObjectSerializer<ToolExecutionRequest> {
 
     /**
      * Serializes the given ToolExecutionRequest object to the provided ObjectOutput.
@@ -23,7 +25,10 @@ public class ToolExecutionRequestSerializer implements Serializer<ToolExecutionR
      */
     @Override
     public void write(ToolExecutionRequest object, ObjectOutput out) throws IOException {
-        out.writeUTF( object.id() );
+        if( object.id() == null ) {
+            log.warn( "ToolExecutionRequest id is null!" );
+        }
+        writeNullableUTF(object.id(), out);
         out.writeUTF( object.name() );
         out.writeUTF( object.arguments() );
     }
@@ -39,7 +44,7 @@ public class ToolExecutionRequestSerializer implements Serializer<ToolExecutionR
     @Override
     public ToolExecutionRequest read(ObjectInput in) throws IOException, ClassNotFoundException {
         return ToolExecutionRequest.builder()
-                .id(in.readUTF())
+                .id( readNullableUTF(in).orElse(null) )
                 .name(in.readUTF())
                 .arguments(in.readUTF())
                 .build();

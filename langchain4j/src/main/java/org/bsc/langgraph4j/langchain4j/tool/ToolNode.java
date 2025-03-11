@@ -9,8 +9,6 @@ import dev.langchain4j.service.tool.ToolExecutor;
 import static dev.langchain4j.agent.tool.ToolSpecifications.toolSpecificationFrom;
 
 import lombok.NonNull;
-import lombok.Value;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -31,13 +29,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public final class ToolNode {
 
-    @Value(staticConstructor = "of")
-    @Accessors( fluent = true)
-    public static class Specification {
-        @NonNull
-        ToolSpecification value;
-        @NonNull
-        ToolExecutor executor;
+    public record Specification( ToolSpecification value, ToolExecutor executor)  {
+        public static Specification of( @NonNull ToolSpecification value, @NonNull ToolExecutor executor ) {
+            return new Specification( value, executor);
+        }
     }
 
     /**
