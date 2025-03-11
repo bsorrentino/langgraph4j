@@ -2,6 +2,78 @@
 
 
 
+<!-- "name: v1.4.2" is a release tag -->
+
+## [v1.4.2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.2) (2025-03-11)
+
+
+### Bug Fixes
+
+ -  **langchain4j/serializer**  handle nullable values in ToolExecutionRequest and ToolExecutionResultMessage serializers ([9b686e6281f9753](https://github.com/bsorrentino/langgraph4j/commit/9b686e6281f975330df84cf7c62ebb84b2461aae))
+     > This commit introduces a new interface &#x60;NullableObjectSerializer&#x60; that extends &#x60;Serializer&#x60; to handle nullable objects during serialization, adding logic to manage null id values
+     > resolve #93
+
+ -  **pom.xml**  update langgraph4j-parent version to 1.4.1 ([5687f029a816daf](https://github.com/bsorrentino/langgraph4j/commit/5687f029a816daf6436c2cb85bc40684aff65ae9))
+
+
+### Documentation
+
+ -  bump to 1.4.2 ([160d7fce9a93170](https://github.com/bsorrentino/langgraph4j/commit/160d7fce9a9317075147ed7428652e32085b8b32))
+
+ -  **notebook**  update head description ([38567a32037be34](https://github.com/bsorrentino/langgraph4j/commit/38567a32037be346282d21a7c486e64134dae755))
+
+ -  **how-tos**  update site documentation ([bbe80306994e7b1](https://github.com/bsorrentino/langgraph4j/commit/bbe80306994e7b1f59952db4a6470b264b276777))
+     > - update &#x27;multi-agent supervisor&#x27;
+
+ -  **how-tos**  update site documentation ([5c2d9ea0fb7a549](https://github.com/bsorrentino/langgraph4j/commit/5c2d9ea0fb7a549c73c4c473a560d6adab152457))
+     > - add &#x27;multi-agent supervisor&#x27;
+
+ -  **agent-executor**  update site ([262db50327700ec](https://github.com/bsorrentino/langgraph4j/commit/262db50327700ec0f33851897d222fa62b4f0ce0))
+     > - fix code sample
+
+ -  update readme.md ([1412671d5a78553](https://github.com/bsorrentino/langgraph4j/commit/1412671d5a78553bf9d8303df5d14f241a299ccd))
+     > fix snapshots link
+
+ -  List Quarkus under Studio & fix minor typo. ([f9de69a1b0193f6](https://github.com/bsorrentino/langgraph4j/commit/f9de69a1b0193f64b6f7f75d8d1fd9b07e5c0a87))
+     > merge PR #83
+
+ -  update changeme ([94b899d5abe2270](https://github.com/bsorrentino/langgraph4j/commit/94b899d5abe2270243401f11df8fd1f9d112764d))
+
+
+### Refactor
+
+ -  **tool/toolnode**  update implementation with record syntax ([279e38e3876edff](https://github.com/bsorrentino/langgraph4j/commit/279e38e3876edffd24451ce039ce747f86a09690))
+   
+ -  **serializer**  add logging for null ids in ToolExecutionRequestSerializer and ToolExecutionResultMessageSerializer ([27aa1d7cee4159e](https://github.com/bsorrentino/langgraph4j/commit/27aa1d7cee4159ec257939e492fe9b9af5086354))
+    > This refactoring adds logging to serialize methods in &#x60;ToolExecutionRequestSerializer&#x60; and &#x60;ToolExecutionResultMessageSerializer&#x60;. The logs will warn if the id is null, aiding in debugging potential issues where null ids are not handled gracefully.
+ > work on #93
+
+ -  **how-tos**  wait-user-input refinemnts ([3eb7b1544b9f880](https://github.com/bsorrentino/langgraph4j/commit/3eb7b1544b9f8804b035237ef0134a6b336cb692))
+    > - add conditional edges to handle user input
+ > resolve discussion #84
+
+ -  **notebook**  refine 'Multi-agent supervisor' implementation ([c9d9994548c47fd](https://github.com/bsorrentino/langgraph4j/commit/c9d9994548c47fd31dd1a3e0dd398c1aa41ca1c0))
+    > - use NodeAction rather than AsyncNodeAction
+
+
+### ALM 
+
+ -  bump to 1.4.2 ([34a94c6714ca996](https://github.com/bsorrentino/langgraph4j/commit/34a94c6714ca99667e91d7277c183d12890c216e))
+   
+ -  **langchain4jl**  upgrade Java compiler version to 17 ([a71ca59e9755e0a](https://github.com/bsorrentino/langgraph4j/commit/a71ca59e9755e0a1755bfeab4a2e84859d46c849))
+   
+ -  bump to SNAPSHOT ([7a6d489d230829b](https://github.com/bsorrentino/langgraph4j/commit/7a6d489d230829b926fc590628d91bb99ba3d1dd))
+   
+
+### Test 
+
+ -  add notebook for replicating the issue #93 ([2d0867fd5fc2e08](https://github.com/bsorrentino/langgraph4j/commit/2d0867fd5fc2e08c38eb5dc819657282f46fd45c))
+   
+
+
+
+
+
 <!-- "name: v1.4.1" is a release tag -->
 
 ## [v1.4.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.1) (2025-02-24)
