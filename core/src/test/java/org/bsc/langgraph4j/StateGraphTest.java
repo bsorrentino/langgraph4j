@@ -112,6 +112,34 @@ public class StateGraphTest {
 
     }
 
+    @Test
+    public void testRunningOneNodeOneRemoveByNull() throws Exception {
+
+        Map<String,Channel<?>> schema =  Map.of("prop1", Channel.of( null, null));
+
+        StateGraph<AgentState> workflow = new StateGraph<>(schema, AgentState::new)
+                .addEdge(START, "agent_1")
+                .addNode("agent_1", node_async(state -> {
+                    log.info("agent_1\n{}", state);
+
+                    return new HashMap<>() {{
+                        put( "prop1", null );
+                    }};
+
+                }))
+                .addEdge("agent_1", END);
+
+        CompiledGraph<AgentState> app = workflow.compile();
+
+        Optional<AgentState> result = app.invoke(Map.of("input", "test1", "prop1", "test"));
+        assertTrue(result.isPresent());
+
+        Map<String, String> expected = Map.of("input", "test1");
+
+        assertIterableEquals(sortMap(expected), sortMap(result.get().data()));
+        //assertDictionaryOfAnyEqual( expected, result.data )
+
+    }
 
     @Test
     void testWithAppender() throws Exception {
