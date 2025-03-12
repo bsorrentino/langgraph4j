@@ -243,7 +243,6 @@ public class StateGraph<State extends AgentState> {
         return this;
     }
 
-
     /**
      * Adds a subgraph to the state graph by creating a node with the specified identifier.
      * This implies that Subgraph share the same state with parent graph
@@ -253,7 +252,7 @@ public class StateGraph<State extends AgentState> {
      * @return this state graph instance
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
-    public StateGraph<State> addSubgraph(String id, CompiledGraph<State> subGraph) throws GraphStateException {
+    public StateGraph<State> addNode(String id, CompiledGraph<State> subGraph) throws GraphStateException {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
@@ -269,6 +268,22 @@ public class StateGraph<State extends AgentState> {
 
     }
 
+
+    /**
+     * Adds a subgraph to the state graph by creating a node with the specified identifier.
+     * This implies that Subgraph share the same state with parent graph
+     *
+     * @param id the identifier of the node representing the subgraph
+     * @param subGraph the compiled subgraph to be added
+     * @return this state graph instance
+     * @throws GraphStateException if the node identifier is invalid or the node already exists
+     * @Deprecated use {@code addNode( String, CompiledGraph<State> )} instead
+     */
+    @Deprecated
+    public StateGraph<State> addSubgraph(String id, CompiledGraph<State> subGraph) throws GraphStateException {
+        return addNode(id, subGraph);
+    }
+
     /**
      * Adds a subgraph to the state graph by creating a node with the specified identifier.
      * This implies that Subgraph share the same state with parent graph
@@ -278,7 +293,7 @@ public class StateGraph<State extends AgentState> {
      * @return this state graph instance
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
-    public StateGraph<State> addSubgraph(String id, StateGraph<State> subGraph) throws GraphStateException {
+    public StateGraph<State> addNode(String id, StateGraph<State> subGraph) throws GraphStateException {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
@@ -293,6 +308,20 @@ public class StateGraph<State extends AgentState> {
 
         nodes.elements.add(node);
         return this;
+    }
+
+    /**
+     * Adds a subgraph to the state graph by creating a node with the specified identifier.
+     * This implies that Subgraph share the same state with parent graph
+     *
+     * @param id the identifier of the node representing the subgraph
+     * @param subGraph the subgraph to be added. it will be compiled on compilation of the parent
+     * @return this state graph instance
+     * @throws GraphStateException if the node identifier is invalid or the node already exists
+     * @Deprecated use {@code add( String id, StateGraph<State> )} instead
+     */
+    public StateGraph<State> addSubgraph(String id, StateGraph<State> subGraph) throws GraphStateException {
+        return addNode( id, subGraph );
     }
 
     /**
