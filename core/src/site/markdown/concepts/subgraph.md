@@ -18,12 +18,12 @@ There are three ways to add subgraphs to a parent graph:
     this is useful when the parent graph and the subgraph are strictly relate one to other, sharing everithing.
     In particular the **subgraph is merged with its parent** creating a seamless integration.
     ```java
-    stateGraph.addSubgraph( "subgraph", workflowChild );
+    stateGraph.addNode( "subgraph", workflowChild );
     ```
 * add a node with the **compiled subgraph**: 
     this is useful when the parent graph and the subgraph share state. 
     ```java
-    stateGraph.addSubgraph( "subgraph", workflowChild.compile() );
+    stateGraph.addNode( "subgraph", workflowChild.compile() );
     ```
 * add a node with in a ndeo action (ie. [`AsyncNodeAction`][action] ) that invokes the subgraph: 
     this is useful when the parent graph and the subgraph have different state schemas and you need to transform state before or after calling the subgraph
