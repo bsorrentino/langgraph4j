@@ -58,7 +58,7 @@ public class SubGraphTest {
 
         var workflowParent = new MessagesStateGraph<String>()
                 .addNode("A", _makeNode("A") )
-                .addSubgraph("B",  workflowChild )
+                .addNode("B",  workflowChild )
                 .addNode("C", _makeNode("C") )
                 .addEdge(START, "A")
                 .addEdge("A", "B")
@@ -95,7 +95,7 @@ public class SubGraphTest {
 
         var workflowParent = new MessagesStateGraph<String>()
                 .addNode("A", _makeNode("A") )
-                .addSubgraph("B",  workflowChild )
+                .addNode("B",  workflowChild )
                 .addNode("C", _makeNode("C") )
                 .addConditionalEdges(START,
                         edge_async(state -> "a"),
@@ -146,7 +146,7 @@ public class SubGraphTest {
 
         var workflowParent = new MessagesStateGraph<String>()
                 .addNode("A", _makeNode("A") )
-                .addSubgraph("B",  workflowChild )
+                .addNode("B",  workflowChild )
                 .addNode("C", _makeNode("C") )
                 .addConditionalEdges(START,
                         edge_async(state -> "a"),
@@ -199,7 +199,7 @@ public class SubGraphTest {
 
         var workflowParent = new MessagesStateGraph<String>()
                 .addNode("A", _makeNode("A") )
-                .addSubgraph("B",  workflowChild )
+                .addNode("B",  workflowChild )
                 .addNode("C", _makeNode("C") )
                 .addConditionalEdges(START,
                         edge_async(state -> "a"),
@@ -342,7 +342,7 @@ public class SubGraphTest {
 
         var workflowParent = new MessagesStateGraph<String>()
                 .addNode("A", _makeNode("A") )
-                .addSubgraph("B",  workflowChild )
+                .addNode("B",  workflowChild )
                 .addNode("C", _makeNode("C") )
                 .addConditionalEdges(START,
                         edge_async(state -> "a"),
@@ -395,7 +395,7 @@ public class SubGraphTest {
 
         var workflowParent = new MessagesStateGraph<String>()
                 .addNode("A", _makeNode("A") )
-                .addSubgraph("B",  workflowChild )
+                .addNode("B",  workflowChild )
                 .addNode("C", _makeNode("C") )
                 .addNode("C1", _makeNode("C1") )
                 .addConditionalEdges(START,
@@ -552,7 +552,7 @@ public class SubGraphTest {
                 .addNode("step_1", _makeNode( "step1"))
                 .addNode("step_2", _makeNode("step2"))
                 .addNode("step_3",  _makeNode("step3"))
-                .addSubgraph("subgraph", workflowChild)
+                .addNode("subgraph", workflowChild)
                 .addEdge(START, "step_1")
                 .addEdge("step_1", "step_2")
                 .addEdge("step_2", "subgraph")
