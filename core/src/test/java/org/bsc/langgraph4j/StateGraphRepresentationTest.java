@@ -5,6 +5,7 @@ import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.prebuilt.MessagesStateGraph;
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.utils.EdgeMappings;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class StateGraphRepresentationTest {
 
     CompletableFuture<Map<String, Object>> dummyNodeAction(AgentState state) {
-        return CompletableFuture.completedFuture(mapOf());
+        return CompletableFuture.completedFuture(Map.of());
     }
 
     CompletableFuture<String> dummyCondition(AgentState state) {
@@ -41,7 +42,7 @@ public class StateGraphRepresentationTest {
         CompiledGraph<AgentState> app = workflow.compile();
 
         GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
-        assertEquals(GraphRepresentation.Type.PLANTUML, result.getType());
+        assertEquals(GraphRepresentation.Type.PLANTUML, result.type());
 
         assertEquals("""
                 @startuml Graph_Diagram
@@ -64,7 +65,7 @@ public class StateGraphRepresentationTest {
                 "agent_1" -down-> "agent_3"
                 "agent_3" -down-> "agent_2"
                 @enduml
-                """, result.getContent());
+                """, result.content());
 
         // System.out.println( result.getContent() );
     }
@@ -72,52 +73,53 @@ public class StateGraphRepresentationTest {
     @Test
     public void testCorrectionProcessGraph() throws Exception {
 
-        StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
+        var workflow = new StateGraph<>(AgentState::new)
                 .addNode("evaluate_result", this::dummyNodeAction)
                 .addNode("agent_review", this::dummyNodeAction)
                 .addEdge("agent_review", "evaluate_result")
                 .addConditionalEdges(
                         "evaluate_result",
                         this::dummyCondition,
-                        mapOf("OK", END,
-                                "ERROR", "agent_review",
-                                "UNKNOWN", END)
+                        EdgeMappings.builder()
+                                .toEND("OK")
+                                .toEND("UNKNOWN")
+                                .to("agent_review", "ERROR" )
+                                .build()
                 )
                 .addEdge(START, "evaluate_result");
 
-        CompiledGraph<AgentState> app = workflow.compile();
+        var result = workflow.getGraph(GraphRepresentation.Type.PLANTUML, "Correction process");
 
-        GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
-        assertEquals(GraphRepresentation.Type.PLANTUML, result.getType());
+        assertEquals(GraphRepresentation.Type.PLANTUML, result.type());
 
         assertEquals("""
-                        @startuml Graph_Diagram
-                        skinparam usecaseFontSize 14
-                        skinparam usecaseStereotypeFontSize 12
-                        skinparam hexagonFontSize 14
-                        skinparam hexagonStereotypeFontSize 12
-                        title "Graph Diagram"
-                        footer
-                        
-                        powered by langgraph4j
-                        end footer
-                        circle start<<input>> as __START__
-                        circle stop as __END__
-                        usecase "evaluate_result"<<Node>>
-                        usecase "agent_review"<<Node>>
-                        hexagon "check state" as condition1<<Condition>>
-                        "__START__" -down-> "evaluate_result"
-                        "agent_review" -down-> "evaluate_result"
-                        "evaluate_result" .down.> "condition1"
-                        "condition1" .down.> "agent_review": "ERROR"
-                        '"evaluate_result" .down.> "agent_review": "ERROR"
-                        "condition1" .down.> "__END__": "UNKNOWN"
-                        '"evaluate_result" .down.> "__END__": "UNKNOWN"
-                        "condition1" .down.> "__END__": "OK"
-                        '"evaluate_result" .down.> "__END__": "OK"
-                        @enduml
+                       @startuml Correction_process
+                       skinparam usecaseFontSize 14
+                       skinparam usecaseStereotypeFontSize 12
+                       skinparam hexagonFontSize 14
+                       skinparam hexagonStereotypeFontSize 12
+                       title "Correction process"
+                       footer
+                
+                       powered by langgraph4j
+                       end footer
+                       circle start<<input>> as __START__
+                       circle stop as __END__
+                       usecase "evaluate_result"<<Node>>
+                       usecase "agent_review"<<Node>>
+                       hexagon "check state" as condition1<<Condition>>
+                       "__START__" -down-> "evaluate_result"
+                       "agent_review" -down-> "evaluate_result"
+                       "evaluate_result" .down.> "condition1"
+                       "condition1" .down.> "__END__": "OK"
+                       '"evaluate_result" .down.> "__END__": "OK"
+                       "condition1" .down.> "__END__": "UNKNOWN"
+                       '"evaluate_result" .down.> "__END__": "UNKNOWN"
+                       "condition1" .down.> "agent_review": "ERROR"
+                       '"evaluate_result" .down.> "agent_review": "ERROR"
+                       @enduml
                         """,
-                result.getContent());
+                result.content());
 
         // System.out.println( result.getContent() );
 
@@ -133,14 +135,16 @@ public class StateGraphRepresentationTest {
                 .addConditionalEdges(
                         "agent",
                         this::dummyCondition,
-                        mapOf("continue", "action", "end", END)
-                )
+                        EdgeMappings.builder()
+                                .to("action", "continue")
+                                .toEND( "end" )
+                                .build())
                 .addEdge("action", "agent");
 
         CompiledGraph<AgentState> app = workflow.compile();
 
         GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
-        assertEquals(GraphRepresentation.Type.PLANTUML, result.getType());
+        assertEquals(GraphRepresentation.Type.PLANTUML, result.type());
 
         assertEquals("""
                         @startuml Graph_Diagram
@@ -167,7 +171,7 @@ public class StateGraphRepresentationTest {
                         "action" -down-> "agent"
                         @enduml
                         """,
-                result.getContent());
+                result.content());
 
         // System.out.println( result.getContent() );
     }
@@ -181,9 +185,10 @@ public class StateGraphRepresentationTest {
                 .addConditionalEdges(
                         "agent_describer",
                         this::dummyCondition,
-                        mapOf("sequence", "agent_sequence_plantuml",
-                                "generic", "agent_generic_plantuml")
-                )
+                        EdgeMappings.builder()
+                                .to( "agent_generic_plantuml", "generic" )
+                                .to( "agent_sequence_plantuml", "sequence" )
+                                .build())
                 .addNode("evaluate_result", this::dummyNodeAction)
                 .addEdge("agent_sequence_plantuml", "evaluate_result")
                 .addEdge("agent_generic_plantuml", "evaluate_result")
@@ -193,7 +198,7 @@ public class StateGraphRepresentationTest {
         CompiledGraph<AgentState> app = workflow.compile();
 
         GraphRepresentation result = app.getGraph(GraphRepresentation.Type.PLANTUML);
-        assertEquals(GraphRepresentation.Type.PLANTUML, result.getType());
+        assertEquals(GraphRepresentation.Type.PLANTUML, result.type());
 
         assertEquals("""
                         @startuml Graph_Diagram
@@ -215,51 +220,50 @@ public class StateGraphRepresentationTest {
                         hexagon "check state" as condition1<<Condition>>
                         "__START__" -down-> "agent_describer"
                         "agent_describer" .down.> "condition1"
-                        "condition1" .down.> "agent_sequence_plantuml": "sequence"
-                        '"agent_describer" .down.> "agent_sequence_plantuml": "sequence"
                         "condition1" .down.> "agent_generic_plantuml": "generic"
                         '"agent_describer" .down.> "agent_generic_plantuml": "generic"
+                        "condition1" .down.> "agent_sequence_plantuml": "sequence"
+                        '"agent_describer" .down.> "agent_sequence_plantuml": "sequence"
                         "agent_sequence_plantuml" -down-> "evaluate_result"
                         "agent_generic_plantuml" -down-> "evaluate_result"
                         "evaluate_result" -down-> "__END__"
                         @enduml
                         """,
-                result.getContent());
+                result.content());
 
         result = app.getGraph(GraphRepresentation.Type.MERMAID, "Graph Diagram", false);
-        assertEquals(GraphRepresentation.Type.MERMAID, result.getType());
+        assertEquals(GraphRepresentation.Type.MERMAID, result.type());
 
         assertEquals("""
----
-title: Graph Diagram
----
-flowchart TD
-	__START__((start))
-	__END__((stop))
-	agent_describer("agent_describer")
-	agent_sequence_plantuml("agent_sequence_plantuml")
-	agent_generic_plantuml("agent_generic_plantuml")
-	evaluate_result("evaluate_result")
-	%%	condition1{"check state"}
-	__START__:::__START__ --> agent_describer:::agent_describer
-	%%	agent_describer:::agent_describer -.-> condition1:::condition1
-	%%	condition1:::condition1 -.->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
-	agent_describer:::agent_describer -.->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
-	%%	condition1:::condition1 -.->|generic| agent_generic_plantuml:::agent_generic_plantuml
-	agent_describer:::agent_describer -.->|generic| agent_generic_plantuml:::agent_generic_plantuml
-	agent_sequence_plantuml:::agent_sequence_plantuml --> evaluate_result:::evaluate_result
-	agent_generic_plantuml:::agent_generic_plantuml --> evaluate_result:::evaluate_result
-	evaluate_result:::evaluate_result --> __END__:::__END__
-
-	classDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;
-	classDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;
-                            """, result.getContent() );
+                ---
+                title: Graph Diagram
+                ---
+                flowchart TD
+                \t__START__((start))
+                \t__END__((stop))
+                \tagent_describer("agent_describer")
+                \tagent_sequence_plantuml("agent_sequence_plantuml")
+                \tagent_generic_plantuml("agent_generic_plantuml")
+                \tevaluate_result("evaluate_result")
+                \t%%	condition1{"check state"}
+                \t__START__:::__START__ --> agent_describer:::agent_describer
+                \t%%	agent_describer:::agent_describer -.-> condition1:::condition1
+                \t%%	condition1:::condition1 -.->|generic| agent_generic_plantuml:::agent_generic_plantuml
+                \tagent_describer:::agent_describer -.->|generic| agent_generic_plantuml:::agent_generic_plantuml
+                \t%%	condition1:::condition1 -.->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
+                \tagent_describer:::agent_describer -.->|sequence| agent_sequence_plantuml:::agent_sequence_plantuml
+                \tagent_sequence_plantuml:::agent_sequence_plantuml --> evaluate_result:::evaluate_result
+                \tagent_generic_plantuml:::agent_generic_plantuml --> evaluate_result:::evaluate_result
+                \tevaluate_result:::evaluate_result --> __END__:::__END__
+                
+                \tclassDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;
+                \tclassDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;
+                """,
+                result.content() );
     }
 
     private  AsyncNodeAction<MessagesState<String>> makeNode(String id ) {
-        return node_async(state -> {
-            return Map.of("messages", id);
-        });
+        return node_async(state -> Map.of("messages", id) );
     }
 
     @Test
@@ -314,7 +318,7 @@ flowchart TD
                 "B" -down-> "C"
                 "C" -down-> "__END__"
                 @enduml
-                """, result.getContent());
+                """, result.content());
 
         result = workflow.getGraph(GraphRepresentation.Type.MERMAID, "testWithParallelBranch", false);
 
@@ -343,7 +347,7 @@ flowchart TD
                 
                 	classDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;
                 	classDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;
-                """, result.getContent());
+                """, result.content());
     }
 
     @Test
@@ -393,10 +397,10 @@ usecase "C"<<Node>>
 "B" -down-> "C"
 "C" -down-> "__END__"
 @enduml
-                """, result.getContent());
+                """, result.content());
 
         result = workflow.getGraph(GraphRepresentation.Type.MERMAID, "testWithParallelBranchOnStart", false);
-        System.out.println( result.getContent() );
+        System.out.println( result.content() );
         assertEquals("""
 ---
 title: testWithParallelBranchOnStart
@@ -420,7 +424,7 @@ flowchart TD
 
 	classDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;
 	classDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;
-                """, result.getContent());
+                """, result.content());
     }
 
 }
