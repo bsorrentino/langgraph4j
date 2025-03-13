@@ -86,7 +86,7 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 //.addNode( "evaluate_result", evaluateResult )
                 .addConditionalEdges("agent_describer",
                         routeDiagramTranslation,
-                        mapOf( "sequence", "agent_sequence_plantuml",
+                        Map.of( "sequence", "agent_sequence_plantuml",
                                 "generic", "agent_generic_plantuml" )
                 )
                 //.addEdge("agent_sequence_plantuml", "evaluate_result")
@@ -116,10 +116,10 @@ public class ImageToDiagramProcess implements ImageToDiagram {
                 .addNode("agent_describer", describeDiagramImage  )
                 .addNode("agent_sequence_plantuml", translateSequenceDiagramToPlantUML )
                 .addNode("agent_generic_plantuml", translateGenericDiagramToPlantUML )
-                .addSubgraph( "evaluate_result", diagramCorrectionProcess )
+                .addNode( "evaluate_result", diagramCorrectionProcess )
                 .addConditionalEdges("agent_describer",
                         routeDiagramTranslation,
-                        mapOf( "sequence", "agent_sequence_plantuml",
+                        Map.of( "sequence", "agent_sequence_plantuml",
                                 "generic", "agent_generic_plantuml" )
                 )
                 .addEdge("agent_sequence_plantuml", "evaluate_result")

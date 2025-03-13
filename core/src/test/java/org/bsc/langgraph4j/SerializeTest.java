@@ -16,7 +16,6 @@ import java.io.*;
 import java.util.*;
 
 import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SerializeTest {
@@ -62,14 +61,15 @@ public class SerializeTest {
                 return new ValueWithNull( readNullableUTF(in).orElse(null) );
             }
         } );
-        AgentState state = stateSerializer.stateOf(mapOf(
-            "a", "b",
-            "f", null,
-            "c", 100,
-            "e", new ValueWithNull(null),
-            "list", listOf("aa", null , "cc", 200)
 
-        ));
+        AgentState state = stateSerializer.stateOf( new HashMap<>() {{
+                put("a", "b");
+                put("f", null);
+                put("c", 100);
+                put("e", new ValueWithNull(null));
+                put("list", listOf("aa", null, "cc", 200) );
+            }}
+        );
 
         byte[] bytes = serializeState( state );
 
@@ -108,7 +108,7 @@ public class SerializeTest {
     @Test
     public void partiallySerializeStateTest() throws Exception {
 
-        AgentState state = stateSerializer.stateOf(mapOf(
+        AgentState state = stateSerializer.stateOf(Map.of(
             "a", "b",
             "f", new NonSerializableElement("I'M NOT SERIALIZABLE") ,
             "c", "d"
@@ -136,7 +136,7 @@ public class SerializeTest {
             }
         });
 
-        AgentState state = stateSerializer.stateOf(mapOf(
+        AgentState state = stateSerializer.stateOf(Map.of(
             "a", "b",
             "x", new NonSerializableElement("I'M NOT SERIALIZABLE") ,
             "f", "H",

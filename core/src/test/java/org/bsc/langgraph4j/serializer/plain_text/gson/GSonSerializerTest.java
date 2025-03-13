@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GSonSerializerTest {
@@ -26,7 +25,7 @@ public class GSonSerializerTest {
     @Test
     public void serializeWithTypeInferenceTest() throws IOException, ClassNotFoundException {
 
-        State state = new State( mapOf( "prop1", "value1") );
+        State state = new State( Map.of( "prop1", "value1") );
 
         GsonStateSerializer<State> serializer = new GsonStateSerializer<State>(State::new) {};
 

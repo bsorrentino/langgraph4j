@@ -8,7 +8,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
+import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -36,7 +36,7 @@ public class PromptTest {
         assertNotNull(template);
 
         Prompt systemMessage = PromptTemplate.from( template )
-                .apply( mapOf( "format_instructions", "{ schema: true }"));
+                .apply( Map.of( "format_instructions", "{ schema: true }"));
 
         assertNotNull(systemMessage);
         String result = "describe the diagram in the image step by step so we can translate it into diagram-as-code syntax. \n" +

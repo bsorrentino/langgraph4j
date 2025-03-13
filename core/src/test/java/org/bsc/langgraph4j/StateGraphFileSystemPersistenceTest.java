@@ -49,7 +49,7 @@ public class StateGraphFileSystemPersistenceTest
                 .addNode("agent_1", node_async( state -> {
                     int steps = state.steps() + 1;
                     log.info( "agent_1: step: {}", steps );
-                    return mapOf("steps", steps, "messages", format( "agent_1:step %d", steps ));
+                    return Map.of("steps", steps, "messages", format( "agent_1:step %d", steps ));
                 }))
                 .addConditionalEdges( "agent_1", edge_async( state -> {
                     int steps = state.steps();
@@ -57,7 +57,7 @@ public class StateGraphFileSystemPersistenceTest
                         return "exit";
                     }
                     return "next";
-                }), mapOf( "next", "agent_1", "exit", END) );
+                }), Map.of( "next", "agent_1", "exit", END) );
 
         FileSystemSaver saver = new FileSystemSaver(    Paths.get( rootPath, "testCheckpointSaverResubmit" ),
                                                         workflow.getStateSerializer() );
@@ -80,7 +80,7 @@ public class StateGraphFileSystemPersistenceTest
 
             for (int execution = 0; execution < 2; execution++) {
 
-                Optional<State> state = app.invoke( mapOf(), runnableConfig_1);
+                Optional<State> state = app.invoke( Map.of(), runnableConfig_1);
 
                 assertTrue(state.isPresent());
                 assertEquals(expectedSteps + (execution * 2), state.get().steps());
@@ -113,7 +113,7 @@ public class StateGraphFileSystemPersistenceTest
                 assertEquals(expectedSteps + execution, messages.size());
 
                 // RE-SUBMIT THREAD 1
-                state = app.invoke(mapOf(), runnableConfig_1);
+                state = app.invoke(Map.of(), runnableConfig_1);
 
                 assertTrue(state.isPresent());
                 assertEquals(expectedSteps + 1 + execution * 2, state.get().steps());

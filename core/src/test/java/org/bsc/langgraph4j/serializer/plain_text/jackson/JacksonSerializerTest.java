@@ -20,7 +20,7 @@ public class JacksonSerializerTest {
          * needed for Jackson deserialization unless use a custom deserializer
          */
         protected State() {
-            super( mapOf() );
+            super( Map.of() );
         }
 
         /**
@@ -36,7 +36,7 @@ public class JacksonSerializerTest {
     @Test
     public void serializeWithTypeInferenceTest() throws IOException, ClassNotFoundException {
 
-        State state = new State( mapOf( "prop1", "value1") );
+        State state = new State( Map.of( "prop1", "value1") );
 
         JacksonStateSerializer<State> serializer = new JacksonStateSerializer<State>(State::new) {};
 

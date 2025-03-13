@@ -27,7 +27,7 @@ public interface ImageToDiagram {
      * Represents the state of an agent, specifically tailored for managing diagram-related data and processes.
      */
     class State extends AgentState {
-        static Map<String, Channel<?>> SCHEMA = mapOf(
+        static Map<String, Channel<?>> SCHEMA = Map.of(
                 "diagramCode", AppenderChannel.<String>of(ArrayList::new)
         );
 

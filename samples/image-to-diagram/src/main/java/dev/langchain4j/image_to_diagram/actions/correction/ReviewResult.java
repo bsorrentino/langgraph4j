@@ -81,7 +81,7 @@ public class ReviewResult implements AsyncNodeAction<ImageToDiagram.State> {
             /**
              * Completes the future with the review result as a Map.
              */
-            future.complete(mapOf("diagramCode", result));
+            future.complete(Map.of("diagramCode", result));
 
         } catch (Exception e) {
             /**

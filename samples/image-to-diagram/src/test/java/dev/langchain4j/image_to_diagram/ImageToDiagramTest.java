@@ -94,7 +94,7 @@ public class ImageToDiagramTest {
 
         String template = readTextResource( "describe_diagram_image.txt" );
 
-        dev.langchain4j.model.input.Prompt systemPrompt = PromptTemplate.from(template).apply( mapOf());
+        dev.langchain4j.model.input.Prompt systemPrompt = PromptTemplate.from(template).apply( Map.of());
 
         String imageData = ImageLoader.loadImageAsBase64( "supervisor-diagram.png" );
 

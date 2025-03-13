@@ -54,7 +54,7 @@ public class DiagramCorrectionProcess implements ImageToDiagram {
                 .addEdge("agent_review", "evaluate_result")
                 .addConditionalEdges("evaluate_result",
                         routeEvaluationResult,
-                        mapOf(
+                        Map.of(
                                 "OK", END,
                                 "ERROR", "agent_review",
                                 "UNKNOWN", END
