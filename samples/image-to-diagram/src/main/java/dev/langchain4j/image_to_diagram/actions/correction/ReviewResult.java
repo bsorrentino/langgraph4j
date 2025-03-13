@@ -2,9 +2,9 @@ package dev.langchain4j.image_to_diagram.actions.correction;
 
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
+import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 
@@ -13,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 
 import static dev.langchain4j.image_to_diagram.ImageToDiagram.loadPromptTemplate;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 /**
  * The ReviewResult class implements the AsyncNodeAction interface for processing ImageToDiagram.State objects.
@@ -47,45 +46,46 @@ public class ReviewResult implements AsyncNodeAction<ImageToDiagram.State> {
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
 
-            /**
-             * Retrieves the diagram code from the state or throws an IllegalArgumentException if not available.
+            /*
+              Retrieves the diagram code from the state or throws an IllegalArgumentException if not available.
              */
             String diagramCode = last(state.diagramCode())
                     .orElseThrow(() -> new IllegalArgumentException("no diagram code provided!"));
 
-            /**
-             * Retrieves the evaluation error from the state or throws an IllegalArgumentException if not available.
+            /*
+              Retrieves the evaluation error from the state or throws an IllegalArgumentException if not available.
              */
             String error = state.evaluationError()
                     .orElseThrow(() -> new IllegalArgumentException("no evaluation error provided!"));
 
             log.trace("evaluation error: {}", error);
 
-            /**
-             * Loads a prompt template and applies it with the given values for diagram code and error message.
+            /*
+              Loads a prompt template and applies it with the given values for diagram code and error message.
              */
             Prompt systemPrompt = loadPromptTemplate("review_diagram.txt")
                     .apply(Map.of("evaluationError", error, "diagramCode", diagramCode));
 
-            /**
-             * Uses the language model to generate a response based on the system prompt.
+            /*
+              Uses the language model to generate a response based on the system prompt.
              */
-            dev.langchain4j.model.output.Response<dev.langchain4j.data.message.AiMessage> response = model.generate(
-                    new SystemMessage(systemPrompt.text())
-            );
+            var request = ChatRequest.builder()
+                    .messages( SystemMessage.from( systemPrompt.text() ))
+                    .build();
+            var response = model.chat(request);
 
-            String result = response.content().text();
+            String result = response.aiMessage().text();
 
             log.trace("review result: {}", result);
 
-            /**
-             * Completes the future with the review result as a Map.
+            /*
+              Completes the future with the review result as a Map.
              */
             future.complete(Map.of("diagramCode", result));
 
         } catch (Exception e) {
-            /**
-             * If any exception occurs, completes the future exceptionally.
+            /*
+              If any exception occurs, completes the future exceptionally.
              */
             future.completeExceptionally(e);
         }

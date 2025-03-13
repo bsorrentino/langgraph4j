@@ -17,7 +17,6 @@ import java.util.*;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 /**
  * Class for processing images to generate diagrams.

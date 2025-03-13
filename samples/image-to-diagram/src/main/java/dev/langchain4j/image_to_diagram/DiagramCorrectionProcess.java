@@ -6,9 +6,7 @@ import dev.langchain4j.image_to_diagram.actions.correction.RouteEvaluationResult
 import dev.langchain4j.image_to_diagram.serializer.gson.JSONStateSerializer;
 import lombok.extern.slf4j.Slf4j;
 
-import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.StateGraph;
-import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.serializer.StateSerializer;
@@ -18,7 +16,6 @@ import java.util.Map;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 /**
  * Represents the process for correcting diagrams from images using asynchronous node and edge actions.

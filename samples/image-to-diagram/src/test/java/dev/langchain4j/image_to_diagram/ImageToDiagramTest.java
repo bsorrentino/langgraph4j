@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dev.langchain4j.DotEnvConfig;
 import dev.langchain4j.data.message.*;
 import dev.langchain4j.image_to_diagram.state.Diagram;
+import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.input.PromptTemplate;
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,11 +111,14 @@ public class ImageToDiagramTest {
 
         var imageToDiagram = new ImageToDiagram() {};
 
-        var response = imageToDiagram.getVisionModel().generate( message );
+        var request = ChatRequest.builder()
+                .messages( message )
+                .build();
+        var response = imageToDiagram.getVisionModel().chat(request );
 
         var outputParser = new DiagramOutputParser();
 
-        String text = response.content().text();
+        String text = response.aiMessage().text();
 
         assertNotNull( text );
 
@@ -219,7 +223,7 @@ public class ImageToDiagramTest {
 
         assertNotNull(plantUml);
         var expected_workflow = readTextResource("01_expected_plantuml.txt");
-        assertEquals( expected_workflow, plantUml.getContent() );
+        assertEquals( expected_workflow, plantUml.content() );
 
         var plantUmlWithCorrection = agentExecutor.workflowWithCorrection()
                             .getGraph( GraphRepresentation.Type.PLANTUML,
@@ -237,7 +241,7 @@ public class ImageToDiagramTest {
 
         assertNotNull(mermaid);
         expected_workflow = readTextResource("01_expected_mermaid.txt");
-        assertEquals( expected_workflow, mermaid.getContent() );
+        assertEquals( expected_workflow, mermaid.content() );
 
         var mermaidWithCorrection = agentExecutor.workflowWithCorrection()
                 .getGraph( GraphRepresentation.Type.MERMAID,
