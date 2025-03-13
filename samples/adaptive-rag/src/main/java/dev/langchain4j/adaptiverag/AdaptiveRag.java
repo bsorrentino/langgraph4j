@@ -182,7 +182,7 @@ public class AdaptiveRag {
                             .map( content -> content.textSegment().text() )
                             .collect(Collectors.joining("\n"));
 
-        return Map.of( "documents", listOf( webResult ) );
+        return Map.of( "documents", List.of( webResult ) );
     }
 
     /**

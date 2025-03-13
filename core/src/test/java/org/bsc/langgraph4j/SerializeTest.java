@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.util.*;
 
-import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SerializeTest {
@@ -67,7 +66,7 @@ public class SerializeTest {
                 put("f", null);
                 put("c", 100);
                 put("e", new ValueWithNull(null));
-                put("list", listOf("aa", null, "cc", 200) );
+                put("list", new ArrayList<>() {{ add("aa"); add(null); add("cc"); add(200); }} );
             }}
         );
 

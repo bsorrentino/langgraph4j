@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncTest {
@@ -46,7 +45,7 @@ public class AsyncTest {
         System.out.println( "Finished");
 
         assertEquals(myArray.length, result.size() );
-        assertIterableEquals( listOf(myArray), result );
+        assertIterableEquals( List.of(myArray), result );
     }
     @Test
     public void asyncQueueTest() throws Exception {
@@ -65,7 +64,7 @@ public class AsyncTest {
 
 
         assertEquals( 10, result.size());
-        assertIterableEquals(listOf("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"), result);
+        assertIterableEquals(List.of("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"), result);
 
     }
 
