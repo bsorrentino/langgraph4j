@@ -5,12 +5,15 @@ import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
+import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ChatMesssageSerializer;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionRequestSerializer;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
@@ -104,19 +107,23 @@ public class StreamingTest {
         NodeAction<MessageState> callModel = state -> {
             log.info("CallModel:\n{}", state.messages());
 
-            var generator = LLMStreamingGenerator.<AiMessage, MessageState>builder()
+            var generator = StreamingChatGenerator.builder()
                     .mapResult(response -> {
                         log.info("MapResult: {}", response);
-                        return Map.of("messages", response.content());
+                        return Map.of("messages", response.aiMessage());
                     })
                     .startingNode("agent")
                     .startingState(state)
                     .build();
 
-            model.generate(
-                    state.messages(),
-                    tools.toolSpecifications(),
-                    generator.handler());
+            var params = ChatRequestParameters.builder()
+                    .toolSpecifications( tools.toolSpecifications() )
+                    .build();
+            var request = ChatRequest.builder()
+                    .parameters( params )
+                    .messages( state.messages() )
+                    .build();
+            model.chat(request, generator.handler() );
 
             return Map.of("messages", generator);
         };

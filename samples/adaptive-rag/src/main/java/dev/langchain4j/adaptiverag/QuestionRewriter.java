@@ -7,8 +7,9 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import lombok.Value;
 import java.time.Duration;
+import java.util.Map;
 import java.util.function.Function;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
+
 /**
  * This class implements a {@link Function} to rewrite questions for better vectorstore retrieval.
  * It uses an AI language model to rephrase input questions based on semantic intent and meaning.
@@ -69,7 +70,7 @@ public class QuestionRewriter implements Function<String, String> {
 
         PromptTemplate template = PromptTemplate.from("Here is the initial question: \n\n {{question}} \n Formulate an improved question.");
 
-        Prompt prompt = template.apply( mapOf( "question", question ) );
+        Prompt prompt = template.apply( Map.of( "question", question ) );
 
         return service.invoke( prompt.text() );
     }

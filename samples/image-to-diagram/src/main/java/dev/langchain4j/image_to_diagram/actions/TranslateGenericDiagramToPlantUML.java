@@ -1,9 +1,9 @@
 package dev.langchain4j.image_to_diagram.actions;
 
-import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
+import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.NonNull;
 import org.bsc.langgraph4j.action.NodeAction;
@@ -43,12 +43,15 @@ public class TranslateGenericDiagramToPlantUML implements NodeAction<ImageToDiag
         Diagram.Element diagram = state.diagram()
                 .orElseThrow(() -> new IllegalArgumentException("no diagram provided!"));
 
-        dev.langchain4j.model.input.Prompt systemPrompt = ImageToDiagram.loadPromptTemplate( "convert_generic_diagram_to_plantuml.txt" )
+        var systemPrompt = ImageToDiagram.loadPromptTemplate( "convert_generic_diagram_to_plantuml.txt" )
                 .apply( Map.of( "diagram_description", diagram));
 
-        dev.langchain4j.model.output.Response<AiMessage> response = model.generate( new SystemMessage(systemPrompt.text()) );
+        var request = ChatRequest.builder()
+                .messages( SystemMessage.from(systemPrompt.text()) )
+                .build();
+       var response = model.chat(request );
 
-        String result = response.content().text();
+        String result = response.aiMessage().text();
 
         return Map.of("diagramCode", result );
     }

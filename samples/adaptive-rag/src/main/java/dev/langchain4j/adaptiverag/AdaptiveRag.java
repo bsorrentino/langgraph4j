@@ -100,7 +100,7 @@ public class AdaptiveRag {
                 .map( m -> m.embedded().text() )
                 .collect(Collectors.toList());
 
-        return mapOf( "documents", documents , "question", question );
+        return Map.of( "documents", documents , "question", question );
     }
 
     /**
@@ -117,7 +117,7 @@ public class AdaptiveRag {
 
         String generation = Generation.of(openApiKey).apply(question, documents); // service
 
-        return mapOf("generation", generation);
+        return Map.of("generation", generation);
     }
 
     /**
@@ -148,7 +148,7 @@ public class AdaptiveRag {
                 })
                 .collect(Collectors.toList());
 
-        return mapOf( "documents", filteredDocs);
+        return Map.of( "documents", filteredDocs);
     }
 
     /**
@@ -163,7 +163,7 @@ public class AdaptiveRag {
 
         String betterQuestion = QuestionRewriter.of( openApiKey ).apply( question );
 
-        return mapOf( "question", betterQuestion );
+        return Map.of( "question", betterQuestion );
     }
 
     /**
@@ -182,7 +182,7 @@ public class AdaptiveRag {
                             .map( content -> content.textSegment().text() )
                             .collect(Collectors.joining("\n"));
 
-        return mapOf( "documents", listOf( webResult ) );
+        return Map.of( "documents", List.of( webResult ) );
     }
 
     /**
@@ -268,7 +268,7 @@ public class AdaptiveRag {
             // Build graph
             .addConditionalEdges(START,
                     edge_async(this::routeQuestion),
-                    mapOf(
+                    Map.of(
                         "web_search", "web_search",
                         "vectorstore", "retrieve"
                     ))
@@ -278,7 +278,7 @@ public class AdaptiveRag {
             .addConditionalEdges(
                     "grade_documents",
                     edge_async(this::decideToGenerate),
-                    mapOf(
+                    Map.of(
                         "transform_query","transform_query",
                         "generate", "generate"
                     ))
@@ -286,7 +286,7 @@ public class AdaptiveRag {
             .addConditionalEdges(
                     "generate",
                     edge_async(this::gradeGeneration_v_documentsAndQuestion),
-                    mapOf(
+                    Map.of(
                             "not supported", "generate",
                             "useful", END,
                             "not useful", "transform_query"
@@ -303,8 +303,8 @@ public class AdaptiveRag {
 
         CompiledGraph<State> graph = adaptiveRagTest.buildGraph().compile();
 
-        org.bsc.async.AsyncGenerator<org.bsc.langgraph4j.NodeOutput<State>> result = graph.stream( mapOf( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
-        // var result = graph.stream( mapOf( "question", "What kind the agent memory do iu know?" ) );
+        org.bsc.async.AsyncGenerator<org.bsc.langgraph4j.NodeOutput<State>> result = graph.stream( Map.of( "question", "What player at the Bears expected to draft first in the 2024 NFL draft?" ) );
+        // var result = graph.stream( Map.of( "question", "What kind the agent memory do iu know?" ) );
 
         String generation = "";
         for( org.bsc.langgraph4j.NodeOutput<State> r : result ) {

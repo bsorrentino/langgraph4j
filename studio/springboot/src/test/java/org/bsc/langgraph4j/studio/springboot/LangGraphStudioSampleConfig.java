@@ -89,7 +89,7 @@ public class LangGraphStudioSampleConfig extends AbstractLangGraphStudioConfig {
 
         var workflowParent = new MessagesStateGraph<String>()
                 .addNode("A", _makeNode("A") )
-                .addSubgraph("B",  workflowChild )
+                .addNode("B",  workflowChild )
                 .addNode("C", _makeNode("C") )
                 .addConditionalEdges(START,
                         edge_async(state -> "a"),
@@ -123,7 +123,7 @@ public class LangGraphStudioSampleConfig extends AbstractLangGraphStudioConfig {
 
         var workflowParent = new MessagesStateGraph<String>()
                 .addNode("A", _makeNode("A") )
-                .addSubgraph("B",  workflowChild )
+                .addNode("B",  workflowChild )
                 .addNode("C", _makeNode("C") )
                 .addConditionalEdges(START,
                         edge_async(state -> "a"),

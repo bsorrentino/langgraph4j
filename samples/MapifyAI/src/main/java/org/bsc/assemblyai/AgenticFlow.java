@@ -108,7 +108,7 @@ public class AgenticFlow {
                             }
                             return "continue";
                         }),
-                        mapOf("continue", "action", "end", END)
+                        Map.of("continue", "action", "end", END)
                 )
                 .addEdge("action", "agent")
 */

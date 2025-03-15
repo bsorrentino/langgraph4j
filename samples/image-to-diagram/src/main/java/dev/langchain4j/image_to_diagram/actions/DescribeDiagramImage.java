@@ -1,13 +1,11 @@
 package dev.langchain4j.image_to_diagram.actions;
 
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.ImageContent;
-import dev.langchain4j.data.message.TextContent;
-import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.data.message.*;
 import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.image_to_diagram.DiagramOutputParser;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
 import lombok.NonNull;
 import org.bsc.langgraph4j.action.NodeAction;
 
@@ -59,13 +57,15 @@ public class DescribeDiagramImage implements NodeAction<ImageToDiagram.State> {
         // Combine the image and text content into a user message
         var message = UserMessage.from(textContent, imageContent);
 
-        // Generate a response using the vision model
-        dev.langchain4j.model.output.Response<AiMessage> response = visionModel.generate( message );
+        var request = ChatRequest.builder()
+                .messages( message )
+                .build();
+        var response = visionModel.chat(request );
 
         // Parse the response to extract diagram elements
         DiagramOutputParser outputParser = new DiagramOutputParser();
 
-        Diagram.Element result = outputParser.parse( response.content().text() );
+        Diagram.Element result = outputParser.parse( response.aiMessage().text() );
 
         // Return a map containing the result diagram and image data
         return Map.of( "diagram",result, "imageData", new Object() );

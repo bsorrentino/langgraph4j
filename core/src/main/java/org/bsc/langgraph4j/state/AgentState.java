@@ -1,8 +1,10 @@
 package org.bsc.langgraph4j.state;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableMap;
@@ -54,6 +56,19 @@ public class AgentState {
         return data.toString();
     }
 
+    private static <T, K, U> Collector<T, ?, Map<K, U>> toMapAllowingNulls(
+            Function<? super T, ? extends K> keyMapper,
+            Function<? super T, ? extends U> valueMapper) {
+        return Collector.of(
+                HashMap::new,
+                (map, element) -> map.put(keyMapper.apply(element), valueMapper.apply(element)),
+                (map1, map2) -> {
+                    map1.putAll(map2);
+                    return map1;
+                },
+                Collector.Characteristics.UNORDERED);
+    }
+
     /**
      * Updates the partial state from a schema using channels.
      *
@@ -75,7 +90,35 @@ public class AgentState {
             }
 
             return entry;
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        })
+        .collect(toMapAllowingNulls(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private static <T, K, U> Collector<T, ?, Map<K, U>> toMapRemovingNulls(
+            Function<? super T, ? extends K> keyMapper,
+            Function<? super T, ? extends U> valueMapper,
+            BinaryOperator<U> mergeFunction) {
+        return Collector.of(
+                HashMap::new,
+                (map, element) -> {
+                    K key = keyMapper.apply(element);
+                    U value = valueMapper.apply(element);
+                    if( value == null ) {
+                        map.remove(key);
+                    }
+                    else {
+                        map.merge(key, value, mergeFunction);
+                    }
+                },
+                (map1, map2) -> {
+                    map2.forEach((key, value) -> {
+                        if (value != null) {
+                            map1.merge(key, value, mergeFunction);
+                        }
+                    });
+                    return map1;
+                },
+                Collector.Characteristics.UNORDERED);
     }
 
     /**
@@ -96,8 +139,8 @@ public class AgentState {
 
         Map<String, Object> updatedPartialState = updatePartialStateFromSchema(state, partialState, channels);
 
-        return Stream.concat(state.entrySet().stream(), updatedPartialState.entrySet().stream())
-                .collect(Collectors.toMap(
+        return Stream.concat( state.entrySet().stream(), updatedPartialState.entrySet().stream())
+                .collect(toMapRemovingNulls(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         AgentState::mergeFunction));
