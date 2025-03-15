@@ -2,6 +2,63 @@
 
 
 
+<!-- "name: v1.4.3" is a release tag -->
+
+## [v1.4.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.3) (2025-03-15)
+
+### Features
+
+ *  **core**  Add utility class for edge mappings in state graph ([68012fb87133a46](https://github.com/bsorrentino/langgraph4j/commit/68012fb87133a463bc8e20d95acec056a1db8669))
+     > EdgeMappings class provides a fluent API to create immutable maps representing edges between states in a state graph. This utility makes it easier to define and configure state transitions, ensuring consistency and reducing errors.
+   
+ *  **AgentState.java**  Add functionality to handle null values in state operations for their removal ([3e591a2bf41da0e](https://github.com/bsorrentino/langgraph4j/commit/3e591a2bf41da0e9942dcaa881eea8115c77a29c))
+     > Introducing in &#x60;AgentState&#x60; class two new utility methods: &#x60;toMapAllowingNulls&#x60; and &#x60;toMapRemovingNulls&#x60;.
+   
+
+### Bug Fixes
+
+ -  remove usage of deprecated listOf() ([14c28801eeb137e](https://github.com/bsorrentino/langgraph4j/commit/14c28801eeb137e37bd2378e21ae3245d9c6f333))
+
+ -  remove usage of deprecated mapOf() ([45064fbfedd709b](https://github.com/bsorrentino/langgraph4j/commit/45064fbfedd709b78365ca3d273d1bd3af1b4814))
+
+ -  remove usage of deprecated addSubgraph() ([70226bdc2a792c4](https://github.com/bsorrentino/langgraph4j/commit/70226bdc2a792c40f076d91780e3d667d0ed78e9))
+
+ -  remove usage of deprecated addSubgraph() ([3762b23e4e98e0b](https://github.com/bsorrentino/langgraph4j/commit/3762b23e4e98e0b69dab065fc5b4bfe1fb5a7de1))
+
+
+### Documentation
+
+ -  bump to version 1.4.3 ([3649144307807c8](https://github.com/bsorrentino/langgraph4j/commit/3649144307807c8ead740429a5fe10e5731529e4))
+
+ -  update changeme ([e9899681299a948](https://github.com/bsorrentino/langgraph4j/commit/e9899681299a94852012293eb6a5edfba4732358))
+
+
+### Refactor
+
+ -  upgrade langchain4j version to 1.0.0-beta2 and update affected code accordingly ([858bc8318acde90](https://github.com/bsorrentino/langgraph4j/commit/858bc8318acde90f73626814027be21ab511dc85))
+   
+ -  **StateGraph**  add new methods to add subgraphs as nodes ([1ee7bdf6086816c](https://github.com/bsorrentino/langgraph4j/commit/1ee7bdf6086816c8a0639a4a4d50daa92ece3c62))
+    > - Introduced a new method &#x60;addNode&#x60; that allows adding a subgraph to the state graph by creating a node with the specified identifier. This method replaces and deprecates the existing &#x60;addSubgraph&#x60; method.
+
+
+### ALM 
+
+ -  bump to version 1.4.3 ([bf31cd481591313](https://github.com/bsorrentino/langgraph4j/commit/bf31cd48159131338f9556601738b723cdd9078a))
+   
+ -  bump to SNAPSHOT ([0538288b35db864](https://github.com/bsorrentino/langgraph4j/commit/0538288b35db864affa12095ff5f1a6dafe987ee))
+   
+
+### Test 
+
+ -  refine graph representation generation using EdgeMappings ([d865a766d591163](https://github.com/bsorrentino/langgraph4j/commit/d865a766d5911635ed8efa9b363e9b6750f46c7f))
+   
+ -  **AgentState**  test the state's value removal using nul ([f506a9b8e1df0e0](https://github.com/bsorrentino/langgraph4j/commit/f506a9b8e1df0e083e82df226f39e1002dbab40a))
+   
+
+
+
+
+
 <!-- "name: v1.4.2" is a release tag -->
 
 ## [v1.4.2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.2) (2025-03-11)
