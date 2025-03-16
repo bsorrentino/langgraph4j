@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j.studio.springboot;
 
+import org.bsc.langgraph4j.CompileConfig;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
@@ -14,7 +15,7 @@ import static java.util.Optional.ofNullable;
 
 public record LangGraphFlow(    List<LangGraphStreamingServer.ArgumentMetadata> inputArgs,
                                 String title,
-                                BaseCheckpointSaver saver,
+                                CompileConfig compileConfig,
                                 StateGraph<? extends AgentState> stateGraph ) {
 
     public LangGraphFlow {
@@ -28,7 +29,7 @@ public record LangGraphFlow(    List<LangGraphStreamingServer.ArgumentMetadata> 
     public static class Builder {
         private final List<LangGraphStreamingServer.ArgumentMetadata> inputArgs = new ArrayList<>();
         private String title = null;
-        private BaseCheckpointSaver saver;
+        private CompileConfig compileConfig;
         private StateGraph<? extends AgentState> stateGraph;
 
 
@@ -90,11 +91,11 @@ public record LangGraphFlow(    List<LangGraphStreamingServer.ArgumentMetadata> 
         /**
          * Sets the checkpoint saver for the server.
          *
-         * @param saver the checkpoint saver to be used
+         * @param compileConfig the graph compiler config to be used
          * @return the Builder instance
          */
-        public Builder checkpointSaver(BaseCheckpointSaver saver) {
-            this.saver = saver;
+        public Builder compileConfig(CompileConfig compileConfig ) {
+            this.compileConfig = compileConfig;
             return this;
         }
 
@@ -114,7 +115,10 @@ public record LangGraphFlow(    List<LangGraphStreamingServer.ArgumentMetadata> 
 
             return new LangGraphFlow(inputArgs,
                     ofNullable(title).orElse("LangGraph Studio"),
-                    ofNullable(saver).orElseGet(MemorySaver::new),
+                    ofNullable( compileConfig )
+                            .orElseGet( () -> CompileConfig.builder()
+                                    .checkpointSaver( new MemorySaver() )
+                                    .build()),
                     stateGraph);
         }
     }

@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j.jetty;
 
+import org.bsc.langgraph4j.CompileConfig;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.state.AgentState;
@@ -28,7 +29,6 @@ public class LangGraphStreamingServerTest {
             }
         };
 
-
         StateGraph<AgentState> workflow = new StateGraph<>(AgentState::new)
             .addNode("agent", node_async((state ) -> {
                 System.out.println("agent ");
@@ -54,6 +54,9 @@ public class LangGraphStreamingServerTest {
                                                 .title("LANGGRAPH4j STUDIO - DEMO")
                                                 .addInputStringArg("input")
                                                 .stateGraph(workflow)
+                                                .compileConfig(CompileConfig.builder()
+                                                        .interruptBefore( "action" )
+                                                        .build())
                                                 .build();
 
         server.start().join();

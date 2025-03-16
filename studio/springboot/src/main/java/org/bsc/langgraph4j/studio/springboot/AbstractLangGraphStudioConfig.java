@@ -25,7 +25,7 @@ public abstract class AbstractLangGraphStudioConfig {
 
         var flow = getFlow();
 
-        var initServlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.saver());
+        var initServlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.compileConfig());
         var bean = new ServletRegistrationBean<>(
                 initServlet, "/stream");
         bean.setLoadOnStartup(1);
