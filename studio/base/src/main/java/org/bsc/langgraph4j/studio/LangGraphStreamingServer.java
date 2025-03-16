@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.*;
-import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
@@ -66,24 +65,24 @@ public interface LangGraphStreamingServer {
      * Servlet for handling graph stream requests.
      */
     class GraphStreamServlet extends HttpServlet {
-        Logger log = LangGraphStreamingServer.log;
-        final BaseCheckpointSaver saver;
+        final Logger log = LangGraphStreamingServer.log;
         final StateGraph<? extends AgentState> stateGraph;
         final ObjectMapper objectMapper;
         final Map<PersistentConfig, CompiledGraph<? extends AgentState>> graphCache = new HashMap<>();
+        final CompileConfig compileConfig;
 
         /**
          * Constructs a GraphStreamServlet.
          *
          * @param stateGraph the state graph to use.
-         * @param saver the checkpoint saver.
+         * @param compileConfig the graph compiler configuration.
          */
         public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph,
-                                  BaseCheckpointSaver saver) {
+                                  CompileConfig compileConfig) {
             Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
+            Objects.requireNonNull(compileConfig, "compileConfig cannot be null");
             this.stateGraph = stateGraph;
-            this.saver = saver;
-
+            this.compileConfig = compileConfig;
             this.objectMapper = new ObjectMapper();
             this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             var module = new SimpleModule();
@@ -103,10 +102,7 @@ public interface LangGraphStreamingServer {
          * @return the compiled configuration.
          */
         private CompileConfig compileConfig(PersistentConfig config) {
-            return CompileConfig.builder()
-                    .checkpointSaver(saver)
-                    //.stateSerializer(stateSerializer)
-                    .build();
+            return compileConfig;
         }
 
         /**
@@ -163,6 +159,9 @@ public interface LangGraphStreamingServer {
             var resume = ofNullable(request.getParameter("resume"))
                     .map(Boolean::parseBoolean).orElse(false);
 
+            var interrupted = ofNullable(request.getParameter("interrupted"))
+                    .map(Boolean::parseBoolean).orElse(false);
+
             final PrintWriter writer = response.getWriter();
 
             // Start asynchronous processing
@@ -189,26 +188,37 @@ public interface LangGraphStreamingServer {
                         throw new IllegalStateException("Missing CompiledGraph in session!");
                     }
 
-                    var checkpointId = ofNullable(request.getParameter("checkpoint"))
-                            .orElseThrow(() -> new IllegalStateException("Missing checkpoint id!"));
+                    if( interrupted ) {
+                        log.trace("RESUME FROM INTERRUPTION");
 
-                    var node = request.getParameter("node");
-                    var config = RunnableConfig.builder()
-                            .threadId(threadId)
-                            .checkPointId(checkpointId)
-                            .build();
+                        var config = RunnableConfig.builder()
+                                .threadId(threadId)
+                                .build();
 
-                    var stateSnapshot = compiledGraph.getState(config);
+                        generator = compiledGraph.streamSnapshots(null, config);
 
-                    config = stateSnapshot.config();
+                    } else {
+                        var checkpointId = ofNullable(request.getParameter("checkpoint"))
+                                .orElseThrow(() -> new IllegalStateException("Missing checkpoint id!"));
 
-                    log.trace("RESUME UPDATE STATE FORM {} USING CONFIG {}\n{}", node, config, dataMap);
+                        var node = request.getParameter("node");
+                        var config = RunnableConfig.builder()
+                                .threadId(threadId)
+                                .checkPointId(checkpointId)
+                                .build();
 
-                    config = compiledGraph.updateState(config, dataMap, node);
+                        var stateSnapshot = compiledGraph.getState(config);
 
-                    log.trace("RESUME REQUEST STREAM {}", config);
+                        config = stateSnapshot.config();
 
-                    generator = compiledGraph.streamSnapshots(null, config);
+                        log.trace("RESUME UPDATE STATE FORM {} USING CONFIG {}\n{}", node, config, dataMap);
+
+                        config = compiledGraph.updateState(config, dataMap, node);
+
+                        log.trace("RESUME REQUEST STREAM {}", config);
+
+                        generator = compiledGraph.streamSnapshots(null, config);
+                    }
                 } else {
                     log.trace("dataMap: {}", dataMap);
 
@@ -336,6 +346,7 @@ public interface LangGraphStreamingServer {
 
         final StateGraph<? extends AgentState> stateGraph;
         final ObjectMapper objectMapper = new ObjectMapper();
+
         InitData initData;
 
         /**
@@ -345,7 +356,7 @@ public interface LangGraphStreamingServer {
          * @param title the title of the graph.
          * @param args the arguments for the graph.
          */
-        public GraphInitServlet(StateGraph<? extends AgentState> stateGraph, String title, List<ArgumentMetadata> args) {
+        public GraphInitServlet(StateGraph<? extends AgentState> stateGraph, String title,  List<ArgumentMetadata> args) {
             Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
             this.stateGraph = stateGraph;
             this.initData = new InitData(title, null, args);
@@ -360,6 +371,7 @@ public interface LangGraphStreamingServer {
             objectMapper.registerModule(module);
 
             try {
+
                 var compiledGraph = stateGraph.compile();
 
                 var graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID, initData.title(), false);
