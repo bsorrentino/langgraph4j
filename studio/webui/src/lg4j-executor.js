@@ -113,6 +113,12 @@ export class LG4JExecutorElement extends LitElement {
    */
   #updatedState = null
 
+  /**
+   * current state for update 
+   * 
+   * @type boolean
+   */
+  interrupted = false
 
   /**
    * Creates an instance of LG4JInputElement.
@@ -254,7 +260,7 @@ export class LG4JExecutorElement extends LitElement {
 
   async #callResumeAction() {
 
-    const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}&resume=true&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
+    const execResponse = await fetch(`${ this.url}/stream?thread=${this.#selectedThread}&resume=true&interrupted=${this.interrupted}&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
       headers: {
         'Content-Type': 'application/json'
@@ -330,18 +336,27 @@ export class LG4JExecutorElement extends LitElement {
       body: JSON.stringify(data)
     });
 
+    /** @type [ string, ResultData ]|null */
+    let lastChunk = null
+    
     for await (let chunk of streamingResponse(execResponse)) {
       console.debug(chunk)
 
+      lastChunk = JSON.parse(chunk);
+
       this.dispatchEvent(new CustomEvent('result', {
-        detail: JSON.parse(chunk),
+        detail: lastChunk,
         bubbles: true,
         composed: true,
         cancelable: true
       }));
 
     }
+    
+    // Asuume that flow is interrupted if last node is different by last node (__END__) 
+    this.interrupted = (lastChunk) ? lastChunk[1].node!=='__END__' : false
 
+    console.debug( 'LAST CHUNK', lastChunk, this.interrupted );
   }
 
 }
