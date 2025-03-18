@@ -23,8 +23,7 @@ public abstract class PlainTextStateSerializer<State extends AgentState> extends
     @SuppressWarnings("unchecked")
     public Class<State> getStateType() {
         Type superClass = getClass().getGenericSuperclass();
-        if (superClass instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) superClass;
+        if (superClass instanceof ParameterizedType parameterizedType) {
             Type[] typeArguments = parameterizedType.getActualTypeArguments();
             if (typeArguments.length > 0) {
                 return (Class<State>) typeArguments[0];
