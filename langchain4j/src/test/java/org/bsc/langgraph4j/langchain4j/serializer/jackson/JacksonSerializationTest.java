@@ -58,8 +58,10 @@ public class JacksonSerializationTest {
 
         var serializer = new JacksonMessagesStateSerializer<>( State::new );
 
-        var state = new State(Map.of( "messages", List.of(SystemMessage.from("Buddy"),
-                "user", UserMessage.from( "Hello") )));
+        var state = new State( Map.of(
+                "messages", List.of(SystemMessage.from("Buddy"), UserMessage.from( "Hello") ),
+                "intent", "myIntent")
+        );
 
         var stream = new ByteArrayOutputStream();
         try(var out = new ObjectOutputStream( stream ) ) {
@@ -70,15 +72,13 @@ public class JacksonSerializationTest {
         var result = serializer.read( new ObjectInputStream( new ByteArrayInputStream( stream.toByteArray() )));
 
         assertNotNull( result );
-        assertEquals( 1, result.data().size() );
-        var message = result.data().get("messages");
-        assertInstanceOf( List.class, message );
-
-        System.out.println( result );
-//        assertEquals( "Buddy", ((SystemMessage) message).text() );
-//        message = result.data().get("user");
-//        assertInstanceOf( UserMessage.class, message );
-//        assertEquals( "Hello", ((UserMessage) message).singleText() );
+        assertEquals( 2, result.data().size() );
+        var messages = result.data().get("messages");
+        assertInstanceOf( List.class, messages );
+        var messagesList = (List<?>)messages;
+        assertEquals( 2, messagesList.size() );
+        assertInstanceOf( SystemMessage.class, messagesList.get(0) );
+        assertEquals( "Buddy", ((SystemMessage) messagesList.get(0)).text() );
 
 
 

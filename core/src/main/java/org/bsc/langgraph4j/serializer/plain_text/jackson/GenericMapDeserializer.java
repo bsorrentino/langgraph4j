@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.langchain4j.serializer.jackson;
+package org.bsc.langgraph4j.serializer.plain_text.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -6,17 +6,22 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import dev.langchain4j.data.message.ChatMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import static org.bsc.langgraph4j.serializer.plain_text.jackson.TypeMapper.TYPE_PROPERTY;
 
 class GenericMapDeserializer extends StdDeserializer<Map<String, Object>> {
 
-    public GenericMapDeserializer() {
+    final TypeMapper typeMapper;
+
+    public GenericMapDeserializer( TypeMapper mapper ) {
         super(Map.class);
+        this.typeMapper = mapper;
     }
 
     @Override
@@ -36,16 +41,32 @@ class GenericMapDeserializer extends StdDeserializer<Map<String, Object>> {
 
             // Example: Detect type based on field name or value structure
             Object value;
-            if (valueNode.isObject() && valueNode.has("@type")) {
-                // Deserialize to a specific class
-                value = mapper.treeToValue(valueNode, ChatMessage.class);
+            if (valueNode.isObject()) {
+                if (valueNode.has(TYPE_PROPERTY)) {
+                    var type = valueNode.get(TYPE_PROPERTY).asText();
+                    // Deserialize to a specific class
+                    var ref = typeMapper.getReference(type)
+                            .orElseThrow( () -> new IllegalStateException("Type not found: " + type) );
+                    value =
+                            mapper.treeToValue(valueNode, ref);
+                } else {
+                    value = mapper.treeToValue(valueNode, Object.class);
+                }
             } else if (valueNode.isInt()) {
                 value = valueNode.intValue();
             } else if (valueNode.isTextual()) {
                 value = valueNode.textValue();
-            } else {
+            }
+            else if (valueNode.isBoolean()) {
+                value = valueNode.booleanValue();
+            }
+            else if (valueNode.isArray() ) {
+                value = mapper.treeToValue(valueNode, List.class);
+            }
+            else {
                 // Fallback generic deserialization
-                value = mapper.treeToValue(valueNode, Object.class);
+                // value = mapper.treeToValue(valueNode, Object.class);
+                throw new IllegalStateException("Value type not supported: " + valueNode.getNodeType() );
             }
 
             result.put(key, value);
