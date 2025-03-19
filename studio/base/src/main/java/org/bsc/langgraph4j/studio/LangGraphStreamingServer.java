@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
+import org.bsc.langgraph4j.serializer.plain_text.jackson.JacksonStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
 import org.slf4j.Logger;
@@ -83,8 +84,16 @@ public interface LangGraphStreamingServer {
             Objects.requireNonNull(compileConfig, "compileConfig cannot be null");
             this.stateGraph = stateGraph;
             this.compileConfig = compileConfig;
-            this.objectMapper = new ObjectMapper();
-            this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+            if( stateGraph.getStateSerializer() instanceof JacksonStateSerializer<? extends AgentState> jsonSerializer) {
+                this.objectMapper = jsonSerializer.objectMapper().copy();
+
+            }
+            else {
+                this.objectMapper = new ObjectMapper();
+                this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+            }
+
             var module = new SimpleModule();
             module.addSerializer(NodeOutput.class, new NodeOutputSerializer());
             objectMapper.registerModule(module);
@@ -159,9 +168,6 @@ public interface LangGraphStreamingServer {
             var resume = ofNullable(request.getParameter("resume"))
                     .map(Boolean::parseBoolean).orElse(false);
 
-            var interrupted = ofNullable(request.getParameter("interrupted"))
-                    .map(Boolean::parseBoolean).orElse(false);
-
             final PrintWriter writer = response.getWriter();
 
             // Start asynchronous processing
@@ -175,7 +181,7 @@ public interface LangGraphStreamingServer {
                 var compiledGraph = graphCache.get(persistentConfig);
 
                 final Map<String, Object> dataMap;
-                if (resume && stateGraph.getStateSerializer() instanceof PlainTextStateSerializer<? extends AgentState> textSerializer) {
+                if ( /*resume && */ stateGraph.getStateSerializer() instanceof PlainTextStateSerializer<? extends AgentState> textSerializer) {
                     dataMap = textSerializer.read(new InputStreamReader(request.getInputStream())).data();
                 } else {
                     dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<>() {});
@@ -188,38 +194,31 @@ public interface LangGraphStreamingServer {
                         throw new IllegalStateException("Missing CompiledGraph in session!");
                     }
 
-                    if( interrupted ) {
-                        log.trace("RESUME FROM INTERRUPTION");
+                    var checkpointId = ofNullable(request.getParameter("checkpoint"))
+                            .orElseThrow(() -> new IllegalStateException("Missing checkpoint id!"));
 
-                        var config = RunnableConfig.builder()
-                                .threadId(threadId)
-                                .build();
+                    var node = request.getParameter("node");
 
-                        generator = compiledGraph.streamSnapshots(null, config);
+                    var runnableConfig = RunnableConfig.builder()
+                            .threadId(threadId)
+                            .checkPointId(checkpointId)
+                            .nextNode(node)
+                            .build();
 
-                    } else {
-                        var checkpointId = ofNullable(request.getParameter("checkpoint"))
-                                .orElseThrow(() -> new IllegalStateException("Missing checkpoint id!"));
+                    var stateSnapshot = compiledGraph.getState(runnableConfig);
 
-                        var node = request.getParameter("node");
-                        var config = RunnableConfig.builder()
-                                .threadId(threadId)
-                                .checkPointId(checkpointId)
-                                .build();
+                    runnableConfig = stateSnapshot.config();
 
-                        var stateSnapshot = compiledGraph.getState(config);
+                    log.trace("RESUME UPDATE STATE FORM {} USING CONFIG {}\n{}", node, runnableConfig, dataMap);
 
-                        config = stateSnapshot.config();
+                    runnableConfig = compiledGraph.updateState(runnableConfig, dataMap, node);
 
-                        log.trace("RESUME UPDATE STATE FORM {} USING CONFIG {}\n{}", node, config, dataMap);
+                    log.trace("RESUME REQUEST STREAM {}", runnableConfig);
 
-                        config = compiledGraph.updateState(config, dataMap, node);
+                    generator = compiledGraph.streamSnapshots(null, runnableConfig);
 
-                        log.trace("RESUME REQUEST STREAM {}", config);
-
-                        generator = compiledGraph.streamSnapshots(null, config);
-                    }
                 } else {
+
                     log.trace("dataMap: {}", dataMap);
 
                     if (compiledGraph == null) {
@@ -233,6 +232,7 @@ public interface LangGraphStreamingServer {
                 generator.forEachAsync(s -> {
                     try {
                         serializeOutput(writer, threadId, s);
+                        writer.println();
                         writer.flush();
                         TimeUnit.SECONDS.sleep(1);
                     } catch (InterruptedException e) {
@@ -452,7 +452,14 @@ class NodeOutputSerializer extends StdSerializer<NodeOutput>  {
             gen.writeStringField("node", nodeOutput.node());
 
         }
+
+        // serializerProvider.defaultSerializeField("state", nodeOutput.state().data(), gen);
+
         gen.writeObjectField("state", nodeOutput.state().data());
+
+        if( nodeOutput instanceof StateSnapshot<?> snapshot ) {
+            gen.writeObjectField("next", snapshot.next() );
+        }
         gen.writeEndObject();
     }
 }
