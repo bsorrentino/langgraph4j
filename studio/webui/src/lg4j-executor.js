@@ -34,13 +34,25 @@ async function* streamingResponse(response) {
   // Attach Reader
   const reader = response.body?.getReader();
 
+  const decoder = new TextDecoder();
+
+  let buffer = '';
   while (true && reader) {
     // wait for next encoded chunk
     const { done, value } = await reader.read();
     // check if stream is done
     if (done) break;
+
+    try {
+      buffer += decoder.decode(value);
+      const data = JSON.parse(buffer);
+      buffer = '';
+      yield data;
+    } catch (err) {
+      console.warn('JSON parse error:', err );
+    }
     // Decodes data chunk and yields it
-    yield (new TextDecoder().decode(value));
+    // yield (new TextDecoder().decode(value));
   }
 }
 
@@ -112,13 +124,6 @@ export class LG4JExecutorElement extends LitElement {
    * @type {UpdatedState|null}
    */
   #updatedState = null
-
-  /**
-   * current state for update 
-   * 
-   * @type boolean
-   */
-  interrupted = false
 
   /**
    * Creates an instance of LG4JInputElement.
@@ -260,28 +265,29 @@ export class LG4JExecutorElement extends LitElement {
 
   async #callResumeAction() {
 
-    const execResponse = await fetch(`${ this.url}/stream?thread=${this.#selectedThread}&resume=true&interrupted=${this.interrupted}&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
+    const execResponse = await fetch(`${ this.url}/stream?thread=${this.#selectedThread}&resume=true&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(this.#updatedState?.data)
+      body: JSON.stringify( this.#updatedState?.data )
     });
 
     this.#updatedState = null
 
-    for await (let chunk of streamingResponse(execResponse)) {
-      console.debug(chunk)
+
+    for await (let detail of streamingResponse(execResponse)) {
+      console.debug(detail)
 
       this.dispatchEvent(new CustomEvent('result', {
-        detail: JSON.parse(chunk),
+        //detail: JSON.parse(data),
+        detail,
         bubbles: true,
         composed: true,
         cancelable: true
       }));
 
     }
-
 
   }
 
@@ -328,24 +334,29 @@ export class LG4JExecutorElement extends LitElement {
       return acc
     }, result);
 
+    // Asuume that flow is interrupted if last node is different by last node (__END__) 
+    // const interrupted = (this.#updatedState) ? this.#updatedState.node!=='__END__' : false
+    
+    // const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}&resume=${interrupted}&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
     const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     });
 
-    /** @type [ string, ResultData ]|null */
+    /** @type [ string, UpdatedState ]|null */
     let lastChunk = null
     
-    for await (let chunk of streamingResponse(execResponse)) {
-      console.debug(chunk)
+    for await (let detail of streamingResponse(execResponse)) {
+      console.debug(detail)
 
-      lastChunk = JSON.parse(chunk);
+      // lastChunk = JSON.parse(chunk);
+      lastChunk = detail
 
       this.dispatchEvent(new CustomEvent('result', {
-        detail: lastChunk,
+        detail,
         bubbles: true,
         composed: true,
         cancelable: true
@@ -353,10 +364,9 @@ export class LG4JExecutorElement extends LitElement {
 
     }
     
-    // Asuume that flow is interrupted if last node is different by last node (__END__) 
-    this.interrupted = (lastChunk) ? lastChunk[1].node!=='__END__' : false
+    // this.#updatedState = ( lastChunk ) ? lastChunk[1] : null
 
-    console.debug( 'LAST CHUNK', lastChunk, this.interrupted );
+    // console.debug( 'LAST CHUNK', lastChunk );
   }
 
 }
