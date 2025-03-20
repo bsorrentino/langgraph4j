@@ -101,13 +101,11 @@ export class LG4JResultElement extends LitElement {
   #onResult = (e) => {
 
     const [ thread, result ] = e.detail
-    console.debug( "onResult", thread, result  )
+    console.debug( "ON RESULT", thread, result  )
     
     if( !this.threadMap.has( thread ) ) {
-      throw new Error( `result doesn't contain a valid thread!` );
+      throw new Error( `result doesn't contain a valid thread! "${thread}` );
     }
-
-    console.debug( 'onResult', thread )
 
     let results = this.threadMap.get( thread )
     // TODO: validate e.detail
@@ -117,12 +115,14 @@ export class LG4JResultElement extends LitElement {
     // @ts-ignore
     this.threadMap.set( thread, results );
 
-    this.dispatchEvent( new CustomEvent( 'graph-active', { 
-      detail: result.node,
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    }));
+    if( result.next ) {
+      this.dispatchEvent( new CustomEvent( 'graph-active', { 
+        detail: result.next,
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      }));  
+    }
     
     this.requestUpdate()
     

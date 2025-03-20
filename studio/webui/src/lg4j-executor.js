@@ -345,12 +345,12 @@ export class LG4JExecutorElement extends LitElement {
       },
       body: JSON.stringify(data)
     });
-
-    /** @type [ string, UpdatedState ]|null */
+  
+    /** @type [ string, UpdatedState & { next: string } ]|null */
     let lastChunk = null
     
     for await (let detail of streamingResponse(execResponse)) {
-      console.debug(detail)
+      console.debug( "SUBMIT RESULT", detail)
 
       // lastChunk = JSON.parse(chunk);
       lastChunk = detail
