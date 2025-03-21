@@ -76,7 +76,7 @@ public class AppenderChannel<T> implements Channel<List<T>> {
      *
      * @param defaultProvider a supplier for the default list that will be used when no other list is available
      */
-    private AppenderChannel( Supplier<List<T>> defaultProvider ) {
+    protected AppenderChannel( Supplier<List<T>> defaultProvider ) {
         this.reducer = new Reducer<>() {
             /**
              * Combines two lists into one. If the first list is null, the second list is returned.
