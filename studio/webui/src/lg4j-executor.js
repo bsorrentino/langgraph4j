@@ -34,13 +34,25 @@ async function* streamingResponse(response) {
   // Attach Reader
   const reader = response.body?.getReader();
 
+  const decoder = new TextDecoder();
+
+  let buffer = '';
   while (true && reader) {
     // wait for next encoded chunk
     const { done, value } = await reader.read();
     // check if stream is done
     if (done) break;
+
+    try {
+      buffer += decoder.decode(value);
+      const data = JSON.parse(buffer);
+      buffer = '';
+      yield data;
+    } catch (err) {
+      console.warn('JSON parse error:', err );
+    }
     // Decodes data chunk and yields it
-    yield (new TextDecoder().decode(value));
+    // yield (new TextDecoder().decode(value));
   }
 }
 
@@ -113,7 +125,6 @@ export class LG4JExecutorElement extends LitElement {
    */
   #updatedState = null
 
-
   /**
    * Creates an instance of LG4JInputElement.
    * 
@@ -126,6 +137,36 @@ export class LG4JExecutorElement extends LitElement {
     this.formMetaData = []
     this._executing = false
 
+  }
+
+  #startExecution() {
+
+    this._executing = true
+    this.dispatchEvent(new CustomEvent('state-updated', {
+      detail: 'start',
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+  }
+
+  /**
+   * 
+   * @param {[ string, UpdatedState & { next: string } ]|null} result 
+   */
+  #stopExecution( result ) {
+    this._executing = false
+
+    if( result ) {
+      const [ thread, { node } ] = result
+      // Asuume that flow is interrupted if last node is different by last node (__END__) 
+      this.dispatchEvent(new CustomEvent('state-updated', {
+        detail: ( node!=='__END__' ) ? 'interrupted' : 'stop',
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      }));
+    }
   }
 
   /**
@@ -234,7 +275,10 @@ export class LG4JExecutorElement extends LitElement {
   }
 
   async #callResume() {
-    this._executing = true
+
+    this.#startExecution()
+    let result = null
+
     try {
 
       if (this.test) {
@@ -242,46 +286,52 @@ export class LG4JExecutorElement extends LitElement {
         return
       }
 
-      await this.#callResumeAction()
+      result =  await this.#callResumeAction()
 
 
     }
     finally {
-      this._executing = false
+      this.#stopExecution(result)
     }
 
   }
 
   async #callResumeAction() {
 
-    const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}&resume=true&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
+    const execResponse = await fetch(`${ this.url}/stream?thread=${this.#selectedThread}&resume=true&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(this.#updatedState?.data)
+      body: JSON.stringify( this.#updatedState?.data )
     });
 
     this.#updatedState = null
 
-    for await (let chunk of streamingResponse(execResponse)) {
-      console.debug(chunk)
+    /** @type [ string, UpdatedState & { next: string } ]|null */
+    let lastChunk = null
+
+    for await (let detail of streamingResponse(execResponse)) {
+      console.debug( detail)
+      
+      lastChunk = detail
 
       this.dispatchEvent(new CustomEvent('result', {
-        detail: JSON.parse(chunk),
+        detail,
         bubbles: true,
         composed: true,
         cancelable: true
       }));
-
     }
 
+    return lastChunk
 
   }
 
   async #callSubmit() {
 
-    this._executing = true
+    this.#startExecution()
+    let result = null
     try {
 
       if (this.test) {
@@ -289,11 +339,11 @@ export class LG4JExecutorElement extends LitElement {
         return
       }
 
-      await this.#callSubmitAction()
+      result = await this.#callSubmitAction()
 
     }
     finally {
-      this._executing = false
+        this.#stopExecution(result)
     }
   }
 
@@ -322,28 +372,38 @@ export class LG4JExecutorElement extends LitElement {
       return acc
     }, result);
 
+    
+
+    // const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}&resume=${interrupted}&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
     const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     });
+  
+    /** @type [ string, UpdatedState & { next: string } ]|null */
+    let lastChunk = null
+    
+    for await (let detail of streamingResponse(execResponse)) {
+      console.debug( "SUBMIT RESULT", detail)
 
-    for await (let chunk of streamingResponse(execResponse)) {
-      console.debug(chunk)
+      // lastChunk = JSON.parse(chunk);
+      lastChunk = detail
 
       this.dispatchEvent(new CustomEvent('result', {
-        detail: JSON.parse(chunk),
+        detail,
         bubbles: true,
         composed: true,
         cancelable: true
       }));
 
     }
+    
+    return lastChunk
 
   }
 
 }
-
 window.customElements.define('lg4j-executor', LG4JExecutorElement);

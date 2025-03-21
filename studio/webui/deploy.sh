@@ -1,5 +1,12 @@
 bun build.sh
 bun twgen.ts --no-watch
 bun build.sh
-rm ../resources/webapp/*
-cp dist/* ../resources/webapp
+
+rm ../jetty/src/main/resources/webapp/*
+cp dist/* ../jetty/src/main/resources/webapp
+
+rm ../springboot/src/main/resources/static/*
+cp dist/* ../springboot/src/main/resources/static
+
+rm ../quarkus/src/main/resources/webapp/*
+cp dist/* ../quarkus/src/main/resources/webapp

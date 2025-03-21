@@ -66,7 +66,49 @@ export class LG4JWorkbenchElement extends LitElement {
     this.#routeEvent( new CustomEvent( `${e.type}`, { detail: e.detail }), 'executor');
   }
 
-    connectedCallback() {
+  /**
+   * 
+   * @param {string} message 
+   */
+  #writeMessage( message ) {
+    const elem = this.shadowRoot?.getElementById('message')
+    if( elem ) {
+      elem.textContent = message
+    }
+  }
+
+  /**
+   * 
+   * @param {CustomEvent<string>} e 
+   */
+  #onGraphActive( e ) {
+    this.#writeMessage( e.detail )
+    this.#routeEvent( e )
+  }
+
+  /**
+   * 
+   * @param {CustomEvent<'start'|'stop'|'interrupted'>} e 
+   */
+  #onStateUpdated( e ) {
+    const elem = this.shadowRoot?.getElementById('spinner')
+    if( elem ) {
+
+      if( e.detail === 'start' ) {
+        elem.classList.remove('hidden')
+        return 
+      }
+
+      elem.classList.add('hidden')
+
+      if( e.detail === 'interrupted' ) {
+        this.#writeMessage( 'INTERRUPTED' )
+      }
+      
+    }
+  }
+
+  connectedCallback() {
     super.connectedCallback()
 
     // @ts-ignore
@@ -74,11 +116,13 @@ export class LG4JWorkbenchElement extends LitElement {
     // @ts-ignore
     this.addEventListener( "result", this.#routeEvent );
     // @ts-ignore
-    this.addEventListener( "graph-active", this.#routeEvent );
+    this.addEventListener( "graph-active", this.#onGraphActive);
     // @ts-ignore
     this.addEventListener( "thread-updated", this.#routeUpdateEvent );
     // @ts-ignore
     this.addEventListener( 'node-updated', this.#routeUpdateEvent )
+    // @ts-ignore
+    this.addEventListener( 'state-updated', this.#onStateUpdated );
 
   }
 
@@ -86,15 +130,17 @@ export class LG4JWorkbenchElement extends LitElement {
     super.disconnectedCallback()
 
     // @ts-ignore
+    this.removeEventListener( 'state-updated', this.#onStateUpdated );
+    // @ts-ignore
     this.removeEventListener( 'node-updated', this.#routeUpdateEvent )
     // @ts-ignore
     this.removeEventListener( "thread-updated", this.#routeUpdateEvent );
     // @ts-ignore
-    this.removeEventListener( "init", this.#routeInitEvent );
+    this.removeEventListener( "graph-active", this.#onGraphActive );
     // @ts-ignore
     this.removeEventListener( "result", this.#routeEvent );
     // @ts-ignore
-    this.removeEventListener( "graph-active", this.#routeEvent );
+    this.removeEventListener( "init", this.#routeInitEvent );
 
   }
 
@@ -106,8 +152,18 @@ export class LG4JWorkbenchElement extends LitElement {
 <div class="h-screen">
 
   <div class="navbar bg-base-100">
-    <a class="btn btn-ghost text-xl">${this.title}</a>
-  </div>
+
+    <div class="flex-none">
+      <a class="btn btn-ghost text-xl">${this.title}</a>
+    </div>
+
+    <div class="flex-1 ml-10">
+      <span id="spinner" class="hidden loading loading-spinner text-primary"></span>
+      <span id="message" class="ml-4 italic"></span>
+    </div>
+
+
+</div>
 
   <div class="h-full grid gap-x-2 gap-y-9 grid-cols-2 grid-rows-5 ">    
     <div class="row-span-3 border border-gray-300"><slot name="graph">LEFT</slot></div>

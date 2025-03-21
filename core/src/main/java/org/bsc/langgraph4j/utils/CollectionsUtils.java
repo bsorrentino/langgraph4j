@@ -3,6 +3,8 @@ package org.bsc.langgraph4j.utils;
 import lombok.NonNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
@@ -37,6 +39,11 @@ public final class CollectionsUtils {
         return ( index < 0 ) ?
                 Optional.empty() :
                 Optional.of(values.get(index));
+    }
+
+    public static <K, V> Map<K, V> mergeMap( Map<K,V> map1, Map<K,V> map2 ) {
+        return Stream.concat(map1.entrySet().stream(), map2.entrySet().stream() )
+                .collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Deprecated
