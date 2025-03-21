@@ -2,6 +2,54 @@
 
 
 
+<!-- "name: v1.4.4" is a release tag -->
+
+## [v1.4.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.4) (2025-03-21)
+
+### Features
+
+ *  add support for JSON serialization using Jackson for langchain4j Chat Messages ([cf8943d42dca955](https://github.com/bsorrentino/langgraph4j/commit/cf8943d42dca95593bac32860035d88465258f94))
+   
+ *  Jackson based serialization refinements ([8f06f76e9f643f0](https://github.com/bsorrentino/langgraph4j/commit/8f06f76e9f643f00e27a4d132329db26ddab874d))
+     > - Add TypeMapper to map class  type with type name
+     > - Provide implementation for GenericListDeserializer and GenericMapDeserializer
+     > - Unit test for Jackson based serialization
+   
+ *  Jackson based serialization refinements ([946588148e58297](https://github.com/bsorrentino/langgraph4j/commit/946588148e582978835afbc7d28fc7a2856e009b))
+     > - Add TypeMapper to map class  type with type name
+     > - Provide implementation for GenericListDeserializer and GenericMapDeserializer
+     > - Unit test for Jackson based serialization
+   
+ *  **langchain4j**  Adds a new class for integration of chat memory  within graph state ([8174df0586d5616](https://github.com/bsorrentino/langgraph4j/commit/8174df0586d5616e18723d86f193f7481c09d9aa))
+     > - Introduce &#x60;GraphChatMemory&#x60; class to manage conversation histories using graph state. This allows a seamless experience in using langchain4j chat memory implementation in langgraph4j.
+   
+
+
+### Documentation
+
+ -  bump to 1.4.4 release ([73841494cd75a86](https://github.com/bsorrentino/langgraph4j/commit/73841494cd75a86b63d7b27db5cbf49eadfad033))
+
+ -  update changeme ([e81907b5c6482e4](https://github.com/bsorrentino/langgraph4j/commit/e81907b5c6482e4bcb049e7d336a5b2e34d88cf3))
+
+
+### Refactor
+
+ -  **AppenderChannel.java**  change constructor access level to protected ([7245120f3bfdb1d](https://github.com/bsorrentino/langgraph4j/commit/7245120f3bfdb1df811ffc05a26e7c068c2564cb))
+    > - allow AppenderChannel specialization
+
+
+### ALM 
+
+ -  bump to 1.4.4 release ([56835ab018ab7bd](https://github.com/bsorrentino/langgraph4j/commit/56835ab018ab7bdbbdc34537ec83a57226394436))
+   
+ -  bump to SNAPSHOT ([167ace3002c162b](https://github.com/bsorrentino/langgraph4j/commit/167ace3002c162b25f07f5f0d4ee7becb4045c22))
+   
+
+
+
+
+
+
 <!-- "name: v1.4.3" is a release tag -->
 
 ## [v1.4.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.3) (2025-03-15)
@@ -66,10 +114,6 @@
 
 ### Bug Fixes
 
- -  **langchain4j/serializer**  handle nullable values in ToolExecutionRequest and ToolExecutionResultMessage serializers ([9b686e6281f9753](https://github.com/bsorrentino/langgraph4j/commit/9b686e6281f975330df84cf7c62ebb84b2461aae))
-     > This commit introduces a new interface &#x60;NullableObjectSerializer&#x60; that extends &#x60;Serializer&#x60; to handle nullable objects during serialization, adding logic to manage null id values
-     > resolve #93
-
  -  **pom.xml**  update langgraph4j-parent version to 1.4.1 ([5687f029a816daf](https://github.com/bsorrentino/langgraph4j/commit/5687f029a816daf6436c2cb85bc40684aff65ae9))
 
 
@@ -99,8 +143,6 @@
 
 ### Refactor
 
- -  **tool/toolnode**  update implementation with record syntax ([279e38e3876edff](https://github.com/bsorrentino/langgraph4j/commit/279e38e3876edffd24451ce039ce747f86a09690))
-   
  -  **serializer**  add logging for null ids in ToolExecutionRequestSerializer and ToolExecutionResultMessageSerializer ([27aa1d7cee4159e](https://github.com/bsorrentino/langgraph4j/commit/27aa1d7cee4159ec257939e492fe9b9af5086354))
     > This refactoring adds logging to serialize methods in &#x60;ToolExecutionRequestSerializer&#x60; and &#x60;ToolExecutionResultMessageSerializer&#x60;. The logs will warn if the id is null, aiding in debugging potential issues where null ids are not handled gracefully.
  > work on #93
@@ -174,10 +216,6 @@
     > - remove deprecated usage
  > - Simplify implementation using MessagesState
 
- -  **studio/quarkus**  quarkus impl refinements ([317bf09a5958cc3](https://github.com/bsorrentino/langgraph4j/commit/317bf09a5958cc381e0d48635802edb25664cffb))
-    > using of @Produces to inject flow
- > work on #81
-
 
 ### ALM 
 
@@ -195,15 +233,8 @@
 
 ## [v1.4.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.0) (2025-02-17)
 
-### Features
-
- *  **studio/LangGraphStreamingServer.java**  compile the state graph before extract graph representation to support subgraph merge . ([dbc2394340779aa](https://github.com/bsorrentino/langgraph4j/commit/dbc2394340779aa2e0c812bde905dab0876ebd49))
-     > work on #73
-   
 
 ### Bug Fixes
-
- -  **how-tos/pom.xml**  ensure up-to-date versions for langchain4j dependencies ([dcc434268363bb1](https://github.com/bsorrentino/langgraph4j/commit/dcc434268363bb15df85f40daee62077b448460b))
 
  -  align doc with new versions and links ([afd521d3deb51ca](https://github.com/bsorrentino/langgraph4j/commit/afd521d3deb51ca0b5ac07713bfc473a1598600c))
 
@@ -246,18 +277,10 @@
  > - Deprecated the old fields and methods in favor of the new record components.
  > - Added documentation for improved clarity and future maintenance.
 
- -  **core/SubGraphNode.java**  update node identifier format ([886c9cc54c287ed](https://github.com/bsorrentino/langgraph4j/commit/886c9cc54c287ed95bfd36d75f406ab825afa374))
-    > Updated the PREFIX_FORMAT to &quot;%s-%s&quot; and added methods for retrieving the unique identifier and formatting subgraph IDs.
- > - add the &#x60;id()&#x60; method to return the unique identifier for the node.
- > - Added a default implementation of &#x60;formatId(String nodeId)&#x60; that formats the given node ID with a predefined prefix.
- > - Refactored existing static method &#x60;formatId(String subGraphNodeId, String nodeId)&#x60; to use the new format.
-
 
 ### ALM 
 
  -  bump to next relase ([2be780df0a171da](https://github.com/bsorrentino/langgraph4j/commit/2be780df0a171daf4abb4268f48a7bd4e284a815))
-   
- -  **studio/springboot**  add Lombok dependency for developer productivity ([eef9616cff424b4](https://github.com/bsorrentino/langgraph4j/commit/eef9616cff424b439996f1243adf0e75377efc31))
    
 
 ### Test 
@@ -267,9 +290,6 @@
 
  -  **how-tos**  add MultiAgentSupervisor test case ([cfd5aaf91f3f8f1](https://github.com/bsorrentino/langgraph4j/commit/cfd5aaf91f3f8f12348d0aa0de9b78f6d3593925))
     > work on #79
-
- -  **studio/springboot**  test merge subgraph execution ([2a6baaa390977f3](https://github.com/bsorrentino/langgraph4j/commit/2a6baaa390977f32e4110b1a4f6cf9750f32850c))
-    > work on #73
 
 
 
@@ -386,18 +406,10 @@
 
  -  **CompileConfig.java**  replace List with Set in interrupt fields ([9e1487907ca724b](https://github.com/bsorrentino/langgraph4j/commit/9e1487907ca724b9db43477662c766ea4257cedf))
    
- -  **howtos/subgraph**  add more tests and bump to new langgraph4j SNAPSHOT ([97c94499e7ffae9](https://github.com/bsorrentino/langgraph4j/commit/97c94499e7ffae98cf3b8ef2a5bc11eb32a95d5f))
-    > work on #73
-
  -  **howtos**  bump to new langgraph4j SNAPSHOT ([941b3c20a24da40](https://github.com/bsorrentino/langgraph4j/commit/941b3c20a24da40634e1231fbd78d88af858e69a))
    
  -  create package internal containing internal classes ([5fdc50b2483b095](https://github.com/bsorrentino/langgraph4j/commit/5fdc50b2483b0952e4f6691a57e5284a96e5a678))
     > prepare for java  module integration
-
- -  **core/CompileConfig.java**  update interrupt fields to List ([29ccd1ed96cff0c](https://github.com/bsorrentino/langgraph4j/commit/29ccd1ed96cff0c98038d240697a727ea3ec8713))
-    > - Changed &#x60;interruptBefore&#x60; and &#x60;interruptAfter&#x60; from String arrays to Lists to allow for more flexible configuration.
- > - Deprecated the old getter methods in favor of new methods that return immutable lists.
- > - Add copy constructor.
 
  -  **CompiledGraph.java**  use new Edge.withSourceAndTargetIdsUpdated that accept Function<String,EdgeValue> ([14b1e51e0c6730b](https://github.com/bsorrentino/langgraph4j/commit/14b1e51e0c6730b0f0ce4789ef281df962adb4ff))
    
@@ -500,48 +512,15 @@
    
  *  **subgraph**  allow produce graph containing  subgraph representations both original (from state graph ) and merged  (from compile graph) ([b1550c773d3cf21](https://github.com/bsorrentino/langgraph4j/commit/b1550c773d3cf21424ba7cca24fad7e360e54a81))
    
- *  **core/CompiledGraph.java**  enhance subgraph processing in state graph ([94322b6ef726f7e](https://github.com/bsorrentino/langgraph4j/commit/94322b6ef726f7e9a46bc82a6036cd97480173b5))
-     > It ensures that interruptions (nodes marked as &quot;before&quot;) are correctly redirected to the real target ID after subgraph expansion.
-     > work on #73
-   
- *  **core/CompiledGraph.java**  enhance subgraph processing in state graph ([00679e902d3f9ab](https://github.com/bsorrentino/langgraph4j/commit/00679e902d3f9ab8f42427941f75a1d54d289b02))
-     > It ensures that interruptions (nodes marked as &quot;before&quot;) are correctly redirected to the real target ID after subgraph expansion.
-     > work on #73
-   
- *  **core/CompiledGraph.java**  add interruption node checks ([bf97c1b8e51a742](https://github.com/bsorrentino/langgraph4j/commit/bf97c1b8e51a74225bd956abd40c7338c506f065))
-     > Added checks for interruption nodes before processing state graph nodes and edges.
-   
- *  **core/StateGraph.java**  Add error message for non-existent interruption node ([d8decf4cde589e7](https://github.com/bsorrentino/langgraph4j/commit/d8decf4cde589e7d0c084c8da22fc6cec4ba7e4f))
-     > Added an error message to handle the scenario where a node configured as an interruption does not exist in the StateGraph.
-   
- *  **core//SubGraphNode.java**  introduce SubGraphNode interface ([4065ce68c20333f](https://github.com/bsorrentino/langgraph4j/commit/4065ce68c20333f3f7d863fb6d467db748dca1f1))
-     > Add a new interface &#x60;SubGraphNode&#x60; in package &#x60;org.bsc.langgraph4j&#x60;, which defines methods related to managing sub-graph nodes with specific states.
-     > This interface includes a method for obtaining the sub-graph and a static utility method for formatting node IDs to distinct subgraph nodes from standard ones
-     > work on #73
-   
- *  **core/CompiledGraph.java**  Refactor `CompiledGraph` to prepare for support of sub-graphs merge ([6e534cc81cf880b](https://github.com/bsorrentino/langgraph4j/commit/6e534cc81cf880b2db5865ef50d53dbbe1332cb0))
-     > - Removed deprecated methods &#x60;getEntryPoint&#x60; and &#x60;getFinishPoint&#x60;
-     > work on #73
-   
- *  **core/Edge.java**  add methods for target ID matching and source/target id updates ([4971ad41235a7f7](https://github.com/bsorrentino/langgraph4j/commit/4971ad41235a7f728130d31908c483c7a08fab72))
-     > - Added &#x60;anyMatchByTargetId&#x60; method to check if there is a target with a specific ID by comparing IDs or value mappings.
-     > - Created &#x60;withSourceAndTargetIdsUpdated&#x60; method to update both the source and target IDs in an Edge, leveraging a Node and provided functions for new IDs.
-     > work on #73
-   
 
 ### Bug Fixes
 
  -  **site**  rename folder studio/core to studio/base ([17610eeb37a20e3](https://github.com/bsorrentino/langgraph4j/commit/17610eeb37a20e34b395065b18f681f5a77658da))
 
- -  **core/Node.java**  Ensured the `equals` method only casts to `Node<?>` if the object is not null, ([79f83954ba0308c](https://github.com/bsorrentino/langgraph4j/commit/79f83954ba0308c2abe987c9c9f84714bf714525))
-     > work on #73
-
 
 ### Documentation
 
  -  move to next release 1.4.0-beta1 ([55863cd2ac9ead2](https://github.com/bsorrentino/langgraph4j/commit/55863cd2ac9ead27d98fe647cfcb6c717ec9ff33))
-
- -  **core/CompileConfig.java**  add javadoc ([bc107c8426e4aa3](https://github.com/bsorrentino/langgraph4j/commit/bc107c8426e4aa3496171ea59043e56ac942f000))
 
  -  referes to last 1.4-SNAPSHOT ([36cbf7212e128fa](https://github.com/bsorrentino/langgraph4j/commit/36cbf7212e128facb9837903e5cd3d37c9ead9fd))
 
@@ -563,90 +542,21 @@
  -  create package internal containing internal classes ([f50f85ed348559d](https://github.com/bsorrentino/langgraph4j/commit/f50f85ed348559dafcb8015f2acafaeeb9d871b2))
     > prepare for java  module integration
 
- -  **core/CompileConfig.java**  replace List with Set in interrupt fields ([3a646b34dafc912](https://github.com/bsorrentino/langgraph4j/commit/3a646b34dafc91227ef7f129238bbe9830f0acec))
-   
- -  **core/CompiledGraph.java**  use new Edge.withSourceAndTargetIdsUpdated that accept Function<String,EdgeValue> ([07dfb3bbf4addea](https://github.com/bsorrentino/langgraph4j/commit/07dfb3bbf4addea3e41cf73272fc3c5d4ac4f981))
-   
  -  **StateGraph.java**  remove unnecessary parameters from EdgeValue ([91e7798fe922224](https://github.com/bsorrentino/langgraph4j/commit/91e7798fe92222433b62b801a194031f2abb465f))
     > - Removed redundant parameters in &#x60;EdgeValue&#x60; constructor calls to simplify code
  > - Updated commented out conditional logic, potentially for future use
 
- -  **core/Edge.java**  update method signature and simplify target id handling ([9ddf1d0710f1bb9](https://github.com/bsorrentino/langgraph4j/commit/9ddf1d0710f1bb9163c6d36a41b4bbe22584d830))
-    > Updated the &#x60;withSourceAndTargetIdsUpdated&#x60; method in &#x60;Edge.java&#x60; to use a &#x60;Function&lt;String, EdgeValue&lt;State&gt;&gt;&#x60; instead of &#x60;Function&lt;String, String&gt;&#x60; for target ids.
- > Added constructors that allow creating an &#x60;EdgeValue&#x60; with only an ID or only a condition value.
-
- -  **core/CompileConfig.java**  update interrupt fields to List ([4729fd8cceabdcb](https://github.com/bsorrentino/langgraph4j/commit/4729fd8cceabdcb44b48f1454816b0365afbf96b))
-    > - Changed &#x60;interruptBefore&#x60; and &#x60;interruptAfter&#x60; from String arrays to Lists to allow for more flexible configuration.
- > - Deprecated the old getter methods in favor of new methods that return immutable lists.
- > - Add copy constructor.
-
- -  **howtos/subgraph**  add more tests and bump to new langgraph4j SNAPSHOT ([d8cd2a2ca03f147](https://github.com/bsorrentino/langgraph4j/commit/d8cd2a2ca03f1470edb4ca0d606a638d9c8c9eb3))
-    > work on #73
-
  -  **howtos**  bump to new langgraph4j SNAPSHOT ([f43122ed4464445](https://github.com/bsorrentino/langgraph4j/commit/f43122ed4464445aa3de5981cc1ae0c9997abe72))
    
- -  **core/CompiledGraph.java**  remove redundant graph validation and edge processing ([5ea5d6b1c4a06a6](https://github.com/bsorrentino/langgraph4j/commit/5ea5d6b1c4a06a64af9310019f33e8fe2933cbe2))
-   
- -  **core/Node.java**  refine node class hierarchy ([3752498e84201cd](https://github.com/bsorrentino/langgraph4j/commit/3752498e84201cdd25518d28128158f3940d2054))
-   
- -  **core/Edge.java**  update EdgeValue to handle multiple target IDs ([a6d269e88df9320](https://github.com/bsorrentino/langgraph4j/commit/a6d269e88df93209bf8c544a7bb702a57fcbd594))
-    > - add &#x60;EdgeCondition&#x60; and &#x60;AsyncEdgeAction&#x60; class in the same file for improve incapsulation and maintanability
- > - Updated &#x60;EdgeValue&#x60; to use a new method &#x60;withTargetIdsUpdated&#x60; which handles updates for multiple target IDs.
- > - Removed the  &#x60;EdgeCondition&#x60; and &#x60;EdgeValue&#x60; classes as independent file unit
- > work on #73
-
  -  **CompiledGraph.java**  Renamed method to correctly filter out sub-state graph nodes ([bb78ac3ecb40bee](https://github.com/bsorrentino/langgraph4j/commit/bb78ac3ecb40beec027b25f3067228dea6f3e13f))
     > - Renamed &#x60;onlySubStateGraphNodes&#x60; to &#x60;withoutSubGraphNodes&#x60;
  > - Updated variable names and references throughout the method for clarity
  > - Changed the creation and handling of &#x60;resultEdges&#x60; to use a single &#x60;StateGraphNodesAndEdges&#x60; object
 
- -  **core/DiagramGenerator.java**  simplify subgraph detection ([c7aa3919093d4df](https://github.com/bsorrentino/langgraph4j/commit/c7aa3919093d4df56b6fb508a3c0fcdd3a3620b5))
-   
- -  **core/StateGraph.java**  update node construction and refactor subgraph management ([6dc6be4fe81a9d4](https://github.com/bsorrentino/langgraph4j/commit/6dc6be4fe81a9d4b54f4f4f822d66212b4c41e85))
-    > - Replace &#x60;SubGraphNodeAction&#x60; with &#x60;SubCompiledGraphNode&#x60;
- > - Rename methods to clarify their purpose (&#x60;onlySubStateGraphNodes&#x60;, &#x60;exceptSubStateGraphNodes&#x60;)
-
- -  **core/Node.java**  introduce interfaces and classes for subgraph handling ([f98c40ee56e30e1](https://github.com/bsorrentino/langgraph4j/commit/f98c40ee56e30e1f438a8291d03342b8ba088b5f))
-    > Refactored SubGraphNode to interface, added concrete implementations for different types of subgraph nodes (State, Compiled).
-
  -  **langchain4jToolNodeTest.java**  remove deprecation in update tool parameters definition ([c4b90d64f961bbf](https://github.com/bsorrentino/langgraph4j/commit/c4b90d64f961bbfc4726a7a9835c56e52618d835))
    
  -  **Edge.java**  replace Collection with StateGraph.Nodes for improved performance and readability ([9e703115afe22bf](https://github.com/bsorrentino/langgraph4j/commit/9e703115afe22bf2113eb20ba9e03420484c8b1d))
     > - Updated &#x60;validate&#x60; methods to use &#x60;StateGraph.Nodes.anyMatchById&#x60; instead of manual containment checks within a collection, enhancing both performance and code clarity.
- > work on #73
-
- -  **core/StateGraph**  consolidate subgraph processing into a single method ([03abb16e604c886](https://github.com/bsorrentino/langgraph4j/commit/03abb16e604c88633f66524cfcd8fc9e9dac2aa3))
-    > - Extracted subgraph processing logic into &#x60;StateGraph::processSubgraphs&#x60;
- > - Moved subgraph-related updates to new &#x60;StateGraph::Nodes&#x60; and &#x60;StateGraph::Edges&#x60; classes for better separation of concerns
- > work on #73
-
- -  **core/DiagramGenerator.java**  access node elements directly ([6792e9fdb586042](https://github.com/bsorrentino/langgraph4j/commit/6792e9fdb586042c145b7b6755728670f3adb25a))
-    > work on #73
-
- -  **core/StateGraph.java**  update node handling with new Nodes class ([3e45264449ddebf](https://github.com/bsorrentino/langgraph4j/commit/3e45264449ddebfd6278754582bc3fdd0766e4b5))
-    > - Introduced a new &#x60;Nodes&#x60; class to encapsulate management of graph nodes, providing methods for checking if a node with a given ID exists, finding sub-graph nodes, and filtering out sub-graph nodes.
- > - Updated the &#x60;StateGraph&#x60; class to use the new &#x60;Nodes&#x60; class for managing nodes, improving code readability and modularity.
- > - Modified edge lookup methods from &#x60;findEdgeBySourceId&#x60; and &#x60;findEdgesByTargetId&#x60; to &#x60;edgeBySourceId&#x60; and &#x60;edgesByTargetId&#x60; .
- > work on #73
-
- -  **core/DiagramGenerator.java**  update edge processing streams to use 'elements' ([e59edfd4f6e62ec](https://github.com/bsorrentino/langgraph4j/commit/e59edfd4f6e62ec3ba2e4f681c3698385cd8c11a))
-    > work on #73
-
- -  **core/StateGraph.java**  update edge collection management and improve graph validation ([898f5fd2d435492](https://github.com/bsorrentino/langgraph4j/commit/898f5fd2d4354923054cd36a02ccb327422ab766))
-    > Refactored &#x60;StateGraph.java&#x60; to use a custom &#x60;Edges&lt;State&gt;&#x60; class for managing edge collections, enhancing maintainability.
- > Updated methods to find edges by source and target IDs, and added a comprehensive &#x60;validateGraph()&#x60; method to ensure edge consistency during compilation.
- > work on #73
-
- -  **core/EdgeValue.java**  update EdgeValue implementation to use record and add withTargetIdUpdated method ([9891961af89cd3f](https://github.com/bsorrentino/langgraph4j/commit/9891961af89cd3f5b7eac12775785d8c26985b56))
-    > - Adding a new method, &#x60;withTargetIdUpdated&#x60;, which updates the &#x60;id&#x60; field while copying other values or modifying mappings based on the input function.
- > work on #73
-
- -  **core/Node.java**  introduce class hierarchy for better structure ([f86c51906faf960](https://github.com/bsorrentino/langgraph4j/commit/f86c51906faf960842e3104eee9ccd2e0bd9e4db))
-    > - Change &#x60;Node&#x60; from a record to a class for more flexibility.
- > - Add getter methods for &#x60;id&#x60; and &#x60;actionFactory&#x60;.
- > - Introduce &#x60;ParallelNode&#x60; and &#x60;SubGraphNode&#x60; subclasses to handle complex node structures.
- > - Update constructors and refactor method implementations accordingly.
- > - Add Javadoc comments for better understanding of each type, method, and field.
  > work on #73
 
 
@@ -660,9 +570,6 @@
    
 
 ### Test 
-
- -  **core/SubGraphTest.java**  Add tests for subgraph interruption ([a22d70d974f1064](https://github.com/bsorrentino/langgraph4j/commit/a22d70d974f1064a72c0ad5f642290ce9d2828d9))
-    > work on #73
 
  -  add new test cases for subgraph merge ([b267d71d1d02b38](https://github.com/bsorrentino/langgraph4j/commit/b267d71d1d02b38bc83400b9b0c024d203573606))
     > - Added new test cases to cover different scenarios in merging subgraphs.
@@ -748,10 +655,6 @@
 
 ### Features
 
- *  **how-to/parallel-branch**  add more usage examples ([1fcb7cb77624da6](https://github.com/bsorrentino/langgraph4j/commit/1fcb7cb77624da6ccfad97654d392b68c93804a5))
-   
- *  **prebuilt/MessagesState.java**  add utility method 'lastMinus(int)' for accessing messages state ([e0610a2d6773e0e](https://github.com/bsorrentino/langgraph4j/commit/e0610a2d6773e0e764398796b9739f99803baaa0))
-   
  *  **how-to**  add notebook for parallel branch execution ([46891fc5048897a](https://github.com/bsorrentino/langgraph4j/commit/46891fc5048897a61af9d1fbd60d30fd1dfdd6bb))
    
  *  **prebuilt**  Added MessagesState and MessagesStateGraph classes ([7859c321f04de55](https://github.com/bsorrentino/langgraph4j/commit/7859c321f04de556e458125676ecbd5a84e57943))
@@ -775,10 +678,6 @@
  -  bump release version to 1.3.0 ([5b49118781c29e2](https://github.com/bsorrentino/langgraph4j/commit/5b49118781c29e2f5ba6bc8daffb484562eb5048))
 
  -  **how-tos**  update site documentation ([c9ffa56575a1c8b](https://github.com/bsorrentino/langgraph4j/commit/c9ffa56575a1c8b8b929ee271a61a5c23ccaa624))
-
- -  **how-tos/adaptiverag**  update documentation ([c3988d4cc635506](https://github.com/bsorrentino/langgraph4j/commit/c3988d4cc635506c62bcc331d7c311a19ae06f3a))
-
- -  **prebuilt/MessageStateGraph**  add javadoc ([f8c1670adf64e7d](https://github.com/bsorrentino/langgraph4j/commit/f8c1670adf64e7d54be3e0d4cfaef04ba1c8b66e))
 
  -  **how-tos**  update documentation ([0c06feb989fb1cd](https://github.com/bsorrentino/langgraph4j/commit/0c06feb989fb1cd5170a3d328f69b69ffb3e0c55))
 
@@ -805,13 +704,6 @@
     > Modified &#x60;parallelNodeStream&#x60; to retrieve nodes instead of removing.
 
  -  **how-to**  update langgraph version ([76680b6f086c150](https://github.com/bsorrentino/langgraph4j/commit/76680b6f086c15010cd8698ee3cd88d00055a391))
-   
- -  **prebuilt/MessagesStateGraph.java**  simplify state serializer ([9581a8d918f93f6](https://github.com/bsorrentino/langgraph4j/commit/9581a8d918f93f6f4a3888679b4f5ac2e926f3d6))
-    > Removed unnecessary &#x60;Serializer&#x60;
-
- -  **prebuilt/MessagesState.java**  make SCHEMA field public static final ([91f28290150873e](https://github.com/bsorrentino/langgraph4j/commit/91f28290150873e0e55e9bd222a2537f1c9367db))
-   
- -  **prebuilt/MessagesState.java**  make message-related methods public ([6152b6820e5f7ba](https://github.com/bsorrentino/langgraph4j/commit/6152b6820e5f7ba3d63940e9ef54613b248570e9))
    
  -  **how-to**  update notebook for parallel branch execution ([cfedf4869727b0a](https://github.com/bsorrentino/langgraph4j/commit/cfedf4869727b0aa758dc51663920b70cc2ef6cb))
    
