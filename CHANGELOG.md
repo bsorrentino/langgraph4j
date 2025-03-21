@@ -2,6 +2,24 @@
 
 
 
+<!-- "name: v1.4.4-patch1" is a release tag -->
+
+## [v1.4.4-patch1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.4-patch1) (2025-03-21)
+
+
+
+### Documentation
+
+ -  update changeme ([c9f59de263e7bdc](https://github.com/bsorrentino/langgraph4j/commit/c9f59de263e7bdc521a6dba7e12874cb2c642855))
+
+
+
+
+
+
+
+
+
 <!-- "name: v1.4.4" is a release tag -->
 
 ## [v1.4.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.4) (2025-03-21)
