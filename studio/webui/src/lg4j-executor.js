@@ -139,6 +139,36 @@ export class LG4JExecutorElement extends LitElement {
 
   }
 
+  #startExecution() {
+
+    this._executing = true
+    this.dispatchEvent(new CustomEvent('state-updated', {
+      detail: 'start',
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
+  }
+
+  /**
+   * 
+   * @param {[ string, UpdatedState & { next: string } ]|null} result 
+   */
+  #stopExecution( result ) {
+    this._executing = false
+
+    if( result ) {
+      const [ thread, { node } ] = result
+      // Asuume that flow is interrupted if last node is different by last node (__END__) 
+      this.dispatchEvent(new CustomEvent('state-updated', {
+        detail: ( node!=='__END__' ) ? 'interrupted' : 'stop',
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      }));
+    }
+  }
+
   /**
    * Event handler for the 'update slected thread' event.
    * 
@@ -245,7 +275,10 @@ export class LG4JExecutorElement extends LitElement {
   }
 
   async #callResume() {
-    this._executing = true
+
+    this.#startExecution()
+    let result = null
+
     try {
 
       if (this.test) {
@@ -253,12 +286,12 @@ export class LG4JExecutorElement extends LitElement {
         return
       }
 
-      await this.#callResumeAction()
+      result =  await this.#callResumeAction()
 
 
     }
     finally {
-      this._executing = false
+      this.#stopExecution(result)
     }
 
   }
@@ -275,25 +308,30 @@ export class LG4JExecutorElement extends LitElement {
 
     this.#updatedState = null
 
+    /** @type [ string, UpdatedState & { next: string } ]|null */
+    let lastChunk = null
 
     for await (let detail of streamingResponse(execResponse)) {
-      console.debug(detail)
+      console.debug( detail)
+      
+      lastChunk = detail
 
       this.dispatchEvent(new CustomEvent('result', {
-        //detail: JSON.parse(data),
         detail,
         bubbles: true,
         composed: true,
         cancelable: true
       }));
-
     }
+
+    return lastChunk
 
   }
 
   async #callSubmit() {
 
-    this._executing = true
+    this.#startExecution()
+    let result = null
     try {
 
       if (this.test) {
@@ -301,11 +339,11 @@ export class LG4JExecutorElement extends LitElement {
         return
       }
 
-      await this.#callSubmitAction()
+      result = await this.#callSubmitAction()
 
     }
     finally {
-      this._executing = false
+        this.#stopExecution(result)
     }
   }
 
@@ -334,9 +372,8 @@ export class LG4JExecutorElement extends LitElement {
       return acc
     }, result);
 
-    // Asuume that flow is interrupted if last node is different by last node (__END__) 
-    // const interrupted = (this.#updatedState) ? this.#updatedState.node!=='__END__' : false
     
+
     // const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}&resume=${interrupted}&node=${this.#updatedState?.node}&checkpoint=${this.#updatedState?.checkpoint}`, {
     const execResponse = await fetch(`${this.url}/stream?thread=${this.#selectedThread}`, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -364,11 +401,9 @@ export class LG4JExecutorElement extends LitElement {
 
     }
     
-    // this.#updatedState = ( lastChunk ) ? lastChunk[1] : null
+    return lastChunk
 
-    // console.debug( 'LAST CHUNK', lastChunk );
   }
 
 }
-
 window.customElements.define('lg4j-executor', LG4JExecutorElement);
