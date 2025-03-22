@@ -143,7 +143,7 @@ public class AgentState {
                 .collect(toMapRemovingNulls(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
-                        AgentState::mergeFunction));
+                        ( currentValue, newValue ) -> newValue ));
     }
 
     /**
@@ -158,22 +158,6 @@ public class AgentState {
      */
     public static Map<String,Object> updateState( AgentState state, Map<String,Object> partialState, Map<String, Channel<?>> channels ) {
         return updateState(state.data(), partialState, channels);
-    }
-
-    /**
-     * Merges the current value with the new value using the appropriate merge function.
-     *
-     * @param currentValue the current value
-     * @param newValue the new value
-     * @return the merged value
-     */
-    @Deprecated
-    private static Object mergeFunction(Object currentValue, Object newValue) {
-        if (currentValue instanceof AppendableValueRW<?>) {
-            ((AppendableValueRW<?>) currentValue).append(newValue);
-            return currentValue;
-        }
-        return newValue;
     }
 
 
@@ -200,32 +184,6 @@ public class AgentState {
      */
     @Deprecated
     public final <T> T value(String key, Supplier<T>  defaultProvider ) { return this.<T>value(key).orElseGet(defaultProvider); }
-
-    /**
-     * Retrieves or creates an AppendableValue associated with the given key.
-     *
-     * @param key the key whose associated AppendableValue is to be returned or created
-     * @param <T> the type of the value
-     * @return an AppendableValue associated with the given key
-     * @deprecated use {@link Channel} instead
-     */
-    @Deprecated
-    public final <T> AppendableValue<T> appendableValue(String key) {
-        Object value = this.data.get(key);
-
-        if (value instanceof AppendableValue) {
-            return (AppendableValue<T>) value;
-        }
-        if (value instanceof Collection) {
-            return new AppendableValueRW<>((Collection<T>) value);
-        }
-        AppendableValueRW<T> rw = new AppendableValueRW<>();
-        if (value != null) {
-            rw.append(value);
-        }
-        this.data.put(key, rw);
-        return rw;
-    }
 
     /**
      * Merges the current state with a partial state and returns a new state.
