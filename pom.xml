@@ -35,6 +35,8 @@
   </issueManagement>
 
   <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <langchain4j.version>1.0.0-beta2</langchain4j.version>
@@ -197,6 +199,7 @@
     <module>studio/jetty</module>
     <module>studio/springboot</module>
     <module>studio/quarkus</module>
+    <module>generator</module>
   </modules>
 
   <profiles>
