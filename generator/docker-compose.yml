@@ -1,0 +1,16 @@
+services:
+  node-jre-app:
+    build:
+      context: .  # Builds from the current directory where Dockerfile is located
+      dockerfile: Dockerfile
+      args:
+        LANGRAPH4J_GEN: generator-1.5-SNAPSHOT-jar-with-dependencies.jar  # Pass the value here
+    container_name: node22-jre17-app
+    ports:
+      - "3000:3000"  # Change this if your Node app uses a different port
+    volumes:
+      - .:/app/download  # Optional: Mount local directory (useful for development)
+    environment:
+      - NODE_ENV=production
+      - LANGRAPH4J_GEN=generator-1.5-SNAPSHOT-jar-with-dependencies.jar
+      - RUNNING_IN_DOCKER=true
