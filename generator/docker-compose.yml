@@ -5,11 +5,12 @@ services:
       dockerfile: Dockerfile
       args:
         LANGRAPH4J_GEN: generator-1.5-SNAPSHOT-jar-with-dependencies.jar  # Pass the value here
-    container_name: node22-jre17-app
+    image: bsorrentino/langgraph4j-builder:1.5.0
+    container_name: langgraph4j-builder-app
     ports:
       - "3000:3000"  # Change this if your Node app uses a different port
     volumes:
-      - .:/app/download  # Optional: Mount local directory (useful for development)
+#      - .:/app/download  # Optional: Mount local directory (useful for development)
     environment:
       - NODE_ENV=production
       - LANGRAPH4J_GEN=generator-1.5-SNAPSHOT-jar-with-dependencies.jar
