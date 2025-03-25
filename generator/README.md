@@ -22,7 +22,7 @@ edges:
 
 Based on project [langgraph-builder] we have integrate the **Langgraph4j** part (take a look to the [fork][langgraph-builder-fork]) so we can now **visually scaffolding a langchain4j graph** and **generate java code**
 
-![builder](src/main/site/resources/langgraph4j-builder.gif)
+![builder](src/site/resources/langgraph4j-builder.gif)
 
 ## Setup (with Docker)
 
