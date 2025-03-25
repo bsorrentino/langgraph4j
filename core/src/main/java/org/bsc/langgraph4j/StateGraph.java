@@ -98,11 +98,6 @@ public class StateGraph<State extends AgentState> {
     final Nodes<State> nodes = new Nodes<>();
     final Edges<State> edges = new Edges<>();
 
-    private EdgeValue<State> entryPoint;
-
-    @Deprecated( forRemoval = true )
-    private String finishPoint;
-
     private final Map<String, Channel<?>> channels;
 
     private final StateSerializer<State> stateSerializer;
@@ -159,58 +154,6 @@ public class StateGraph<State extends AgentState> {
         return unmodifiableMap(channels);
     }
 
-    @Deprecated( forRemoval = true )
-    public EdgeValue<State> getEntryPoint() {
-        return edges.edgeBySourceId( START )
-                .map( Edge::target )
-                .orElse( null );
-    }
-
-    @Deprecated( forRemoval = true )
-    public String getFinishPoint() {
-        return finishPoint;
-    }
-
-    /**
-     * Sets the entry point of the graph.
-     *
-     * @param entryPoint the nodeId of the graph's entry-point
-     * @deprecated  use addEdge(START, nodeId)
-     */
-    @Deprecated( forRemoval = true )
-    public void setEntryPoint(String entryPoint) {
-        try {
-            addEdge( START, entryPoint );
-        } catch (GraphStateException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Sets a conditional entry point of the graph.
-     *
-     * @param condition the edge condition
-     * @param mappings the edge mappings
-     * @throws GraphStateException if the edge mappings is null or empty
-     * @deprecated use addConditionalEdge(START, consition, mappings)
-     */
-    @Deprecated( forRemoval = true )
-    public void setConditionalEntryPoint(AsyncEdgeAction<State> condition, Map<String, String> mappings) throws GraphStateException {
-        addConditionalEdges(START, condition, mappings);
-    }
-
-    /**
-     * Sets the identifier of the node that represents the end of the graph execution.
-     *
-     * @param finishPoint the identifier of the finish point node
-     * @deprecated use  use addEdge(nodeId, END)
-     */
-    @Deprecated
-    public void setFinishPoint(String finishPoint) {
-        this.finishPoint = finishPoint;
-    }
-
-    /**
     /**
      * Adds a node to the graph.
      *
@@ -320,6 +263,7 @@ public class StateGraph<State extends AgentState> {
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      * @Deprecated use {@code add( String id, StateGraph<State> )} instead
      */
+    @Deprecated
     public StateGraph<State> addSubgraph(String id, StateGraph<State> subGraph) throws GraphStateException {
         return addNode( id, subGraph );
     }
@@ -335,11 +279,6 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(sourceId, END)) {
             throw Errors.invalidEdgeIdentifier.exception(END);
         }
-
-//        if (Objects.equals(sourceId, START)) {
-//            this.entryPoint = new EdgeValue<>(targetId);
-//            return this;
-//        }
 
         var newEdge = new Edge<>(sourceId, new EdgeValue<State>(targetId) );
 
@@ -371,11 +310,6 @@ public class StateGraph<State extends AgentState> {
         if (mappings == null || mappings.isEmpty()) {
             throw Errors.edgeMappingIsEmpty.exception(sourceId);
         }
-
-//        if (Objects.equals(sourceId, START)) {
-//            this.entryPoint = new EdgeValue<>(new EdgeCondition<>(condition, mappings));
-//            return this;
-//        }
 
         var newEdge =  new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>(condition, mappings)) );
 

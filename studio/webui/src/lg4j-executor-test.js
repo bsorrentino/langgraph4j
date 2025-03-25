@@ -82,12 +82,13 @@ flowchart TD
 
     const thread = selectedThread
 
-    const send = async ( /** @type {string} */ nodeId) => {
+    const send = async ( /** @type {string} */ nodeId, /** @type {string} */ nextNodeId) => {
 
       /** @typedef {ResultData} */
       const detail = [thread, {
         checkpoint: (nodeId === 'start' || nodeId === 'stop') ? undefined : `checkpoint-${nodeId}`,
         node: nodeId,
+        next: nextNodeId,
         state: {
           input: "this is input",
           property1: { value: "value1", valid: true },
@@ -108,14 +109,21 @@ flowchart TD
       elem.dispatchEvent(event);
     }
 
-    await send('start');
-    await send('retrieve');
-    await send('grade_documents');
-    await send('transform_query');
-    await send('retrieve');
-    await send('grade_documents');
-    await send('generate');
+    await send('start', 'retrieve');
+    await send('retrieve', 'grade_documents');
+    await send('grade_documents', 'transform_query');
+    await send('transform_query', 'retrieve');
+    await send('retrieve', 'grade_documents');
+    await send('grade_documents', 'generate');
+    await send('generate', 'generate');
     await send('stop');
+
+    elem.dispatchEvent(new CustomEvent('state-updated', {
+      detail:  'stop',
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
 
   }
 
@@ -202,12 +210,13 @@ end
 
     const thread = selectedThread
 
-    const send = async ( /** @type {string} */ nodeId) => {
+    const send = async ( /** @type {string} */ nodeId, /** @type {string} */ nextNodeId) => {
 
       /** @typedef {ResultData} */
       const detail = [thread, {
         checkpoint: (nodeId === 'start' || nodeId === 'stop') ? undefined : `checkpoint-${nodeId}`,
         node: nodeId,
+        next: nextNodeId,
         state: {
           input: "this is input",
           property1: { value: "value1", valid: true },
@@ -227,13 +236,20 @@ end
       elem.dispatchEvent(event);
     }
 
-    await send('__START__');
-    await send('agent_describer');
-    await send('agent_generic_plantuml');
-    await send('___START__');
-    await send('_evaluate_result');
+    await send('__START__', 'agent_describer');
+    await send('agent_describer', 'agent_sequence_plantuml');
+    await send('agent_generic_plantuml', '___START__');
+    await send('___START__', '_evaluate_result');
+    await send('_evaluate_result', '__END__');
     await send('___END__');
     await send('__END__');
+
+    elem.dispatchEvent(new CustomEvent('state-updated', {
+      detail:  'stop',
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    }));
 
   }
 

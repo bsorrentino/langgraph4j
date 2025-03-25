@@ -376,7 +376,6 @@ public class CompiledGraph<State extends AgentState> {
      * @param inputs the input map
      * @param config the invoke configuration
      * @return an AsyncGenerator stream of NodeOutput
-     * @throws Exception if there is an error creating the stream
      */
     public AsyncGenerator<NodeOutput<State>> streamSnapshots( Map<String,Object> inputs, RunnableConfig config )  {
         Objects.requireNonNull(config, "config cannot be null");
@@ -587,9 +586,16 @@ public class CompiledGraph<State extends AgentState> {
 
                 if( START.equals(currentNodeId) ) {
                     nextNodeId = getEntryPoint( currentState );
+
+                    var cp = addCheckpoint( config, START, currentState, nextNodeId );
+
+                    var output =  ( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
+                            buildStateSnapshot(cp.get()) :
+                            buildNodeOutput( currentNodeId );
+
                     currentNodeId = nextNodeId;
-                    addCheckpoint( config, START, currentState, nextNodeId );
-                    return Data.of( buildNodeOutput( START ) );
+
+                    return Data.of( output );
                 }
 
                 if( END.equals(nextNodeId) ) {

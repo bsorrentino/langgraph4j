@@ -69,8 +69,8 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
         private int port = 8080;
         private final List<ArgumentMetadata> inputArgs = new ArrayList<>();
         private String title = null;
-        private BaseCheckpointSaver saver;
         private StateGraph<? extends AgentState> stateGraph;
+        private CompileConfig compileConfig;
 
         /**
          * Sets the port for the server.
@@ -139,17 +139,6 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
         }
 
         /**
-         * Sets the checkpoint saver for the server.
-         *
-         * @param saver the checkpoint saver to be used
-         * @return the Builder instance
-         */
-        public Builder checkpointSaver(BaseCheckpointSaver saver) {
-            this.saver = saver;
-            return this;
-        }
-
-        /**
          * Sets the state graph for the server.
          *
          * @param stateGraph the state graph to be used
@@ -158,6 +147,11 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
          */
         public <State extends AgentState> Builder stateGraph(StateGraph<State> stateGraph) {
             this.stateGraph = stateGraph;
+            return this;
+        }
+
+        public Builder compileConfig(CompileConfig compileConfig) {
+            this.compileConfig = compileConfig;
             return this;
         }
 
@@ -171,8 +165,16 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
         public LangGraphStreamingServerJetty build() throws Exception {
             Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
 
-            if (saver == null) {
-                saver = new MemorySaver();
+            if( compileConfig == null ) {
+                compileConfig = CompileConfig.builder()
+                        .checkpointSaver(  new MemorySaver() )
+                        .build();
+            }
+
+            if( compileConfig.checkpointSaver().isEmpty() ) {
+                compileConfig = CompileConfig.builder(compileConfig)
+                        .checkpointSaver(  new MemorySaver() )
+                        .build();
             }
 
             Server server = new Server();
@@ -194,7 +196,7 @@ public class LangGraphStreamingServerJetty implements LangGraphStreamingServer {
 
             context.addServlet(new ServletHolder(new GraphInitServlet(stateGraph, title, inputArgs)), "/init");
 
-            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, saver)), "/stream");
+            context.addServlet(new ServletHolder(new GraphStreamServlet(stateGraph, compileConfig)), "/stream");
 
             var handlerList = new Handler.Sequence(resourceHandler, context);
 
