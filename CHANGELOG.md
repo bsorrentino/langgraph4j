@@ -2,6 +2,106 @@
 
 
 
+<!-- "name: v1.5.0" is a release tag -->
+
+## [v1.5.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.0) (2025-03-25)
+
+### Features
+
+ *  **generator**  package builder and generator in docker ([ae8f57fb029d60e](https://github.com/bsorrentino/langgraph4j/commit/ae8f57fb029d60ea8037807ce0b3565f9fab3a42))
+     > work on #97
+   
+ *  **builder-webui**  add builder UI for visually design the graph. ([97f615f0f8563fa](https://github.com/bsorrentino/langgraph4j/commit/97f615f0f8563fa08b20f41e555438733f97d0e2))
+     > thi project is based on a fork of  https://github.com/langchain-ai/langgraph-builder
+     > work on #97
+   
+ *  **Generator**  Add generator implementation ([b42db819c334dc8](https://github.com/bsorrentino/langgraph4j/commit/b42db819c334dc802e6f07afcbf0c977cf6c2a98))
+     > - add the Generator class that enables the creation of custom agent builder stub and sample implementation using mustache templates
+     > - add The GraphDefinition class that represent the graph model
+     > - add related  unit test
+     > work on #97
+   
+ *  Jackson based serialization refinements ([b7eb009e9a65002](https://github.com/bsorrentino/langgraph4j/commit/b7eb009e9a650025866656b1f8cd835ff9c40b18))
+     > - Add TypeMapper to map class  type with type name
+     > - Provide implementation for GenericListDeserializer and GenericMapDeserializer
+     > - Unit test for Jackson based serialization
+   
+ *  **CollectionsUtils.java**  add method to merge two maps ([395f5cd481e471f](https://github.com/bsorrentino/langgraph4j/commit/395f5cd481e471f04fa0be29664c611bcbdfe011))
+   
+ *  add support for JSON serialization using Jackson for langchain4j Chat Messages ([44eb32cb5c953f6](https://github.com/bsorrentino/langgraph4j/commit/44eb32cb5c953f6db6b39db8d59f4c364c16a41b))
+   
+ *  update jetty,springboot,quarkus implementation ([9d75b9faff8afcd](https://github.com/bsorrentino/langgraph4j/commit/9d75b9faff8afcdec40fd2a6b23d57ad340439dd))
+     > - provide CompileConfig
+     > - update webui
+     > work on #74
+   
+ *  **LangGraphStreamingServer.java**  add support to provide CompileConfig to streaming servlet ([3cce4301bba314e](https://github.com/bsorrentino/langgraph4j/commit/3cce4301bba314e838c9bf4725410040ee93281c))
+     > - Removed unused import &#x60;BaseCheckpointSaver&#x60;
+     > - Updated constructor parameters to be more descriptive (&#x60;stateGraph&#x60;, &#x60;compileConfig&#x60;)
+     > - Removed redundant checkpoint saving logic in &#x60;compileConfig&#x60; method
+     > work on 74
+   
+
+
+### Documentation
+
+ -  bump to new SNAPSHOT ([38d4f4b8766ea9d](https://github.com/bsorrentino/langgraph4j/commit/38d4f4b8766ea9dc7dc6a4167ca412554c1589dc))
+
+ -  (generator) add README and Maven Site ([79321559738a800](https://github.com/bsorrentino/langgraph4j/commit/79321559738a800d87fcd6891b5fc931d0f7ebd5))
+     > work on #97
+
+ -  update changeme ([a286678d3d1818c](https://github.com/bsorrentino/langgraph4j/commit/a286678d3d1818c1134898d358f03975ec2eba20))
+
+
+### Refactor
+
+ -  **core**  remove deprecated marked for removal ([55a880b5009ab10](https://github.com/bsorrentino/langgraph4j/commit/55a880b5009ab1020a3bb83693ce25d2f4f4ed5c))
+    > Removed:
+ > - StateGraph.getEntryPoint()
+ > - StateGraph.getFinishPoint()
+ > - StateGraph.setEntryPoint()
+ > - StateGraph.setFinishPoint()
+ > - StateGraph.setConditionalEntryPoint()
+ > - AgentState.AppendableValue()
+ > - class  AppendableValue {}
+ > - class  AppendableValueRW {}
+ > work on #96
+
+ -  **CompiledGraph.java**  refine node output construction ([83e713246fd7a9a](https://github.com/bsorrentino/langgraph4j/commit/83e713246fd7a9aaac470577c18359935117c5cc))
+    > Refactors the &#x60;streamSnapshots&#x60; to return the __START__ completion as StateSnaphot instead of NodeOutput
+ > work on #74
+
+ -  **AppenderChannel.java**  change constructor access level to protected ([27beeea5a45808a](https://github.com/bsorrentino/langgraph4j/commit/27beeea5a45808a72aa688f88afd34d4f1c089a3))
+    > - allow AppenderChannel specialization
+
+
+### ALM 
+
+ -  **how-tos**  bump to new SNAPSHOT ([0dc54f9857be40d](https://github.com/bsorrentino/langgraph4j/commit/0dc54f9857be40deb009a70ad9d9f0060c2327e1))
+   
+ -  bump to version 1.5.0 ([259ccf45771a802](https://github.com/bsorrentino/langgraph4j/commit/259ccf45771a80294271b80afffe2ab081c2549f))
+   
+ -  **generator**  add new maven  module project ([0bedceea3064be1](https://github.com/bsorrentino/langgraph4j/commit/0bedceea3064be18d9476f3e3a6282b2a958ef63))
+    > work on #97
+
+ -  **pom.xml**  Add new module `generator` to project ([7d380e4f80300fc](https://github.com/bsorrentino/langgraph4j/commit/7d380e4f80300fc0074bf11cf958a3f23118f193))
+    > work on #97
+
+ -  **studio**  update webui distribution ([34d02f3a7d5ac60](https://github.com/bsorrentino/langgraph4j/commit/34d02f3a7d5ac603e1a5b2354e46916053df7150))
+    > work on #74
+
+ -  bump to 1.5-SNAPSHOT ([0c28535c4582f93](https://github.com/bsorrentino/langgraph4j/commit/0c28535c4582f93d7d885e12b7b8442fcbe7817c))
+   
+
+### Test 
+
+ -  add support for JSON serialization using Jackson for langchain4j Chat Messages ([3e4b183a397c57b](https://github.com/bsorrentino/langgraph4j/commit/3e4b183a397c57ba3de9db64b55fdd2c9b468bda))
+   
+
+
+
+
+
 <!-- "name: v1.4.4-patch1" is a release tag -->
 
 ## [v1.4.4-patch1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.4.4-patch1) (2025-03-21)
