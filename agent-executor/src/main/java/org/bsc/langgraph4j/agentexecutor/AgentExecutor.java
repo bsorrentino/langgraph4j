@@ -81,10 +81,11 @@ public interface AgentExecutor {
         }
     }
 
+
     /**
      * Builder class for constructing a graph of agent execution.
      */
-    class GraphBuilder {
+    class Builder {
         private StreamingChatLanguageModel streamingChatLanguageModel;
         private ChatLanguageModel chatLanguageModel;
         private final ToolNode.Builder toolNodeBuilder = ToolNode.builder();
@@ -96,7 +97,7 @@ public interface AgentExecutor {
          * @param chatLanguageModel the chat language model
          * @return the updated GraphBuilder instance
          */
-        public GraphBuilder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
+        public Builder chatLanguageModel(ChatLanguageModel chatLanguageModel) {
             this.chatLanguageModel = chatLanguageModel;
             return this;
         }
@@ -107,7 +108,7 @@ public interface AgentExecutor {
          * @param streamingChatLanguageModel the streaming chat language model
          * @return the updated GraphBuilder instance
          */
-        public GraphBuilder chatLanguageModel(StreamingChatLanguageModel streamingChatLanguageModel) {
+        public Builder chatLanguageModel(StreamingChatLanguageModel streamingChatLanguageModel) {
             this.streamingChatLanguageModel = streamingChatLanguageModel;
             return this;
         }
@@ -119,7 +120,7 @@ public interface AgentExecutor {
          * @return the updated GraphBuilder instance
          */
         @Deprecated
-        public GraphBuilder objectsWithTools(List<Object> objectsWithTools) {
+        public Builder objectsWithTools(List<Object> objectsWithTools) {
             objectsWithTools.forEach(toolNodeBuilder::specification);
             return this;
         }
@@ -130,7 +131,7 @@ public interface AgentExecutor {
          * @param objectsWithTool the tool specification
          * @return the updated GraphBuilder instance
          */
-        public GraphBuilder toolSpecification(Object objectsWithTool) {
+        public Builder toolSpecification(Object objectsWithTool) {
             toolNodeBuilder.specification(objectsWithTool);
             return this;
         }
@@ -142,7 +143,7 @@ public interface AgentExecutor {
          * @param executor the tool executor
          * @return the updated GraphBuilder instance
          */
-        public GraphBuilder toolSpecification(ToolSpecification spec, ToolExecutor executor) {
+        public Builder toolSpecification(ToolSpecification spec, ToolExecutor executor) {
             toolNodeBuilder.specification(spec, executor);
             return this;
         }
@@ -153,7 +154,7 @@ public interface AgentExecutor {
          * @param toolSpecifications the tool specifications
          * @return the updated GraphBuilder instance
          */
-        public GraphBuilder toolSpecification(ToolNode.Specification toolSpecifications) {
+        public Builder toolSpecification(ToolNode.Specification toolSpecifications) {
             toolNodeBuilder.specification(toolSpecifications);
             return this;
         }
@@ -164,7 +165,7 @@ public interface AgentExecutor {
          * @param stateSerializer the state serializer
          * @return the updated GraphBuilder instance
          */
-        public GraphBuilder stateSerializer(StateSerializer<State> stateSerializer) {
+        public Builder stateSerializer(StateSerializer<State> stateSerializer) {
             this.stateSerializer = stateSerializer;
             return this;
         }
@@ -197,7 +198,7 @@ public interface AgentExecutor {
             }
 
             final var callAgent = new CallAgent(agent);
-            final var executeTools = new ExecuteTools(agent, toolNode);
+            final var executeTools = new ExecuteTools(toolNode);
             final EdgeAction<State> shouldContinue = (state) ->
                     state.finalResponse()
                             .map(res -> "end")
@@ -218,8 +219,26 @@ public interface AgentExecutor {
     /**
      * Creates a new GraphBuilder instance.
      *
-     * @return a new GraphBuilder
+     * @return a new Builder
      */
+    static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder class for constructing a graph of agent execution.
+     * @deprecated use {@link Builder}
+     */
+    @Deprecated
+    class GraphBuilder extends Builder { }
+
+    /**
+     * Creates a new GraphBuilder instance.
+     *
+     * @return a new GraphBuilder
+     * @deprecated use {@link #builder()}
+     */
+    @Deprecated
     static GraphBuilder graphBuilder() {
         return new GraphBuilder();
     }

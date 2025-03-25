@@ -23,7 +23,7 @@ public class AgentExecutorTest  extends AbstractAgentExecutorTest {
                 .maxTokens(2000)
                 .build();
 
-        return AgentExecutor.graphBuilder()
+        return AgentExecutor.builder()
                 .chatLanguageModel(chatLanguageModel)
                 .toolSpecification(new TestTool())
                 .build();

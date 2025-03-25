@@ -5,7 +5,6 @@ import dev.langchain4j.data.message.ChatMessageType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.NodeAction;
-import org.bsc.langgraph4j.agentexecutor.Agent;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
@@ -20,11 +19,6 @@ import java.util.Optional;
 public class ExecuteTools implements NodeAction<AgentExecutor.State> {
 
     /**
-     * The agent associated with this execution tool.
-     */
-    final Agent agent;
-
-    /**
      * The tool node that will be executed.
      */
     final ToolNode toolNode;
@@ -32,11 +26,9 @@ public class ExecuteTools implements NodeAction<AgentExecutor.State> {
     /**
      * Constructs an ExecuteTools instance with the specified agent and tool node.
      *
-     * @param agent the agent to be associated with this execution tool, must not be null
      * @param toolNode the tool node to be executed, must not be null
      */
-    public ExecuteTools(@NonNull Agent agent, @NonNull ToolNode toolNode) {
-        this.agent = agent;
+    public ExecuteTools(@NonNull ToolNode toolNode) {
         this.toolNode = toolNode;
     }
 
