@@ -282,7 +282,7 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     private boolean shouldInterruptAfter(String nodeId, String previousNodeId ) {
-        if( nodeId == null ) { // FIX RESUME ERROR
+        if( nodeId == null || Objects.equals(nodeId, previousNodeId) ) { // FIX RESUME ERROR
             return false;
         }
         return compileConfig.interruptsAfter().contains(nodeId);
