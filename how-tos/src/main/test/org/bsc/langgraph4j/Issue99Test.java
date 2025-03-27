@@ -136,7 +136,6 @@ public class Issue99Test {
                 .addNode("intent_recognize", node_async(intentRecognizeNode))
                 .addNode("subAgent1", subGraph1)
                 .addNode("subAgent2", subGraph2)
-
                 .addEdge(START, "intent_recognize")
                 .addConditionalEdges("intent_recognize",
                         edge_async( state ->
