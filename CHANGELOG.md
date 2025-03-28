@@ -2,6 +2,72 @@
 
 
 
+<!-- "name: v1.5.1" is a release tag -->
+
+## [v1.5.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.1) (2025-03-28)
+
+### Features
+
+ *  **how-tos**  add new notebook for verify issue 99 ([4f8d6bded777cb5](https://github.com/bsorrentino/langgraph4j/commit/4f8d6bded777cb5cb9950f9100977140540f7434))
+     > work on #99
+   
+
+### Bug Fixes
+
+ -  **CompiledGraph.java**  fix interruption before node after start ([813938d6802eedc](https://github.com/bsorrentino/langgraph4j/commit/813938d6802eedc6c3f3e863f000b5229544f0b7))
+     > Ensure that the compiled graph checks if the current node ID is the same as the previous node ID before interrupting.
+     > work on #100
+
+ -  **CompiledGraph.java**  update edge retrieval logic for subgraph processing ([9cf33ccfb892bf9](https://github.com/bsorrentino/langgraph4j/commit/9cf33ccfb892bf9ac4db02b09ad3ef3ad0c01d8a))
+     > - Replaced &#x60;stateGraph.edges.edgesByTargetId(subgraphNode.id())&#x60; with &#x60;edges.edgesByTargetId(subgraphNode.id())&#x60;
+     > - Replaced &#x60;stateGraph.edges.edgeBySourceId(subgraphNode.id()).orElseThrow()&#x60; with &#x60;edges.edgeBySourceId(subgraphNode.id()).orElseThrow()&#x60;
+     > These changes fix problem when process multiple subgraph.
+     > work on #99
+
+ -  **generator**  update gif url ([fcdc75a871962bb](https://github.com/bsorrentino/langgraph4j/commit/fcdc75a871962bb73ad1e94080a666bcbc515fb9))
+
+ -  **generator**  readme typo ([cc1761f50dfa9ef](https://github.com/bsorrentino/langgraph4j/commit/cc1761f50dfa9ef13c30d43b2e96ceeb069554f5))
+
+
+### Documentation
+
+ -  bump to next release 1.5.1 ([114e36023e9a6c4](https://github.com/bsorrentino/langgraph4j/commit/114e36023e9a6c4cee3909b2f7987bcd95d99f1d))
+
+ -  bump to new SNAPSHOT in badge ([c0f05b2b4b92981](https://github.com/bsorrentino/langgraph4j/commit/c0f05b2b4b92981489ec493844effff191dea33c))
+
+ -  update changeme ([0dc31cdf85e2bb2](https://github.com/bsorrentino/langgraph4j/commit/0dc31cdf85e2bb204703a73cb451e1b2778095fb))
+
+
+### Refactor
+
+ -  **AgentExecutor**  rename builder ([0a7907bdc802404](https://github.com/bsorrentino/langgraph4j/commit/0a7907bdc802404647e70ecac85cb3bcefad4235))
+    > - Renamed &#x60;GraphBuilder&#x60; to &#x60;Builder&#x60;.
+ > - Introduced static factory methods &#x60;builder()&#x60; and &#x60;graphBuilder()&#x60;, deprecating the old names.
+ > - Refactored AgentExecutorTest to use updated builder method.
+
+
+### ALM 
+
+ -  bump to next release 1.5.1 ([cfe285e77864c77](https://github.com/bsorrentino/langgraph4j/commit/cfe285e77864c775fec41c01c233acfca0d4fbc5))
+   
+ -  bump to new SNAPSHOT ([f43c753c569f344](https://github.com/bsorrentino/langgraph4j/commit/f43c753c569f344502e011521b3ffad9e099c8d5))
+   
+ -  **how-tos**  bump to new SNAPSHOT ([36211f6549faa2a](https://github.com/bsorrentino/langgraph4j/commit/36211f6549faa2a2e7e039a744810ec04a374f44))
+   
+
+### Test 
+
+ -  include test for check intrruptions ssenarios also on subgraph ([65d6c1a0889eb0f](https://github.com/bsorrentino/langgraph4j/commit/65d6c1a0889eb0fd7c74d1ca99cbc34dae7bb4e8))
+    > work on #100
+
+ -  add unit tests for check edge processing in multiple graphs scenario ([ea3263158137585](https://github.com/bsorrentino/langgraph4j/commit/ea3263158137585e8792ae0413de674000d231c7))
+    > work on #99
+
+
+
+
+
+
 <!-- "name: v1.5.0" is a release tag -->
 
 ## [v1.5.0](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.0) (2025-03-25)
