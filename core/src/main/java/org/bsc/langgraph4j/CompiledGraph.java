@@ -282,7 +282,7 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     private boolean shouldInterruptAfter(String nodeId, String previousNodeId ) {
-        if( nodeId == null ) { // FIX RESUME ERROR
+        if( nodeId == null || Objects.equals(nodeId, previousNodeId) ) { // FIX RESUME ERROR
             return false;
         }
         return compileConfig.interruptsAfter().contains(nodeId);
@@ -683,7 +683,7 @@ record ProcessedNodesEdgesAndConfig<State extends AgentState>(
                         interrupt
             ).collect(Collectors.toUnmodifiableSet());
 
-            var edgesWithSubgraphTargetId =  stateGraph.edges.edgesByTargetId( subgraphNode.id() );
+            var edgesWithSubgraphTargetId =  edges.edgesByTargetId( subgraphNode.id() );
 
             if( edgesWithSubgraphTargetId.isEmpty() ) {
                 throw new GraphStateException( format("the node '%s' is not present as target in graph!", subgraphNode.id())  );
@@ -704,7 +704,7 @@ record ProcessedNodesEdgesAndConfig<State extends AgentState>(
             //
             var sgEdgesEnd = sgWorkflow.edges.edgesByTargetId(END);
 
-            var edgeWithSubgraphSourceId = stateGraph.edges.edgeBySourceId( subgraphNode.id() ).orElseThrow();
+            var edgeWithSubgraphSourceId = edges.edgeBySourceId( subgraphNode.id() ).orElseThrow();
 
             if( edgeWithSubgraphSourceId.isParallel() ) {
                 throw new GraphStateException( "subgraph not support routes to parallel branches yet!" );
