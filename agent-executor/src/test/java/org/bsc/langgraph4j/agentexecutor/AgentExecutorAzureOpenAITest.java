@@ -11,10 +11,11 @@ public class AgentExecutorAzureOpenAITest extends AbstractAgentExecutorTest {
     @Override
     protected StateGraph<AgentExecutor.State> newGraph() throws Exception {
         var openApiKey = DotEnvConfig.valueOf("AZURE_OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
-
-        var deployment = "Cursor4o";
-        var endpoint = "https://labsai.openai.azure.com/";
+                .orElseThrow( () -> new IllegalArgumentException("no AZURE_OPENAI_API_KEY provided!"));
+        var endpoint = DotEnvConfig.valueOf("AZURE_OPENAI_ENDPOINT")
+                .orElseThrow( () -> new IllegalArgumentException("no AZURE_OPENAI_ENDPOINT provided!"));
+        var deployment = DotEnvConfig.valueOf("AZURE_OPENAI_DEPLOYMENT_NAME")
+                .orElseThrow(() -> new IllegalArgumentException("no AZURE_OPENAI_DEPLOYMENT_NAME provided!") );
 
         var chatLanguageModel = AzureOpenAiChatModel.builder()
                 .apiKey(openApiKey)
