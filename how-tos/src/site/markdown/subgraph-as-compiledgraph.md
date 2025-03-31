@@ -33,7 +33,6 @@ void displayDiagram( GraphRepresentation representation ) throws IOException {
 ```java
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.Channel;
-import org.bsc.langgraph4j.state.AppenderChannel;
 
 public class State extends MessagesState<String> {
 

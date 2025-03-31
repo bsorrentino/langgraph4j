@@ -24,7 +24,7 @@ public class AgentExecutorStreamingServer {
                 .maxTokens(2000)
                 .build();
 
-        var app = AgentExecutor.graphBuilder()
+        var app = AgentExecutor.builder()
                 .chatLanguageModel(llm)
                 .toolSpecification( new TestTool() )
                 .stateSerializer( AgentExecutor.Serializers.JSON.object() )

@@ -26,7 +26,7 @@ public class AdaptiveRAGStreamingServer {
 
         System.out.println (
                 app.getGraph(GraphRepresentation.Type.MERMAID, "ADAPTIVE RAG EXECUTOR", false)
-                        .getContent()
+                        .content()
         );
 
         var server = LangGraphStreamingServerJetty.builder()

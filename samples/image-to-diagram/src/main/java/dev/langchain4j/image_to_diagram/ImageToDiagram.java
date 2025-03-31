@@ -7,6 +7,7 @@ import net.sourceforge.plantuml.ErrorUmlType;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.state.Channels;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ public interface ImageToDiagram {
      */
     class State extends AgentState {
         static Map<String, Channel<?>> SCHEMA = Map.of(
-                "diagramCode", AppenderChannel.<String>of(ArrayList::new)
+                "diagramCode", Channels.appender(ArrayList::new)
         );
 
         /**
