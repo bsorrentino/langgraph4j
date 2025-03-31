@@ -23,7 +23,7 @@ public class ImageToDiagramStreamingServer {
 
         System.out.println (
                 workflow.getGraph(GraphRepresentation.Type.MERMAID, "Image To Diagram", false)
-                        .getContent()
+                        .content()
         );
 
         var server = LangGraphStreamingServerJetty.builder()

@@ -147,10 +147,10 @@ public class AdaptiveRagTest {
 
         GraphRepresentation plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML, "Adaptive RAG" );
 
-        System.out.println( plantUml.getContent() );
+        System.out.println( plantUml.content() );
 
         GraphRepresentation mermaid = graph.getGraph( GraphRepresentation.Type.MERMAID, "Adaptive RAG" );
 
-        System.out.println( mermaid.getContent() );
+        System.out.println( mermaid.content() );
     }
 }

@@ -165,7 +165,7 @@ public class ImageToDiagramTest {
 
         ArrayList<NodeOutput<ImageToDiagram.State>> list = new ArrayList<NodeOutput<ImageToDiagram.State>>();
         var result = process.workflow().compile().stream( Map.of( "diagramCode", diagramCode ) )
-                .collectAsync( list, v -> log.trace(v.toString()) )
+                .collectAsync( list, (l, v) -> log.trace(v.toString()) )
                 .thenApply( v -> {
                     if( list.isEmpty() ) {
                         throw new RuntimeException("no results");
@@ -232,7 +232,7 @@ public class ImageToDiagramTest {
 
         assertNotNull(plantUmlWithCorrection);
         var expected_workflow_with_correction = readTextResource("02_expected_plantuml.txt");
-        assertEquals( expected_workflow_with_correction, plantUmlWithCorrection.getContent() );
+        assertEquals( expected_workflow_with_correction, plantUmlWithCorrection.content() );
 
         var mermaid = agentExecutor.workflow()
                 .getGraph( GraphRepresentation.Type.MERMAID,
@@ -250,7 +250,7 @@ public class ImageToDiagramTest {
 
         assertNotNull(mermaidWithCorrection);
         expected_workflow_with_correction = readTextResource("02_expected_mermaid.txt");
-        assertEquals( expected_workflow_with_correction, mermaidWithCorrection.getContent() );
+        assertEquals( expected_workflow_with_correction, mermaidWithCorrection.content() );
 
         var correctionProcess = new DiagramCorrectionProcess();
 
@@ -278,7 +278,7 @@ public class ImageToDiagramTest {
                 "\tevaluate_result:::evaluate_result -->|OK| __END__:::__END__\n" +
                 "\n" +
                 "\tclassDef ___START__ fill:black,stroke-width:1px,font-size:xx-small;\n" +
-                "\tclassDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;\n", correctionPlantUml.getContent());
+                "\tclassDef ___END__ fill:black,stroke-width:1px,font-size:xx-small;\n", correctionPlantUml.content());
 
     }
 

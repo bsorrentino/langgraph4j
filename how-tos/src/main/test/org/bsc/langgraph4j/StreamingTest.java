@@ -9,56 +9,24 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import lombok.extern.slf4j.Slf4j;
-import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.action.NodeAction;
-import org.bsc.langgraph4j.langchain4j.generators.LLMStreamingGenerator;
 import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ChatMesssageSerializer;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionRequestSerializer;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
-import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.Channel;
-import org.bsc.langgraph4j.state.AppenderChannel;
 import dev.langchain4j.data.message.ChatMessage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-
-class MessageState extends AgentState {
-
-    static Map<String, Channel<?>> SCHEMA = Map.of(
-            "messages", AppenderChannel.<ChatMessage>of(ArrayList::new)
-    );
-
-    public MessageState(Map<String, Object> initData) {
-        super(initData);
-    }
-
-    List<ChatMessage> messages() {
-        return this.<List<ChatMessage>>value("messages")
-                .orElseThrow(() -> new RuntimeException("messages not found"));
-    }
-
-    // utility method to quick access to last message
-    Optional<ChatMessage> lastMessage() {
-        List<ChatMessage> messages = messages();
-        return (messages.isEmpty()) ?
-                Optional.empty() :
-                Optional.of(messages.get(messages.size() - 1));
-    }
-}
-
 
 class SearchTool {
 
@@ -82,7 +50,7 @@ public class StreamingTest {
         var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow(() -> new IllegalArgumentException("no APIKEY provided!"));
 
-        var stateSerializer = new ObjectStreamStateSerializer<>(MessageState::new);
+        var stateSerializer = new ObjectStreamStateSerializer<MessagesState<ChatMessage>>(MessagesState::new);
         stateSerializer.mapper()
                 // Setup custom serializer for Langchain4j ToolExecutionRequest
                 .register(ToolExecutionRequest.class, new ToolExecutionRequestSerializer())
@@ -104,7 +72,7 @@ public class StreamingTest {
                 .build();
 
         // Call Model
-        NodeAction<MessageState> callModel = state -> {
+        NodeAction<MessagesState<ChatMessage>> callModel = state -> {
             log.info("CallModel:\n{}", state.messages());
 
             var generator = StreamingChatGenerator.builder()
@@ -129,7 +97,7 @@ public class StreamingTest {
         };
 
         // Route Message
-        EdgeAction<MessageState> routeMessage = state -> {
+        EdgeAction<MessagesState<ChatMessage>> routeMessage = state -> {
             log.info("routeMessage:\n{}", state.messages());
 
             var lastMessage = state.lastMessage()
@@ -145,7 +113,7 @@ public class StreamingTest {
         };
 
         // Invoke Tool
-        NodeAction<MessageState> invokeTool = state -> {
+        NodeAction<MessagesState<ChatMessage>> invokeTool = state -> {
             log.info("invokeTool:\n{}", state.messages());
 
             var lastMessage = state.lastMessage()
@@ -165,7 +133,7 @@ public class StreamingTest {
         };
 
         // Define Graph
-        var workflow = new StateGraph<MessageState>(MessageState.SCHEMA, stateSerializer)
+        var workflow = new StateGraph<MessagesState<ChatMessage>>(stateSerializer)
                 .addNode("agent", node_async(callModel))
                 .addNode("tools", node_async(invokeTool))
                 .addEdge(START, "agent")
