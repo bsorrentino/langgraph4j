@@ -63,7 +63,7 @@ If no [Channel] is specified for an item then it is assumed that all updates to 
 static class MessagesState extends AgentState {
 
     static Map<String, Channel<?>> SCHEMA = Map.of(
-            "messages", AppenderChannel.<String>of(ArrayList::new)
+            "messages", Channels.appender(ArrayList::new)
     );
 }
 
@@ -86,7 +86,7 @@ Langgraph4j provides a Built in [RemoveIdentifier] named [RemoveByHash] that all
 class MessagesState extends AgentState {
 
     static Map<String, Channel<?>> SCHEMA = Map.of(
-            "messages", AppenderChannel.<String>of(ArrayList::new)
+            "messages", Channels.appender(ArrayList::new)
     );
 
     public MessagesState(Map<String, Object> initData) {

@@ -18,7 +18,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
   - [x] Schema (_a series of Channels_)
     - [x] Reducer (_how apply  updates to the state attributes_)
     - [x] Default provider
-    - [x] AppenderChannel (_values accumulator_)
+    - [x] Appender channel (_values accumulator_)
         - [x] delete messages
 - [x] Compiling graph    
 - [x] Async support (_throught [CompletableFuture]_)
@@ -39,6 +39,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [X] Child Graphs
 - [X] Parallel Node Execution
     - _With some constraints_ 
+- [X] [Generator (Visual Builder)][generator]
+
 
 ## How To - _(Java Notebook)_
 
@@ -312,3 +314,4 @@ server.start().join();
 [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/langgraph4j-jdk8/1.0-SNAPSHOT
 [releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
 
+[generator]: https://bsorrentino.github.io/langgraph4j/generator/generator/index.html

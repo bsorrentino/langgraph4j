@@ -51,7 +51,6 @@ State is an (immutable) data class, inheriting from prebuilt [MessagesState], sh
 ```java
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.Channel;
-import org.bsc.langgraph4j.state.AppenderChannel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 
