@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.prebuilt;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.state.Channels;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.Optional;
 public class MessagesState<T> extends AgentState {
 
     public static final Map<String, Channel<?>> SCHEMA = Map.of(
-            "messages", AppenderChannel.of(ArrayList::new)
+            "messages", Channels.appender(ArrayList::new)
     );
 
     /**

@@ -7,6 +7,7 @@ import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.state.Channels;
 import org.bsc.spring.agentexecutor.serializer.std.AgentStateSerializer;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.stereotype.Service;
@@ -122,7 +123,7 @@ public class AgentExecutor {
         public static final String INTERMEDIATE_STEPS = "steps";
 
         static Map<String, Channel<?>> SCHEMA = Map.of(
-                INTERMEDIATE_STEPS, AppenderChannel.<Step>of(ArrayList::new)
+                INTERMEDIATE_STEPS, Channels.appender(ArrayList::new)
         );
 
         /**

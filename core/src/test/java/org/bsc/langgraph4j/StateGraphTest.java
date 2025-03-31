@@ -115,7 +115,7 @@ public class StateGraphTest {
     @Test
     public void testRunningOneNodeOneRemoveByNull() throws Exception {
 
-        Map<String,Channel<?>> schema =  Map.of("prop1", Channel.of( null, null));
+        Map<String,Channel<?>> schema =  Map.of("prop1", Channels.base( null, null));
 
         StateGraph<AgentState> workflow = new StateGraph<>(schema, AgentState::new)
                 .addEdge(START, "agent_1")
