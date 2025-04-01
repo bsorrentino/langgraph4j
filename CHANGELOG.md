@@ -2,6 +2,55 @@
 
 
 
+<!-- "name: v1.5.2" is a release tag -->
+
+## [v1.5.2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.2) (2025-04-01)
+
+
+### Bug Fixes
+
+ -  Properly handle state updates when return from a nested generator (eg. subgraph, llm-streaming) ([86ad6f88f42416e](https://github.com/bsorrentino/langgraph4j/commit/86ad6f88f42416e8a5b733e15b3feb6231c59bae))
+     > - Makes Appender channel duplicate safe. !! WARNING THIS BREAK IN COMPATIBILITY !! may have undesirable effects
+     > - deprecated .of() methods on AppenderChannel and Channel adding Channels interface with appender and base channel implementations
+     > - Added tests for nested generator with stream, subgraph, and subgraph with appender
+     > resolve #102
+
+ -  **AgentExecutorAzureOpenAITest.java**  add required environment variables for Azure OpenAI configuration ([a86c922c98247ca](https://github.com/bsorrentino/langgraph4j/commit/a86c922c98247cad046cc04762bc5dd22873d343))
+     > - Updated endpoint and deployment configuration in &#x60;AgentExecutorAzureOpenAITest&#x60; class to use environment variables: &#x60;AZURE_OPENAI_ENDPOINT&#x60;, &#x60;AZURE_OPENAI_DEPLOYMENT_NAME&#x60;.
+
+
+### Documentation
+
+ -  bump to version 1.5.2 ([0ce12b521078c9f](https://github.com/bsorrentino/langgraph4j/commit/0ce12b521078c9f2d228ad3de759f8de76c0426b))
+
+ -  remove unused imports and update documentation ([411338a3ba9a2ef](https://github.com/bsorrentino/langgraph4j/commit/411338a3ba9a2ef4f274b899d67414a48bbaba65))
+     > - Removed the AppenderChannel import from persistence.md
+     > - Refactored Channel instantiation in MessagesState to use Channels.appender()
+     > - Added link to Generator (Visual Builder) for LangGraph
+
+ -  update changeme ([c4a69aa42f15532](https://github.com/bsorrentino/langgraph4j/commit/c4a69aa42f15532b9a44404cf6cc81dd56ad7ec2))
+
+
+### Refactor
+
+ -  remove lombok usage ([9bc154c5fd38681](https://github.com/bsorrentino/langgraph4j/commit/9bc154c5fd38681f7cf5bc3a4b7ada179a5982bd))
+    > resolve #103
+
+ -  **how-tos**  remove unused imports ([226505cd2a34f6f](https://github.com/bsorrentino/langgraph4j/commit/226505cd2a34f6f98d329028f9040aec1601f8de))
+   
+ -  replace deprecated methods with right ones ([8c31f359f9f85a6](https://github.com/bsorrentino/langgraph4j/commit/8c31f359f9f85a6a6d41358ef33ea21f20b8e221))
+   
+
+### ALM 
+
+ -  bump to version 1.5.2 ([56a01f125ca360f](https://github.com/bsorrentino/langgraph4j/commit/56a01f125ca360fd25020aad714038ab4cdca5eb))
+   
+
+
+
+
+
+
 <!-- "name: v1.5.1" is a release tag -->
 
 ## [v1.5.1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.1) (2025-03-28)
