@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.utils;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,10 +40,48 @@ public final class CollectionsUtils {
                 Optional.of(values.get(index));
     }
 
+    /**
+     * Merges two maps into a new map, doesn't accept duplicates.
+     *
+     * @param map1        the first map
+     * @param map2        the second map
+     * @param <K>         the type of the keys in the maps
+     * @param <V>         the type of the values in the maps
+     * @return a new map containing all entries from both maps, with collisions resolved by the merge function
+     * @throws NullPointerException if map1 or map2 is null
+     */
     public static <K, V> Map<K, V> mergeMap( Map<K,V> map1, Map<K,V> map2 ) {
-        return Stream.concat(map1.entrySet().stream(), map2.entrySet().stream() )
+        var map1Entries = Objects.requireNonNull(map1, "map1 cannot be null").entrySet().stream();
+        var map2Entries = Objects.requireNonNull(map2, "map2 cannot be null").entrySet().stream();
+
+        return Stream.concat(map1Entries, map2Entries )
                 .collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
+
+    /**
+     * Merges two maps into a new map, resolving key collisions using the specified merge function.
+     *
+     * @param map1        the first map
+     * @param map2        the second map
+     * @param mergeFunction the function used to resolve collisions between values associated with the same key
+     * @param <K>         the type of the keys in the maps
+     * @param <V>         the type of the values in the maps
+     * @return a new map containing all entries from both maps, with collisions resolved by the merge function
+     * @throws NullPointerException if map1, map2, or mergeFunction is null
+     */
+    public static <K, V> Map<K, V> mergeMap(Map<K, V> map1, Map<K, V> map2, BinaryOperator<V> mergeFunction) {
+        var map1Entries = Objects.requireNonNull(map1, "map1 cannot be null").entrySet().stream();
+        var map2Entries = Objects.requireNonNull(map2, "map2 cannot be null").entrySet().stream();
+        Objects.requireNonNull(mergeFunction, "mergeFunction cannot be null");
+
+        return Stream.concat(map1Entries, map2Entries)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        mergeFunction
+                ));
+    }
+
 
     @Deprecated
     public static <T> List<T> listOf(Class<T> clazz) {

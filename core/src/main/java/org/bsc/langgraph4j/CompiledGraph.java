@@ -484,12 +484,12 @@ public class CompiledGraph<State extends AgentState> {
         }
 
         @SuppressWarnings("unchecked")
-        private Optional<Data<Output>> getEmbedGenerator( Map<String,Object> partialState) {
+        private Optional<Data<Output>> getEmbedGenerator( Map<String,Object> partialState ) {
             return partialState.entrySet().stream()
                     .filter( e -> e.getValue() instanceof AsyncGenerator)
                     .findFirst()
-                    .map( e -> {
-                        final AsyncGenerator<Output> generator = (AsyncGenerator<Output>) e.getValue();
+                    .map( generatorEntry -> {
+                        final AsyncGenerator<Output> generator = (AsyncGenerator<Output>) generatorEntry.getValue();
                         return Data.composeWith( generator.map( n -> { n.setSubGraph(true); return n; } ), data -> {
 
                             if (data != null) {
@@ -497,9 +497,14 @@ public class CompiledGraph<State extends AgentState> {
                                 if (data instanceof Map<?,?>) {
                                     // FIX #102
                                     // Assume that the whatever used appender channel doesn't accept duplicates
-                                    currentState = AgentState.updateState( currentState, (Map<String,Object>)data, stateGraph.getChannels() );
-                                    // Assume that subgraph return complete state
-                                    // currentState = AgentState.updateState( Map.of(), (Map<String,Object>)data, stateGraph.getChannels() );
+                                    // FIX #104: remove generator
+                                    var partialStateWithoutGenerator = partialState.entrySet().stream()
+                                            .filter( e -> !Objects.equals(e.getKey(),generatorEntry.getKey()))
+                                            .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue));
+
+                                    var intermediateState = AgentState.updateState( currentState, partialStateWithoutGenerator, stateGraph.getChannels() );
+
+                                    currentState = AgentState.updateState( intermediateState, (Map<String,Object>)data, stateGraph.getChannels() );
                                 }
                                 else {
                                     throw new IllegalArgumentException("Embedded generator must return a Map");

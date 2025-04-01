@@ -13,7 +13,6 @@ import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.V;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ChatMesssageSerializer;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionRequestSerializer;
@@ -30,10 +29,9 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 
-@Slf4j
-public class MultiAgentSupervisorTest {
+public class MultiAgentSupervisorITest {
 
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MultiAgentSupervisorITest.class);
 
    static class State extends MessagesState<ChatMessage> {
 
