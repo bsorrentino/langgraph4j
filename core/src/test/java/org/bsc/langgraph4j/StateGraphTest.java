@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.*;
@@ -19,9 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for simple App.
  */
-@Slf4j
 public class StateGraphTest {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StateGraphTest.class);
     static class State extends MessagesState<String> {
 
         public State(Map<String, Object> initData) {
@@ -115,7 +112,7 @@ public class StateGraphTest {
     @Test
     public void testRunningOneNodeOneRemoveByNull() throws Exception {
 
-        Map<String,Channel<?>> schema =  Map.of("prop1", Channel.of( null, null));
+        Map<String,Channel<?>> schema =  Map.of("prop1", Channels.base( null, null));
 
         StateGraph<AgentState> workflow = new StateGraph<>(schema, AgentState::new)
                 .addEdge(START, "agent_1")

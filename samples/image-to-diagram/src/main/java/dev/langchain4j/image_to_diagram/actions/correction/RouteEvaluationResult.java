@@ -1,19 +1,14 @@
 package dev.langchain4j.image_to_diagram.actions.correction;
 
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
-import lombok.extern.slf4j.Slf4j;
-import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.EdgeAction;
-
-import java.util.concurrent.CompletableFuture;
-
-import static java.util.concurrent.CompletableFuture.completedFuture;
 
 /**
  * Represents the result of evaluating a route.
  */
-@Slf4j
 public class RouteEvaluationResult implements EdgeAction<ImageToDiagram.State> {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RouteEvaluationResult.class);
 
     /**
      * Determines the evaluation result based on the current state of the image-to-diagram conversion process.

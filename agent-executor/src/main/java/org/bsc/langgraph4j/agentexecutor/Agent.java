@@ -8,24 +8,59 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
-import lombok.Builder;
-import lombok.Singular;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 /**
  * Represents an agent that can process chat messages and execute actions using specified tools.
  */
-@Builder
 public class Agent {
+
+    static public class Builder {
+        private ChatLanguageModel chatLanguageModel;
+        private StreamingChatLanguageModel streamingChatLanguageModel;
+        private List<ToolSpecification> tools = new ArrayList<>();
+
+        public Builder chatLanguageModel( ChatLanguageModel chatLanguageModel ) {
+            this.chatLanguageModel = chatLanguageModel;
+            return this;
+        }
+
+        public Builder streamingChatLanguageModel( StreamingChatLanguageModel streamingChatLanguageModel ) {
+            this.streamingChatLanguageModel = streamingChatLanguageModel;
+            return this;
+        }
+
+        public Builder tool( ToolSpecification toolSpecification ) {
+            this.tools.add( toolSpecification );
+            return this;
+        }
+
+        public Builder tools( Collection<? extends ToolSpecification> toolSpecifications ) {
+            this.tools.addAll( toolSpecifications );
+            return this;
+        }
+
+        public Agent build() {
+            return new Agent(
+                    chatLanguageModel,
+                    streamingChatLanguageModel,
+                    tools
+            );
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     private final ChatLanguageModel chatLanguageModel;
     private final StreamingChatLanguageModel streamingChatLanguageModel;
-    @Singular private final List<ToolSpecification> tools;
+    private final List<ToolSpecification> tools;
 
     /**
      * Checks if the agent is currently streaming.
@@ -34,6 +69,15 @@ public class Agent {
      */
     public boolean isStreaming() {
         return streamingChatLanguageModel != null;
+    }
+
+    protected Agent( ChatLanguageModel chatLanguageModel,
+                   StreamingChatLanguageModel streaming,
+                     List<ToolSpecification> tools ) {
+        this.chatLanguageModel = chatLanguageModel;
+        this.streamingChatLanguageModel = streaming;
+        this.tools = tools;
+
     }
 
     private ChatRequest prepareRequest(List<ChatMessage> messages ) {

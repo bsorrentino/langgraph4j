@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j;
 
-import lombok.NonNull;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
@@ -110,7 +109,7 @@ public class StateGraph<State extends AgentState> {
     public StateGraph(Map<String, Channel<?>> channels,
                       StateSerializer<State> stateSerializer) {
         this.channels = channels;
-        this.stateSerializer = stateSerializer;
+        this.stateSerializer = Objects.requireNonNull(stateSerializer, "stateSerializer cannot be null");
     }
 
     /**
@@ -118,7 +117,7 @@ public class StateGraph<State extends AgentState> {
      *
      * @param stateSerializer the serializer to serialize the state
      */
-    public StateGraph(@NonNull StateSerializer<State> stateSerializer) {
+    public StateGraph( StateSerializer<State> stateSerializer) {
         this( Map.of(), stateSerializer );
 
     }

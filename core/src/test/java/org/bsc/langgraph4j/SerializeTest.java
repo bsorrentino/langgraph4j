@@ -1,12 +1,6 @@
 package org.bsc.langgraph4j;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import lombok.ToString;
 import org.bsc.langgraph4j.serializer.Serializer;
-import org.bsc.langgraph4j.serializer.plain_text.gson.GsonStateSerializer;
-import org.bsc.langgraph4j.serializer.plain_text.jackson.JacksonStateSerializer;
 import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
@@ -91,17 +85,7 @@ public class SerializeTest {
 
     }
 
-    @ToString
-    public static class NonSerializableElement  {
-
-        String value;
-        public NonSerializableElement() {
-            this.value = "default";
-        }
-        public NonSerializableElement( String value ) {
-            this.value = value;
-        }
-
+    public record NonSerializableElement(  String value )  {
     }
 
     @Test

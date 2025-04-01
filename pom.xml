@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.5.1</version>
+  <version>1.5.2</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -62,12 +62,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>1.18.32</version>
-        <scope>provided</scope>
-      </dependency>
 
       <dependency>
         <groupId>org.slf4j</groupId>

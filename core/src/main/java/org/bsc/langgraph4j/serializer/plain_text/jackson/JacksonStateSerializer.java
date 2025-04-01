@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import lombok.NonNull;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -15,6 +14,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Base Implementation of {@link PlainTextStateSerializer} using Jackson library.
@@ -33,9 +33,9 @@ public abstract class JacksonStateSerializer <State extends AgentState> extends 
 
     }
 
-    protected JacksonStateSerializer(  @NonNull AgentStateFactory<State> stateFactory,  @NonNull ObjectMapper objectMapper) {
+    protected JacksonStateSerializer( AgentStateFactory<State> stateFactory, ObjectMapper objectMapper) {
         super(stateFactory);
-        this.objectMapper = objectMapper;
+        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
 
         var module = new SimpleModule();
         module.addDeserializer( Map.class, new GenericMapDeserializer(typeMapper) );

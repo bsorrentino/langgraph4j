@@ -1,6 +1,5 @@
 package org.bsc.spring.agentexecutor;
 
-import lombok.NonNull;
 import org.bsc.spring.agentexecutor.function.AgentFunctionCallbackWrapper;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
@@ -49,7 +48,9 @@ public class ToolService {
      * @param name The name of the function callback to retrieve.
      * @return An optional containing the function callback wrapper, or an empty optional if not found.
      */
-    public <I,O> Optional<AgentFunctionCallbackWrapper<I,O>> agentFunction(@NonNull String name) {
+    @SuppressWarnings("unchecked")
+    public <I,O> Optional<AgentFunctionCallbackWrapper<I,O>> agentFunction( String name ) {
+        Objects.requireNonNull( name, "name cannot be null" );
         return ( applicationContext.containsBean( name ) )
                 ? Optional.of( applicationContext.getBean( name, AgentFunctionCallbackWrapper.class ) )
                 : Optional.empty();
@@ -61,7 +62,9 @@ public class ToolService {
      * @param response The tool response message.
      * @return An optional containing the function result, or an empty optional if no function is found.
      */
-    public <O> Optional<O> getFunctionResult(@NonNull ToolResponseMessage.ToolResponse response) {
+    @SuppressWarnings("unchecked")
+    public <O> Optional<O> getFunctionResult(ToolResponseMessage.ToolResponse response) {
+        Objects.requireNonNull( response, "response cannot be null" );
         return agentFunction( response.name() )
                 .map( functionCallback -> (O)functionCallback.convertResponse(response) );
     }
@@ -72,7 +75,8 @@ public class ToolService {
      * @param response The tool response to convert into a message.
      * @return A new ToolResponseMessage containing the provided response.
      */
-    public ToolResponseMessage buildToolResponseMessage( @NonNull  ToolResponseMessage.ToolResponse response) {
+    public ToolResponseMessage buildToolResponseMessage( ToolResponseMessage.ToolResponse response) {
+        Objects.requireNonNull( response, "response cannot be null" );
         return new ToolResponseMessage(List.of(response), Map.of());
     }
 

@@ -5,7 +5,6 @@ import dev.langchain4j.image_to_diagram.ImageToDiagram;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 
 import java.util.Map;
@@ -18,8 +17,9 @@ import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
  * The ReviewResult class implements the AsyncNodeAction interface for processing ImageToDiagram.State objects.
  * It handles the review of diagram code and error messages using a language model from OpenAiChatModel.
  */
-@Slf4j
 public class ReviewResult implements AsyncNodeAction<ImageToDiagram.State> {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReviewResult.class);
 
     /**
      * The final instance variable holding the OpenAiChatModel. It is initialized via the constructor.

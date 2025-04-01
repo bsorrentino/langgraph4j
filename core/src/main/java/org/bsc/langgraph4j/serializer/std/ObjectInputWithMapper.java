@@ -1,23 +1,21 @@
 package org.bsc.langgraph4j.serializer.std;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.Serializer;
 
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.util.Objects;
 import java.util.Optional;
 
-@Slf4j
 public class ObjectInputWithMapper implements ObjectInput {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ObjectInputWithMapper.class);
     private final ObjectInput in;
     private final SerializerMapper mapper;
 
 
-    public ObjectInputWithMapper(@NonNull ObjectInput in, @NonNull SerializerMapper mapper) {
-        this.in = in;
-        this.mapper = mapper;
+    public ObjectInputWithMapper(ObjectInput in, SerializerMapper mapper) {
+        this.in = Objects.requireNonNull(in, "in cannot be null");
+        this.mapper = Objects.requireNonNull(mapper, "mapper cannot be null");
     }
 
     @Override

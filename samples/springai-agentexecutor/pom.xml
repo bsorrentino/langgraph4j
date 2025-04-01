@@ -11,7 +11,7 @@
 
 	<groupId>org.bsc.langgraph4j</groupId>
 	<artifactId>langgraph4j-springai-agentexecutor</artifactId>
-	<version>1.5.1</version>
+	<version>1.5.2</version>
 	<packaging>jar</packaging>
 
 	<name>langgraph4j::sample::springai::agentexecutor</name>
@@ -33,10 +33,6 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.bsc.langgraph4j</groupId>
@@ -70,13 +66,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>1.18.34</version>
-				<scope>provided</scope>
-			</dependency>
-
 			<dependency>
 				<groupId>org.springframework.ai</groupId>
 				<artifactId>spring-ai-bom</artifactId>

@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j.serializer.std;
 
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -10,9 +9,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.*;
 
-@Slf4j
 public class ObjectStreamStateSerializer<State extends AgentState> extends StateSerializer<State> {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ObjectStreamStateSerializer.class);
     static class ListSerializer implements NullableObjectSerializer<List<Object>> {
 
         @Override

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import lombok.NonNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -17,9 +16,9 @@ class GenericListDeserializer extends StdDeserializer<List<Object>> {
 
     final TypeMapper typeMapper;
 
-    public GenericListDeserializer(@NonNull TypeMapper typeMapper) {
+    public GenericListDeserializer(TypeMapper typeMapper) {
         super(List.class);
-        this.typeMapper = typeMapper;
+        this.typeMapper = Objects.requireNonNull( typeMapper, "typeMapper cannot be null");
     }
 
     @Override

@@ -46,7 +46,7 @@ public class AdaptiveRagTest {
     @Test
     public void QuestionRewriterTest() {
 
-        String result = QuestionRewriter.of(getOpenAiKey()).apply("agent memory");
+        String result = (new QuestionRewriter(getOpenAiKey())).apply("agent memory");
         assertEquals("What is the role of memory in an agent's functioning?", result);
     }
 
@@ -56,7 +56,7 @@ public class AdaptiveRagTest {
         String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
                 .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
 
-        RetrievalGrader grader = RetrievalGrader.of(openApiKey);
+        RetrievalGrader grader = new RetrievalGrader(openApiKey);
 
         ChromaEmbeddingStore chroma = new ChromaEmbeddingStore(
                 "http://localhost:8000",
@@ -83,7 +83,7 @@ public class AdaptiveRagTest {
         assertEquals( 1, matches.size() );
 
         RetrievalGrader.Score answer =
-                grader.apply( RetrievalGrader.Arguments.of(question, matches.get(0).embedded().text()));
+                grader.apply( new RetrievalGrader.Arguments(question, matches.get(0).embedded().text()));
 
         assertEquals( "no", answer.binaryScore);
 
@@ -93,7 +93,7 @@ public class AdaptiveRagTest {
     @Test
     public void WebSearchTest() {
 
-        WebSearchTool webSearchTool = WebSearchTool.of(getTavilyApiKey());
+        WebSearchTool webSearchTool = new WebSearchTool(getTavilyApiKey());
         List<Content> webSearchResults = webSearchTool.apply("agent memory");
 
         String webSearchResultsText = webSearchResults.stream().map( content -> content.textSegment().text() )
@@ -108,7 +108,7 @@ public class AdaptiveRagTest {
     @Test
     public void questionRouterTest() {
 
-        QuestionRouter qr = QuestionRouter.of(getOpenAiKey());
+        QuestionRouter qr = new QuestionRouter(getOpenAiKey());
 
         QuestionRouter.Type result = qr.apply( "What are the stock options?");
 
@@ -131,7 +131,7 @@ public class AdaptiveRagTest {
         List<String> docs = relevantDocs.matches().stream()
                                 .map( m -> m.embedded().text() )
                                 .collect(Collectors.toList());
-        Generation qr = Generation.of(getOpenAiKey());
+        Generation qr = new Generation(getOpenAiKey());
 
         String result = qr.apply( question, docs );
 
@@ -147,10 +147,10 @@ public class AdaptiveRagTest {
 
         GraphRepresentation plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML, "Adaptive RAG" );
 
-        System.out.println( plantUml.getContent() );
+        System.out.println( plantUml.content() );
 
         GraphRepresentation mermaid = graph.getGraph( GraphRepresentation.Type.MERMAID, "Adaptive RAG" );
 
-        System.out.println( mermaid.getContent() );
+        System.out.println( mermaid.content() );
     }
 }

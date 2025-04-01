@@ -4,14 +4,12 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
-import lombok.Value;
 import java.time.Duration;
 import java.util.function.Function;
 /**
  * Router for user queries to the most relevant datasource.
  */
-@Value(staticConstructor = "of")
-public class QuestionRouter implements Function<String, QuestionRouter.Type> {
+public record QuestionRouter( String openApiKey ) implements Function<String, QuestionRouter.Type> {
 
 
     public enum Type {
@@ -51,8 +49,6 @@ public class QuestionRouter implements Function<String, QuestionRouter.Type> {
                 "Use the vectorstore for questions on these topics. Otherwise, use web-search.")
         Result invoke(String question);
     }
-
-    private final String openApiKey;
 
     /**
      * Applies a given question to an AI model and extracts the data source from the response.

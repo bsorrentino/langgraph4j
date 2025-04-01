@@ -18,7 +18,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
   - [x] Schema (_a series of Channels_)
     - [x] Reducer (_how apply  updates to the state attributes_)
     - [x] Default provider
-    - [x] AppenderChannel (_values accumulator_)
+    - [x] Appender channel (_values accumulator_)
         - [x] delete messages
 - [x] Compiling graph    
 - [x] Async support (_throught [CompletableFuture]_)
@@ -39,6 +39,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 - [X] Child Graphs
 - [X] Parallel Node Execution
     - _With some constraints_ 
+- [X] [Generator (Visual Builder)][generator]
 
 ## Releases
 
@@ -48,7 +49,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Mar 28, 2025 | `1.5.1` | official release
+| Apr 01, 2025 | `1.5.2` | official release
 
 ## How To - _(Java Notebook)_
 
@@ -83,7 +84,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
 </dependency>
 ```
 
@@ -235,10 +236,13 @@ return  app.stream( inputs );
 
 # References
 
-* [LangGraph - LangChain Blog][langgraph.blog]
-* [AI Agent in Java with LangGraph4j - Bartolomeo Blog][article01]
+* [LangGraph4j Generator - Visually scaffold LangGraph Java code](https://dev.to/bsorrentino/langgraph4j-generator-2ika)
+* [AI Agent in Java with LangGraph4j][article01]
+* [Building Stateful Multi AI Agents -LangGraph4J & Spring AI](https://medium.com/@ganeshmoorthy5999/building-stateful-multi-ai-agents-langgraph4j-spring-ai-c0046e293d00)
 * [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
-
+<!--
+* [LangGraph - LangChain Blog][langgraph.blog]
+-->
 
 [Jetty]: https://jetty.org
 [Spring Boot]: https://spring.io/projects/spring-boot
@@ -268,3 +272,4 @@ return  app.stream( inputs );
 [releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
 [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/
 
+[generator]: https://github.com/bsorrentino/langgraph4j/tree/main/generator

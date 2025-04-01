@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j.serializer.plain_text;
 
-import lombok.NonNull;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -11,7 +10,7 @@ import java.lang.reflect.Type;
 
 public abstract class PlainTextStateSerializer<State extends AgentState> extends StateSerializer<State> {
 
-    protected PlainTextStateSerializer(@NonNull AgentStateFactory<State> stateFactory) {
+    protected PlainTextStateSerializer(AgentStateFactory<State> stateFactory) {
         super(stateFactory);
     }
 

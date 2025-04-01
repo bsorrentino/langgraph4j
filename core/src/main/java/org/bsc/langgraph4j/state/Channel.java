@@ -77,20 +77,26 @@ public interface Channel<T> {
      * @param <T>             the type of items produced by this channel
      * @param defaultProvider the supplier of the default item for the channel
      * @return a new channel with the specified default provider
+     * @deprecated use {@link Channels#base(Supplier)} instead
      */
+    @Deprecated( forRemoval = true)
     static <T> Channel<T> of( Supplier<T> defaultProvider) {
-        return new BaseChannel<T>(null, defaultProvider);
+        return Channels.base(defaultProvider);
     }
+
     /**
      * Creates a channel with the specified {@code Reducer}.
      *
      * @param <T>   the type of elements in the channel
      * @param reducer the function to reduce values as they are added to the channel
      * @return a new channel instance
+     * @deprecated use {@link Channels#base(Supplier)} instead
      */
+    @Deprecated( forRemoval = true)
     static <T> Channel<T> of( Reducer<T> reducer ) {
-        return new BaseChannel<T>(reducer, null);
+        return Channels.base(reducer);
     }
+
     /**
      * Creates a new channel instance with the specified {@code reducer} and
      * {@code defaultProvider}.
@@ -99,9 +105,11 @@ public interface Channel<T> {
      * @param reducer     the function to reduce elements from multiple suppliers into one value
      * @param defaultProvider the supplier to provide a default value when no other value is available
      * @return a new channel instance with the specified parameters
+     * @deprecated use {@link Channels#base(Reducer,Supplier)} instead
      */
+    @Deprecated( forRemoval = true )
     static <T> Channel<T> of( Reducer<T> reducer, Supplier<T> defaultProvider ) {
-        return new BaseChannel<T>(reducer, defaultProvider);
+        return Channels.base(reducer,defaultProvider);
     }
 
     /**

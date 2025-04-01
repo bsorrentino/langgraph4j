@@ -1,8 +1,5 @@
 package org.bsc.langgraph4j;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
@@ -35,8 +32,9 @@ import static org.bsc.langgraph4j.StateGraph.START;
  *
  * @param <State> the type of the state associated with the graph
  */
-@Slf4j
 public class CompiledGraph<State extends AgentState> {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CompiledGraph.class);
+
     public enum StreamMode {
         VALUES,
         SNAPSHOTS
@@ -274,7 +272,8 @@ public class CompiledGraph<State extends AgentState> {
         return nextNodeId(entryPoint, state, "entryPoint");
     }
 
-    private boolean shouldInterruptBefore(@NonNull String nodeId, String previousNodeId ) {
+    private boolean shouldInterruptBefore( String nodeId, String previousNodeId ) {
+        Objects.requireNonNull( nodeId, "nodeId cannot be null" );
         if( previousNodeId == null ) { // FIX RESUME ERROR
             return false;
         }
@@ -496,8 +495,11 @@ public class CompiledGraph<State extends AgentState> {
                             if (data != null) {
 
                                 if (data instanceof Map<?,?>) {
+                                    // FIX #102
+                                    // Assume that the whatever used appender channel doesn't accept duplicates
+                                    currentState = AgentState.updateState( currentState, (Map<String,Object>)data, stateGraph.getChannels() );
                                     // Assume that subgraph return complete state
-                                    currentState = AgentState.updateState( new HashMap<>(), (Map<String,Object>)data, stateGraph.getChannels() );
+                                    // currentState = AgentState.updateState( Map.of(), (Map<String,Object>)data, stateGraph.getChannels() );
                                 }
                                 else {
                                     throw new IllegalArgumentException("Embedded generator must return a Map");

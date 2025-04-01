@@ -2,7 +2,6 @@ package org.bsc.langgraph4j.agentexecutor.actions;
 
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.agentexecutor.*;
 import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;
@@ -13,8 +12,9 @@ import java.util.Map;
  * The CallAgent class implements the NodeAction interface for handling 
  * actions related to an AgentExecutor's state.
  */
-@Slf4j
 public class CallAgent implements NodeAction<AgentExecutor.State> {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CallAgent.class);
 
     final Agent agent;
 

@@ -4,7 +4,6 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
-import lombok.Value;
 import java.time.Duration;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -12,8 +11,7 @@ import java.util.function.BiFunction;
  * This class provides a service for generating answers to questions using natural language processing.
  * It implements the {@link BiFunction} interface to process question and context inputs and produce an answer.
  */
-@Value(staticConstructor="of")
-public class Generation implements BiFunction<String, List<String>, String> {
+public record Generation(String openApiKey)  implements BiFunction<String, List<String>, String> {
 
     /**
      * Interface for service implementation that provides capabilities to answer questions based on given context.
@@ -38,8 +36,6 @@ public class Generation implements BiFunction<String, List<String>, String> {
                 "Answer:")
         String invoke(@V("question") String question, @V("context") List<String> context );
     }
-
-    String openApiKey;
 
     /**
      * Apply a text-based query to an AI model and retrieve the model's response.

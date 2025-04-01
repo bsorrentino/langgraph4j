@@ -5,8 +5,8 @@ import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
-import lombok.Value;
 import java.time.Duration;
+
 /**
  * The ChromaStore class provides a singleton interface for interacting with the Chroma Embedding Store.
  * This class is designed to be used in conjunction with an OpenAI API key to perform search operations on text segments.

@@ -7,6 +7,7 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.request.ResponseFormat;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
@@ -187,7 +188,8 @@ public class MultiAgentSupervisorTest {
                 .temperature(0.0)
                 .logRequests(true)
                 .logResponses(true)
-                .format( "json" )
+                .responseFormat( ResponseFormat.JSON)
+                // .format( "json" )
                 .modelName("deepseek-r1:14b")
                 //.modelName("llama3.2:latest")
                 .build();

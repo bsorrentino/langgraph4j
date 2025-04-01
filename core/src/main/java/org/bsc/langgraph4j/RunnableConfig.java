@@ -1,9 +1,9 @@
 package org.bsc.langgraph4j;
 
-import lombok.ToString;
-
 import java.util.Objects;
 import java.util.Optional;
+
+import static java.lang.String.format;
 
 /**
  * A final class representing configuration for a runnable task.
@@ -11,7 +11,6 @@ import java.util.Optional;
  * and stream mode, providing methods to modify these parameters safely
  * without permanently altering the original configuration.
  */
-@ToString
 public final class RunnableConfig {
     private String threadId;
     private String checkPointId;
@@ -189,5 +188,14 @@ public final class RunnableConfig {
      */
     private RunnableConfig() {}
 
+    @Override
+    public String toString() {
+        return  format("RunnableConfig{ threadId=%s, checkPointId=%s, nextNode=%s, streamMode=%s }" ,
+                threadId,
+                checkPointId,
+                nextNode,
+                streamMode
+                );
+    }
 
 }

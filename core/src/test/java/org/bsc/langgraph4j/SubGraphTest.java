@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j;
 
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
@@ -18,9 +17,8 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Slf4j
 public class SubGraphTest {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SubGraphTest.class);
 
     @BeforeAll
     public static void initLogging() throws IOException {

@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j.state;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -16,9 +14,8 @@ import static java.util.Optional.ofNullable;
  * @param <T> the type of the values being accumulated
  * @see Channel
  */
-@Slf4j
 public class AppenderChannel<T> implements Channel<List<T>> {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AppenderChannel.class);
     /**
      * A functional interface that is used to remove elements from a list.
      *
@@ -66,35 +63,21 @@ public class AppenderChannel<T> implements Channel<List<T>> {
      * @param <T> the type of elements in the list
      * @param defaultProvider a supplier that provides the default list of elements
      * @return a new instance of `AppenderChannel`
+     * @deprecated use {@link Channels#appender(Supplier)} instead
      */
+    @Deprecated( forRemoval = true)
     public static <T> AppenderChannel<T> of( Supplier<List<T>> defaultProvider ) {
-        return new AppenderChannel<>(defaultProvider);
+        return (AppenderChannel<T>) Channels.appender( defaultProvider );
     }
 
     /**
      * Constructs a new instance of {@code AppenderChannel} with the specified default provider.
      *
+     * @param reducer a binary operator that is used to combine two lists into one
      * @param defaultProvider a supplier for the default list that will be used when no other list is available
      */
-    protected AppenderChannel( Supplier<List<T>> defaultProvider ) {
-        this.reducer = new Reducer<>() {
-            /**
-             * Combines two lists into one. If the first list is null, the second list is returned.
-             * Otherwise, the second list is added to the end of the first list and the resulting list is returned.
-             *
-             * @param left the first list; may be null
-             * @param right the second list
-             * @return a new list containing all elements from both input lists
-             */
-            @Override
-            public List<T> apply(List<T> left, List<T> right) {
-                if( left == null ) {
-                    return right;
-                }
-                left.addAll(right);
-                return left;
-            }
-        };
+    protected AppenderChannel( Reducer<List<T>> reducer,  Supplier<List<T>> defaultProvider ) {
+        this.reducer = reducer;
         this.defaultProvider = defaultProvider;
     }
 
@@ -122,10 +105,13 @@ public class AppenderChannel<T> implements Channel<List<T>> {
      * @param removeIdentifier the identifier used to find the element to remove
      */
     private void removeFromList(List<T> result, RemoveIdentifier<T> removeIdentifier ) {
-        for( int i = 0; i < result.size(); i++ ) {
-            if( removeIdentifier.compareTo( result.get(i), i ) == 0 ) {
-                result.remove(i);
-                break;
+        // Use an iterator to safely remove elements during iteration
+        var iterator = result.iterator();
+        int index = 0;
+        while (iterator.hasNext()) {
+            T element = iterator.next();
+            if (removeIdentifier.compareTo(element, index++) == 0) {
+                iterator.remove();
             }
         }
     }

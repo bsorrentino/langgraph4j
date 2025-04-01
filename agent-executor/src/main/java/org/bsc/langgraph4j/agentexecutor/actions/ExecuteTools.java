@@ -2,22 +2,21 @@ package org.bsc.langgraph4j.agentexecutor.actions;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessageType;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * The ExecuteTools class implements the NodeAction interface for handling 
  * actions related to executing tools within an agent's context.
  */
-@Slf4j
 public class ExecuteTools implements NodeAction<AgentExecutor.State> {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExecuteTools.class);
     /**
      * The tool node that will be executed.
      */
@@ -28,8 +27,8 @@ public class ExecuteTools implements NodeAction<AgentExecutor.State> {
      *
      * @param toolNode the tool node to be executed, must not be null
      */
-    public ExecuteTools(@NonNull ToolNode toolNode) {
-        this.toolNode = toolNode;
+    public ExecuteTools( ToolNode toolNode) {
+        this.toolNode = Objects.requireNonNull(toolNode, "toolNode cannot be null");
     }
 
     /**

@@ -1,6 +1,5 @@
 package org.bsc.spring.agentexecutor.function;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestClient;
 import java.util.function.Function;
 
@@ -8,9 +7,8 @@ import java.util.function.Function;
  * Class representing the WeatherFunction which implements a
  * Function interface to retrieve weather data from an external API.
  */
-@Slf4j
 public class WeatherFunction implements Function<WeatherFunction.Request, WeatherFunction.Response> {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WeatherFunction.class);
     /**
      * RestClient instance for making HTTP requests.
      */

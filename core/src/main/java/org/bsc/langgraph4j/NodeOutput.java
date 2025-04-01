@@ -1,8 +1,5 @@
 package org.bsc.langgraph4j;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 import org.bsc.langgraph4j.state.AgentState;
 
 import static java.lang.String.format;
@@ -31,8 +28,18 @@ public class NodeOutput<State extends AgentState> {
     /**
      * If the output is from a subgraph.
      */
-    @Setter( AccessLevel.PROTECTED ) @Getter
     private boolean subGraph = false;
+
+    protected void setSubGraph( boolean subgraph ) {
+        this.subGraph = subgraph;
+    }
+
+    /**
+     * @return boolean if the output is from a subgraph
+     */
+    public boolean isSubGraph() {
+        return subGraph;
+    }
 
     public String node() {
         return node;

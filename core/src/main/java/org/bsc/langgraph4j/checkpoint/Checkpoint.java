@@ -1,10 +1,11 @@
 package org.bsc.langgraph4j.checkpoint;
 
-import lombok.*;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
+
+import static java.lang.String.format;
 
 /**
  * Represents a checkpoint of an agent state.
@@ -16,14 +17,28 @@ import java.util.*;
  *
  * @see AgentState
  */
-@Getter
-@ToString
 public class Checkpoint {
 
     private String id = UUID.randomUUID().toString();
     private Map<String,Object> state = null;
     private String nodeId = null ;
     private String nextNodeId = null;
+
+    public String getId() {
+        return id;
+    }
+
+    public Map<String, Object> getState() {
+        return state;
+    }
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public String getNextNodeId() {
+        return nextNodeId;
+    }
 
     private Checkpoint() {
     }
@@ -73,11 +88,23 @@ public class Checkpoint {
 
         }
     }
+
     public Checkpoint updateState(Map<String,Object> values, Map<String, Channel<?>> channels ) {
 
         Checkpoint result = new Checkpoint( this );
         result.state = AgentState.updateState( state, values, channels );
         return result;
     }
+
+    @Override
+    public String toString() {
+        return  format("Checkpoint{ id=%s, nodeId=%s, nextNodeId=%s, state=%s }" ,
+                id,
+                nodeId,
+                nextNodeId,
+                state
+        );
+    }
+
 
 }

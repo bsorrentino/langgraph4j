@@ -2,8 +2,6 @@ package dev.langchain4j.adaptiverag;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.StateGraph;
@@ -22,14 +20,13 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.listOf;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 
 /**
  * AdaptiveRag
  */
-@Slf4j( topic="AdaptiveRag")
 public class AdaptiveRag {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("AdaptiveRag");
 
     /**
      * Represents the state of our graph.
@@ -60,8 +57,14 @@ public class AdaptiveRag {
 
     private final String openApiKey;
     private final String tavilyApiKey;
-    @Getter(lazy = true)
-    private final ChromaStore chroma = openChroma();
+    private ChromaStore chroma;
+
+    public ChromaStore getChroma() {
+        if( chroma == null ) {
+            chroma = openChroma();
+        }
+        return chroma;
+    }
 
     /**
      * Constructor for the AdaptiveRag class.
@@ -74,10 +77,8 @@ public class AdaptiveRag {
      * an exception is thrown. This ensures that the AdaptiveRag instance is always properly configured.
      */
     public AdaptiveRag(String openApiKey, String tavilyApiKey) {
-        Objects.requireNonNull(openApiKey, "no OPENAI APIKEY provided!");
-        Objects.requireNonNull(tavilyApiKey, "no TAVILY APIKEY provided!");
-        this.openApiKey = openApiKey;
-        this.tavilyApiKey = tavilyApiKey;
+        this.openApiKey     = Objects.requireNonNull(openApiKey, "no OPENAI APIKEY provided!");
+        this.tavilyApiKey   = Objects.requireNonNull(tavilyApiKey, "no TAVILY APIKEY provided!");
         // The ChromaStore instance is lazily initialized when accessed via the getChroma() method.
     }
     private ChromaStore openChroma() {
@@ -98,7 +99,7 @@ public class AdaptiveRag {
 
         List<String> documents = relevant.matches().stream()
                 .map( m -> m.embedded().text() )
-                .collect(Collectors.toList());
+                .toList();
 
         return Map.of( "documents", documents , "question", question );
     }
@@ -115,7 +116,7 @@ public class AdaptiveRag {
         String question = state.question();
         List<String> documents = state.documents();
 
-        String generation = Generation.of(openApiKey).apply(question, documents); // service
+        String generation = (new Generation(openApiKey)).apply(question, documents); // service
 
         return Map.of("generation", generation);
     }
@@ -132,11 +133,11 @@ public class AdaptiveRag {
 
         List<String> documents = state.documents();
 
-        final RetrievalGrader grader = RetrievalGrader.of( openApiKey );
+        final RetrievalGrader grader = new RetrievalGrader( openApiKey );
 
         List<String> filteredDocs =  documents.stream()
                 .filter( d -> {
-                    RetrievalGrader.Score score = grader.apply( RetrievalGrader.Arguments.of(question, d ));
+                    RetrievalGrader.Score score = grader.apply( new RetrievalGrader.Arguments(question, d ));
                     boolean relevant = score.binaryScore.equals("yes");
                     if( relevant ) {
                         log.debug("---GRADE: DOCUMENT RELEVANT---");
@@ -146,7 +147,7 @@ public class AdaptiveRag {
                     }
                     return relevant;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         return Map.of( "documents", filteredDocs);
     }
@@ -161,7 +162,7 @@ public class AdaptiveRag {
 
         String question = state.question();
 
-        String betterQuestion = QuestionRewriter.of( openApiKey ).apply( question );
+        String betterQuestion = (new QuestionRewriter( openApiKey )).apply( question );
 
         return Map.of( "question", betterQuestion );
     }
@@ -176,7 +177,7 @@ public class AdaptiveRag {
 
         String question = state.question();
 
-        List<dev.langchain4j.rag.content.Content> result = WebSearchTool.of( tavilyApiKey ).apply(question);
+        List<dev.langchain4j.rag.content.Content> result = (new WebSearchTool( tavilyApiKey )).apply(question);
 
         String webResult = result.stream()
                             .map( content -> content.textSegment().text() )
@@ -195,7 +196,7 @@ public class AdaptiveRag {
 
         String question = state.question();
 
-        QuestionRouter.Type source = QuestionRouter.of( openApiKey ).apply( question );
+        QuestionRouter.Type source = (new QuestionRouter( openApiKey )).apply( question );
         if( source == QuestionRouter.Type.web_search ) {
             log.debug("---ROUTE QUESTION TO WEB SEARCH---");
         }
@@ -236,14 +237,14 @@ public class AdaptiveRag {
                 .orElseThrow( () -> new IllegalStateException( "generation is not set!" ) );
 
 
-        HallucinationGrader.Score score = HallucinationGrader.of( openApiKey )
-                                            .apply( HallucinationGrader.Arguments.of(documents, generation));
+        HallucinationGrader.Score score = (new HallucinationGrader( openApiKey ))
+                                            .apply( new HallucinationGrader.Arguments(documents, generation));
 
         if(Objects.equals(score.binaryScore, "yes")) {
             log.debug( "---DECISION: GENERATION IS GROUNDED IN DOCUMENTS---" );
             log.debug("---GRADE GENERATION vs QUESTION---");
-            AnswerGrader.Score score2 = AnswerGrader.of( openApiKey )
-                                            .apply( AnswerGrader.Arguments.of(question, generation) );
+            AnswerGrader.Score score2 = (new AnswerGrader( openApiKey ))
+                                            .apply( new AnswerGrader.Arguments(question, generation) );
             if( Objects.equals( score2.binaryScore, "yes") ) {
                 log.debug( "---DECISION: GENERATION ADDRESSES QUESTION---" );
                 return "useful";
