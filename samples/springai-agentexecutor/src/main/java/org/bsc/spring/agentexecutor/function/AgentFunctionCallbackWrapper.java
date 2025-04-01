@@ -6,14 +6,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.model.function.*;
 import org.springframework.util.Assert;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -23,18 +22,26 @@ import java.util.function.Function;
  * @param <I> the type of the input
  * @param <O> the type of the output
  */
-@EqualsAndHashCode
 public class AgentFunctionCallbackWrapper<I, O> implements BiFunction<I, ToolContext, O>, FunctionCallback {
-    @Getter
     private final String name;
-    @Getter
     private final String description;
-    @Getter
     private final String inputTypeSchema;
     private final Class<I> inputType;
     private final ObjectMapper objectMapper;
     private final Function<O, String> responseConverter;
     private final BiFunction<I, ToolContext, O> biFunction;
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getInputTypeSchema() {
+        return inputTypeSchema;
+    }
 
     /**
      * Constructs a new instance of the AgentFunctionCallbackWrapper class with the specified parameters.
@@ -165,6 +172,23 @@ public class AgentFunctionCallbackWrapper<I, O> implements BiFunction<I, ToolCon
      */
     public static <I, O> Builder<I, O> builder(Function<I, O> function) {
         return new AgentFunctionCallbackWrapper.Builder<>(function);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof AgentFunctionCallbackWrapper<?, ?> that)) return false;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(inputTypeSchema, that.inputTypeSchema) &&
+                Objects.equals(inputType, that.inputType) &&
+                Objects.equals(objectMapper, that.objectMapper) &&
+                Objects.equals(responseConverter, that.responseConverter) &&
+                Objects.equals(biFunction, that.biFunction);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, inputTypeSchema, inputType, objectMapper, responseConverter, biFunction);
     }
 
     /**
@@ -360,6 +384,7 @@ public class AgentFunctionCallbackWrapper<I, O> implements BiFunction<I, ToolCon
         private static <I, O> Class<I> resolveInputType(Function<I, O> function) {
             return (Class<I>) TypeResolverHelper.getFunctionInputClass((Class<? extends Function<?, ?>>) function.getClass());
         }
+
     }
 
 }

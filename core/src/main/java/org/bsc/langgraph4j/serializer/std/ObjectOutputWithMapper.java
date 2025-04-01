@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j.serializer.std;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.Serializer;
 
 import java.io.IOException;
@@ -9,15 +7,14 @@ import java.io.ObjectOutput;
 import java.util.Objects;
 import java.util.Optional;
 
-@Slf4j
 class ObjectOutputWithMapper implements ObjectOutput {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ObjectOutputWithMapper.class);
     private final ObjectOutput out;
     private final SerializerMapper mapper;
 
-    public ObjectOutputWithMapper(@NonNull ObjectOutput out, @NonNull SerializerMapper mapper) {
-        this.out = out;
-        this.mapper = mapper;
+    public ObjectOutputWithMapper( ObjectOutput out, SerializerMapper mapper) {
+        this.out = Objects.requireNonNull(out, "out cannot be null");
+        this.mapper = Objects.requireNonNull(mapper, "mapper cannot be null");
     }
 
     @Override

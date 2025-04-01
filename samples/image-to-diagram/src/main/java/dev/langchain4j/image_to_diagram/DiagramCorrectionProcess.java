@@ -4,7 +4,6 @@ import dev.langchain4j.image_to_diagram.actions.correction.EvaluateResult;
 import dev.langchain4j.image_to_diagram.actions.correction.ReviewResult;
 import dev.langchain4j.image_to_diagram.actions.correction.RouteEvaluationResult;
 import dev.langchain4j.image_to_diagram.serializer.gson.JSONStateSerializer;
-import lombok.extern.slf4j.Slf4j;
 
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
@@ -20,8 +19,9 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 /**
  * Represents the process for correcting diagrams from images using asynchronous node and edge actions.
  */
-@Slf4j(topic = "DiagramCorrectionProcess")
 public class DiagramCorrectionProcess implements ImageToDiagram {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("DiagramCorrectionProcess");
 
     final AsyncNodeAction<State> evaluateResult = new EvaluateResult();
     final AsyncNodeAction<State> reviewResult = new ReviewResult(getModel());

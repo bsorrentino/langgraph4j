@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j;
 
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.checkpoint.FileSystemSaver;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.StateSnapshot;
@@ -17,15 +16,14 @@ import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for simple App.
  */
-@Slf4j
 public class StateGraphFileSystemPersistenceTest
 {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StateGraphFileSystemPersistenceTest.class);
     static class State extends MessagesState<String> {
 
         public State(Map<String, Object> initData) {

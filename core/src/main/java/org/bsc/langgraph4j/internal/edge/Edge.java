@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j.internal.edge;
 
-import lombok.NonNull;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.internal.node.Node;
@@ -61,7 +60,9 @@ public record Edge<State extends AgentState>(String sourceId, List<EdgeValue<Sta
 
     }
 
-    public void validate( @NonNull StateGraph.Nodes<State> nodes ) throws GraphStateException {
+    public void validate( StateGraph.Nodes<State> nodes ) throws GraphStateException {
+        Objects.requireNonNull(nodes, "nodes cannot be null");
+
         if ( !Objects.equals(sourceId(),START) && !nodes.anyMatchById(sourceId())) {
             throw StateGraph.Errors.missingNodeReferencedByEdge.exception(sourceId());
         }

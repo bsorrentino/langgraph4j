@@ -2,20 +2,21 @@ package org.bsc.langgraph4j.langchain4j.generators;
 
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.streaming.StreamingOutput;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
 
-@Slf4j
+
 public class StreamingChatGenerator<State extends AgentState> extends AsyncGenerator.WithResult<StreamingOutput<State>> {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StreamingChatGenerator.class);
 
     /**
      * Creates a new Builder instance for LLMStreamingGenerator.
@@ -37,12 +38,12 @@ public class StreamingChatGenerator<State extends AgentState> extends AsyncGener
      * @param startingState the initial state
      * @param mapResult a function to map the response to a Map (ie. Partial State )
      */
-    private StreamingChatGenerator( @NonNull BlockingQueue<Data<StreamingOutput<State>>> queue,
+    private StreamingChatGenerator( BlockingQueue<Data<StreamingOutput<State>>> queue,
                                    String startingNode,
                                    State startingState,
                                    Function<ChatResponse, Map<String,Object>> mapResult)
     {
-        super(new AsyncGeneratorQueue.Generator<>( queue ));
+        super(new AsyncGeneratorQueue.Generator<>( Objects.requireNonNull(queue, "queue cannot be null" )  ));
 
         this.handler = new StreamingChatResponseHandler() {
 

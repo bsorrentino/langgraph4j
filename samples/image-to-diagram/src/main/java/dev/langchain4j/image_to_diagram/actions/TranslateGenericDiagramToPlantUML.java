@@ -5,10 +5,10 @@ import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import lombok.NonNull;
 import org.bsc.langgraph4j.action.NodeAction;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * TranslateGenericDiagramToPlantUML class implementation.
@@ -27,8 +27,8 @@ public class TranslateGenericDiagramToPlantUML implements NodeAction<ImageToDiag
      *
      * @param model The non-null OpenAiChatModel instance.
      */
-    public TranslateGenericDiagramToPlantUML( @NonNull OpenAiChatModel model) {
-        this.model = model;
+    public TranslateGenericDiagramToPlantUML( OpenAiChatModel model) {
+        this.model = Objects.requireNonNull(model, "model cannot be null");
     }
 
     /**

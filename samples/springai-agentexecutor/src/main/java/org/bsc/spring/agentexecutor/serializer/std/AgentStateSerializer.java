@@ -1,6 +1,5 @@
 package org.bsc.spring.agentexecutor.serializer.std;
 
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.std.NullableObjectSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
@@ -16,9 +15,9 @@ import java.util.Map;
  * This class is responsible for serializing and deserializing the state of an agent executor.
  * It extends {@link ObjectStreamStateSerializer} for handling the serialization of the AgentExecutor.State object.
  */
-@Slf4j
 public class AgentStateSerializer extends ObjectStreamStateSerializer<AgentExecutor.State>  {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AgentStateSerializer.class);
     /**
      * Constructor that initializes the serializer with a supplier for creating new AgentExecutor.State instances and registers various serializers for different types.
      */

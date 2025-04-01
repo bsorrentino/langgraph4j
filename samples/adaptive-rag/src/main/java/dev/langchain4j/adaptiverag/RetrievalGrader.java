@@ -7,17 +7,16 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
-import lombok.Value;
 import java.time.Duration;
 import java.util.function.Function;
+
 /**
  * The RetrievalGrader class implements a function to assess the relevance of a retrieved document
  * to a user's question. It uses an AI service to generate a binary score ('yes' or 'no') indicating relevance.
  * This class relies on external services for processing and grading documents, making it dependent
  * on network availability and the stability of the used API.
  */
-@Value(staticConstructor="of")
-public class RetrievalGrader implements Function<RetrievalGrader.Arguments, RetrievalGrader.Score> {
+public record RetrievalGrader( String openApiKey ) implements Function<RetrievalGrader.Arguments, RetrievalGrader.Score> {
 
     /**
      * A static class that represents a score in a binary format.
@@ -38,11 +37,9 @@ public class RetrievalGrader implements Function<RetrievalGrader.Arguments, Retr
      *
      */
     @StructuredPrompt("Retrieved document: \n\n {{document}} \n\n User question: {{question}}")
-    @Value(staticConstructor = "of")
-    public static class Arguments {
-        String question;
-        String document;
-    }
+    public record Arguments(
+        String question,
+        String document) {}
 
     /**
      * Defines an interface for providing service responses based on user queries.
@@ -62,7 +59,7 @@ public class RetrievalGrader implements Function<RetrievalGrader.Arguments, Retr
         Score invoke(String question);
     }
 
-    String openApiKey;
+
 
 
     /**

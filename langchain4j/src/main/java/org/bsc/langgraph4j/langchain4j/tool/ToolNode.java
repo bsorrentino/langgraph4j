@@ -8,9 +8,6 @@ import dev.langchain4j.service.tool.DefaultToolExecutor;
 import dev.langchain4j.service.tool.ToolExecutor;
 import static dev.langchain4j.agent.tool.ToolSpecifications.toolSpecificationFrom;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,12 +23,14 @@ import java.util.stream.Collectors;
  *
  * @see Specification
  */
-@Slf4j
 public final class ToolNode {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ToolNode.class);
 
     public record Specification( ToolSpecification value, ToolExecutor executor)  {
-        public static Specification of( @NonNull ToolSpecification value, @NonNull ToolExecutor executor ) {
-            return new Specification( value, executor);
+        public static Specification of( ToolSpecification value, ToolExecutor executor ) {
+            return new Specification(
+                    Objects.requireNonNull(value,"value cannot be null"),
+                    Objects.requireNonNull(executor, "executor cannot be null"));
         }
     }
 
@@ -139,11 +138,11 @@ public final class ToolNode {
 
     private final List<Specification> entries;
 
-    private ToolNode( @NonNull List<Specification> entries) {
+    private ToolNode( List<Specification> entries) {
+        this.entries = Objects.requireNonNull(entries, "entries cannot be null");
         if( entries.isEmpty() ) {
             throw new IllegalArgumentException("entries cannot be empty!");
         }
-        this.entries = entries;
     }
 
     /**
@@ -164,7 +163,9 @@ public final class ToolNode {
      * @param memoryId the memory id to pass to the tool
      * @return the result of the tool
      */
-    public Optional<ToolExecutionResultMessage> execute( @NonNull ToolExecutionRequest request, Object memoryId ) {
+    public Optional<ToolExecutionResultMessage> execute( ToolExecutionRequest request, Object memoryId ) {
+        Objects.requireNonNull( request, "request cannot be null" );
+
         log.trace( "execute: {}", request.name() );
 
         return entries.stream()
@@ -184,7 +185,9 @@ public final class ToolNode {
      * @param memoryId the memory id to pass to the tool
      * @return the result of the tool
      */
-    public Optional<ToolExecutionResultMessage> execute(@NonNull Collection<ToolExecutionRequest> requests, Object memoryId ) {
+    public Optional<ToolExecutionResultMessage> execute(Collection<ToolExecutionRequest> requests, Object memoryId ) {
+        Objects.requireNonNull( requests, "requests cannot be null" );
+
         for( ToolExecutionRequest request : requests ) {
 
             Optional<ToolExecutionResultMessage> result = execute( request, memoryId );

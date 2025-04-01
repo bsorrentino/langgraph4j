@@ -2,7 +2,6 @@ package org.bsc.langgraph4j.serializer.plain_text.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.NonNull;
 import org.bsc.langgraph4j.serializer.plain_text.PlainTextStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -20,12 +19,12 @@ public abstract class GsonStateSerializer<State extends AgentState> extends Plai
 
     protected final Gson gson;
 
-    protected GsonStateSerializer(@NonNull AgentStateFactory<State> stateFactory, Gson gson) {
+    protected GsonStateSerializer(AgentStateFactory<State> stateFactory, Gson gson) {
         super(stateFactory);
         this.gson = gson;
     }
 
-    protected GsonStateSerializer(@NonNull AgentStateFactory<State> stateFactory) {
+    protected GsonStateSerializer(AgentStateFactory<State> stateFactory) {
         this(stateFactory, new GsonBuilder()
                                 .serializeNulls()
                                 .create());

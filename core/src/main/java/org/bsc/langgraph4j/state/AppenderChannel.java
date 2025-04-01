@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j.state;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -16,9 +14,8 @@ import static java.util.Optional.ofNullable;
  * @param <T> the type of the values being accumulated
  * @see Channel
  */
-@Slf4j
 public class AppenderChannel<T> implements Channel<List<T>> {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AppenderChannel.class);
     /**
      * A functional interface that is used to remove elements from a list.
      *

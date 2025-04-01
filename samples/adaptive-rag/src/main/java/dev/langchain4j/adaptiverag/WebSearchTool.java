@@ -5,9 +5,9 @@ import dev.langchain4j.rag.query.Query;
 import dev.langchain4j.web.search.WebSearchEngine;
 import dev.langchain4j.web.search.tavily.TavilyWebSearchEngine;
 import dev.langchain4j.rag.content.Content;
-import lombok.Value;
 import java.util.List;
 import java.util.function.Function;
+
 /**
 * The `WebSearchTool` class provides a solution for performing web searches based on user queries.
 * It implements the {@literal Function<String, List<Content>> } interface to define how queries are processed and results are returned.
@@ -16,9 +16,7 @@ import java.util.function.Function;
 * @since 1.0
 * @author Your Name (if applicable)
 */
-@Value( staticConstructor = "of" )
-public class WebSearchTool implements Function<String, List<Content>> {
-    String tavilyApiKey;
+public record WebSearchTool( String tavilyApiKey ) implements Function<String, List<Content>> {
 
     /**
      * Applies the query to a search engine and retrieves up to 3 results.

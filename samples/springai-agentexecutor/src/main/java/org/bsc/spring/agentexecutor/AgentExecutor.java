@@ -1,11 +1,9 @@
 package org.bsc.spring.agentexecutor;
 
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.Channels;
 import org.bsc.spring.agentexecutor.serializer.std.AgentStateSerializer;
@@ -25,9 +23,11 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
  * It includes methods for building and managing the execution graph,
  * as well as handling agent actions and state transitions.
  */
-@Slf4j
 @Service
 public class AgentExecutor {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AgentExecutor.class);
+
     /**
      * Class responsible for building a state graph.
      */

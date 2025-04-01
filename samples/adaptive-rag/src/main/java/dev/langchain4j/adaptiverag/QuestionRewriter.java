@@ -5,7 +5,6 @@ import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
-import lombok.Value;
 import java.time.Duration;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,10 +14,7 @@ import java.util.function.Function;
  * It uses an AI language model to rephrase input questions based on semantic intent and meaning.
  *
  */
-@Value(staticConstructor="of")
-public class QuestionRewriter implements Function<String, String> {
-
-    private final String openApiKey;
+public record QuestionRewriter( String openApiKey ) implements Function<String, String> {
 
     /**
      * Interface representing a service for interfacing with a Language Model.

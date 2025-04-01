@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
@@ -29,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for simple App.
  */
-@Slf4j
 public class StateGraphPersistenceTest
 {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StateGraphPersistenceTest.class);
     static class State extends MessagesState<String> {
 
         public State(Map<String, Object> initData) {

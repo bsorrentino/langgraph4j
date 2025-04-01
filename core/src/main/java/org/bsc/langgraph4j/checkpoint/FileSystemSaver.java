@@ -1,7 +1,5 @@
 package org.bsc.langgraph4j.checkpoint;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.serializer.Serializer;
 import org.bsc.langgraph4j.serializer.StateSerializer;
@@ -27,14 +25,17 @@ import static java.lang.String.format;
  * </p>
  *
  */
-@Slf4j
 public class FileSystemSaver extends MemorySaver {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileSystemSaver.class);
     private final Path targetFolder;
     private final Serializer<Checkpoint> serializer;
 
     @SuppressWarnings("unchecked")
-    public FileSystemSaver( @NonNull Path targetFolder, @NonNull StateSerializer<? extends AgentState> stateSerializer) {
+    public FileSystemSaver( Path targetFolder, StateSerializer<? extends AgentState> stateSerializer) {
+        Objects.requireNonNull( stateSerializer, "stateSerializer cannot be null");
+        this.targetFolder = Objects.requireNonNull(targetFolder, "targetFolder cannot be null");
+        this.serializer = new CheckPointSerializer( (StateSerializer<AgentState>) stateSerializer );
+
         File targetFolderAsFile = targetFolder.toFile();
 
         if( targetFolderAsFile.exists() ) {
@@ -48,8 +49,6 @@ public class FileSystemSaver extends MemorySaver {
             }
         }
 
-        this.targetFolder = targetFolder;
-        this.serializer = new CheckPointSerializer( (StateSerializer<AgentState>) stateSerializer );
     }
 
     private File getFile(RunnableConfig config) {
@@ -59,8 +58,9 @@ public class FileSystemSaver extends MemorySaver {
                 .toFile();
 
     }
-    private void serialize(@NonNull LinkedList<Checkpoint> checkpoints, @NonNull File outFile ) throws IOException {
-
+    private void serialize(LinkedList<Checkpoint> checkpoints, File outFile ) throws IOException {
+        Objects.requireNonNull( checkpoints, "checkpoints cannot be null");
+        Objects.requireNonNull( outFile, "outFile cannot be null");
         try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(outFile.toPath())) ) {
 
             oos.writeInt( checkpoints.size() );
@@ -70,7 +70,9 @@ public class FileSystemSaver extends MemorySaver {
         }
     }
 
-    private void deserialize(@NonNull File file, @NonNull LinkedList<Checkpoint> result) throws IOException, ClassNotFoundException {
+    private void deserialize( File file, LinkedList<Checkpoint> result) throws IOException, ClassNotFoundException {
+        Objects.requireNonNull(file,"file cannot be null");
+        Objects.requireNonNull(result,"result cannot be null");
 
         try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(file.toPath())) ) {
             int size = ois.readInt();

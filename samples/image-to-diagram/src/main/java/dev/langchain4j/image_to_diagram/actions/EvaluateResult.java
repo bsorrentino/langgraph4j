@@ -3,8 +3,6 @@ package dev.langchain4j.image_to_diagram.actions;
 import dev.langchain4j.image_to_diagram.DiagramCorrectionProcess;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 
@@ -18,8 +16,9 @@ import java.util.concurrent.CompletableFuture;
  * It implements the AsyncNodeAction interface, which allows for asynchronous processing
  * of a State object into a Map. The class leverages the OpenAiChatModel for its operations.
  */
-@Slf4j
 public class EvaluateResult implements AsyncNodeAction<ImageToDiagram.State> {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EvaluateResult.class);
 
     /** Final field for storing an instance of OpenAiChatModel. */
     final OpenAiChatModel model;

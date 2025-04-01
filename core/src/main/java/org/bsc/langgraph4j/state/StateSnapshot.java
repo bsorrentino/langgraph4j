@@ -1,9 +1,10 @@
 package org.bsc.langgraph4j.state;
 
-import lombok.NonNull;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
+
+import java.util.Objects;
 
 import static java.lang.String.*;
 
@@ -34,9 +35,10 @@ public final class StateSnapshot<State extends AgentState> extends NodeOutput<St
         return next();
     }
 
-    private StateSnapshot(@NonNull String node, @NonNull State state, @NonNull RunnableConfig config) {
-        super( node, state );
-        this.config = config;
+    private StateSnapshot( String node, State state, RunnableConfig config) {
+        super(  Objects.requireNonNull(node, "node cannot be null"),
+                Objects.requireNonNull(state, "state cannot be null") );
+        this.config = Objects.requireNonNull(config, "config cannot be null");
     }
 
     @Override

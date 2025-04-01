@@ -6,7 +6,6 @@ import dev.langchain4j.data.message.*;
 import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.input.PromptTemplate;
-import lombok.extern.slf4j.Slf4j;
 
 import org.bsc.langgraph4j.GraphRepresentation;
 import org.bsc.langgraph4j.NodeOutput;
@@ -24,12 +23,12 @@ import java.util.logging.LogManager;
 
 import static java.lang.String.format;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.last;
-import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Slf4j
 public class ImageToDiagramTest {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ImageToDiagramTest.class);
 
     public static final String VISION_MODEL_NAME = "gpt-4o";
 

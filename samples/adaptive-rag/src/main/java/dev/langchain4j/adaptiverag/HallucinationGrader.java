@@ -7,17 +7,16 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
-import lombok.Value;
 import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
+
 /**
  * Provides functionality to grade the groundedness of an LLM generation with respect to a set of facts. 
  * The class implements the {@link Function} interface, which accepts parameters of type {@link Arguments}
  * and returns a score indicating whether the generation is grounded or not.
  */
-@Value(staticConstructor="of")
-public class HallucinationGrader implements Function<HallucinationGrader.Arguments,HallucinationGrader.Score> {
+public record HallucinationGrader( String openApiKey ) implements Function<HallucinationGrader.Arguments,HallucinationGrader.Score> {
 
     /**
      * Binary score for hallucination present in generation answer.
@@ -37,11 +36,9 @@ public class HallucinationGrader implements Function<HallucinationGrader.Argumen
      * </p>
      */
     @StructuredPrompt("Set of facts: \\n\\n {{documents}} \\n\\n LLM generation: {{generation}}")
-    @Value(staticConstructor = "of")
-    public static class Arguments {
-        List<String> documents;
-        String generation;
-    }
+    public record Arguments(
+        List<String> documents,
+        String generation ) {}
 
     /**
      * Interface for service operations.
@@ -59,9 +56,6 @@ public class HallucinationGrader implements Function<HallucinationGrader.Argumen
                 "Give a binary score 'yes' or 'no'. 'Yes' means that the answer is grounded in / supported by the set of facts.")
         Score invoke(String userMessage);
     }
-
-
-    String openApiKey;
 
     /** Applies the provided arguments to a chat language model and returns the score. Uses OpenAI's GPT-3.5-Turbo model with specified settings. Logs requests and responses, retries twice, and has a max token limit of 2000. 
      * @param args The arguments to be applied.

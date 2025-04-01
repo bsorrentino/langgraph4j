@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j.serializer.std;
 
-import lombok.NonNull;
 import org.bsc.langgraph4j.serializer.Serializer;
 
 import java.io.IOException;
@@ -61,19 +60,23 @@ public class SerializerMapper {
     }
     private final Map<Key, Serializer<?>> _serializers = new HashMap<>();
 
-    public SerializerMapper register(@NonNull  Class<?> clazz, @NonNull  Serializer<?> serializer ) {
+    public SerializerMapper register( Class<?> clazz, Serializer<?> serializer ) {
+        Objects.requireNonNull(clazz,"class cannot be null ");
+        Objects.requireNonNull(clazz,"serializer cannot be null ");
+
         _serializers.put( Key.of(clazz), serializer);
         return this;
     }
 
-    public boolean unregister( @NonNull  Class<? extends Serializer<?>> clazz ) {
+    public boolean unregister( Class<? extends Serializer<?>> clazz ) {
         Objects.requireNonNull( clazz, "Serializer's class cannot be null" );
         Serializer<?> serializer = _serializers.remove( Key.of(clazz) );
         return serializer != null;
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<Serializer<Object>> getSerializer( @NonNull Class<?> clazz ) {
+    public Optional<Serializer<Object>> getSerializer( Class<?> clazz ) {
+        Objects.requireNonNull(clazz,"class cannot be null ");
         Serializer<?> ser = _serializers.get( Key.of(clazz) );
 
         return ( ser != null ) ?
@@ -89,7 +92,8 @@ public class SerializerMapper {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<Serializer<Object>> getSerializer( @NonNull String className ) {
+    public Optional<Serializer<Object>> getSerializer( String className ) {
+        Objects.requireNonNull(className,"className cannot be null ");
         return Optional.ofNullable((Serializer<Object>)_serializers.get( Key.of(className) ));
     }
 
@@ -97,8 +101,8 @@ public class SerializerMapper {
         return DEFAULT_SERIALIZER;
     }
 
-    protected final ObjectOutput objectOutputWithMapper(@NonNull  ObjectOutput out) {
-
+    protected final ObjectOutput objectOutputWithMapper(ObjectOutput out) {
+        Objects.requireNonNull( out, "ObjectOutput cannot be null");
         final ObjectOutputWithMapper mapperOut ;
         if( out instanceof ObjectOutputWithMapper ) {
             mapperOut = (ObjectOutputWithMapper)out;
@@ -109,8 +113,8 @@ public class SerializerMapper {
         return mapperOut;
     }
 
-    protected final ObjectInput objectInputWithMapper(@NonNull  ObjectInput in) {
-
+    protected final ObjectInput objectInputWithMapper(ObjectInput in) {
+        Objects.requireNonNull( in, "ObjectInput cannot be null");
         final ObjectInputWithMapper mapperIn ;
         if( in instanceof ObjectInputWithMapper ) {
             mapperIn = (ObjectInputWithMapper)in;

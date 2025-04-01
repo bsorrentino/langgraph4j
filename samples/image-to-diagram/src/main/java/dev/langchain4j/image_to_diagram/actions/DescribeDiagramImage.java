@@ -6,10 +6,10 @@ import dev.langchain4j.image_to_diagram.DiagramOutputParser;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
-import lombok.NonNull;
 import org.bsc.langgraph4j.action.NodeAction;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static dev.langchain4j.image_to_diagram.ImageToDiagram.loadPromptTemplate;
 
@@ -28,8 +28,8 @@ public class DescribeDiagramImage implements NodeAction<ImageToDiagram.State> {
      *
      * @param visionModel The language model used to generate descriptions.
      */
-    public DescribeDiagramImage( @NonNull ChatLanguageModel visionModel) {
-        this.visionModel = visionModel;
+    public DescribeDiagramImage( ChatLanguageModel visionModel) {
+        this.visionModel = Objects.requireNonNull(visionModel, "visionModel cannot be null");
     }
 
     /**

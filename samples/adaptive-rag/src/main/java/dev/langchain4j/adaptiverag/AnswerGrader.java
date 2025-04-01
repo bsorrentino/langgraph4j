@@ -7,15 +7,14 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
-import lombok.Value;
 import java.time.Duration;
 import java.util.function.Function;
+
 /**
  * Class to grade answers based on whether they address a given question.
  * Implements the Function interface to take in Arguments and output a Score.
  */
-@Value(staticConstructor="of")
-public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrader.Score> {
+public record AnswerGrader(String openApiKey) implements Function<AnswerGrader.Arguments,AnswerGrader.Score> {
     /**
      * Binary score to assess answer addresses question.
      */
@@ -29,11 +28,10 @@ public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrade
      * Represents the arguments for a structured prompt, encapsulating both a user's question and an LLM-generated response.
      */
     @StructuredPrompt("User question: \n\n {{question}} \n\n LLM generation: {{generation}}")
-    @Value(staticConstructor="of")
-    public static class Arguments {
-        String question;
-        String generation;
-    }
+    public record Arguments(
+        String question,
+        String generation) {}
+
 
     /**
      * Interface for service operations.
@@ -42,8 +40,6 @@ public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrade
      * @version 1.0
      */
     interface Service {
-
-        
         /**
          * Evaluates if the provided user message addresses and/or resolves the given question.
          *
@@ -54,8 +50,6 @@ public class AnswerGrader implements Function<AnswerGrader.Arguments,AnswerGrade
                         "Give a binary score 'yes' or 'no'. Yes, means that the answer resolves the question otherwise return 'no'")
         Score invoke(String userMessage);
     }
-
-    String openApiKey;
 
     /**
      * Applies the given arguments to generate a score using a language model.

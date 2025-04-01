@@ -2,14 +2,13 @@ package org.bsc.langgraph4j.langchain4j.generators;
 
 import dev.langchain4j.model.StreamingResponseHandler;
 import dev.langchain4j.model.output.Response;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.AsyncGeneratorQueue;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.streaming.StreamingOutput;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
@@ -22,10 +21,9 @@ import java.util.function.Function;
  * @param <State> the type of the state extending AgentState
  * @deprecated use {@link StreamingChatGenerator} instead
  */
-@Slf4j
 @Deprecated
 public class LLMStreamingGenerator<T, State extends AgentState> extends AsyncGenerator.WithResult<StreamingOutput<State>> {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LLMStreamingGenerator.class);
     /**
      * Creates a new Builder instance for LLMStreamingGenerator.
      *
@@ -47,12 +45,12 @@ public class LLMStreamingGenerator<T, State extends AgentState> extends AsyncGen
      * @param startingState the initial state
      * @param mapResult a function to map the response to a Map (ie. Partial State )
      */
-    private LLMStreamingGenerator( @NonNull BlockingQueue<AsyncGenerator.Data<StreamingOutput<State>>> queue,
+    private LLMStreamingGenerator( BlockingQueue<AsyncGenerator.Data<StreamingOutput<State>>> queue,
                                    String startingNode,
                                    State startingState,
                                    Function<Response<T>, Map<String,Object>> mapResult)
     {
-        super(new AsyncGeneratorQueue.Generator<>( queue ));
+        super(new AsyncGeneratorQueue.Generator<>( Objects.requireNonNull(queue, "queue cannot be null" ) ));
 
         this.handler = new StreamingResponseHandler<T>() {
 
