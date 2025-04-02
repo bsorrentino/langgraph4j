@@ -1,6 +1,8 @@
 # Agent Executor
 
+
 **Initialize Logger**
+
 
 ```java
 try( var file = new java.io.FileInputStream("./logging.properties")) {
@@ -12,8 +14,6 @@ try( var file = new java.io.FileInputStream("./logging.properties")) {
 var log = org.slf4j.LoggerFactory.getLogger("AgentExecutor");
 
 ```
-
-
 
 Create Tools
 
@@ -74,7 +74,7 @@ var chatLanguageModel = OpenAiChatModel.builder()
     .maxTokens(2000)
     .build();
 
-var stateGraph = AgentExecutor.graphBuilder()
+var stateGraph = AgentExecutor.builder()
         .chatLanguageModel(chatLanguageModel)
         .objectsWithTools(List.of(new TestTool()))
         .build();
@@ -88,6 +88,8 @@ Update State replacing the 'input'
 
 
 ```java
+import dev.langchain4j.data.message.UserMessage;
+
 var saver = new MemorySaver();
 
 CompileConfig compileConfig = CompileConfig.builder()
@@ -100,7 +102,7 @@ var config = RunnableConfig.builder()
                 .threadId("test1")
                 .build();    
                 
-var iterator = graph.streamSnapshots( Map.of( "input", "perform test once" ), config );  
+var iterator = graph.streamSnapshots( Map.of( "messages", UserMessage.from("perform test once")), config );  
 
 for( var step : iterator ) {
     log.info( "STEP: {}", step );
@@ -111,62 +113,45 @@ for( var step : iterator ) {
 
     START 
     callAgent 
-    STEP: NodeOutput{node=__START__, state={input=perform test once, intermediate_steps=[]}} 
+    STEP: StateSnapshot{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }]}, config=RunnableConfig(threadId=test1, checkPointId=664c9ede-a607-4502-9dc3-c6b26a0da3df, nextNode=agent, streamMode=SNAPSHOTS)} 
     executeTools 
     execute: execTest 
-    STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=efaea448-fa00-4b2e-a49c-12672784d89c, nextNode=action, streamMode=SNAPSHOTS)} 
+    STEP: StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_906ZmZ90zK4DaPkZNK7D3WlH", name = "execTest", arguments = "{"message":"perform test once"}" }] }]}, config=RunnableConfig(threadId=test1, checkPointId=36dde250-4ae4-4ed5-84a8-054cbbeaa3db, nextNode=action, streamMode=SNAPSHOTS)} 
     callAgent 
-    STEP: StateSnapshot{node=action, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=931e84ce-9b4d-4edf-85e5-01fb93641dc9, nextNode=agent, streamMode=SNAPSHOTS)} 
-    STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}, config=RunnableConfig(threadId=test1, checkPointId=2d01d052-06a9-444e-9b4a-afa05c78a0c9, nextNode=__END__, streamMode=SNAPSHOTS)} 
-    STEP: NodeOutput{node=__END__, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}} 
+    STEP: StateSnapshot{node=action, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_906ZmZ90zK4DaPkZNK7D3WlH", name = "execTest", arguments = "{"message":"perform test once"}" }] }, ToolExecutionResultMessage { id = "call_906ZmZ90zK4DaPkZNK7D3WlH" toolName = "execTest" text = "test tool executed: perform test once" }]}, config=RunnableConfig(threadId=test1, checkPointId=b6638fce-d14b-40ba-a761-627fa8224130, nextNode=agent, streamMode=SNAPSHOTS)} 
+    STEP: StateSnapshot{node=agent, state={agent_response=The test has been executed successfully with the message: "perform test once." How can I assist you further?, messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_906ZmZ90zK4DaPkZNK7D3WlH", name = "execTest", arguments = "{"message":"perform test once"}" }] }, ToolExecutionResultMessage { id = "call_906ZmZ90zK4DaPkZNK7D3WlH" toolName = "execTest" text = "test tool executed: perform test once" }]}, config=RunnableConfig(threadId=test1, checkPointId=5039907e-6136-435f-a98d-ebae76ef6bb6, nextNode=__END__, streamMode=SNAPSHOTS)} 
+    STEP: NodeOutput{node=__END__, state={agent_response=The test has been executed successfully with the message: "perform test once." How can I assist you further?, messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_906ZmZ90zK4DaPkZNK7D3WlH", name = "execTest", arguments = "{"message":"perform test once"}" }] }, ToolExecutionResultMessage { id = "call_906ZmZ90zK4DaPkZNK7D3WlH" toolName = "execTest" text = "test tool executed: perform test once" }]}} 
 
 
 
 ```java
+import org.bsc.langgraph4j.state.RemoveByHash;
+
 var history = graph.getStateHistory(config).stream().collect( Collectors.toList() );
 
-var state2 =  history.get(2);
-
-var updatedConfig = graph.updateState( state2.config(), Map.of( "input", "perform test twice"), null);
-
-var iterator = graph.streamSnapshots( null, updatedConfig );  
-
-for( var step : iterator ) {
-    log.info( "STEP:\n {}", step );
+for( var snapshot : history ) {
+    log.info( "{}", snapshot );
 }
+
+
+// var state2 =  history.get(2);
+
+// var updatedConfig = graph.updateState( state2.config(), 
+//     Map.of( "messages", UserMessage.from("perform test twice")), null);
+
+// var iterator = graph.streamSnapshots( null, updatedConfig );  
+
+
+// for( var step : iterator ) {
+//     log.info( "STEP:\n {}", step );
+// }
 
 ```
 
-    RESUME REQUEST 
-    RESUME FROM agent 
-    executeTools 
-    execute: execTest 
-    callAgent 
-    STEP:
-     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=08ada6be-42fc-4381-acbf-a5fbc9b8e673, nextNode=agent, streamMode=SNAPSHOTS)} 
-    executeTools 
-    execute: execTest 
-    STEP:
-     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_rhnSgT4hfmtFzpiHkmmeFq3w", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=2a5866ea-f9e8-4b13-a268-bbe7219e84fd, nextNode=action, streamMode=SNAPSHOTS)} 
-    callAgent 
-    STEP:
-     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_rhnSgT4hfmtFzpiHkmmeFq3w", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_rhnSgT4hfmtFzpiHkmmeFq3w", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test1, checkPointId=766849ff-aba6-4727-b0a0-e5f5f7dc13f6, nextNode=agent, streamMode=SNAPSHOTS)} 
-    STEP:
-     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_rhnSgT4hfmtFzpiHkmmeFq3w", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
-    
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.}, log=The tests have been executed successfully:
-    
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.]]}, config=RunnableConfig(threadId=test1, checkPointId=be9287f9-210d-4690-b676-8aab4da44980, nextNode=__END__, streamMode=SNAPSHOTS)} 
-    STEP:
-     NodeOutput{node=__END__, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_yPECPvdBFPA3GSrnVL2eUtab", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_rhnSgT4hfmtFzpiHkmmeFq3w", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
-    
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.}, log=The tests have been executed successfully:
-    
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.]]}} 
+    StateSnapshot{node=agent, state={agent_response=The test has been executed successfully with the message: "perform test once." How can I assist you further?, messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_906ZmZ90zK4DaPkZNK7D3WlH", name = "execTest", arguments = "{"message":"perform test once"}" }] }, ToolExecutionResultMessage { id = "call_906ZmZ90zK4DaPkZNK7D3WlH" toolName = "execTest" text = "test tool executed: perform test once" }]}, config=RunnableConfig(threadId=test1, checkPointId=5039907e-6136-435f-a98d-ebae76ef6bb6, nextNode=__END__, streamMode=VALUES)} 
+    StateSnapshot{node=action, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_906ZmZ90zK4DaPkZNK7D3WlH", name = "execTest", arguments = "{"message":"perform test once"}" }] }, ToolExecutionResultMessage { id = "call_906ZmZ90zK4DaPkZNK7D3WlH" toolName = "execTest" text = "test tool executed: perform test once" }]}, config=RunnableConfig(threadId=test1, checkPointId=b6638fce-d14b-40ba-a761-627fa8224130, nextNode=agent, streamMode=VALUES)} 
+    StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_906ZmZ90zK4DaPkZNK7D3WlH", name = "execTest", arguments = "{"message":"perform test once"}" }] }]}, config=RunnableConfig(threadId=test1, checkPointId=36dde250-4ae4-4ed5-84a8-054cbbeaa3db, nextNode=action, streamMode=VALUES)} 
+    StateSnapshot{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }]}, config=RunnableConfig(threadId=test1, checkPointId=664c9ede-a607-4502-9dc3-c6b26a0da3df, nextNode=agent, streamMode=VALUES)} 
 
 
 ### Test 2
@@ -179,7 +164,8 @@ var config = RunnableConfig.builder()
                 .threadId("test2")
                 .build();    
                 
-var iterator = graph.streamSnapshots( Map.of( "input", "perform test once" ), config );  
+                
+var iterator = graph.streamSnapshots( Map.of( "messages", UserMessage.from("perform test once") ), config );  
 
 for( var step : iterator ) {
     log.info( "STEP: {}", step );
@@ -190,14 +176,14 @@ for( var step : iterator ) {
 
     START 
     callAgent 
-    STEP: NodeOutput{node=__START__, state={input=perform test once, intermediate_steps=[]}} 
+    STEP: StateSnapshot{node=__START__, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }]}, config=RunnableConfig(threadId=test2, checkPointId=703c11db-598f-4236-a4b2-a6fe47bc0a7d, nextNode=agent, streamMode=SNAPSHOTS)} 
     executeTools 
     execute: execTest 
-    STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=ca5489e0-0b54-4e93-8aaf-f7c91d539d5a, nextNode=action, streamMode=SNAPSHOTS)} 
+    STEP: StateSnapshot{node=agent, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_3VzeynG2L5EVdwTvS6UC4POA", name = "execTest", arguments = "{"message":"perform test once"}" }] }]}, config=RunnableConfig(threadId=test2, checkPointId=93f88e19-8b2a-4173-bdbe-be1a7c4d09d0, nextNode=action, streamMode=SNAPSHOTS)} 
     callAgent 
-    STEP: StateSnapshot{node=action, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=39ea80cb-8d1e-48cb-ab3d-49bc41d3dd1c, nextNode=agent, streamMode=SNAPSHOTS)} 
-    STEP: StateSnapshot{node=agent, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}, config=RunnableConfig(threadId=test2, checkPointId=7c9868e2-8aa7-4986-a717-a757f9574684, nextNode=__END__, streamMode=SNAPSHOTS)} 
-    STEP: NodeOutput{node=__END__, state={input=perform test once, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The test has been executed with the message: "perform test once".}, log=The test has been executed with the message: "perform test once".]]}} 
+    STEP: StateSnapshot{node=action, state={messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_3VzeynG2L5EVdwTvS6UC4POA", name = "execTest", arguments = "{"message":"perform test once"}" }] }, ToolExecutionResultMessage { id = "call_3VzeynG2L5EVdwTvS6UC4POA" toolName = "execTest" text = "test tool executed: perform test once" }]}, config=RunnableConfig(threadId=test2, checkPointId=a38a473f-c27e-455e-a2cf-c4457b887343, nextNode=agent, streamMode=SNAPSHOTS)} 
+    STEP: StateSnapshot{node=agent, state={agent_response=The test has been successfully executed with the message: "perform test once." How can I assist you further?, messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_3VzeynG2L5EVdwTvS6UC4POA", name = "execTest", arguments = "{"message":"perform test once"}" }] }, ToolExecutionResultMessage { id = "call_3VzeynG2L5EVdwTvS6UC4POA" toolName = "execTest" text = "test tool executed: perform test once" }]}, config=RunnableConfig(threadId=test2, checkPointId=eede344c-a2dc-4c0d-9805-b53c4ec6cea2, nextNode=__END__, streamMode=SNAPSHOTS)} 
+    STEP: NodeOutput{node=__END__, state={agent_response=The test has been successfully executed with the message: "perform test once." How can I assist you further?, messages=[UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_3VzeynG2L5EVdwTvS6UC4POA", name = "execTest", arguments = "{"message":"perform test once"}" }] }, ToolExecutionResultMessage { id = "call_3VzeynG2L5EVdwTvS6UC4POA" toolName = "execTest" text = "test tool executed: perform test once" }]}} 
 
 
 
@@ -209,59 +195,22 @@ var state2 =  history.get(2);
 var updatedState = new HashMap<String,Object>();
 updatedState.putAll(state2.state().data());
 
-//System.out.println( state2.state().data() );
-updatedState.put(  "input", "perform test twice"  );
-//System.out.println( updatedState );
+updatedState.put(  "messages", UserMessage.from("perform test twice")  );
 
-var updatedConfig = graph.updateState( state2.config(), updatedState );
-log.info( "UPDATED CONFIG: {}", updatedConfig );
+// var updatedConfig = graph.updateState( state2.config(), updatedState );
+// log.info( "UPDATED CONFIG: {}", updatedConfig );
 
-var iterator = graph.streamSnapshots( null, updatedConfig );  
+// var iterator = graph.streamSnapshots( null, updatedConfig );  
 
-try {
-    for( var step : iterator ) {
-        log.info( "STEP:\n {}", step );
-    }    
-}
-catch( Exception e ) {
-    Throwable t = e ;
-    while( t.getCause() != null ) {
-        t = t.getCause();
-    }
-    t.printStackTrace();
-}
+// for( var step : iterator ) {
+//     log.info( "STEP:\n {}", step );
+// }    
 
 ```
 
-    UPDATED CONFIG: RunnableConfig(threadId=test2, checkPointId=ca5489e0-0b54-4e93-8aaf-f7c91d539d5a, nextNode=null, streamMode=VALUES) 
-    RESUME REQUEST 
-    RESUME FROM agent 
-    executeTools 
-    execute: execTest 
-    callAgent 
-    STEP:
-     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=c324eeac-5109-4f9e-b4a3-d3617d7ec360, nextNode=agent, streamMode=SNAPSHOTS)} 
-    executeTools 
-    execute: execTest 
-    STEP:
-     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_kdsuye0KybTCqRa4Ehe9cJeF", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=67e28047-b81c-4301-9a00-d0c227bac922, nextNode=action, streamMode=SNAPSHOTS)} 
-    callAgent 
-    STEP:
-     StateSnapshot{node=action, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_kdsuye0KybTCqRa4Ehe9cJeF", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_kdsuye0KybTCqRa4Ehe9cJeF", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], finish=null]}, config=RunnableConfig(threadId=test2, checkPointId=329a295c-b284-4e5b-bfee-b0c6c924691c, nextNode=agent, streamMode=SNAPSHOTS)} 
-    STEP:
-     StateSnapshot{node=agent, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_kdsuye0KybTCqRa4Ehe9cJeF", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
-    
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.}, log=The tests have been executed successfully:
-    
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.]]}, config=RunnableConfig(threadId=test2, checkPointId=f496b8dd-c822-4ab6-b5ea-5408d7abf4eb, nextNode=__END__, streamMode=SNAPSHOTS)} 
-    STEP:
-     NodeOutput{node=__END__, state={input=perform test twice, intermediate_steps=[IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_vgNCAcj6yMWaOQ2GxRW7EfKu", name = "execTest", arguments = "{"message":"perform test once"}" }, log=], observation=test tool executed: perform test once], IntermediateStep[action=AgentAction[toolExecutionRequest=ToolExecutionRequest { id = "call_kdsuye0KybTCqRa4Ehe9cJeF", name = "execTest", arguments = "{"message":"perform test again"}" }, log=], observation=test tool executed: perform test again]], agent_outcome=AgentOutcome[action=null, finish=AgentFinish[returnValues={returnValues=The tests have been executed successfully:
-    
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.}, log=The tests have been executed successfully:
-    
-    1. **Test 1:** "perform test once" - Result: test tool executed.
-    2. **Test 2:** "perform test again" - Result: test tool executed.]]}} 
+
+
+
+    [UserMessage { name = null contents = [TextContent { text = "perform test once" }] }, AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_3VzeynG2L5EVdwTvS6UC4POA", name = "execTest", arguments = "{"message":"perform test once"}" }] }]
+
 
