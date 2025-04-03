@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-var llm = OpenAiChatModel.builder()
+var model = OpenAiChatModel.builder()
     .apiKey( System.getenv("OPENAI_API_KEY") )
     .modelName( "gpt-4o-mini" )
     .logResponses(true)
@@ -80,18 +80,28 @@ import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.ChatRequestParameters;
 
 var tools = ToolSpecifications.toolSpecificationsFrom( TestTool.class );
 
 var systemMessage = SystemMessage.from("you are my useful assistant");
 var userMessage = UserMessage.from("Hi i'm bartolomeo! please test with my name as input");
-Response<AiMessage> response = llm.generate(List.of(systemMessage, userMessage), tools );
-AiMessage aiMessage = response.content();
 
-log.info(  "{}", aiMessage );
+var params = ChatRequestParameters.builder()
+                .toolSpecifications( tools )
+                .build();
+var request = ChatRequest.builder()
+                .parameters( params )
+                .messages( systemMessage, userMessage )
+                .build();
+
+var response = model.chat(request );
+
+log.info(  "{}", response.aiMessage() );
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_O5Gb0hZnedKX4HG4DOF9ZiCe", name = "execTest", arguments = "{"message":"bartolomeo"}" }] } 
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_pogAHyDhDOtaX9yrsJoLzxXM", name = "execTest", arguments = "{"message":"bartolomeo"}" }] } 
 
 
 
@@ -190,7 +200,7 @@ public class ToolNode {
 ```java
 var toolNode = ToolNode.of( new TestTool() );
 
-toolNode.execute( aiMessage.toolExecutionRequests() )
+toolNode.execute( response.aiMessage().toolExecutionRequests() )
                     .map( m -> m.text() )
                     .orElse( null );
 ```
@@ -254,13 +264,19 @@ var toolNode = ToolNode.of( new TestTool(), new WebSearchTool() );
 var systemMessage = SystemMessage.from("you are my useful assistant");
 var userMessage = UserMessage.from("Who won 100m competition in Olympic 2024 in Paris ?");
 
-Response<AiMessage> response = llm.generate(List.of(systemMessage, userMessage), toolNode.toolSpecifications() );
+var params = ChatRequestParameters.builder()
+                .toolSpecifications( toolNode.toolSpecifications() )
+                .build();
+var request = ChatRequest.builder()
+                .parameters( params )
+                .messages( systemMessage, userMessage )
+                .build();
 
-AiMessage aiMessage = response.content();
+var response = model.chat(request );
 
-log.info(  "{}", aiMessage );
+log.info(  "{}", response.aiMessage() );
 
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_fEm1bKZmq1gwI2PWn5qMrI5T", name = "execQuery", arguments = "{"query":"100m competition winner Olympic 2024 Paris"}" }] } 
+    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_HRabjCyqkt02SEyPIhwQTdix", name = "execQuery", arguments = "{"query":"100m competition winner Olympic 2024 Paris"}" }] } 
 

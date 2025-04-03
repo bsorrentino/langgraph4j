@@ -5,8 +5,12 @@ import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import static java.lang.String.format;
 
 /**
  * Represents an action to perform a subgraph on a given state with a specific configuration.
@@ -41,7 +45,7 @@ public record SubCompiledGraphNodeAction<State extends AgentState>(
 
             var generator = subGraph.stream(input, config);
 
-            future.complete(Map.of("_subgraph", generator));
+            future.complete(Map.of(format("_subgraph-%s", UUID.randomUUID()), generator));
 
         } catch (Exception e) {
 

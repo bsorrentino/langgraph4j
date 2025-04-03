@@ -14,7 +14,7 @@ When creating any LangGraph workflow, you can set them up to persist their state
 [`MemorySaver`]: https://bsorrentino.github.io/langgraph4j/apidocs/org/bsc/langgraph4j/checkpoint/MemorySaver.html
 
 
- **Initialize Logger**
+**Initialize Logger**
 
 
 ```java
@@ -152,10 +152,7 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.agent.tool.ToolSpecifications;
 
-public record LLM( OpenAiChatModel model ) {
-    public LLM() {
-        this( 
-            OpenAiChatModel.builder()
+var model = OpenAiChatModel.builder()
                 .apiKey( System.getenv("OPENAI_API_KEY") )
                 .modelName( "gpt-4o" )
                 .logResponses(true)
@@ -163,9 +160,6 @@ public record LLM( OpenAiChatModel model ) {
                 .temperature(0.0)
                 .maxTokens(2000)
                 .build()   
-            );
-    }
-}
 
 ```
 
@@ -179,19 +173,28 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
 
 var llm = new LLM();
 
 var tools = ToolSpecifications.toolSpecificationsFrom( SearchTool.class );
 
-UserMessage userMessage = UserMessage.from("What will the weather be like in London tomorrow?");
-Response<AiMessage> response = llm.model().generate(Collections.singletonList(userMessage), tools );
-AiMessage aiMessage = response.content();
+var userMessage = UserMessage.from("What will the weather be like in London tomorrow?");
 
-System.out.println( aiMessage );
+var request = ChatRequest.builder()
+                .messages( userMessage )
+                .build();
+
+var result = model.chat(request );
+
+result.aiMessage();
 ```
 
-    AiMessage { text = null toolExecutionRequests = [ToolExecutionRequest { id = "call_cY6AkdeFMBtWc0A9jCrZBfnw", name = "execQuery", arguments = "{"query":"London weather forecast for tomorrow"}" }] }
+
+
+
+    AiMessage { text = "I'm unable to provide real-time weather forecasts. For the most accurate and up-to-date weather information, please check a reliable weather website or app." toolExecutionRequests = null }
+
 
 
 ## Define the graph
@@ -228,14 +231,17 @@ EdgeAction<MessageState> routeMessage = state -> {
   return "exit";
 };
 
-var llm = new LLM();
-
 // Call Model
 NodeAction<MessageState> callModel = state -> {
   
-  var response = llm.model().generate( (List<ChatMessage>)state.messages() );
 
-  return Map.of( "messages", response.content() );
+  var request = ChatRequest.builder()
+                .messages( state.messages() )
+                .build();
+
+  var response = model.chat(request );
+
+  return Map.of( "messages", response.aiMessage() );
 };
 
 var searchTool = new SearchTool();
@@ -285,7 +291,7 @@ for( var r : result ) {
 
     __START__
     agent
-    {messages=[AiMessage { text = "Hi I'm Bartolo, niced to meet you." toolExecutionRequests = null }, AiMessage { text = "Hello Bartolo! Nice to meet you too. How can I assist you today?" toolExecutionRequests = null }]}
+    {messages=[AiMessage { text = "Hi I'm Bartolo, niced to meet you." toolExecutionRequests = null }, AiMessage { text = "Hello Bartolo, nice to meet you too! How can I assist you today?" toolExecutionRequests = null }]}
     __END__
 
 
@@ -306,7 +312,7 @@ for( var r : result ) {
 
     __START__
     agent
-    {messages=[AiMessage { text = "Remember my name?" toolExecutionRequests = null }, AiMessage { text = "I don't have the ability to remember personal information or previous interactions. Each session is independent, and I don't have access to past conversations. How can I assist you today?" toolExecutionRequests = null }]}
+    {messages=[AiMessage { text = "Remember my name?" toolExecutionRequests = null }, AiMessage { text = "I'm sorry, but I don't have the ability to remember personal information or previous interactions. How can I assist you today?" toolExecutionRequests = null }]}
     __END__
 
 
@@ -355,7 +361,7 @@ for( var r : result ) {
 
     __START__
     agent
-    AiMessage { text = "Hello Bartolo! Nice to meet you too. How can I assist you today?" toolExecutionRequests = null }
+    AiMessage { text = "Hello Bartolo, nice to meet you too! How can I assist you today?" toolExecutionRequests = null }
     __END__
 
 
@@ -376,7 +382,7 @@ for( var r : result ) {
 
     __START__
     agent
-    AiMessage { text = "Yes, your name is Bartolo. How can I assist you today?" toolExecutionRequests = null }
+    AiMessage { text = "I'm sorry, but I can't remember personal information like names between interactions. However, I'm here to help with any questions or information you need!" toolExecutionRequests = null }
     __END__
 
 
@@ -410,6 +416,6 @@ for( var r : result ) {
 
     __START__
     agent
-    AiMessage { text = "No, I don't know your name. I don't have access to personal data about individuals unless it has been shared with me in the course of our conversation. If you have any questions or need assistance, feel free to ask!" toolExecutionRequests = null }
+    AiMessage { text = "No, I don't know your name. I don't have access to personal data about users unless it has been shared with me in the course of our conversation. If you have any questions or need assistance, feel free to ask!" toolExecutionRequests = null }
     __END__
 

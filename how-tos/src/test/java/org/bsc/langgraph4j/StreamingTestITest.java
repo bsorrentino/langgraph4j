@@ -8,7 +8,6 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;
@@ -38,8 +37,9 @@ class SearchTool {
     }
 }
 
-@Slf4j
-public class StreamingTest {
+public class StreamingTestITest {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StreamingTestITest.class);
+
     @BeforeAll
     public static void loadEnv() {
         DotEnvConfig.load();
@@ -133,7 +133,7 @@ public class StreamingTest {
         };
 
         // Define Graph
-        var workflow = new StateGraph<MessagesState<ChatMessage>>(stateSerializer)
+        var workflow = new StateGraph<>(MessagesState.SCHEMA, stateSerializer)
                 .addNode("agent", node_async(callModel))
                 .addNode("tools", node_async(invokeTool))
                 .addEdge(START, "agent")

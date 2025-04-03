@@ -1,6 +1,7 @@
 # Adaptive RAG
 
-## Initialize Logger
+
+**Initialize Logger**
 
 
 ```java

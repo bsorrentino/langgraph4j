@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.checkpoint;
 import org.bsc.langgraph4j.RunnableConfig;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.IntStream;
@@ -12,7 +13,7 @@ import static java.util.Collections.unmodifiableCollection;
 import static java.util.Optional.ofNullable;
 
 public class MemorySaver implements BaseCheckpointSaver {
-    private final Map<String, LinkedList<Checkpoint>> _checkpointsByThread = new HashMap<>();
+    final Map<String, LinkedList<Checkpoint>> _checkpointsByThread = new ConcurrentHashMap<>();
     private final LinkedList<Checkpoint> _defaultCheckpoints = new LinkedList<>();
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();

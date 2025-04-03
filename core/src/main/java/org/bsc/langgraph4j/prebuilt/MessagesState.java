@@ -1,7 +1,6 @@
 package org.bsc.langgraph4j.prebuilt;
 
 import org.bsc.langgraph4j.state.AgentState;
-import org.bsc.langgraph4j.state.AppenderChannel;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.Channels;
 

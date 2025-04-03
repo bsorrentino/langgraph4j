@@ -1,5 +1,6 @@
 # Use case proposed in [issue #51](https://github.com/bsorrentino/langgraph4j/issues/51) by [pakamona](https://github.com/pakamona)
 
+
 **Initialize Logger**
 
 
@@ -51,6 +52,7 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.chat.request.ChatRequest;
 
 class OrchestratorAgent implements NodeAction<MyAgentState> {
 
@@ -73,9 +75,12 @@ class OrchestratorAgent implements NodeAction<MyAgentState> {
         """));
         messages.add(new UserMessage(userMessageTemplate.text()));
 
-        var result = chatLanguageModel.generate( messages );
+        var request = ChatRequest.builder()
+                .messages( messages )
+                .build();
+       var result = model.chat(request );
 
-        return Map.of( "orchestrator_outcome", result.content().text() );
+        return Map.of( "orchestrator_outcome", result.aiMessage().text() );
     }
 
 };
