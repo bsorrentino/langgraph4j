@@ -2,6 +2,59 @@
 
 
 
+<!-- "name: v1.5.3" is a release tag -->
+
+## [v1.5.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.3) (2025-04-03)
+
+### Features
+
+ *  **how-to**  update parallel-branch notebook ([1e740ef5cafa022](https://github.com/bsorrentino/langgraph4j/commit/1e740ef5cafa0226cbc6401c071decf30e842f46))
+     > work on #104
+   
+ *  add support for compiled graph in parallel branch ([a05fa5479296373](https://github.com/bsorrentino/langgraph4j/commit/a05fa54792963730986072ef7989e7b3bdf1ed55))
+     > - Refactored &#x60;getEmbedGenerator&#x60; to correcly merge result states
+     > - Removed generator entry before updating currentState.
+     > - Simplified state updating logic in &#x60;ParallelNode&#x60;.
+     > - Added unique identifier for subgraph in state
+     > - Updated tests for parallel branches in MessagesStateGraph workflow with multiple compiled subgraphs.
+     > resolve #104
+   
+ *  add new example ([ad944f7658663f1](https://github.com/bsorrentino/langgraph4j/commit/ad944f7658663f16e4e41f63be2faed7a4c9494d))
+     > work on #104
+   
+
+### Bug Fixes
+
+ -  **checkpoints**  replace HashMap with ConcurrentHashMap for thread safety ([70dcb2397f56a44](https://github.com/bsorrentino/langgraph4j/commit/70dcb2397f56a4413b722965992281a1b316d6c0))
+     > - Updated &#x60;_checkpointsByThread&#x60; from &#x60;HashMap&#x60; to &#x60;ConcurrentHashMap&#x60; to ensure thread safety during concurrent execution.
+     > - Added test &#x60;Issue105Test&#x60; to verify that all threads are accounted for in &#x60;_checkpointsByThread&#x60;.
+     > resolve #105
+
+
+### Documentation
+
+ -  bump to next release 1.5.3 ([66d5d54e4ea4f2a](https://github.com/bsorrentino/langgraph4j/commit/66d5d54e4ea4f2a1df7dd30224961c42f2924472))
+
+ -  **how-to**  update notebook markdown documents ([5062d370939c0e1](https://github.com/bsorrentino/langgraph4j/commit/5062d370939c0e1f095126950cf07e86a5fe0d65))
+
+ -  **README.md**  add project links to README ([0a90a39da400627](https://github.com/bsorrentino/langgraph4j/commit/0a90a39da40062788c4cf542584e850383117c3e))
+
+ -  update changeme ([7dc20416d3245f1](https://github.com/bsorrentino/langgraph4j/commit/7dc20416d3245f1424ba044738d75ebe1b07aaa2))
+
+
+
+### ALM 
+
+ -  bump to next release 1.5.3 ([083263c7ad390b7](https://github.com/bsorrentino/langgraph4j/commit/083263c7ad390b71054dccbf2e8d5e114830c524))
+   
+ -  bump to new SNAPSHOT ([fbd1424e3eec36d](https://github.com/bsorrentino/langgraph4j/commit/fbd1424e3eec36d4fa9e74bd847978ba2e342611))
+   
+
+
+
+
+
+
 <!-- "name: v1.5.2" is a release tag -->
 
 ## [v1.5.2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.2) (2025-04-01)
