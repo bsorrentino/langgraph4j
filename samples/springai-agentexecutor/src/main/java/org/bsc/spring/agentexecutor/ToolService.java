@@ -1,15 +1,17 @@
 package org.bsc.spring.agentexecutor;
 
-import org.bsc.spring.agentexecutor.function.AgentFunctionCallbackWrapper;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.model.ToolContext;
-import org.springframework.ai.model.function.*;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * Service class responsible for managing tools and their callbacks.
@@ -17,8 +19,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class ToolService {
 
-    private final List<FunctionCallback> agentFunctionCallbackWrappers;
-    private final ApplicationContext applicationContext;
+    private final List<ToolCallback> agentFunctionCallbackWrappers;
 
     /**
      * Constructs a new instance of ToolService with the given ApplicationContext.
@@ -26,10 +27,11 @@ public class ToolService {
      * @param applicationContext The application context to retrieve function callback wrappers.
      */
     public ToolService(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        var AgentFunctionCallbackMap = applicationContext.getBeansOfType(AgentFunctionCallbackWrapper.class);
-        agentFunctionCallbackWrappers = AgentFunctionCallbackMap.values().stream()
-                .map(FunctionCallback.class::cast)
+
+        agentFunctionCallbackWrappers = applicationContext.getBeansOfType(ToolCallback.class)
+                .values()
+                .stream()
+                .map(ToolCallback.class::cast)
                 .toList();
     }
 
@@ -38,7 +40,7 @@ public class ToolService {
      *
      * @return A list of function callback wrappers.
      */
-    public List<FunctionCallback> agentFunctionsCallback() {
+    public List<ToolCallback> agentFunctionsCallback() {
         return agentFunctionCallbackWrappers;
     }
 
@@ -48,12 +50,12 @@ public class ToolService {
      * @param name The name of the function callback to retrieve.
      * @return An optional containing the function callback wrapper, or an empty optional if not found.
      */
-    @SuppressWarnings("unchecked")
-    public <I,O> Optional<AgentFunctionCallbackWrapper<I,O>> agentFunction( String name ) {
+    public Optional<ToolCallback> agentFunction( String name ) {
         Objects.requireNonNull( name, "name cannot be null" );
-        return ( applicationContext.containsBean( name ) )
-                ? Optional.of( applicationContext.getBean( name, AgentFunctionCallbackWrapper.class ) )
-                : Optional.empty();
+
+        return this.agentFunctionCallbackWrappers.stream()
+                .filter( tool -> Objects.equals(tool.getToolDefinition().name(), name ))
+                .findFirst();
     }
 
     /**
@@ -62,11 +64,12 @@ public class ToolService {
      * @param response The tool response message.
      * @return An optional containing the function result, or an empty optional if no function is found.
      */
-    @SuppressWarnings("unchecked")
-    public <O> Optional<O> getFunctionResult(ToolResponseMessage.ToolResponse response) {
-        Objects.requireNonNull( response, "response cannot be null" );
-        return agentFunction( response.name() )
-                .map( functionCallback -> (O)functionCallback.convertResponse(response) );
+    public Optional<String> getFunctionResult(ToolResponseMessage.ToolResponse response) {
+        return ofNullable(response.responseData());
+
+//        Objects.requireNonNull( response, "response cannot be null" );
+//        return agentFunction( response.name() )
+//                .map( callback -> (O)callback.convertResponse(response) );
     }
 
     /**
@@ -90,8 +93,8 @@ public class ToolService {
     public CompletableFuture<ToolResponseMessage.ToolResponse> executeFunction(AssistantMessage.ToolCall toolCall, Map<String,Object> toolContextMap) {
         CompletableFuture<ToolResponseMessage.ToolResponse> result = new CompletableFuture<>();
 
-        String functionName = toolCall.name();
-        String functionArguments = toolCall.arguments();
+        var functionName = toolCall.name();
+        var functionArguments = toolCall.arguments();
 
         var functionCallback = agentFunction( functionName );
 

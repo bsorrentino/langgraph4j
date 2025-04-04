@@ -1,4 +1,4 @@
-package org.bsc.spring.agentexecutor.function;
+package org.bsc.spring.agentexecutor.function.weather;
 
 import org.springframework.web.client.RestClient;
 import java.util.function.Function;
@@ -9,44 +9,7 @@ import java.util.function.Function;
  */
 public class WeatherFunction implements Function<WeatherFunction.Request, WeatherFunction.Response> {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WeatherFunction.class);
-    /**
-     * RestClient instance for making HTTP requests.
-     */
-    private final RestClient restClient;
 
-    /**
-     * Configuration properties for the WeatherFunction, including API URL and key.
-     */
-    private final WeatherConfig weatherProps;
-
-    /**
-     * Constructor for the WeatherFunction class that initializes the necessary components
-     * based on provided configuration properties and logs relevant debug information.
-     * @param props Configuration properties for initializing the RestClient.
-     */
-    public WeatherFunction(WeatherConfig props) {
-        this.weatherProps = props;
-        log.debug("Weather API URL: {}", weatherProps.apiUrl());
-        log.debug("Weather API Key: {}", weatherProps.apiKey());
-        this.restClient = RestClient.create(weatherProps.apiUrl());
-    }
-
-    /**
-     * Main method to apply the function, which retrieves weather data for a given city.
-     * @param weatherRequest The request object containing the city for which weather data is required.
-     * @return The response object containing the retrieved weather data.
-     */
-    @Override
-    public Response apply(WeatherFunction.Request weatherRequest) {
-        log.info("Weather Request: {}", weatherRequest);
-        var response = restClient.get()
-                .uri("/current.json?key={key}&q={q}", weatherProps.apiKey(), weatherRequest.city())
-                .retrieve()
-                .body(Response.class);
-        log.info("Weather API Response:\n{}", response);
-
-        return response;
-    }
 
     /**
      * Record representing the request object for WeatherFunction.
@@ -76,4 +39,44 @@ public class WeatherFunction implements Function<WeatherFunction.Request, Weathe
      * Record representing weather conditions described in text form.
      */
     public record Condition(String text) {}
+
+    /**
+     * RestClient instance for making HTTP requests.
+     */
+    private final RestClient restClient;
+
+    /**
+     * Configuration properties for the WeatherFunction, including API URL and key.
+     */
+    private final WeatherConfig weatherProps;
+
+    /**
+     * Constructor for the WeatherFunction class that initializes the necessary components
+     * based on provided configuration properties and logs relevant debug information.
+     * @param props Configuration properties for initializing the RestClient.
+     */
+    public WeatherFunction(WeatherConfig props) {
+        this.weatherProps = props;
+        log.debug("Weather API URL: {}", weatherProps.apiUrl());
+        log.debug("Weather API Key: {}", weatherProps.apiKey());
+        this.restClient = RestClient.create(weatherProps.apiUrl());
+    }
+
+    /**
+     * Main method to apply the function, which retrieves weather data for a given city.
+     * @param weatherRequest The request object containing the city for which weather data is required.
+     * @return The response object containing the retrieved weather data.
+     */
+    @Override
+    public WeatherFunction.Response apply(WeatherFunction.Request weatherRequest) {
+        log.info("Weather Request: {}", weatherRequest);
+
+        var response = restClient.get()
+                .uri("/current.json?key={key}&q={q}", weatherProps.apiKey(), weatherRequest.city())
+                .retrieve()
+                .body(Response.class);
+        log.info("Weather API Response:\n{}", response);
+
+        return response;
+    }
 }

@@ -33,12 +33,11 @@ public class DemoConsoleController implements CommandLineRunner {
 
         log.info("Welcome to the Spring Boot CLI application!");
 
-        var graph = agentExecutor.graphBuilder()
-                                            .build();
+        var graph = agentExecutor.builder().build();
 
         var workflow = graph.compile();
 
-        var result = workflow.invoke( Map.of(AgentExecutor.State.INPUT, "what is the weather in Napoli ?") );
+        var result = workflow.invoke( Map.of(AgentExecutor.State.INPUT, "what is the result of 234 + 45") );
 
         var finish = result.flatMap(AgentExecutor.State::agentOutcome)
                             .map(AgentExecutor.Outcome::finish)

@@ -1,9 +1,11 @@
 package org.bsc.spring.agentexecutor;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.model.function.FunctionCallback;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,12 +28,18 @@ public class AgentService {
      * @param toolService The service providing tools and functions that the agent can utilize.
      */
     public AgentService(ChatClient.Builder chatClientBuilder, ToolService toolService) {
-        var functions = toolService.agentFunctionsCallback().toArray(FunctionCallback[]::new);
+        var chatOptions = ToolCallingChatOptions.builder()
+                .toolCallbacks( toolService.agentFunctionsCallback().stream().map( FunctionCallback.class::cast ).toList() )
+                .internalToolExecutionEnabled(false) // Disable automatic tool execution
+                .build();
+
 
         this.chatClient = chatClientBuilder
                 .defaultSystem("You are a helpful AI Assistant answering questions.")
-                .defaultFunctions( functions )
+                .defaultTools(toolService.agentFunctionsCallback())
+                .defaultOptions(chatOptions)
                 .build();
+
         this.toolService = toolService;
     }
 
@@ -41,7 +49,7 @@ public class AgentService {
      * @param intermediateStep The intermediate step containing the tool call and observation.
      * @return The constructed {@link ToolResponseMessage}.
      */
-    private ToolResponseMessage buildToolResponseMessage( AgentExecutor.Step intermediateStep ) {
+    private Message buildToolResponseMessage( AgentExecutor.Step intermediateStep ) {
         var toolCall = intermediateStep.action().toolCall();
         var response = new ToolResponseMessage.ToolResponse(
                 toolCall.id(),
@@ -58,9 +66,10 @@ public class AgentService {
      * @return A {@link ChatResponse} object containing the response from the chat client.
      */
     public ChatResponse execute( String input, List<AgentExecutor.Step> intermediateSteps ) {
-        var messages = intermediateSteps.stream()
+        var messages = (List<Message>)intermediateSteps.stream()
                                 .map(this::buildToolResponseMessage)
-                                .toArray(ToolResponseMessage[]::new);
+                                .toList();
+
         return chatClient
                 .prompt()
                 .user(input)

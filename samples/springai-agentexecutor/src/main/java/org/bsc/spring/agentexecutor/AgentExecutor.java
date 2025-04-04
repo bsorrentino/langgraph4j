@@ -31,7 +31,7 @@ public class AgentExecutor {
     /**
      * Class responsible for building a state graph.
      */
-    public class GraphBuilder {
+    public class Builder {
         private StateSerializer<State> stateSerializer;
 
         /**
@@ -40,7 +40,7 @@ public class AgentExecutor {
          * @param stateSerializer the state serializer to set
          * @return the current instance of GraphBuilder for method chaining
          */
-        public GraphBuilder stateSerializer( StateSerializer<State> stateSerializer) {
+        public Builder stateSerializer(StateSerializer<State> stateSerializer) {
             this.stateSerializer = stateSerializer;
             return this;
         }
@@ -75,12 +75,12 @@ public class AgentExecutor {
     }
 
     /**
-     * Returns a new instance of {@link GraphBuilder}.
+     * Returns a new instance of {@link Builder}.
      *
-     * @return a new {@link GraphBuilder} object
+     * @return a new {@link Builder} object
      */
-    public final GraphBuilder graphBuilder() {
-        return new GraphBuilder();
+    public final Builder builder() {
+        return new Builder();
     }
 
     /**
@@ -202,7 +202,7 @@ public class AgentExecutor {
 
         }
         else  {
-            var finish = new Finish( Map.of("returnValues", output.getContent()) );
+            var finish = new Finish( Map.of("returnValues", output.getText()) );
 
             return Map.of(State.AGENT_OUTCOME, new Outcome( null, finish ) );
         }
@@ -221,7 +221,7 @@ public class AgentExecutor {
 
         return agentService.toolService.executeFunction( agentOutcome.action().toolCall() )
                 .thenApply( result ->
-                    Map.of("intermediate_steps", new Step( agentOutcome.action(), result.responseData() ) )
+                    Map.of(State.INTERMEDIATE_STEPS, new Step( agentOutcome.action(), result.responseData() ) )
                 );
     }
 
