@@ -1,6 +1,6 @@
 package org.bsc.spring;
 
-import org.bsc.spring.agentexecutor.function.WeatherConfig;
+import org.bsc.spring.agentexecutor.function.weather.WeatherConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
