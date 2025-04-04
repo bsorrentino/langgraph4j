@@ -39,19 +39,24 @@
 			<artifactId>langgraph4j-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-<!--
+		<dependency>
+			<groupId>org.bsc.langgraph4j</groupId>
+			<artifactId>langgraph4j-spring-ai</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-model-ollama</artifactId>
 		</dependency>
--->
 
+<!--
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-openai-spring-boot-starter</artifactId>
 			<version>1.0.0-M6</version>
 		</dependency>
-
+-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
