@@ -1,40 +1,37 @@
 package org.bsc.spring.agentexecutor;
 
-import org.bsc.langgraph4j.spring.ai.tool.ToolService;
+import org.bsc.langgraph4j.spring.ai.tool.SpringAIToolService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.model.function.FunctionCallback;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.ollama.api.OllamaApi;
+import org.springframework.ai.ollama.api.OllamaOptions;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.tool.ToolCallback;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Service class that uses the {@link ChatClient} and
- * the {@link ToolService} to execute an LLM request.
+ * the {@link SpringAIToolService} to execute an LLM request.
  *
  */
 @Service
 public class AgentService {
-    public final ToolService toolService;
+    public final SpringAIToolService toolService;
     private final ChatClient chatClient;
 
-    public AgentService(ChatClient.Builder chatClientBuilder, List<ToolCallback> agentFunctions ) {
-        this.toolService = new ToolService( agentFunctions );
+    public AgentService( List<ToolCallback> agentFunctions ) {
+        this.toolService = new SpringAIToolService( agentFunctions );
 
-        var chatOptions = ToolCallingChatOptions.builder()
-                .toolCallbacks( toolService.agentFunctionsCallback().stream().map( FunctionCallback.class::cast ).toList() )
-                .internalToolExecutionEnabled(false) // Disable automatic tool execution
-                .build();
-
-
-        this.chatClient = chatClientBuilder
+        this.chatClient = ollamaChatClient()
                 .defaultSystem("You are a helpful AI Assistant answering questions.")
                 .defaultTools(toolService.agentFunctionsCallback())
-                .defaultOptions(chatOptions)
                 .build();
     }
 
@@ -46,5 +43,54 @@ public class AgentService {
                 .call()
                 .chatResponse();
     }
+
+    private ChatClient.Builder ollamaChatClient() {
+
+        OllamaApi api = new OllamaApi( );
+
+        var chatOptions = OllamaOptions.builder()
+                .model("qwen2.5:7b")
+                .temperature(0.1)
+                .build();
+
+        var chatModel = OllamaChatModel.builder()
+                .ollamaApi( api )
+                .defaultOptions(chatOptions)
+                .build();
+
+        var toolOptions = ToolCallingChatOptions.builder()
+                .internalToolExecutionEnabled(false) // Disable automatic tool execution
+                .build();
+
+        return ChatClient.builder(chatModel)
+                .defaultOptions(toolOptions);
+    }
+
+    private ChatClient.Builder openAIChatClient() {
+
+        var api = OpenAiApi.builder()
+                .baseUrl("https://api.openai.com")
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .build();
+
+        var chatOptions = OpenAiChatOptions.builder()
+                .model("gpt-4o-mini")
+                .logprobs(false)
+                .temperature(0.1)
+                .build();
+
+        var chatModel = OpenAiChatModel.builder()
+                .openAiApi(api)
+                .defaultOptions(chatOptions)
+                .build();
+
+        var toolOptions = ToolCallingChatOptions.builder()
+                .internalToolExecutionEnabled(false) // Disable automatic tool execution
+                .build();
+
+        return ChatClient.builder(chatModel)
+                .defaultOptions(toolOptions);
+    }
+
 
 }
