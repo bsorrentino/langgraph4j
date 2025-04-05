@@ -4,7 +4,6 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -12,11 +11,11 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Service class responsible for managing tools and their callbacks.
  */
-public class ToolService {
+public class SpringAIToolService {
 
     private final List<ToolCallback> agentFunctions;
 
-    public ToolService(List<ToolCallback> agentFunctions ) {
+    public SpringAIToolService(List<ToolCallback> agentFunctions ) {
         this.agentFunctions = agentFunctions;
     }
 
