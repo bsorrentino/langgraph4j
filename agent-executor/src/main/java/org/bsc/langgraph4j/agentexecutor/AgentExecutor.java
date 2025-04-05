@@ -9,11 +9,11 @@ import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.agentexecutor.actions.CallAgent;
 import org.bsc.langgraph4j.agentexecutor.actions.ExecuteTools;
-import org.bsc.langgraph4j.agentexecutor.serializer.jackson.JSONStateSerializer;
-import org.bsc.langgraph4j.agentexecutor.serializer.std.STDStateSerializer;
+import org.bsc.langgraph4j.langchain4j.serializer.jackson.LC4jJacksonStateSerializer;
+import org.bsc.langgraph4j.langchain4j.serializer.std.LC4jStateSerializer;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.StateSerializer;
-import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 
 import java.util.*;
 
@@ -57,8 +57,8 @@ public interface AgentExecutor {
      */
     enum Serializers {
 
-        STD(new STDStateSerializer()),
-        JSON(new JSONStateSerializer());
+        STD(new LC4jStateSerializer<>(AgentExecutor.State::new) ),
+        JSON(new LC4jJacksonStateSerializer<>(AgentExecutor.State::new));
 
         private final StateSerializer<AgentExecutor.State> serializer;
 
@@ -88,7 +88,7 @@ public interface AgentExecutor {
     class Builder {
         private StreamingChatLanguageModel streamingChatLanguageModel;
         private ChatLanguageModel chatLanguageModel;
-        private final ToolNode.Builder toolNodeBuilder = ToolNode.builder();
+        private final LC4jToolService.Builder toolNodeBuilder = LC4jToolService.builder();
         private StateSerializer<State> stateSerializer;
 
         /**
@@ -154,7 +154,7 @@ public interface AgentExecutor {
          * @param toolSpecifications the tool specifications
          * @return the updated GraphBuilder instance
          */
-        public Builder toolSpecification(ToolNode.Specification toolSpecifications) {
+        public Builder toolSpecification(LC4jToolService.Specification toolSpecifications) {
             toolNodeBuilder.specification(toolSpecifications);
             return this;
         }

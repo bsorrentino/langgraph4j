@@ -4,7 +4,7 @@ import dev.langchain4j.data.message.UserMessage;
 import org.bsc.langgraph4j.DotEnvConfig;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.FinishReason;
-import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ public class AgentTest {
                 .maxTokens(2000)
                 .build();
 
-        var toolNode = ToolNode.builder()
+        var toolNode = LC4jToolService.builder()
                 .specification( new TestTool() )
                 .build();
 

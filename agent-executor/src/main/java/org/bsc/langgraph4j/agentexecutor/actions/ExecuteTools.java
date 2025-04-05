@@ -4,7 +4,7 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessageType;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
-import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 
 import java.util.Map;
 import java.util.Objects;
@@ -20,14 +20,14 @@ public class ExecuteTools implements NodeAction<AgentExecutor.State> {
     /**
      * The tool node that will be executed.
      */
-    final ToolNode toolNode;
+    final LC4jToolService toolNode;
 
     /**
      * Constructs an ExecuteTools instance with the specified agent and tool node.
      *
      * @param toolNode the tool node to be executed, must not be null
      */
-    public ExecuteTools( ToolNode toolNode) {
+    public ExecuteTools( LC4jToolService toolNode) {
         this.toolNode = Objects.requireNonNull(toolNode, "toolNode cannot be null");
     }
 

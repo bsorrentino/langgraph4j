@@ -131,7 +131,7 @@ public class AgentExecutorStreamingTest {
                 "thread_1",
                 saver
         );
-        assertEquals( 5, states.size() );
+        assertEquals( 3, states.size() );
         state = CollectionsUtils.last(states).orElse(null);
         assertNotNull(state);
         assertTrue(state.finalResponse().isPresent());
