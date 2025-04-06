@@ -2,6 +2,64 @@
 
 
 
+<!-- "name: v1.5.4" is a release tag -->
+
+## [v1.5.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.4) (2025-04-06)
+
+### Features
+
+ *  **springai-agentexecutor**  add ChatService interface to improve configurability ([5a84f4d1035bae4](https://github.com/bsorrentino/langgraph4j/commit/5a84f4d1035bae4ff833ab236bc83046bc2a06ef))
+   
+ *  **spring-ai**  add module with Spring AI  utilities ([345e3058568820e](https://github.com/bsorrentino/langgraph4j/commit/345e3058568820e218d2ff8c119fcd2b45f2fba9))
+   
+ *  **spring-ai**  add module with Spring AI  utilities ([0d2c49f23440b9c](https://github.com/bsorrentino/langgraph4j/commit/0d2c49f23440b9c1522f9f03007f5f82a9d882b3))
+     > - add serializers
+     > - ToolService (to manage tools and their executor)
+   
+
+
+### Documentation
+
+ -  bump to version 1.5.4 ([a6b6a511f637ce1](https://github.com/bsorrentino/langgraph4j/commit/a6b6a511f637ce1af7cf2b7ff1ab7684ab39ce94))
+
+ -  **agent-executor**  improve code snippet ([dfaf18b52727f09](https://github.com/bsorrentino/langgraph4j/commit/dfaf18b52727f09746232f1796722ea10f9a5ed5))
+
+ -  added README for LangGraph4j utilities integration with Spring AI ([a3b59ddb57c0cfc](https://github.com/bsorrentino/langgraph4j/commit/a3b59ddb57c0cfc4c6c9499f35023eac82eaff59))
+     > Documentation was added to outline the integration of LangGraph4j utilities with Spring AI, including details on serializers, tools, and Maven dependency information.
+
+ -  fix relase date ([36622302338c968](https://github.com/bsorrentino/langgraph4j/commit/36622302338c968ec2926f0e71d6f4f6009ab7e3))
+
+ -  update changeme ([9c3f211924b2d30](https://github.com/bsorrentino/langgraph4j/commit/9c3f211924b2d3075429036f38c8cd0defdb67ea))
+
+
+### Refactor
+
+ -  **langchain4j**  deprecated classes in favor of meaningful ones ([02bd938c9ed8161](https://github.com/bsorrentino/langgraph4j/commit/02bd938c9ed81619ac1248048886effadb6e5d8f))
+    > - JacksonMessagesStateSerializer -&gt; LC4jJacksonStateSerializer
+ > - STDStateSerializer -&gt; LC4jStateSerialize
+ > - ToolNode -&gt; LC4jToolService
+
+ -  **springai-agent**  explicit create LLM Chat models ([9588b0d1f3bda28](https://github.com/bsorrentino/langgraph4j/commit/9588b0d1f3bda28dbf2379515c06f5e5654fcfd9))
+   
+ -  **spring-ai**  Rename ToolService to SpringAIToolService. ([e12381cbf4233cf](https://github.com/bsorrentino/langgraph4j/commit/e12381cbf4233cf19c5f40fa458eb60a4e021c0c))
+   
+ -  **agent-executor**  Deprecate ToolNode to LC4jToolService. ([20fa00807c4f3f8](https://github.com/bsorrentino/langgraph4j/commit/20fa00807c4f3f81910910641a394bd61df797ec))
+   
+ -  **springai-agentexecutor**  upgrade spring ai dependency and update code accordly ([a7131cba769e34d](https://github.com/bsorrentino/langgraph4j/commit/a7131cba769e34d2e45b83a0742d30e9459466d0))
+   
+
+### ALM 
+
+ -  bump to version 1.5.4 ([447a11291bcdb5e](https://github.com/bsorrentino/langgraph4j/commit/447a11291bcdb5e477f64fe2e4c8463bd931f515))
+   
+ -  bump to new SNAPSHOT ([f81153f0c74d44b](https://github.com/bsorrentino/langgraph4j/commit/f81153f0c74d44bebb0bef7fe885b0ce9eef5ad0))
+   
+
+
+
+
+
+
 <!-- "name: v1.5.3" is a release tag -->
 
 ## [v1.5.3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.3) (2025-04-03)
