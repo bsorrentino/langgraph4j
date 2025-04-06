@@ -23,8 +23,7 @@ public class TestTool {
     }
 }
 
-public void main( String args[] ) throws Exception 
-{
+public void main( String args[] ) throws Exception {
 
     var toolSpecification = ToolSpecification.builder()
             .name("getPCName")
@@ -44,20 +43,18 @@ public void main( String args[] ) throws Exception
 
 
     var agentExecutor = AgentExecutor.graphBuilder()
-                .chatLanguageModel(chatLanguageModel)
-                // add object with tool
-                .toolSpecification(new TestTool())
-                // add dynamic tool
-                .toolExecutor(toolSpecification, toolExecutor)
-                .build();
+            .chatLanguageModel(chatLanguageModel)
+            // add object with tool
+            .toolSpecification(new TestTool())
+            // add dynamic tool
+            .toolExecutor(toolSpecification, toolExecutor)
+            .build();
 
-    var workflow = agentExecutor..compile();
+    var workflow = agentExecutor.compile();
 
-    for( var step: workflow.stream( Map.of( "messages", UserMessage.from("Run my test!") ) ) ) {
+    var state =  workflow.stream( Map.of( "messages", UserMessage.from("Run my test!") ) );
 
-        ...
-    }  
-
+    System.out.println( state.lastMessage() );
 }
 ```
 

@@ -6,7 +6,7 @@ import dev.langchain4j.agent.tool.*;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.service.tool.ToolExecutor;
-import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -16,7 +16,7 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ToolNodeTest {
+public class LC4jToolServiceTest {
 
     static class TestTool {
 
@@ -32,7 +32,7 @@ public class ToolNodeTest {
     public void invokeToolNode() {
         Gson gson = new Gson();
 
-        ToolNode.Builder builder = ToolNode.builder();
+        LC4jToolService.Builder builder = LC4jToolService.builder();
 
         builder.specification( new TestTool() );
 
@@ -71,7 +71,7 @@ public class ToolNodeTest {
 
         builder.specification(toolSpecification, toolExecutor);
 
-        ToolNode toolNode = builder.build();
+        LC4jToolService toolNode = builder.build();
 
         Optional<ToolExecutionResultMessage> result = toolNode.execute(
                 ToolExecutionRequest.builder()

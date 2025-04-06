@@ -22,10 +22,13 @@ import java.util.stream.Collectors;
  * <p>The node will execute the first tool that has the given id.
  *
  * @see Specification
+ * @deprecated use {@link LC4jToolService}
  */
-public final class ToolNode {
+@Deprecated(forRemoval = true)
+public final class ToolNode  {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ToolNode.class);
 
+    @Deprecated
     public record Specification( ToolSpecification value, ToolExecutor executor)  {
         public static Specification of( ToolSpecification value, ToolExecutor executor ) {
             return new Specification(
@@ -37,11 +40,12 @@ public final class ToolNode {
     /**
      * Builder for {@link ToolNode}
      */
+    @Deprecated
     public static class Builder {
         /**
          * List of tool specification
          */
-        private final List<Specification> toolSpecifications = new ArrayList<>();
+        private final List<LC4jToolService.Specification> toolSpecifications = new ArrayList<>();
 
         /**
          * Adds a tool specification to the node
@@ -61,7 +65,7 @@ public final class ToolNode {
          * @return the builder
          */
         public Builder specification(Specification toolSpecifications) {
-            this.toolSpecifications.add(toolSpecifications);
+            this.toolSpecifications.add( new LC4jToolService.Specification(toolSpecifications.value(), toolSpecifications.executor()));
             return this;
         }
 
@@ -75,7 +79,7 @@ public final class ToolNode {
             for (Method method : objectWithTool.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(Tool.class)) {
                     final ToolExecutor toolExecutor = new DefaultToolExecutor(objectWithTool, method);
-                    toolSpecifications.add(new Specification(toolSpecificationFrom(method), toolExecutor));
+                    toolSpecifications.add(new LC4jToolService.Specification(toolSpecificationFrom(method), toolExecutor));
                 }
             }
             return this;
@@ -87,9 +91,10 @@ public final class ToolNode {
          * @return the node
          */
         public ToolNode build() {
-            return new ToolNode(toolSpecifications);
+            return new ToolNode( new LC4jToolService(toolSpecifications) );
         }
     }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -135,14 +140,10 @@ public final class ToolNode {
         return of( Arrays.asList(objectsWithToolsOrSpecification) );
     }
 
+    private final LC4jToolService delegate;
 
-    private final List<Specification> entries;
-
-    private ToolNode( List<Specification> entries) {
-        this.entries = Objects.requireNonNull(entries, "entries cannot be null");
-        if( entries.isEmpty() ) {
-            throw new IllegalArgumentException("entries cannot be empty!");
-        }
+    private ToolNode( LC4jToolService service) {
+        delegate = service;
     }
 
     /**
@@ -151,9 +152,7 @@ public final class ToolNode {
      * @return a list of tool specifications
      */
     public List<ToolSpecification> toolSpecifications() {
-        return this.entries.stream()
-                .map(Specification::value)
-                .collect(Collectors.toList());
+        return delegate.toolSpecifications();
     }
 
     /**
@@ -164,18 +163,7 @@ public final class ToolNode {
      * @return the result of the tool
      */
     public Optional<ToolExecutionResultMessage> execute( ToolExecutionRequest request, Object memoryId ) {
-        Objects.requireNonNull( request, "request cannot be null" );
-
-        log.trace( "execute: {}", request.name() );
-
-        return entries.stream()
-                .filter( v -> v.value().name().equals(request.name()))
-                .findFirst()
-                .map( e -> {
-                    String value = e.executor().execute(request, memoryId);
-                    return new ToolExecutionResultMessage( request.id(), request.name(), value );
-                })
-                ;
+        return delegate.execute( request, memoryId );
     }
 
     /**
@@ -186,17 +174,7 @@ public final class ToolNode {
      * @return the result of the tool
      */
     public Optional<ToolExecutionResultMessage> execute(Collection<ToolExecutionRequest> requests, Object memoryId ) {
-        Objects.requireNonNull( requests, "requests cannot be null" );
-
-        for( ToolExecutionRequest request : requests ) {
-
-            Optional<ToolExecutionResultMessage> result = execute( request, memoryId );
-
-            if( result.isPresent() ) {
-                return result;
-            }
-        }
-        return Optional.empty();
+        return delegate.execute( requests, memoryId );
     }
 
     /**
@@ -206,7 +184,7 @@ public final class ToolNode {
      * @return the result of the tool
      */
     public Optional<ToolExecutionResultMessage> execute( ToolExecutionRequest request ) {
-        return execute( request, null );
+        return delegate.execute( request, null );
     }
 
     /**
@@ -216,6 +194,6 @@ public final class ToolNode {
      * @return the result of the tool
      */
     public Optional<ToolExecutionResultMessage> execute( Collection<ToolExecutionRequest> requests ) {
-        return execute( requests, null );
+        return delegate.execute( requests, null );
     }
 }

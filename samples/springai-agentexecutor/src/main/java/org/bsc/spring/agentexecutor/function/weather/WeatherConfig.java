@@ -1,4 +1,4 @@
-package org.bsc.spring.agentexecutor.function;
+package org.bsc.spring.agentexecutor.function.weather;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

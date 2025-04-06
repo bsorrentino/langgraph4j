@@ -1,6 +1,11 @@
 package org.bsc.spring;
 
+import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.spring.agentexecutor.AgentExecutor;
+import org.bsc.spring.agentexecutor.ChatService;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Controller;
 
@@ -14,8 +19,10 @@ public class DemoConsoleController implements CommandLineRunner {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DemoConsoleController.class);
 
     private final AgentExecutor agentExecutor;
+    private final ChatService chatService;
 
-    public DemoConsoleController(AgentExecutor agentExecutor) {
+    public DemoConsoleController(@Qualifier("ollama") ChatService chatService,  AgentExecutor agentExecutor) {
+        this.chatService = chatService;
         this.agentExecutor = agentExecutor;
     }
 
@@ -33,17 +40,23 @@ public class DemoConsoleController implements CommandLineRunner {
 
         log.info("Welcome to the Spring Boot CLI application!");
 
-        var graph = agentExecutor.graphBuilder()
-                                            .build();
+        var graph = agentExecutor.builder()
+                        .chatService( chatService )
+                        .build();
 
         var workflow = graph.compile();
 
-        var result = workflow.invoke( Map.of(AgentExecutor.State.INPUT, "what is the weather in Napoli ?") );
+        var result = workflow.stream( Map.of( "messages", new UserMessage("what is the result of 234 + 45") ));
 
-        var finish = result.flatMap(AgentExecutor.State::agentOutcome)
-                            .map(AgentExecutor.Outcome::finish)
-                            .orElseThrow();
+        var state = result.stream()
+                .peek( s -> System.out.println( s.node() ) )
+                .reduce((a, b) -> b)
+                .map( NodeOutput::state)
+                .orElseThrow();
 
-        log.info( "result: {}", finish.returnValues() );
+        log.info( "result: {}", state.lastMessage()
+                                    .map(AssistantMessage.class::cast)
+                                    .map(AssistantMessage::getText)
+                                    .orElseThrow() );
     }
 }

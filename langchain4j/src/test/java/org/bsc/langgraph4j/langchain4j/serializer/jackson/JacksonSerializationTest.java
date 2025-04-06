@@ -27,7 +27,7 @@ public class JacksonSerializationTest {
     @Test
     public void StateSerializerTest() throws Exception {
 
-        var serializer = new JacksonMessagesStateSerializer<>( State::new );
+        var serializer = new LC4jJacksonStateSerializer<>( State::new );
 
         var state = new State(Map.of( "system", SystemMessage.from("Buddy"),
                                         "user", UserMessage.from( "Hello") ));

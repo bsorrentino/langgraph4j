@@ -1,11 +1,12 @@
 package org.bsc.spring.agentexecutor.function;
 
-import org.springframework.ai.model.function.FunctionCallback;
+import org.bsc.spring.agentexecutor.function.math.AddFunction;
+import org.bsc.spring.agentexecutor.function.weather.WeatherConfig;
+import org.bsc.spring.agentexecutor.function.weather.WeatherFunction;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Description;
-
-import java.util.function.Function;
 
 /**
  * Configuration class for various functions related to weather.
@@ -28,13 +29,16 @@ public class FunctionsConfiguration {
     }
 
     /**
-     * Bean method to define the current weather function.
-     * @return A Function object that retrieves weather conditions for a given city.
+     * Bean method to define the weather function callback.
+     * @return A FunctionCallback object that wraps a WeatherFunction and provides metadata about it.
      */
     @Bean
-    @Description("Get the current weather conditions for the given city.")
-    public Function<WeatherFunction.Request, WeatherFunction.Response> currentWeatherFunction() {
-        return new WeatherFunction(props);
+    public ToolCallback weatherToolCallback() {
+
+        return FunctionToolCallback.builder( "weatherFunction",  new WeatherFunction(props) )
+                .description("Get the weather in location") // (2) function description
+                .inputType(WeatherFunction.Request.class)
+                .build();
     }
 
     /**
@@ -42,12 +46,15 @@ public class FunctionsConfiguration {
      * @return A FunctionCallback object that wraps a WeatherFunction and provides metadata about it.
      */
     @Bean
-    public FunctionCallback weatherFunctionCallback() {
+    public ToolCallback addToolCallback() {
 
-        return AgentFunctionCallbackWrapper.<WeatherFunction.Request, WeatherFunction.Response>builder( new WeatherFunction(props) )
-                .withName("weatherFunctionCallback") // (1) function name
-                .withDescription("Get the weather in location") // (2) function description
+        return FunctionToolCallback.builder( "addFunction",  new AddFunction() )
+                .description("sum two numbers") // (2) function description
+                .inputType(AddFunction.Request.class)
                 .build();
     }
+
+
+
 
 }
