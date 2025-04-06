@@ -18,12 +18,10 @@ import java.util.Map;
 public class DemoConsoleController implements CommandLineRunner {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DemoConsoleController.class);
 
-    private final AgentExecutor agentExecutor;
     private final ChatService chatService;
 
-    public DemoConsoleController(@Qualifier("ollama") ChatService chatService,  AgentExecutor agentExecutor) {
+    public DemoConsoleController(@Qualifier("ollama") ChatService chatService) {
         this.chatService = chatService;
-        this.agentExecutor = agentExecutor;
     }
 
     /**
@@ -40,7 +38,7 @@ public class DemoConsoleController implements CommandLineRunner {
 
         log.info("Welcome to the Spring Boot CLI application!");
 
-        var graph = agentExecutor.builder()
+        var graph = AgentExecutor.builder()
                         .chatService( chatService )
                         .build();
 
