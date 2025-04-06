@@ -2,8 +2,10 @@ package org.bsc.spring.agentexecutor;
 
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.StateSerializer;
+import org.bsc.langgraph4j.spring.ai.tool.SpringAIToolService;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.utils.EdgeMappings;
 import org.bsc.spring.agentexecutor.serializer.std.AgentStateSerializer;
@@ -33,6 +35,7 @@ public class AgentExecutor {
      */
     public class Builder {
         private StateSerializer<State> stateSerializer;
+        private ChatService chatService;
 
         /**
          * Sets the state serializer for the graph builder.
@@ -42,6 +45,11 @@ public class AgentExecutor {
          */
         public Builder stateSerializer(StateSerializer<State> stateSerializer) {
             this.stateSerializer = stateSerializer;
+            return this;
+        }
+
+        public Builder chatService(ChatService chatService) {
+            this.chatService = chatService;
             return this;
         }
 
@@ -55,14 +63,26 @@ public class AgentExecutor {
          * @throws GraphStateException If there is an issue with building the graph state.
          */
         public StateGraph<State> build() throws GraphStateException {
+            Objects.requireNonNull( chatService, "chatService cannot be null!");
+
             if( stateSerializer == null ) {
                 stateSerializer = new AgentStateSerializer();
             }
 
+            Objects.requireNonNull( chatService, "chatService cannot be null!");
+
+            final var toolService = new SpringAIToolService( chatService.tools() );
+
+            AsyncNodeAction<State> callAgentAction = node_async( state ->
+                    AgentExecutor.this.callAgent( state, chatService ));
+
+            AsyncNodeAction<State> executeToolsAction = ( state ->
+                    AgentExecutor.this.executeTools( state, toolService ));
+
             return new StateGraph<>(State.SCHEMA, stateSerializer)
                     .addEdge(START,"agent")
-                    .addNode( "agent", node_async(AgentExecutor.this::callAgent) )
-                    .addNode( "action", AgentExecutor.this::executeTools )
+                    .addNode( "agent", callAgentAction )
+                    .addNode( "action", executeToolsAction )
                     .addConditionalEdges(
                             "agent",
                             edge_async(AgentExecutor.this::shouldContinue),
@@ -104,24 +124,13 @@ public class AgentExecutor {
 
     }
 
-    private final AgentService agentService;
-
-    /**
-     * Initializes a new instance of the {@link AgentExecutor} class.
-     *
-     * @param agentService The service to be used for executing agents, must not be null.
-     */
-    public AgentExecutor(AgentService agentService) {
-        this.agentService = agentService;
-    }
-
     /**
      * Calls an agent with the given state.
      *
      * @param state The current state containing input and intermediate steps.
      * @return A map containing the outcome of the agent call, either an action or a finish.
      */
-    Map<String,Object> callAgent( State state )  {
+    Map<String,Object> callAgent( State state, ChatService chatService )  {
         log.info( "callAgent" );
 
         var messages = state.messages();
@@ -130,7 +139,7 @@ public class AgentExecutor {
             throw new IllegalArgumentException("no input provided!");
         }
 
-        var response = agentService.execute( messages );
+        var response = chatService.execute( messages );
 
         var output = response.getResult().getOutput();
 
@@ -144,7 +153,7 @@ public class AgentExecutor {
      * @param state The current state containing necessary information to execute tools.
      * @return A CompletableFuture containing a map with the intermediate steps, if successful. If there is no agent outcome or the tool service execution fails, an appropriate exception will be thrown.
      */
-    CompletableFuture<Map<String,Object>> executeTools(State state )  {
+    CompletableFuture<Map<String,Object>> executeTools( State state, SpringAIToolService toolService )  {
         log.trace( "executeTools" );
 
         var futureResult = new CompletableFuture<Map<String,Object>>();
@@ -157,7 +166,7 @@ public class AgentExecutor {
         else if( message.get() instanceof AssistantMessage assistantMessage ) {
             if( assistantMessage.hasToolCalls() ) {
 
-                return agentService.toolService.executeFunctions( assistantMessage.getToolCalls() )
+                return toolService.executeFunctions( assistantMessage.getToolCalls() )
                         .thenApply( result -> Map.of( "messages", result ));
 
             }

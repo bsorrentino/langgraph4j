@@ -1,6 +1,7 @@
-package org.bsc.spring.agentexecutor;
+package org.bsc.spring;
 
 import org.bsc.langgraph4j.spring.ai.tool.SpringAIToolService;
+import org.bsc.spring.agentexecutor.ChatService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -8,9 +9,6 @@ import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
-import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.stereotype.Service;
 
@@ -21,18 +19,23 @@ import java.util.List;
  * the {@link SpringAIToolService} to execute an LLM request.
  *
  */
-@Service
-public class AgentService {
-    public final SpringAIToolService toolService;
+@Service("ollama")
+public class OllamaChatService implements ChatService {
+    public final List<ToolCallback> tools;
     private final ChatClient chatClient;
 
-    public AgentService( List<ToolCallback> agentFunctions ) {
-        this.toolService = new SpringAIToolService( agentFunctions );
+    public OllamaChatService( List<ToolCallback> agentFunctions ) {
+        this.tools = agentFunctions;
 
-        this.chatClient = ollamaChatClient()
+        this.chatClient = chatClientBuilder()
                 .defaultSystem("You are a helpful AI Assistant answering questions.")
-                .defaultTools(toolService.agentFunctionsCallback())
+                .defaultTools(agentFunctions)
                 .build();
+    }
+
+
+    public List<ToolCallback> tools() {
+        return tools;
     }
 
     public ChatResponse execute( List<Message> messages ) {
@@ -44,7 +47,7 @@ public class AgentService {
                 .chatResponse();
     }
 
-    private ChatClient.Builder ollamaChatClient() {
+    private ChatClient.Builder chatClientBuilder() {
 
         OllamaApi api = new OllamaApi( );
 
@@ -55,32 +58,6 @@ public class AgentService {
 
         var chatModel = OllamaChatModel.builder()
                 .ollamaApi( api )
-                .defaultOptions(chatOptions)
-                .build();
-
-        var toolOptions = ToolCallingChatOptions.builder()
-                .internalToolExecutionEnabled(false) // Disable automatic tool execution
-                .build();
-
-        return ChatClient.builder(chatModel)
-                .defaultOptions(toolOptions);
-    }
-
-    private ChatClient.Builder openAIChatClient() {
-
-        var api = OpenAiApi.builder()
-                .baseUrl("https://api.openai.com")
-                .apiKey(System.getenv("OPENAI_API_KEY"))
-                .build();
-
-        var chatOptions = OpenAiChatOptions.builder()
-                .model("gpt-4o-mini")
-                .logprobs(false)
-                .temperature(0.1)
-                .build();
-
-        var chatModel = OpenAiChatModel.builder()
-                .openAiApi(api)
                 .defaultOptions(chatOptions)
                 .build();
 
