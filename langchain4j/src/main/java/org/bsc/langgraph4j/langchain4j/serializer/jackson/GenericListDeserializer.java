@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.langchain4j.data.message.ChatMessage;
 
 import java.io.IOException;
@@ -25,11 +24,7 @@ public class GenericListDeserializer extends StdDeserializer<List<Object>> {
 
         List<Object> result = new LinkedList<>();
 
-        Iterator<JsonNode> iterator = node.iterator();
-
-        while (iterator.hasNext()) {
-            var valueNode = iterator.next();
-
+        for (JsonNode valueNode : node) {
             // Example: Detect type based on field name or value structure
             Object value;
             if (valueNode.isObject() && valueNode.has("@type")) {

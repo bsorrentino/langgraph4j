@@ -1,8 +1,11 @@
 package org.bsc.langgraph4j.langchain4j.serializer.jackson;
 
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.service.tool.ToolExecutionResult;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class JacksonSerializationTest {
@@ -56,7 +60,7 @@ public class JacksonSerializationTest {
     @Test
     public void MessagesStateSerializerTest() throws Exception {
 
-        var serializer = new JacksonMessagesStateSerializer<>( State::new );
+        var serializer = new LC4jJacksonStateSerializer<>( State::new );
 
         var state = new State( Map.of(
                 "messages", List.of(SystemMessage.from("Buddy"), UserMessage.from( "Hello") ),
@@ -80,8 +84,94 @@ public class JacksonSerializationTest {
         assertInstanceOf( SystemMessage.class, messagesList.get(0) );
         assertEquals( "Buddy", ((SystemMessage) messagesList.get(0)).text() );
 
+    }
 
+    @Test
+    public void AiMessageSerializerTest01() throws Exception {
 
+        var serializer = new LC4jJacksonStateSerializer<>( State::new );
+
+        var toolRequest1 = ToolExecutionRequest.builder()
+                                .id("id1")
+                                .name("name1")
+                                .arguments("arguments1")
+                                .build();
+        var toolRequest2 = ToolExecutionRequest.builder()
+                .name("name2")
+                .arguments("arguments2")
+                .build();
+        var aiMessage = new AiMessage.Builder()
+                .text("")
+                .toolExecutionRequests( List.of(toolRequest1, toolRequest2))
+                .build();
+
+        var state = new State( Map.of(
+                "messages", List.of(aiMessage) )
+        );
+
+        var stream = new ByteArrayOutputStream();
+        try(var out = new ObjectOutputStream( stream ) ) {
+
+            serializer.write( state, out);
+        }
+
+        var result = serializer.read( new ObjectInputStream( new ByteArrayInputStream( stream.toByteArray() )));
+
+        assertNotNull( result );
+        assertTrue( result.lastMessage().isPresent() );
+        assertInstanceOf( AiMessage.class, result.lastMessage().get() );
+
+        var lastMessage = result.lastMessage().map( AiMessage.class::cast ).orElseThrow();
+
+        assertEquals( "", lastMessage.text());
+        assertTrue( lastMessage.hasToolExecutionRequests());
+        assertEquals( 2, lastMessage.toolExecutionRequests().size() );
+        var request = lastMessage.toolExecutionRequests().get(0);
+
+        assertInstanceOf( ToolExecutionRequest.class, request );
+        assertEquals( "id1", request.id());
+        assertEquals( "name1", request.name());
+        assertEquals( "arguments1", request.arguments());
+
+        request = lastMessage.toolExecutionRequests().get(1);
+
+        assertInstanceOf( ToolExecutionRequest.class, request );
+        assertNull( request.id());
+        assertEquals( "name2", request.name());
+        assertEquals( "arguments2", request.arguments());
+
+    }
+
+    @Test
+    public void AiMessageSerializerTest02() throws Exception {
+
+        var serializer = new LC4jJacksonStateSerializer<>( State::new );
+
+        var aiMessage = new AiMessage.Builder()
+                .text("My text")
+                .toolExecutionRequests( List.of())
+                .build();
+
+        var state = new State( Map.of(
+                "messages", List.of(aiMessage) )
+        );
+
+        var stream = new ByteArrayOutputStream();
+        try(var out = new ObjectOutputStream( stream ) ) {
+
+            serializer.write( state, out);
+        }
+
+        var result = serializer.read( new ObjectInputStream( new ByteArrayInputStream( stream.toByteArray() )));
+
+        assertNotNull( result );
+        assertTrue( result.lastMessage().isPresent() );
+        assertInstanceOf( AiMessage.class, result.lastMessage().get() );
+
+        var lastMessage = result.lastMessage().map( AiMessage.class::cast ).orElseThrow();
+
+        assertEquals( "My text", lastMessage.text());
+        assertFalse( lastMessage.hasToolExecutionRequests());
     }
 
 }

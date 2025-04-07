@@ -9,8 +9,6 @@ import java.io.IOException;
 
 public class AiMessageSerializer extends StdSerializer<AiMessage> {
 
-    final ToolExecutionRequestSerializer toolExecutionRequest = new ToolExecutionRequestSerializer();
-
     public AiMessageSerializer() {
         super(AiMessage.class);
     }
@@ -20,6 +18,7 @@ public class AiMessageSerializer extends StdSerializer<AiMessage> {
         gen.writeStartObject();
         gen.writeStringField("@type", msg.type().name());
         gen.writeStringField("text", msg.text());
+        gen.writeObjectField("toolExecutionRequests", msg.toolExecutionRequests());
         gen.writeEndObject();
     }
 }
