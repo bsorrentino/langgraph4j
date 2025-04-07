@@ -33,6 +33,45 @@ public class AppenderChannel<T> implements Channel<List<T>> {
         int compareTo(T element, int atIndex );
     }
 
+    /**
+     * Reducer that disallow duplicates
+     * @param <T>
+     */
+    public static class ReducerDisallowDuplicate<T> implements Reducer<List<T>> {
+
+        @Override
+        public List<T> apply(List<T> left, List<T> right) {
+            if (left == null) {
+                return right;
+            }
+            for (T rValue : right) {
+                // remove duplicate
+                if (left.stream().noneMatch(lValue -> Objects.hash(lValue) == Objects.hash(rValue))) {
+                    left.add(rValue);
+                }
+            }
+            return left;
+
+        }
+    }
+
+    /**
+     * Reducer that allow duplicates
+     * @param <T>
+     */
+    public static class ReducerAllowDuplicate<T> implements Reducer<List<T>> {
+
+        @Override
+        public List<T> apply(List<T> left, List<T> right) {
+            if (left == null) {
+                return right;
+            }
+            left.addAll(right);
+            return left;
+        }
+    }
+
+
     private final Reducer<List<T>> reducer;
     private final Supplier<List<T>> defaultProvider;
 
