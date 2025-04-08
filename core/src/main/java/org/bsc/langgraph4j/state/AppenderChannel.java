@@ -193,6 +193,11 @@ public class AppenderChannel<T> implements Channel<List<T>> {
 
     }
 
+    @SuppressWarnings("unchecked")
+    protected List<T> validateNewValues(List<?> list  ) {
+        return (List<T>)list;
+    }
+
     /**
      * Updates the value for a given key in the channel.
      * 
@@ -205,7 +210,7 @@ public class AppenderChannel<T> implements Channel<List<T>> {
      * @throws UnsupportedOperationException   If the channel does not support updates, typically due to an immutable list being used.
      */
     @SuppressWarnings("unchecked")
-    public Object update( String key, Object oldValue, Object newValue) {
+    public final Object update( String key, Object oldValue, Object newValue) {
 
         if( newValue == null ) {
             return oldValue;
@@ -223,24 +228,18 @@ public class AppenderChannel<T> implements Channel<List<T>> {
             } else if (newValue.getClass().isArray()) {
                 list = Arrays.asList((T[])newValue);
             }
-            if (list != null) {
-                if (list.isEmpty()) {
-                    return oldValue;
-                }
-                if( oldValueIsList ) {
-                    var result = evaluateRemoval( (List<T>)oldValue, list );
-                    return Channel.super.update(key, result.oldValues(), result.newValues());
-                }
-                return Channel.super.update(key, oldValue, list);
+            else {
+                list = List.of(newValue);
             }
-            // this is to allow single value other than List or Array
-            try {
-                T typedValue = (T)newValue;
-                return Channel.super.update(key, oldValue, List.of(typedValue));
-            } catch (ClassCastException e) {
-                log.error("Unsupported content type: {}", newValue.getClass());
-                throw e;
+            if (list.isEmpty()) {
+                return oldValue;
             }
+            var typedList = validateNewValues(list);
+            if( oldValueIsList ) {
+                var result = evaluateRemoval( (List<T>)oldValue, typedList );
+                return Channel.super.update(key, result.oldValues(), result.newValues());
+            }
+            return Channel.super.update(key, oldValue, typedList);
         }
         catch (UnsupportedOperationException ex) {
             log.error("Unsupported operation: probably because the appendable channel has been initialized with a immutable List. Check please !");
