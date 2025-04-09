@@ -1,27 +1,23 @@
 package org.bsc.langgraph4j.jetty;
 
-import org.bsc.langgraph4j.DotEnvConfig;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.model.ollama.OllamaChatModel;
 import org.bsc.langgraph4j.TestTool;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.bsc.langgraph4j.studio.jetty.LangGraphStreamingServerJetty;
+
+import java.util.Objects;
 
 public class AgentExecutorStreamingServer {
 
     public static void main(String[] args) throws Exception {
 
-        DotEnvConfig.load();
-
-        var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
-
-        var llm = OpenAiChatModel.builder()
-                .apiKey( openApiKey )
-                .modelName( "gpt-4o-mini" )
-                .logResponses(true)
-                .maxRetries(2)
+        var llm = OllamaChatModel.builder()
+                .baseUrl( "http://localhost:11434" )
                 .temperature(0.0)
-                .maxTokens(2000)
+                .logRequests(true)
+                .logResponses(true)
+                .modelName("qwen2.5:7b")
                 .build();
 
         var app = AgentExecutor.builder()
@@ -30,11 +26,10 @@ public class AgentExecutorStreamingServer {
                 .stateSerializer( AgentExecutor.Serializers.JSON.object() )
                 .build();
 
-
         var server = LangGraphStreamingServerJetty.builder()
                 .port(8080)
                 .title("AGENT EXECUTOR")
-                .addInputStringArg("input")
+                .addInputStringArg("messages", true, v -> SystemMessage.from(Objects.toString(v)))
                 .stateGraph(app)
                 .build();
 
