@@ -2,6 +2,65 @@
 
 
 
+<!-- "name: v1.5.5" is a release tag -->
+
+## [v1.5.5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.5) (2025-04-09)
+
+### Features
+
+ *  **studio**  Add support for argument conversion. ([75ba3e8615d0b69](https://github.com/bsorrentino/langgraph4j/commit/75ba3e8615d0b6941ff99f00bc57906c21fc5770))
+     > - Extend ArgumentMetadata to include a converter function
+     > - Modify request processing logic to apply converters during data deserialization
+   
+ *  **core**  Added util method for creating immutable entries ([26e36d73f15abbd](https://github.com/bsorrentino/langgraph4j/commit/26e36d73f15abbd2590bcc3aef771bb6ad16937d))
+     > - Added entryOf method to CollectionsUtils class
+   
+
+### Bug Fixes
+
+ -  **langchain4j**  add ToolExecutionResultMessage support ([c16a75d942b76c3](https://github.com/bsorrentino/langgraph4j/commit/c16a75d942b76c35c64a688cdbc6f0e98fb87c96))
+     > - Handle toolExecutionRequests in AiMessageDeserializer
+     > - Added ToolExecutionResultMessage serialization/deserialization in LC4jJacksonStateSerializer.
+     > - Added serialization tests for AiMessage
+
+
+### Documentation
+
+ -  bump to version 1.5.5 ([ed5dd12e55e7053](https://github.com/bsorrentino/langgraph4j/commit/ed5dd12e55e705379b19e955f598ec66675554d8))
+
+ -  update changeme ([b9eaa38be2e977d](https://github.com/bsorrentino/langgraph4j/commit/b9eaa38be2e977d3651d2c4ce40097825845e9c0))
+
+
+### Refactor
+
+ -  **CallAgent class**  fix finish reason check ([f641de02f123b15](https://github.com/bsorrentino/langgraph4j/commit/f641de02f123b1596ddb2aae87b27bdac12811c8))
+    > add langchain4j-ollama dependency for Ollama support
+
+ -  **AppenderChannel.java**  add validation method for new values ([359bfff596ce0ce](https://github.com/bsorrentino/langgraph4j/commit/359bfff596ce0cefc39269b84b5fc052d2152086))
+    > Added overridable method &#x60;validateNewValues&#x60; to ensure that the incoming list is compatible with the channel&#x27;s type parameter.
+
+ -  **AppenderChannel**  expose nested class ReducerDisallowDuplicate and ReducerAllowDuplicate ([f127da2e2e9cc92](https://github.com/bsorrentino/langgraph4j/commit/f127da2e2e9cc9260bcd583fc935d9d3da4f80e2))
+   
+ -  **sprinhai-agentexecutor**  remove unused dependency on AgentExecutor from DemoConsoleController ([bc77b918e2637cc](https://github.com/bsorrentino/langgraph4j/commit/bc77b918e2637cc1bf3e7de793d2f9b6915ca72b))
+    > Refactored AgentExecutor to an interface and static methods to improve modularity and decoupling.
+
+
+### ALM 
+
+ -  bump to version 1.5.5 ([4fcfd3ff1d3fc87](https://github.com/bsorrentino/langgraph4j/commit/4fcfd3ff1d3fc8755f0f43f004f8089e2e45a654))
+   
+ -  update `spring-ai` version to `1.0.0-M6` ([1284a997bca17a5](https://github.com/bsorrentino/langgraph4j/commit/1284a997bca17a5c11aa3ece3894ad3efd612330))
+   
+ -  update `spring-ai` version to `1.0.0-M6` ([f0ed8133b03cadd](https://github.com/bsorrentino/langgraph4j/commit/f0ed8133b03cadd4206cb60a702867853ce22cd7))
+   
+ -  bump to new SNAPSHOT ([f3973e48746f939](https://github.com/bsorrentino/langgraph4j/commit/f3973e48746f939e826228906aa7cb153f5aad18))
+   
+
+
+
+
+
+
 <!-- "name: v1.5.4" is a release tag -->
 
 ## [v1.5.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.4) (2025-04-06)
