@@ -16,7 +16,10 @@ public class ToolExecutionRequestSerializer extends StdSerializer<ToolExecutionR
     @Override
     public void serialize(ToolExecutionRequest msg, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField("id", msg.id());
+        if( msg.id() == null )
+            gen.writeNullField( "id");
+        else
+            gen.writeStringField("id", msg.id());
         gen.writeStringField("name", msg.name());
         gen.writeStringField("arguments", msg.arguments());
         gen.writeEndObject();

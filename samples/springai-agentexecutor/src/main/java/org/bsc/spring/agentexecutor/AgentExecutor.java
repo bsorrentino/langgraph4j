@@ -25,15 +25,14 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
  * It includes methods for building and managing the execution graph,
  * as well as handling agent actions and state transitions.
  */
-@Service
-public class AgentExecutor {
+public interface AgentExecutor {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AgentExecutor.class);
+    org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AgentExecutor.class);
 
     /**
      * Class responsible for building a state graph.
      */
-    public class Builder {
+    class Builder {
         private StateSerializer<State> stateSerializer;
         private ChatService chatService;
 
@@ -74,10 +73,10 @@ public class AgentExecutor {
             final var toolService = new SpringAIToolService( chatService.tools() );
 
             AsyncNodeAction<State> callAgentAction = node_async( state ->
-                    AgentExecutor.this.callAgent( state, chatService ));
+                    AgentExecutor.callAgent( state, chatService ));
 
             AsyncNodeAction<State> executeToolsAction = ( state ->
-                    AgentExecutor.this.executeTools( state, toolService ));
+                    AgentExecutor.executeTools( state, toolService ));
 
             return new StateGraph<>(State.SCHEMA, stateSerializer)
                     .addEdge(START,"agent")
@@ -85,7 +84,7 @@ public class AgentExecutor {
                     .addNode( "action", executeToolsAction )
                     .addConditionalEdges(
                             "agent",
-                            edge_async(AgentExecutor.this::shouldContinue),
+                            edge_async(AgentExecutor::shouldContinue),
                             EdgeMappings.builder()
                                     .to( "action", "continue" )
                                     .toEND( "end")
@@ -102,7 +101,7 @@ public class AgentExecutor {
      *
      * @return a new {@link Builder} object
      */
-    public final Builder builder() {
+    static Builder builder() {
         return new Builder();
     }
 
@@ -111,7 +110,7 @@ public class AgentExecutor {
      * This class extends {@link AgentState} and defines constants for keys related to input, agent outcome,
      * and intermediate steps. It includes a static map schema that specifies how these keys should be handled.
      */
-    public static class State extends MessagesState<Message> {
+    class State extends MessagesState<Message> {
 
         /**
          * Constructs a new State object using the initial data provided in the initData map.
@@ -130,7 +129,7 @@ public class AgentExecutor {
      * @param state The current state containing input and intermediate steps.
      * @return A map containing the outcome of the agent call, either an action or a finish.
      */
-    Map<String,Object> callAgent( State state, ChatService chatService )  {
+    static Map<String,Object> callAgent( State state, ChatService chatService )  {
         log.info( "callAgent" );
 
         var messages = state.messages();
@@ -153,7 +152,7 @@ public class AgentExecutor {
      * @param state The current state containing necessary information to execute tools.
      * @return A CompletableFuture containing a map with the intermediate steps, if successful. If there is no agent outcome or the tool service execution fails, an appropriate exception will be thrown.
      */
-    CompletableFuture<Map<String,Object>> executeTools( State state, SpringAIToolService toolService )  {
+    static CompletableFuture<Map<String,Object>> executeTools( State state, SpringAIToolService toolService )  {
         log.trace( "executeTools" );
 
         var futureResult = new CompletableFuture<Map<String,Object>>();
@@ -185,7 +184,7 @@ public class AgentExecutor {
      * @param state The current state of the game.
      * @return "end" if the game should end, otherwise "continue".
      */
-    String shouldContinue(State state) {
+    static String shouldContinue(State state) {
 
         var message = state.lastMessage().orElseThrow();
 

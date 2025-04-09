@@ -14,7 +14,7 @@ public class GraphStreamServletProxy extends HttpServlet {
 
     public GraphStreamServletProxy( LangGraphFlow flow ) {
         super();
-        servlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.compileConfig());
+        servlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.compileConfig(), flow.inputArgs() );
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.bsc.langgraph4j.studio.LangGraphStreamingServer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static java.util.Optional.ofNullable;
 
@@ -44,6 +45,12 @@ public record LangGraphFlow(List<LangGraphStreamingServer.ArgumentMetadata> inpu
             return this;
         }
 
+
+        public Builder addInputStringArg(String name, boolean required, Function<Object,Object> converter) {
+            inputArgs.add(new LangGraphStreamingServer.ArgumentMetadata(name, LangGraphStreamingServer.ArgumentMetadata.ArgumentType.STRING, required, converter));
+            return this;
+        }
+
         /**
          * Adds an input string argument to the server configuration.
          *
@@ -52,8 +59,7 @@ public record LangGraphFlow(List<LangGraphStreamingServer.ArgumentMetadata> inpu
          * @return the Builder instance
          */
         public Builder addInputStringArg(String name, boolean required) {
-            inputArgs.add(new LangGraphStreamingServer.ArgumentMetadata(name, LangGraphStreamingServer.ArgumentMetadata.ArgumentType.STRING, required));
-            return this;
+            return addInputStringArg(name, required, null);
         }
 
         /**

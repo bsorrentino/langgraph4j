@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.studio;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,8 +30,12 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.entryOf;
+
 import org.bsc.langgraph4j.diagram.MermaidGenerator;
 
 
@@ -71,7 +76,7 @@ public interface LangGraphStreamingServer {
         final ObjectMapper objectMapper;
         final Map<PersistentConfig, CompiledGraph<? extends AgentState>> graphCache = new HashMap<>();
         final CompileConfig compileConfig;
-
+        final List<ArgumentMetadata> args;
         /**
          * Constructs a GraphStreamServlet.
          *
@@ -79,11 +84,12 @@ public interface LangGraphStreamingServer {
          * @param compileConfig the graph compiler configuration.
          */
         public GraphStreamServlet(StateGraph<? extends AgentState> stateGraph,
-                                  CompileConfig compileConfig) {
-            Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
-            Objects.requireNonNull(compileConfig, "compileConfig cannot be null");
-            this.stateGraph = stateGraph;
-            this.compileConfig = compileConfig;
+                                  CompileConfig compileConfig,
+                                  List<ArgumentMetadata> args) {
+
+            this.stateGraph = Objects.requireNonNull(stateGraph, "stateGraph cannot be null");
+            this.compileConfig = Objects.requireNonNull(compileConfig, "compileConfig cannot be null");
+            this.args =  Objects.requireNonNull(args, "args cannot be null");
 
             if( stateGraph.getStateSerializer() instanceof JacksonStateSerializer<? extends AgentState> jsonSerializer) {
                 this.objectMapper = jsonSerializer.objectMapper().copy();
@@ -180,12 +186,22 @@ public interface LangGraphStreamingServer {
 
                 var compiledGraph = graphCache.get(persistentConfig);
 
-                final Map<String, Object> dataMap;
+                final Map<String, Object> candidateDataMap;
                 if ( /*resume && */ stateGraph.getStateSerializer() instanceof PlainTextStateSerializer<? extends AgentState> textSerializer) {
-                    dataMap = textSerializer.read(new InputStreamReader(request.getInputStream())).data();
+                    candidateDataMap = textSerializer.read(new InputStreamReader(request.getInputStream())).data();
                 } else {
-                    dataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<>() {});
+                    candidateDataMap = objectMapper.readValue(request.getInputStream(), new TypeReference<>() {});
                 }
+
+                var dataMap = candidateDataMap.entrySet().stream()
+                        .map( entry -> {
+                            var newValue = args.stream()
+                                    .filter(arg -> arg.name().equals(entry.getKey()) && arg.converter() != null).findAny()
+                                    .map(arg -> arg.converter.apply(entry.getValue()));
+                            return newValue.map( v -> entryOf(entry.getKey(), v ))
+                                    .orElse(entry);
+                        })
+                        .collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue) );
 
                 if (resume) {
                     log.trace("RESUME REQUEST PREPARE");
@@ -265,7 +281,17 @@ public interface LangGraphStreamingServer {
     record ArgumentMetadata(
             String name,
             ArgumentType type,
-            boolean required) {
+            boolean required,
+            @JsonIgnore Function<Object,Object> converter
+    ) {
+        public ArgumentMetadata {
+            Objects.requireNonNull(name, "name cannot be null");
+            Objects.requireNonNull(type, "type cannot be null");
+        }
+        public ArgumentMetadata(String name, ArgumentType type, boolean required) {
+            this(name, type, required, null);
+        }
+
         public enum ArgumentType { STRING, IMAGE };
     }
 

@@ -82,6 +82,9 @@ public final class CollectionsUtils {
                 ));
     }
 
+    public static <K,V>  Map.Entry<K,V> entryOf( K key, V value ) {
+        return new AbstractMap.SimpleImmutableEntry<>(key, value);
+    }
 
     @Deprecated
     public static <T> List<T> listOf(Class<T> clazz) {

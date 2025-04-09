@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Optional.ofNullable;
+import static org.bsc.langgraph4j.utils.CollectionsUtils.entryOf;
 
 /**
  * Represents the state of an agent with a map of data.
@@ -86,7 +87,7 @@ public class AgentState {
             Channel<?> channel = channels.get(entry.getKey());
             if (channel != null) {
                 Object newValue = channel.update( entry.getKey(), state.get(entry.getKey()), entry.getValue());
-                return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), newValue);
+                return entryOf(entry.getKey(), newValue);
             }
 
             return entry;

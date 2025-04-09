@@ -41,11 +41,11 @@ public class CallAgent implements NodeAction<AgentExecutor.State> {
         if( response.finishReason() == FinishReason.STOP ) {
             return Map.of("agent_response", content.text());
         }
-
         if (response.finishReason() == FinishReason.TOOL_EXECUTION || content.hasToolExecutionRequests() ) {
-
             return Map.of("messages", content);
-
+        }
+        if( response.finishReason() == null ) {
+            return Map.of();
         }
 
         throw new IllegalStateException("Unsupported finish reason: " + response.finishReason() );

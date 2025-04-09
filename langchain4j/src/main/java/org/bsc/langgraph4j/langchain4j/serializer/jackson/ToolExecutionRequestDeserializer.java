@@ -30,8 +30,9 @@ public class ToolExecutionRequestDeserializer extends StdDeserializer<ToolExecut
     }
 
     protected ToolExecutionRequest deserialize(JsonNode node) throws IOException, JacksonException {
+        var idNode = node.get("id");
         return dev.langchain4j.agent.tool.ToolExecutionRequest.builder()
-                .id(node.get("id").asText())
+                .id( idNode.isNull() ? null : idNode.asText() )
                 .name(node.get("name").asText())
                 .arguments(node.get("arguments").asText())
                 .build();
