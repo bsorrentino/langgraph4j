@@ -10,8 +10,10 @@ services:
     ports:
       - "3000:3000"  # Change this if your Node app uses a different port
     volumes:
-#      - .:/app/download  # Optional: Mount local directory (useful for development)
+      - .:/app/workspace  # Optional: Mount local directory (useful for development)
     environment:
       - NODE_ENV=production
       - LANGRAPH4J_GEN=generator-1.5-SNAPSHOT-jar-with-dependencies.jar
       - RUNNING_IN_DOCKER=true
+
+version: '3.8' # Or your preferred version

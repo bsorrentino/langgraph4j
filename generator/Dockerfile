@@ -20,6 +20,7 @@ RUN node -v && java -version
 # Set working directory
 WORKDIR /app
 
+
 # Copy your Node.js app
 COPY builder-webui/ .
 ARG LANGRAPH4J_GEN
