@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         LANGRAPH4J_GEN: generator-1.5-SNAPSHOT-jar-with-dependencies.jar  # Pass the value here
-    image: bsorrentino/langgraph4j-builder:1.5.0
+    image: bsorrentino/langgraph4j-builder:1.5.0-SNAPSHOT
     container_name: langgraph4j-builder-app
     ports:
       - "3000:3000"  # Change this if your Node app uses a different port
@@ -15,5 +15,3 @@ services:
       - NODE_ENV=production
       - LANGRAPH4J_GEN=generator-1.5-SNAPSHOT-jar-with-dependencies.jar
       - RUNNING_IN_DOCKER=true
-
-version: '3.8' # Or your preferred version
