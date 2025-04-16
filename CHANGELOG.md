@@ -2,6 +2,44 @@
 
 
 
+<!-- "name: v1.5.6" is a release tag -->
+
+## [v1.5.6](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.6) (2025-04-16)
+
+### Features
+
+ *  **creator**  add save and load graph from builder UI ([75d8725d25b2da9](https://github.com/bsorrentino/langgraph4j/commit/75d8725d25b2da9f0f0bd6006910ee4f7878c4bb))
+   
+
+
+### Documentation
+
+ -  bump to release 1.5.6 ([936d8beebdae320](https://github.com/bsorrentino/langgraph4j/commit/936d8beebdae32055a98258f36eaef0216040e64))
+
+ -  update changeme ([8f29e83248b087c](https://github.com/bsorrentino/langgraph4j/commit/8f29e83248b087c364175bb8cec92a7bcc7ab6bf))
+
+
+
+### ALM 
+
+ -  bump to release 1.5.6 ([ff3bfd529ff6c32](https://github.com/bsorrentino/langgraph4j/commit/ff3bfd529ff6c32b83b8a0075b6ad4e9fb2c242e))
+   
+ -  **core**  update async-generator dependency version to 3.1.0 ([fe0d9157d624888](https://github.com/bsorrentino/langgraph4j/commit/fe0d9157d624888baf777aeb9df01d5a9818b68c))
+   
+ -  **creator**  bump version of doker image to SNAPSHOT ([80e50ca56bc7fa6](https://github.com/bsorrentino/langgraph4j/commit/80e50ca56bc7fa6abdb17302450315bd801fcc13))
+   
+ -  bump to new SNAPSHOT ([8f314dedb108fa1](https://github.com/bsorrentino/langgraph4j/commit/8f314dedb108fa1ec30c4b099e8609c292eee875))
+   
+
+### Test 
+
+ -  **core**  add test method for AsyncGenerator result retrieval ([830a1e12301ae15](https://github.com/bsorrentino/langgraph4j/commit/830a1e12301ae15b0e2643f5103ba0d682424a8c))
+   
+
+
+
+
+
 <!-- "name: v1.5.5" is a release tag -->
 
 ## [v1.5.5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.5) (2025-04-09)
