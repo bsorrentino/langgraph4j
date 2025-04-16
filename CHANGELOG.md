@@ -2,24 +2,6 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
-
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
-
-
-
-### Documentation
-
- -  update changeme ([c77d8715f4ca05a](https://github.com/bsorrentino/langgraph4j/commit/c77d8715f4ca05a8acaac6bcb93275b59067e4c1))
-
-
-
-
-
-
-
-
-
 <!-- "name: v1.5.6" is a release tag -->
 
 ## [v1.5.6](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.6) (2025-04-16)
@@ -31,6 +13,10 @@
 
 
 ### Documentation
+
+ -  update changeme ([d423c2b253ffbf6](https://github.com/bsorrentino/langgraph4j/commit/d423c2b253ffbf68a22928e74a895037156006ce))
+
+ -  update changeme ([c77d8715f4ca05a](https://github.com/bsorrentino/langgraph4j/commit/c77d8715f4ca05a8acaac6bcb93275b59067e4c1))
 
  -  bump to release 1.5.6 ([936d8beebdae320](https://github.com/bsorrentino/langgraph4j/commit/936d8beebdae32055a98258f36eaef0216040e64))
 
