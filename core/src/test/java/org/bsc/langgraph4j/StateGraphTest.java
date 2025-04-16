@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j;
 
+import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.*;
@@ -446,4 +447,24 @@ public class StateGraphTest {
 
     }
 
+    @Test
+    void testGetResultFromGenerator() throws Exception {
+        var workflow = new StateGraph<>(State.SCHEMA, State::new)
+                .addEdge(START, "agent_1")
+                .addNode("agent_1",  makeNode("agent_1") )
+                .addEdge("agent_1", END);
+
+        var app = workflow.compile();
+
+        var iterator = app.stream( Map.of() );
+        for( var i : iterator  ) {
+            System.out.println(i);
+        }
+
+        var generator = (AsyncGenerator.HasResultValue)iterator;
+
+        System.out.println(generator.resultValue().orElse(null));
+
+
+    }
 }
