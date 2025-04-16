@@ -9,6 +9,7 @@ import org.bsc.langgraph4j.state.Channel;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -57,7 +58,7 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
             return actions.stream()
                     .map(action -> evalNodeAction(action, state, config) )
                     .reduce(
-                        completedFuture(new HashMap<String,Object>()),
+                        completedFuture(new ConcurrentHashMap<>()),
                         ( futureResult, futureActionResult ) ->
                             futureResult.thenCombine( futureActionResult, (result, actionResult) ->
                                 AgentState.updateState( result, actionResult, channels) ) /* ,
