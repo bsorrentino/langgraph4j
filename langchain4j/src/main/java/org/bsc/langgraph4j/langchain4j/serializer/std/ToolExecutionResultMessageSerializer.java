@@ -25,7 +25,7 @@ public class ToolExecutionResultMessageSerializer implements NullableObjectSeria
     @Override
     public void write(ToolExecutionResultMessage object, ObjectOutput out) throws IOException {
         if( object.id() == null ) {
-            log.warn( "ToolExecutionResultMessage id is null!" );
+            log.trace( "ToolExecutionResultMessage id is null!" );
         }
         writeNullableUTF( object.id(), out );
         out.writeUTF( object.toolName() );
