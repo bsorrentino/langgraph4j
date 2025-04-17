@@ -236,6 +236,7 @@ return  app.stream( inputs );
 
 # References
 
+* [Microsoft JDConf 2025 - AI Agents Graph: Your following tool in your Java AI journey](https://youtu.be/Sp36wdpobpI?si=dXDTD9k16hM8A8KQ)
 * [LangGraph4j Generator - Visually scaffold LangGraph Java code](https://dev.to/bsorrentino/langgraph4j-generator-2ika)
 * [AI Agent in Java with LangGraph4j][article01]
 * [Building Stateful Multi AI Agents -LangGraph4J & Spring AI](https://medium.com/@ganeshmoorthy5999/building-stateful-multi-ai-agents-langgraph4j-spring-ai-c0046e293d00)
