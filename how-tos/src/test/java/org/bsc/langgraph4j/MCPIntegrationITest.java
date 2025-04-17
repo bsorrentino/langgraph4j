@@ -1,13 +1,10 @@
 package org.bsc.langgraph4j;
 
 
-import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.*;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.ollama.OllamaChatModel;
-import dev.langchain4j.service.AiServices;
-import dev.langchain4j.service.SystemMessage;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import org.junit.jupiter.api.Test;
 
@@ -15,12 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 public class MCPIntegrationITest {
-
-    interface Bot {
-        @SystemMessage( "You are my assistant")
-        String chat( String message );
-    }
-
 
     @Test
     public void testMCPClientCall() throws Exception {
@@ -49,10 +40,6 @@ public class MCPIntegrationITest {
                 .transport(transport)
                 .build() ) {
 
-            var toolProvider = McpToolProvider.builder()
-                    .mcpClients(List.of(mcpClient))
-                    .build();
-
             var dbTableRes = mcpClient.listResources()
                     .stream()
                     .toList();
@@ -74,11 +61,6 @@ public class MCPIntegrationITest {
                         .append("\n\n");
 
             }
-
-            var bot = AiServices.builder(Bot.class)
-                    .chatLanguageModel(model)
-                    .toolProvider(toolProvider)
-                    .build();
 
             var agentBuilder = AgentExecutor.builder()
                     .chatLanguageModel(model);
@@ -114,5 +96,8 @@ public class MCPIntegrationITest {
         }
 
     }
+
+
+
 
 }
