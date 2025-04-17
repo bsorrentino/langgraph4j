@@ -47,8 +47,12 @@ public class ExecuteTools implements NodeAction<AgentExecutor.State> {
                 .filter( m -> ChatMessageType.AI==m.type() )
                 .map( m -> (AiMessage)m )
                 .filter(AiMessage::hasToolExecutionRequests)
-                .map(AiMessage::toolExecutionRequests)
-                .orElseThrow(() -> new IllegalArgumentException("no tool execution request found!"));
+                .map(AiMessage::toolExecutionRequests);
+                //.orElseThrow(() -> new IllegalArgumentException("no tool execution request found!"));
+
+        if( toolExecutionRequests.isEmpty() ) {
+            return Map.of("agent_response", "no tool execution request found!" );
+        }
 
         var result = toolExecutionRequests.stream()
                         .map(toolNode::execute)
