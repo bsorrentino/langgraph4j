@@ -38,14 +38,11 @@ public class CallAgent implements NodeAction<AgentExecutor.State> {
 
         var content = response.aiMessage();
 
-        if( response.finishReason() == FinishReason.STOP ) {
-            return Map.of("agent_response", content.text());
-        }
         if (response.finishReason() == FinishReason.TOOL_EXECUTION || content.hasToolExecutionRequests() ) {
             return Map.of("messages", content);
         }
-        if( response.finishReason() == null ) {
-            return Map.of();
+        if( response.finishReason() == FinishReason.STOP || response.finishReason() == null  ) {
+            return Map.of("agent_response", content.text());
         }
 
         throw new IllegalStateException("Unsupported finish reason: " + response.finishReason() );
@@ -66,7 +63,6 @@ public class CallAgent implements NodeAction<AgentExecutor.State> {
         if( messages.isEmpty() ) {
             throw new IllegalArgumentException("no input provided!");
         }
-
 
         if( agent.isStreaming()) {
 
