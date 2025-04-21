@@ -34,7 +34,7 @@ public class Issue105Test {
 
                     var threadName = format( "thread-%d", index.incrementAndGet() );
                     System.out.println( threadName );
-                    memorySaver.list(RunnableConfig.builder().threadId(threadName).threadVersion(1).build());
+                    memorySaver.list(RunnableConfig.builder().threadId(threadName).build());
 
                 } finally {
                     latch.countDown();
