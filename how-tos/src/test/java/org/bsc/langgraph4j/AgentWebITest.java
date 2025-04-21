@@ -6,7 +6,7 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.web.search.tavily.TavilyWebSearchEngine;
 import org.junit.jupiter.api.Test;
 
-public class AgentWebTest {
+public class AgentWebITest {
 
     public interface Assistant {
 
