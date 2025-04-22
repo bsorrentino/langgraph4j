@@ -4,15 +4,15 @@ import org.bsc.langgraph4j.RunnableConfig;
 
 import java.util.*;
 
-import static java.util.Collections.unmodifiableCollection;
+import static java.util.Optional.ofNullable;
 
 public interface BaseCheckpointSaver {
-    String THREAD_ID_DEFAULT = "$$default";
+    String THREAD_ID_DEFAULT = "$default";
 
     record Tag(String threadId, Collection<Checkpoint> checkpoints) {
         public Tag(String threadId, Collection<Checkpoint> checkpoints) {
             this.threadId = threadId;
-            this.checkpoints = unmodifiableCollection(checkpoints);
+            this.checkpoints = ofNullable(checkpoints).map(List::copyOf).orElseGet(List::of);
         }
     }
 
@@ -23,5 +23,6 @@ public interface BaseCheckpointSaver {
     RunnableConfig put(RunnableConfig config, Checkpoint checkpoint) throws Exception;
 
     Tag release(RunnableConfig config) throws Exception;
+
 
 }
