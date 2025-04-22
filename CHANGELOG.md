@@ -2,13 +2,33 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v1.5.7" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+## [v1.5.7](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.7) (2025-04-22)
 
+### Features
+
+ *  **BaseCheckpointSaver.java**  add release method ([088785ad18b9050](https://github.com/bsorrentino/langgraph4j/commit/088785ad18b9050c1f960a2600d7fc75697831b7))
+     > - Introduce &#x60;THREAD_ID_DEFAULT&#x60; to provide a default thread ID.
+     > - Add a record type &#x60;Tag&#x60; to group checkpoints by thread ID.
+     > work on #115
+   
+ *  **how-to**  add web search sample ([66c77b5f4a403d1](https://github.com/bsorrentino/langgraph4j/commit/66c77b5f4a403d195ad54d0eba58ecc72c2eaca9))
+   
+ *  **how-to**  add Agent Executor with MCP sample ([de5b967823d836f](https://github.com/bsorrentino/langgraph4j/commit/de5b967823d836ff1f2f1661c339f4375e977d15))
+     > resolve #108
+   
 
 
 ### Documentation
+
+ -  bump to version 1.5.7 ([1a27fa3694bb9f1](https://github.com/bsorrentino/langgraph4j/commit/1a27fa3694bb9f1992a618efa46a2fa673b8fc7e))
+
+ -  add new article reference ([3331f433dbeeadf](https://github.com/bsorrentino/langgraph4j/commit/3331f433dbeeadfe8d3e5b94da19071c5cee548a))
+
+ -  add new reference ([5be8b7f96d10b08](https://github.com/bsorrentino/langgraph4j/commit/5be8b7f96d10b08a5c68a884618c529969f5be6d))
+
+ -  update changeme ([65b28e610bc7096](https://github.com/bsorrentino/langgraph4j/commit/65b28e610bc70961034524dd5bf9dd3af5701b35))
 
  -  update changeme ([6e74eccf24c7ebc](https://github.com/bsorrentino/langgraph4j/commit/6e74eccf24c7ebcbdc184f1e539e3e6d3dabf369))
 
@@ -27,7 +47,34 @@
  -  update changeme ([853fbaceaa1b4a6](https://github.com/bsorrentino/langgraph4j/commit/853fbaceaa1b4a6ff2cc0c2ee6d48c7ecb7da1bb))
 
 
+### Refactor
 
+ -  **langchain4j**  reduce log level for null ID warning ([58953f39aad4659](https://github.com/bsorrentino/langgraph4j/commit/58953f39aad465934e06c39fc2036a74efd4cc98))
+    > - ToolExecutionResultMessageSerializer
+ > - ToolExecutionRequest
+
+ -  **agent-executor**  handle STOP finish reason ([2b9bb1f3cd1812d](https://github.com/bsorrentino/langgraph4j/commit/2b9bb1f3cd1812dc32b4d31ca2a0a47e1baa6093))
+    > - Add default response for empty tool execution requests
+
+
+### ALM 
+
+ -  bump to version 1.5.7 ([92f347f3b0553a1](https://github.com/bsorrentino/langgraph4j/commit/92f347f3b0553a158017d4d708eece1c6194ad23))
+   
+ -  update git ignore ([316c219399291ef](https://github.com/bsorrentino/langgraph4j/commit/316c219399291ef7a4418d1f3f43b5114b01103e))
+   
+ -  bump to SNAPSHOT ([5d0f228d669f6bf](https://github.com/bsorrentino/langgraph4j/commit/5d0f228d669f6bfb4c8fbfe7674e36fb40a64301))
+   
+
+### Test 
+
+ -  **core**  Added tests for checkpoint saving with manual and auto release ([78b6840ff04135f](https://github.com/bsorrentino/langgraph4j/commit/78b6840ff04135f4b2837af8d22886436e14640b))
+    > work on #115
+
+ -  **core**  refine multi thread scenario concerns Issue105 ([5fa489a88715ce1](https://github.com/bsorrentino/langgraph4j/commit/5fa489a88715ce1d87a07d75637b4d594119706b))
+   
+ -  **how-to**  refine integration test ([0a563a81e54bb9e](https://github.com/bsorrentino/langgraph4j/commit/0a563a81e54bb9e329586ca76a340f288754cd07))
+    > - rename AgentWebTest to AgentWebITest
 
 
 
