@@ -26,7 +26,7 @@ public class ToolExecutionRequestSerializer implements NullableObjectSerializer<
     @Override
     public void write(ToolExecutionRequest object, ObjectOutput out) throws IOException {
         if( object.id() == null ) {
-            log.warn( "ToolExecutionRequest id is null!" );
+            log.trace( "ToolExecutionRequest id is null!" );
         }
         writeNullableUTF(object.id(), out);
         out.writeUTF( object.name() );

@@ -3,9 +3,7 @@ package org.bsc.langgraph4j.checkpoint;
 import org.bsc.langgraph4j.RunnableConfig;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
@@ -13,41 +11,46 @@ import static java.util.Collections.unmodifiableCollection;
 import static java.util.Optional.ofNullable;
 
 public class MemorySaver implements BaseCheckpointSaver {
-    final Map<String, LinkedList<Checkpoint>> _checkpointsByThread = new ConcurrentHashMap<>();
-    private final LinkedList<Checkpoint> _defaultCheckpoints = new LinkedList<>();
-    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-    private final Lock r = rwl.readLock();
-    private final Lock w = rwl.writeLock();
 
-    public MemorySaver() {
+    final Map<String, LinkedList<Checkpoint>> _checkpointsByThread = new HashMap<>();
+    private final ReentrantLock _lock = new ReentrantLock();
+
+    public MemorySaver( ) {
     }
 
-    protected LinkedList<Checkpoint> getCheckpoints( RunnableConfig config ) {
-        return config.threadId()
-                    .map( threadId -> _checkpointsByThread.computeIfAbsent(threadId, k -> new LinkedList<>()) )
-                    .orElse( _defaultCheckpoints );
-    }
-
-    @Override
-    public Collection<Checkpoint> list( RunnableConfig config ) {
-        final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
-        r.lock();
+    final LinkedList<Checkpoint> getCheckpoints( RunnableConfig config ) {
+        _lock.lock();
         try {
-            return unmodifiableCollection(checkpoints); // immutable checkpoints;
+            var threadId = config.threadId().orElse(THREAD_ID_DEFAULT);
+            return _checkpointsByThread.computeIfAbsent(threadId, k -> new LinkedList<>());
+
         } finally {
-            r.unlock();
+            _lock.unlock();
         }
     }
 
-    protected Optional<Checkpoint> getLast( LinkedList<Checkpoint> checkpoints, RunnableConfig config ) {
+    final Optional<Checkpoint> getLast( LinkedList<Checkpoint> checkpoints, RunnableConfig config ) {
         return (checkpoints.isEmpty() ) ? Optional.empty() : ofNullable(checkpoints.peek());
     }
 
     @Override
-    public Optional<Checkpoint> get(RunnableConfig config) {
-        final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
-        r.lock();
+    public Collection<Checkpoint> list( RunnableConfig config ) {
+
+        _lock.lock();
         try {
+            final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
+            return unmodifiableCollection(checkpoints); // immutable checkpoints;
+        } finally {
+            _lock.unlock();
+        }
+    }
+
+    @Override
+    public Optional<Checkpoint> get(RunnableConfig config) {
+
+        _lock.lock();
+        try {
+            final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
             if( config.checkPointId().isPresent() ) {
                 return config.checkPointId()
                         .flatMap( id -> checkpoints.stream()
@@ -55,17 +58,18 @@ public class MemorySaver implements BaseCheckpointSaver {
                                 .findFirst());
             }
             return getLast(checkpoints,config);
+
         }   finally {
-            r.unlock();
+            _lock.unlock();
         }
     }
 
     @Override
     public RunnableConfig put(RunnableConfig config, Checkpoint checkpoint) throws Exception {
-        final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
 
-        w.lock();
+        _lock.lock();
         try {
+            final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
 
             if (config.checkPointId().isPresent()) { // Replace Checkpoint
                 String checkPointId = config.checkPointId().get();
@@ -84,8 +88,23 @@ public class MemorySaver implements BaseCheckpointSaver {
                     .build();
         }
         finally {
-            w.unlock();
+            _lock.unlock();
         }
     }
 
+    @Override
+    public Tag release(RunnableConfig config) throws Exception {
+
+        _lock.lock();
+        try {
+
+            var threadId = config.threadId().orElse(THREAD_ID_DEFAULT);
+
+            return new Tag( threadId, _checkpointsByThread.remove(threadId) );
+
+        }
+        finally {
+            _lock.unlock();
+        }
+    }
 }

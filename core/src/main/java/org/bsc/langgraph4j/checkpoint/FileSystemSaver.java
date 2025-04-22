@@ -10,7 +10,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 
@@ -25,10 +28,13 @@ import static java.lang.String.format;
  * </p>
  *
  */
-public class FileSystemSaver extends MemorySaver {
+public class FileSystemSaver implements BaseCheckpointSaver {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileSystemSaver.class);
+    public static final String EXTENSION = ".saver";
+
     private final Path targetFolder;
     private final Serializer<Checkpoint> serializer;
+    private final MemorySaver memorySaver = new MemorySaver();
 
     @SuppressWarnings("unchecked")
     public FileSystemSaver( Path targetFolder, StateSerializer<? extends AgentState> stateSerializer) {
@@ -51,13 +57,19 @@ public class FileSystemSaver extends MemorySaver {
 
     }
 
-    private File getFile(RunnableConfig config) {
-        return config.threadId()
-                .map( threadId -> Paths.get( targetFolder.toString(), format( "thread-%s.saver", threadId) ) )
-                .orElseGet( () -> Paths.get( targetFolder.toString(), "thread-$default.saver" ) )
-                .toFile();
-
+    private String getBaseName( RunnableConfig config ) {
+        var threadId = config.threadId().orElse( THREAD_ID_DEFAULT );
+        return format( "thread-%s", threadId );
     }
+
+    private Path getPath(RunnableConfig config) {
+        return Paths.get( targetFolder.toString(), getBaseName( config ).concat(EXTENSION) );
+    }
+
+    private File getFile(RunnableConfig config) {
+        return getPath(config).toFile();
+    }
+
     private void serialize(LinkedList<Checkpoint> checkpoints, File outFile ) throws IOException {
         Objects.requireNonNull( checkpoints, "checkpoints cannot be null");
         Objects.requireNonNull( outFile, "outFile cannot be null");
@@ -82,9 +94,8 @@ public class FileSystemSaver extends MemorySaver {
         }
     }
 
-    @Override
     protected LinkedList<Checkpoint> getCheckpoints(RunnableConfig config) {
-        LinkedList<Checkpoint> result = super.getCheckpoints(config);
+        LinkedList<Checkpoint> result = memorySaver.getCheckpoints(config);
 
         File targetFile = getFile(config);
         if( targetFile.exists() && result.isEmpty() ) {
@@ -97,7 +108,6 @@ public class FileSystemSaver extends MemorySaver {
         }
         return result;
     }
-
 
     /**
      * Clears the checkpoint file associated with the given RunnableConfig.
@@ -112,49 +122,98 @@ public class FileSystemSaver extends MemorySaver {
 
     @Override
     public Collection<Checkpoint> list(RunnableConfig config) {
-        return super.list(config);
+        return memorySaver.list(config);
     }
 
     @Override
     public Optional<Checkpoint> get(RunnableConfig config) {
-        return super.get(config);
+        return memorySaver.get(config);
     }
 
     @Override
     public RunnableConfig put(RunnableConfig config, Checkpoint checkpoint) throws Exception {
-        RunnableConfig result = super.put(config, checkpoint);
+        RunnableConfig result = memorySaver.put(config, checkpoint);
 
         File targetFile = getFile(config);
-        serialize( super.getCheckpoints(config), targetFile );
+        serialize( memorySaver.getCheckpoints(config), targetFile );
         return result;
     }
 
+    private boolean createVersionedBackup( RunnableConfig config ) throws IOException {
+        Path currentPath = getPath(config);
 
+        if( !Files.exists(currentPath) ) {
+            log.warn( "file {} doesn't exist. Skipping file operations.", currentPath );
+            return false;
+        }
+
+        var versionPattern = Pattern.compile( format( "%s-v(\\d+)\\%s$", getBaseName(config), EXTENSION));
+
+        int maxVersion = 0;
+        try (var stream = Files.list(targetFolder) ) {
+            maxVersion = stream
+                    .map(path -> path.getFileName().toString())
+                    .map(versionPattern::matcher)
+                    .filter(Matcher::matches)
+                    .mapToInt(matcher -> Integer.parseInt(matcher.group(1)))
+                    .max()
+                    .orElse(0); // Default to 0 if no versioned files found
+        } catch (IOException e) {
+            log.error("Failed to list directory {} to determine next version number for backup. Skipping file operations.", targetFolder, e);
+            return false;
+        }
+
+        int nextVersion = maxVersion + 1;
+        var backupFilename = format("%s-v%d%s", getBaseName(config), nextVersion, EXTENSION);
+        Path backupPath = targetFolder.resolve(backupFilename);
+
+        Files.copy(currentPath, backupPath, StandardCopyOption.REPLACE_EXISTING);
+
+        Files.delete(currentPath);
+
+        return true;
+
+    }
+
+    /**
+     * Releases the checkpoints associated with the given configuration.
+     * This involves copying the current checkpoint file (e.g., "thread-123.saver")
+     * to a versioned backup file (e.g., "thread-123-v1.saver", "thread-123-v2.saver", etc.)
+     * based on existing versioned files, deleting the original unversioned file,
+     * and then clearing the in-memory checkpoints.
+     *
+     * @param config The configuration for which to release checkpoints.
+     * @return The Tag representing the released checkpoint state in memory.
+     * @throws Exception If an error occurs during file operations or releasing from memory.
+     */
+    @Override
+    public Tag release(RunnableConfig config) throws Exception {
+
+        createVersionedBackup(config);
+
+        return memorySaver.release(config);
+    }
 }
 
-class CheckPointSerializer implements NullableObjectSerializer<Checkpoint> {
-    final StateSerializer<AgentState> stateSerializer;
-
-    public CheckPointSerializer(StateSerializer<AgentState> stateSerializer) {
-        this.stateSerializer = stateSerializer;
-    }
+record CheckPointSerializer(
+        StateSerializer<AgentState> stateSerializer) implements NullableObjectSerializer<Checkpoint> {
 
     @Override
     public void write(Checkpoint object, ObjectOutput out) throws IOException {
-        out.writeUTF( object.getId() );
+        out.writeUTF(object.getId());
         writeNullableUTF(object.getNodeId(), out);
         writeNullableUTF(object.getNextNodeId(), out);
         AgentState state = stateSerializer.stateFactory().apply(object.getState());
-        stateSerializer.write( state, out);
+        stateSerializer.write(state, out);
     }
 
     @Override
     public Checkpoint read(ObjectInput in) throws IOException, ClassNotFoundException {
         return Checkpoint.builder()
-                .id( in.readUTF() )
-                .nextNodeId( readNullableUTF(in).orElse(null) )
-                .nodeId( readNullableUTF(in).orElse(null) )
-                .state( stateSerializer.read(in) )
+                .id(in.readUTF())
+                .nextNodeId(readNullableUTF(in).orElse(null))
+                .nodeId(readNullableUTF(in).orElse(null))
+                .state(stateSerializer.read(in))
                 .build();
     }
 

@@ -19,6 +19,7 @@ public class CompileConfig {
     private BaseCheckpointSaver checkpointSaver;
     private Set<String> interruptsBefore = Set.of();
     private Set<String> interruptsAfter = Set.of();
+    private boolean releaseThread = false;
 
     /**
      * Returns the array of interrupts that will occur before the specified node.
@@ -58,6 +59,15 @@ public class CompileConfig {
      */
     public Optional<BaseCheckpointSaver> checkpointSaver() { return ofNullable(checkpointSaver); }
 
+    /**
+     * Returns the current state of the thread release flag.
+     *
+     * @see BaseCheckpointSaver#release(RunnableConfig)
+     * @return true if the thread has been released, false otherwise
+     */
+    public boolean releaseThread() {
+        return releaseThread;
+    }
     /**
      * Returns a new {@link Builder} instance with the default {@link CompileConfig}.
      *
@@ -142,6 +152,19 @@ public class CompileConfig {
             this.config.interruptsAfter = interruptsAfter.stream().collect(Collectors.toUnmodifiableSet());;
             return this;
         }
+
+        /**
+         * Sets whether the thread should be released according to the provided flag.
+         *
+         * @param releaseThread The flag indicating whether to release the thread.
+         * @see BaseCheckpointSaver#release(RunnableConfig)
+         * @return The current {@code Builder} instance for method chaining.
+         */
+        public Builder releaseThread( boolean releaseThread ) {
+            this.config.releaseThread = releaseThread;
+            return this;
+        }
+
         /**
          * Initializes the compilation configuration and returns it.
          *
@@ -167,6 +190,7 @@ public class CompileConfig {
         this.checkpointSaver = config.checkpointSaver;
         this.interruptsBefore = config.interruptsBefore;
         this.interruptsAfter = config.interruptsAfter;
+        this.releaseThread = config.releaseThread;
     }
 
 }

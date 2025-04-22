@@ -422,7 +422,6 @@ public class CompiledGraph<State extends AgentState> {
         return getGraph(type, "Graph Diagram", true);
     }
 
-
     /**
      * Async Generator for streaming outputs.
      *
@@ -489,7 +488,7 @@ public class CompiledGraph<State extends AgentState> {
                     .filter( e -> e.getValue() instanceof AsyncGenerator)
                     .findFirst()
                     .map( generatorEntry -> {
-                        final AsyncGenerator<Output> generator = (AsyncGenerator<Output>) generatorEntry.getValue();
+                        final var generator = (AsyncGenerator<Output>) generatorEntry.getValue();
                         return Data.composeWith( generator.map( n -> { n.setSubGraph(true); return n; } ), data -> {
 
                             if (data != null) {
@@ -572,18 +571,31 @@ public class CompiledGraph<State extends AgentState> {
                     ;
         }
 
+        private Optional<BaseCheckpointSaver.Tag> releaseThread() throws Exception {
+            if(compileConfig.releaseThread() && compileConfig.checkpointSaver().isPresent() ) {
+                return Optional.of(compileConfig.checkpointSaver().get().release( config ));
+            }
+            return Optional.empty();
+        }
+
+
         @Override
         public Data<Output> next() {
-            // GUARD: CHECK MAX ITERATION REACHED
-            if( ++iteration > maxIterations ) {
-                log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
-                return Data.done(currentState);
-            }
-
-            // GUARD: CHECK IF IT IS END
-            if( nextNodeId == null &&  currentNodeId == null  ) return Data.done(currentState);
-
             try {
+                // GUARD: CHECK MAX ITERATION REACHED
+                if( ++iteration > maxIterations ) {
+                    // log.warn( "Maximum number of iterations ({}) reached!", maxIterations);
+                    return Data.error( new IllegalStateException( format("Maximum number of iterations (%d) reached!", maxIterations)) );
+                }
+
+                // GUARD: CHECK IF IT IS END
+                if( nextNodeId == null &&  currentNodeId == null  ) {
+
+                    return releaseThread().map(Data::<Output>done)
+                                .orElseGet( () -> Data.done(currentState) );
+
+                }
+
                 // IS IT A RESUME FROM EMBED ?
                 if(resumedFromEmbed) {
                     final CompletableFuture<Output> future = getNodeOutput();
@@ -612,9 +624,13 @@ public class CompiledGraph<State extends AgentState> {
                 }
 
                 // check on previous node
-                if( shouldInterruptAfter( currentNodeId, nextNodeId )) return Data.done();
+                if( shouldInterruptAfter( currentNodeId, nextNodeId )) {
+                    return Data.done(currentNodeId);
+                }
 
-                if( shouldInterruptBefore( nextNodeId, currentNodeId ) ) return Data.done();
+                if( shouldInterruptBefore( nextNodeId, currentNodeId ) ) {
+                    return Data.done(currentNodeId);
+                }
 
                 currentNodeId = nextNodeId;
 

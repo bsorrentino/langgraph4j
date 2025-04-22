@@ -27,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for simple App.
  */
-public class StateGraphPersistenceTest
+public class StateGraphMemorySaverTest
 {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StateGraphPersistenceTest.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StateGraphMemorySaverTest.class);
     static class State extends MessagesState<String> {
 
         public State(Map<String, Object> initData) {
@@ -71,7 +71,7 @@ public class StateGraphPersistenceTest
 
     @BeforeAll
     public static void initLogging() throws IOException {
-        try( var is = StateGraphPersistenceTest.class.getResourceAsStream("/logging.properties") ) {
+        try( var is = StateGraphMemorySaverTest.class.getResourceAsStream("/logging.properties") ) {
             LogManager.getLogManager().readConfiguration(is);
         }
     }
@@ -146,7 +146,14 @@ public class StateGraphPersistenceTest
         assertNotNull( last.get().getState().get("agent_1:prop1") );
         assertEquals( "agent_1:test", last.get().getState().get("agent_1:prop1") );
 
+        var tag = saver.release(runnableConfig);
+
+        assertIterableEquals( checkpoints, tag.checkpoints() );
+
+        var checkpointsAfterTag = saver.list(runnableConfig);
+        assertTrue( checkpointsAfterTag.isEmpty() );
     }
+
 
     @Test
     public void testCheckpointSaverResubmit() throws Exception {
