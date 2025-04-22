@@ -22,7 +22,7 @@ public class SubGraphTest {
 
     @BeforeAll
     public static void initLogging() throws IOException {
-        try( var is = StateGraphPersistenceTest.class.getResourceAsStream("/logging.properties") ) {
+        try( var is = SubGraphTest.class.getResourceAsStream("/logging.properties") ) {
             LogManager.getLogManager().readConfiguration(is);
         }
     }
