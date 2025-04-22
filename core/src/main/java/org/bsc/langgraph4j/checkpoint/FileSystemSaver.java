@@ -109,7 +109,6 @@ public class FileSystemSaver implements BaseCheckpointSaver {
         return result;
     }
 
-
     /**
      * Clears the checkpoint file associated with the given RunnableConfig.
      *
@@ -142,7 +141,6 @@ public class FileSystemSaver implements BaseCheckpointSaver {
 
     private boolean createVersionedBackup( RunnableConfig config ) throws IOException {
         Path currentPath = getPath(config);
-        Path targetFolder = currentPath.getParent();
 
         if( !Files.exists(currentPath) ) {
             log.warn( "file {} doesn't exist. Skipping file operations.", currentPath );
