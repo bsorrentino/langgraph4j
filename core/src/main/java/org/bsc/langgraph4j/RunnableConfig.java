@@ -16,7 +16,6 @@ public final class RunnableConfig {
     private String checkPointId;
     private String nextNode;
     private CompiledGraph.StreamMode streamMode = CompiledGraph.StreamMode.VALUES;
-
     /**
      * Returns the stream mode of the compiled graph.
      *
@@ -110,7 +109,7 @@ public final class RunnableConfig {
          * Constructs a new instance of the {@link Builder} with default configuration settings.
          * Initializes a new {@link RunnableConfig} object for configuration purposes.
          */
-        Builder() {;
+        Builder() {
             this.config = new RunnableConfig();
         }
         /** Initializes a new instance of the {@code Builder} class with the specified {@link RunnableConfig}.
@@ -133,7 +132,7 @@ public final class RunnableConfig {
         /**
          * Sets the checkpoint ID for the configuration.
          *
-         * @param {@code checkPointId} - the ID of the checkpoint to be set
+         * @param checkPointId - the ID of the checkpoint to be set
          * @return {@literal this} - a reference to the current `Builder` instance
          */
         public Builder checkPointId(String checkPointId) {
@@ -169,7 +168,6 @@ public final class RunnableConfig {
             return config;
         }
     }
-
     /**
      * Creates a new instance of {@code RunnableConfig} as a copy of the provided {@code config}.
      *

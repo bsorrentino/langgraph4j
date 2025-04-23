@@ -189,7 +189,7 @@
     <module>how-tos</module>
     <module>samples/image-to-diagram</module>
     <module>samples/adaptive-rag</module>
-    <module>samples/springai-agentexecutor</module>
+    <module>spring-ai-agent</module>
     <module>studio/base</module>
     <module>studio/jetty</module>
     <module>studio/springboot</module>
