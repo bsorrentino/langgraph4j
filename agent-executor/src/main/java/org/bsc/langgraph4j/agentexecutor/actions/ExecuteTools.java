@@ -6,6 +6,7 @@ import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class ExecuteTools implements NodeAction<AgentExecutor.State> {
             return Map.of("agent_response", "no tool execution request found!" );
         }
 
-        var result = toolExecutionRequests.stream()
+        var result = toolExecutionRequests.get().stream()
                         .map(toolNode::execute)
                         .filter(Optional::isPresent)
                         .map(Optional::get)
