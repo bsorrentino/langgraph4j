@@ -443,9 +443,9 @@ public class CompiledGraph<State extends AgentState> {
 
                 log.trace( "RESUME REQUEST" );
 
-                BaseCheckpointSaver saver = compileConfig.checkpointSaver()
+                var saver = compileConfig.checkpointSaver()
                         .orElseThrow(() -> (new IllegalStateException("inputs cannot be null (ie. resume request) if no checkpoint saver is configured")));
-                Checkpoint startCheckpoint = saver.get( config )
+                var startCheckpoint = saver.get( config )
                         .orElseThrow( () -> (new IllegalStateException("Resume request without a saved checkpoint!")) );
 
                 this.currentState = startCheckpoint.getState();
@@ -590,10 +590,9 @@ public class CompiledGraph<State extends AgentState> {
 
                 // GUARD: CHECK IF IT IS END
                 if( nextNodeId == null &&  currentNodeId == null  ) {
-
-                    return releaseThread().map(Data::<Output>done)
-                                .orElseGet( () -> Data.done(currentState) );
-
+                    return releaseThread()
+                            .map(Data::<Output>done)
+                            .orElseGet( () -> Data.done(currentState) );
                 }
 
                 // IS IT A RESUME FROM EMBED ?
@@ -645,7 +644,6 @@ public class CompiledGraph<State extends AgentState> {
                 log.error( e.getMessage(), e );
                 return Data.error(e);
             }
-
 
         }
     }

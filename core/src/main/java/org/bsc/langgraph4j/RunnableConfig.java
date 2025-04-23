@@ -1,9 +1,13 @@
 package org.bsc.langgraph4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
+import static org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver.THREAD_ID_DEFAULT;
 
 /**
  * A final class representing configuration for a runnable task.
@@ -12,6 +16,7 @@ import static java.lang.String.format;
  * without permanently altering the original configuration.
  */
 public final class RunnableConfig {
+    private static final Logger log = LoggerFactory.getLogger(RunnableConfig.class);
     private String threadId;
     private String checkPointId;
     private String nextNode;
@@ -81,6 +86,36 @@ public final class RunnableConfig {
         newConfig.checkPointId = checkPointId;
         return newConfig;
     }
+    /**
+     * Creates a new instance of {@code RunnableConfig} as a copy of the provided {@code config}.
+     *
+     * @param config The configuration to copy.
+     * @throws NullPointerException If {@code config} is null.
+     */
+    private RunnableConfig( RunnableConfig config ) {
+        Objects.requireNonNull( config, "config cannot be null" );
+        if( Objects.equals( config.threadId, THREAD_ID_DEFAULT ) ) {
+            log.warn( "the given thread ID '{}' is equals a reserved value", THREAD_ID_DEFAULT );
+        }
+        this.threadId = config.threadId;
+        this.checkPointId = config.checkPointId;
+        this.nextNode = config.nextNode;
+        this.streamMode = config.streamMode;
+    }
+    /**
+     * Default constructor for the {@link RunnableConfig} class. Private to prevent instantiation from outside the class.
+     */
+    private RunnableConfig() {}
+
+    @Override
+    public String toString() {
+        return  format("RunnableConfig{ threadId=%s, checkPointId=%s, nextNode=%s, streamMode=%s }" ,
+                threadId,
+                checkPointId,
+                nextNode,
+                streamMode
+        );
+    }
 
     /**
      * Creates a new instance of the {@link Builder} class.
@@ -133,7 +168,7 @@ public final class RunnableConfig {
         /**
          * Sets the checkpoint ID for the configuration.
          *
-         * @param {@code checkPointId} - the ID of the checkpoint to be set
+         * @param  checkPointId - the ID of the checkpoint to be set
          * @return {@literal this} - a reference to the current `Builder` instance
          */
         public Builder checkPointId(String checkPointId) {
@@ -170,32 +205,5 @@ public final class RunnableConfig {
         }
     }
 
-    /**
-     * Creates a new instance of {@code RunnableConfig} as a copy of the provided {@code config}.
-     *
-     * @param config The configuration to copy.
-     * @throws NullPointerException If {@code config} is null.
-     */
-    private RunnableConfig( RunnableConfig config ) {
-        Objects.requireNonNull( config, "config cannot be null" );
-        this.threadId = config.threadId;
-        this.checkPointId = config.checkPointId;
-        this.nextNode = config.nextNode;
-        this.streamMode = config.streamMode;
-    }
-    /**
-     * Default constructor for the {@link RunnableConfig} class. Private to prevent instantiation from outside the class.
-     */
-    private RunnableConfig() {}
-
-    @Override
-    public String toString() {
-        return  format("RunnableConfig{ threadId=%s, checkPointId=%s, nextNode=%s, streamMode=%s }" ,
-                threadId,
-                checkPointId,
-                nextNode,
-                streamMode
-                );
-    }
 
 }
