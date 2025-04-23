@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.diagram;
 import org.bsc.langgraph4j.DiagramGenerator;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 
@@ -18,7 +19,7 @@ public class MermaidGenerator extends DiagramGenerator {
     @Override
     protected void appendHeader( Context ctx ) {
         if( ctx.isSubGraph() ) {
-            ctx.sb()
+                ctx.sb()
                 .append(format("subgraph %s\n", ctx.title()))
                 .append(format("\t%1$c%2$s((start)):::%1$c%2$s\n", SUBGRAPH_PREFIX,START))
                 .append(format("\t%1$c%2$s((stop)):::%1$c%2$s\n", SUBGRAPH_PREFIX, END))
@@ -27,8 +28,9 @@ public class MermaidGenerator extends DiagramGenerator {
                 ;
         }
         else {
-            ctx.sb()
-                .append(format("---\ntitle: %s\n---\n", ctx.title()))
+                ofNullable(ctx.title())
+                    .map( title -> ctx.sb().append(format("---\ntitle: %s\n---\n", title)) )
+                    .orElseGet(ctx::sb)
                 .append("flowchart TD\n")
                 .append(format("\t%s((start))\n", START))
                 .append(format("\t%s((stop))\n", END))
