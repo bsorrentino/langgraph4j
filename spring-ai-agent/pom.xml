@@ -3,13 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<groupId>org.bsc.langgraph4j</groupId>
+		<artifactId>langgraph4j-parent</artifactId>
+		<version>1.5-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.bsc.langgraph4j</groupId>
 	<artifactId>langgraph4j-springai-agentexecutor</artifactId>
 	<version>1.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -94,6 +92,14 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-parent</artifactId>
+				<version>3.3.4</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
 			<dependency>
 				<groupId>org.springframework.ai</groupId>
 				<artifactId>spring-ai-bom</artifactId>
