@@ -44,10 +44,10 @@ public class Checkpoint {
     }
 
     public Checkpoint( Checkpoint checkpoint ) {
-        this.id = checkpoint.id;
-        this.state = checkpoint.state;
-        this.nodeId = checkpoint.nodeId;
-        this.nextNodeId = checkpoint.nextNodeId;
+        this.id = Objects.requireNonNull( checkpoint.id, "id cannot be null" );
+        this.state =  Objects.requireNonNull( checkpoint.state, "state cannot be null" );
+        this.nodeId = Objects.requireNonNull( checkpoint.nodeId, "nodeId cannot be null" );
+        this.nextNodeId =  Objects.requireNonNull( checkpoint.nextNodeId, "Checkpoint.nextNodeId cannot be null" );
     }
 
     public static Builder builder() {
@@ -79,11 +79,6 @@ public class Checkpoint {
         }
 
         public Checkpoint build() {
-            Objects.requireNonNull( result.id, "Checkpoint.id cannot be null" );
-            Objects.requireNonNull( result.state, "Checkpoint.state cannot be null" );
-            Objects.requireNonNull( result.nodeId, "Checkpoint.nodeId cannot be null" );
-            Objects.requireNonNull( result.nextNodeId, "Checkpoint.nextNodeId cannot be null" );
-
             return result;
 
         }

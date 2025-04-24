@@ -24,5 +24,4 @@ public interface BaseCheckpointSaver {
 
     Tag release(RunnableConfig config) throws Exception;
 
-
 }

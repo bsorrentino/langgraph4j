@@ -4,6 +4,7 @@ import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
+import org.bsc.langgraph4j.checkpoint.VersionedMemorySaver;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
@@ -180,7 +181,7 @@ public class StateGraphMemorySaverTest
                         edge_async( shouldContinue),
                         Map.of( "next", "agent_1", "exit", END) );;
 
-        var saver = new MemorySaver();
+        var saver = new VersionedMemorySaver();
 
         var compileConfig = CompileConfig.builder()
                 .checkpointSaver(saver)
@@ -209,14 +210,17 @@ public class StateGraphMemorySaverTest
             assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
         }
 
-        var snapshot = app.getState(runnableConfig);
+        assertTrue( saver.lastVersionByThreadId(runnableConfig).isEmpty() );
+
+        var snapshot = app.getState( runnableConfig );
 
         assertNotNull( snapshot );
         log.info( "SNAPSHOT:\n{}\n", snapshot );
 
         // SUBMIT NEW THREAD 2
         runnableConfig = RunnableConfig.builder()
-                .threadId("thread_2").build();
+                .threadId("thread_2")
+                .build();
 
         state = app.invoke( emptyMap(), runnableConfig );
 
@@ -379,4 +383,81 @@ public class StateGraphMemorySaverTest
         assertEquals( "whether in Naples is sunny", results.get(2).state().lastMessage().get() );
 
     }
+
+    @Test
+    public void testMemoryWithVersionsSaver() throws Exception {
+
+        var threadId = "thread_1";
+
+        var saver = new VersionedMemorySaver();
+
+        // Check for error
+        var configWithVersion = RunnableConfig.builder()
+                .threadId(threadId)
+                .build();
+
+        // Create a new version of thread_1
+        var configWithoutVersion = RunnableConfig.builder()
+                .threadId(threadId)
+                .build();
+
+        var checkpoint = Checkpoint.builder()
+                .state(new AgentState(Map.of()))
+                .nodeId(START)
+                .nextNodeId(END)
+                .build();
+
+        var newConfig = saver.put(configWithoutVersion, checkpoint);
+
+        var list = saver.list(newConfig);
+
+        assertEquals(1, list.size());
+
+        var tag = saver.release(newConfig);
+
+        assertEquals(1, tag.checkpoints().size());
+
+        var versions = saver.versionsByThreadId( threadId );
+
+        assertEquals(1, versions.size());
+
+        // Check if checkpoints collection  is immutable
+        assertThrowsExactly(UnsupportedOperationException.class, () -> tag.checkpoints().remove(checkpoint));
+
+        var configWithVersion1 = RunnableConfig.builder()
+                    .threadId(threadId)
+                    .build();
+
+        assertEquals(1, tag.checkpoints().size());
+
+        versions = saver.versionsByThreadId(configWithVersion);
+
+        assertEquals(1, versions.size());
+        assertEquals( checkpoint.getId(), list.stream().findFirst().map(Checkpoint::getId).orElseThrow() );
+
+        var checkpoint_1 = Checkpoint.builder()
+                .state(new AgentState(Map.of()))
+                .nodeId("test")
+                .nextNodeId(END)
+                .build();
+        var checkpoint_2 = Checkpoint.builder()
+                .state(new AgentState(Map.of()))
+                .nodeId("test_1")
+                .nextNodeId(END)
+                .build();
+
+        configWithVersion1 = saver.put( configWithVersion1, checkpoint_1 );
+
+        configWithVersion1 = saver.put( configWithVersion1.withCheckPointId(null), checkpoint_2 );
+
+        versions = saver.versionsByThreadId( threadId );
+
+        assertEquals(1, versions.size());
+
+        var tag2 = saver.release(configWithVersion1);
+
+        assertEquals(2, tag2.checkpoints().size());
+
+    }
+
 }
