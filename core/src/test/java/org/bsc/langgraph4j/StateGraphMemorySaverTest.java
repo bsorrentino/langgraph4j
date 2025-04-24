@@ -210,8 +210,7 @@ public class StateGraphMemorySaverTest
             assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
         }
 
-        assertTrue( saver.lastVersionByThreadId(runnableConfig).isPresent() );
-        assertEquals( 1, saver.lastVersionByThreadId(runnableConfig).get() );
+        assertTrue( saver.lastVersionByThreadId(runnableConfig).isEmpty() );
 
         var snapshot = app.getState( runnableConfig );
 
