@@ -6,14 +6,35 @@
 
 ## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
 
+### Features
+
+ *  add studio support to langchain4j agent executor ([3cbfc36fb3dacfb](https://github.com/bsorrentino/langgraph4j/commit/3cbfc36fb3dacfbaa1eda53b318508d37ea875ec))
+   
+ *  promote spring.ai agent executor as first class module ([b6ad73bb8b9c5ba](https://github.com/bsorrentino/langgraph4j/commit/b6ad73bb8b9c5ba134f401341fb6a2662f4e57e6))
+   
 
 
 ### Documentation
 
+ -  update changeme ([8f33b9c2fd9b59d](https://github.com/bsorrentino/langgraph4j/commit/8f33b9c2fd9b59d39ec1741536c90172c54b1b43))
+
  -  update changeme ([198f9f7c9a09d95](https://github.com/bsorrentino/langgraph4j/commit/198f9f7c9a09d95aecf2938cf1e81c9e7b378444))
 
 
+### Refactor
 
+ -  **spring-ai-agen**  update parent group ID and version ([f5d3b70634dc5a7](https://github.com/bsorrentino/langgraph4j/commit/f5d3b70634dc5a71aaf5a436de2d55fe93ebfab1))
+   
+ -  moved dependencies to their correct sections. ([070c9a0982f2330](https://github.com/bsorrentino/langgraph4j/commit/070c9a0982f2330c4c542b543d427b51c63cbcb9))
+   
+ -  **hotfix-changelog.sh**  update script for changelog hotfix ([da8938a2ab91ce5](https://github.com/bsorrentino/langgraph4j/commit/da8938a2ab91ce545a57b1b19fe1bfd82ce17b76))
+    > - Renamed branch name from &quot;changenme&quot; to &quot;changelog&quot;
+
+
+### ALM 
+
+ -  bump to new SNAPSHOT ([9ff905f296f03c8](https://github.com/bsorrentino/langgraph4j/commit/9ff905f296f03c8c02f9cd06c773d3ae5249c5a5))
+   
 
 
 
@@ -65,10 +86,6 @@
 
  -  update changeme ([65b28e610bc7096](https://github.com/bsorrentino/langgraph4j/commit/65b28e610bc70961034524dd5bf9dd3af5701b35))
 
- -  update changeme ([6e74eccf24c7ebc](https://github.com/bsorrentino/langgraph4j/commit/6e74eccf24c7ebcbdc184f1e539e3e6d3dabf369))
-
- -  update changeme ([40fc569e4808a51](https://github.com/bsorrentino/langgraph4j/commit/40fc569e4808a51c26e8a826b893d25c5c7553fd))
-
  -  update changeme ([97e085eff75a021](https://github.com/bsorrentino/langgraph4j/commit/97e085eff75a0212dfe313eadd5f16fc28bdaa23))
 
  -  update changeme ([110ca8805f650cd](https://github.com/bsorrentino/langgraph4j/commit/110ca8805f650cd01b98880f52016628216e4d8d))
@@ -76,10 +93,6 @@
  -  update changeme ([9ac2ec6fb5cf551](https://github.com/bsorrentino/langgraph4j/commit/9ac2ec6fb5cf55114ca9c7b9c2baccff58f5b8f7))
 
  -  update changeme ([6ed0a0b0bee4920](https://github.com/bsorrentino/langgraph4j/commit/6ed0a0b0bee4920b18ce35676d55440bf4f17288))
-
- -  update changeme ([8018c3410f5827d](https://github.com/bsorrentino/langgraph4j/commit/8018c3410f5827d64588d8488c9d9502f3470e21))
-
- -  update changeme ([853fbaceaa1b4a6](https://github.com/bsorrentino/langgraph4j/commit/853fbaceaa1b4a6ff2cc0c2ee6d48c7ecb7da1bb))
 
 
 ### Refactor
@@ -136,6 +149,14 @@
 
 
 ### Documentation
+
+ -  update changeme ([6e74eccf24c7ebc](https://github.com/bsorrentino/langgraph4j/commit/6e74eccf24c7ebcbdc184f1e539e3e6d3dabf369))
+
+ -  update changeme ([40fc569e4808a51](https://github.com/bsorrentino/langgraph4j/commit/40fc569e4808a51c26e8a826b893d25c5c7553fd))
+
+ -  update changeme ([8018c3410f5827d](https://github.com/bsorrentino/langgraph4j/commit/8018c3410f5827d64588d8488c9d9502f3470e21))
+
+ -  update changeme ([853fbaceaa1b4a6](https://github.com/bsorrentino/langgraph4j/commit/853fbaceaa1b4a6ff2cc0c2ee6d48c7ecb7da1bb))
 
  -  update changeme ([d423c2b253ffbf6](https://github.com/bsorrentino/langgraph4j/commit/d423c2b253ffbf68a22928e74a895037156006ce))
 
