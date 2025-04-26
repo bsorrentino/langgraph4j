@@ -2,19 +2,42 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v1.5.8" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+## [v1.5.8](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.8) (2025-04-26)
 
 ### Features
 
+ *  **studio/webui**  enhance UI adding the execution history ([757ecc46cd69546](https://github.com/bsorrentino/langgraph4j/commit/757ecc46cd69546dc1fd22a5804ce263f30e918c))
+   
+ *  **studio/webui**  add debug utility ([04628e2ce4851ef](https://github.com/bsorrentino/langgraph4j/commit/04628e2ce4851efbc965c3c5fa4a8cd40b14e6ad))
+   
+ *  **studio/webui**  add LIFO stack implementation ([e4e1c4e243eb098](https://github.com/bsorrentino/langgraph4j/commit/e4e1c4e243eb098c447372eb8feb10c50e1aa6de))
+   
+ *  **DiagramGenerator**  add conditional to ensure title is optional ([1e3b90dac728906](https://github.com/bsorrentino/langgraph4j/commit/1e3b90dac728906b6532ec219c11e6960c17c9e1))
+     > - Added default title &#x27;unnamed&#x27; if none provided.
+   
  *  add studio support to langchain4j agent executor ([3cbfc36fb3dacfb](https://github.com/bsorrentino/langgraph4j/commit/3cbfc36fb3dacfbaa1eda53b318508d37ea875ec))
    
  *  promote spring.ai agent executor as first class module ([b6ad73bb8b9c5ba](https://github.com/bsorrentino/langgraph4j/commit/b6ad73bb8b9c5ba134f401341fb6a2662f4e57e6))
    
+ *  **core**  Add a versioned memory saver ([aa6dc841b65145f](https://github.com/bsorrentino/langgraph4j/commit/aa6dc841b65145f511843cbaa40f54570568f5cf))
+     > - add &#x60;VersionedMemorySaver&#x60;, which extends the functionality of an existing memory saver to include versioning.
+     > work on #111
+   
+ *  **core**  add HasVersions interface ([7d959110c60589f](https://github.com/bsorrentino/langgraph4j/commit/7d959110c60589fd8cde7b4aee4288ed8c7999b1))
+     > - new interface &#x60;HasVersions&#x60; that provides methods to retrieve versions associated with a thread ID and the last version for a given thread.
+     > work on #111
+   
 
 
 ### Documentation
+
+ -  update doc link ([a84fc805bab0fb2](https://github.com/bsorrentino/langgraph4j/commit/a84fc805bab0fb20b2784a558630c2a589f157c2))
+
+ -  add javadoc ([9a9642dcb7069cb](https://github.com/bsorrentino/langgraph4j/commit/9a9642dcb7069cb6af3e0fb2e9a2095269bdd2e6))
+
+ -  update changelog ([7179aa413f680d9](https://github.com/bsorrentino/langgraph4j/commit/7179aa413f680d91da1b478b0a89e8ef5dc41755))
 
  -  update changeme ([8f33b9c2fd9b59d](https://github.com/bsorrentino/langgraph4j/commit/8f33b9c2fd9b59d39ec1741536c90172c54b1b43))
 
@@ -23,6 +46,14 @@
 
 ### Refactor
 
+ -  **studio/webui**  integrate debug utility ([130bf19942ed2e3](https://github.com/bsorrentino/langgraph4j/commit/130bf19942ed2e3c18ab67b96613dfb6a70387de))
+   
+ -  **studio/webui**  integrate debug utility ([9364fd22fefda85](https://github.com/bsorrentino/langgraph4j/commit/9364fd22fefda85af32638200fd0c122f3e4b16b))
+   
+ -  **studio/webui**  integrate debug utility ([bd2c91a8261f9cf](https://github.com/bsorrentino/langgraph4j/commit/bd2c91a8261f9cf5f82cbe828c5f1aabc2595e0a))
+   
+ -  **studio**  remove redundant graph title ([b30f10b136081df](https://github.com/bsorrentino/langgraph4j/commit/b30f10b136081dfacebf5736c24366626d06e547))
+   
  -  **spring-ai-agen**  update parent group ID and version ([f5d3b70634dc5a7](https://github.com/bsorrentino/langgraph4j/commit/f5d3b70634dc5a71aaf5a436de2d55fe93ebfab1))
    
  -  moved dependencies to their correct sections. ([070c9a0982f2330](https://github.com/bsorrentino/langgraph4j/commit/070c9a0982f2330c4c542b543d427b51c63cbcb9))
@@ -30,12 +61,35 @@
  -  **hotfix-changelog.sh**  update script for changelog hotfix ([da8938a2ab91ce5](https://github.com/bsorrentino/langgraph4j/commit/da8938a2ab91ce545a57b1b19fe1bfd82ce17b76))
     > - Renamed branch name from &quot;changenme&quot; to &quot;changelog&quot;
 
+ -  **Issue105Test**  remove threadVersion parameter from RunnableConfig builder ([7ce61dfd69c84ba](https://github.com/bsorrentino/langgraph4j/commit/7ce61dfd69c84ba754f8ab18e5461fa4aa63d2a1))
+   
 
 ### ALM 
 
+ -  **studio/webui**  update Jetty webui dist ([c639f905c4e858a](https://github.com/bsorrentino/langgraph4j/commit/c639f905c4e858aa51287a77ca15acb230071ec3))
+    > - Update tests to verify webui enhancement
+
+ -  **studio/webui**  update webui dist ([3389d3b18a546e0](https://github.com/bsorrentino/langgraph4j/commit/3389d3b18a546e02f95cfd2610728f4794ed4e1f))
+   
+ -  **studio/webui**  update webui dist ([77491f08c555561](https://github.com/bsorrentino/langgraph4j/commit/77491f08c5555617436b5bd6031452bc4a342031))
+   
  -  bump to new SNAPSHOT ([9ff905f296f03c8](https://github.com/bsorrentino/langgraph4j/commit/9ff905f296f03c8c02f9cd06c773d3ae5249c5a5))
    
+ -  update git ignore ([fe234a0b79cb8e7](https://github.com/bsorrentino/langgraph4j/commit/fe234a0b79cb8e7fefb70a7d34e83363e733a1f3))
+   
 
+### Test 
+
+ -  add  a js playground ([dd58f3d0702e50e](https://github.com/bsorrentino/langgraph4j/commit/dd58f3d0702e50edf591b254d563251831afd389))
+   
+ -  **core**  add versioned memory saver  tests ([29f244224492b36](https://github.com/bsorrentino/langgraph4j/commit/29f244224492b36805d1ad845da780ca8afb3dbd))
+    > work on #111
+
+ -  **how-to**  refine integration test ([9ea510de9c1a6ca](https://github.com/bsorrentino/langgraph4j/commit/9ea510de9c1a6ca3668a19016f52d1e8b8001f7a))
+    > - rename AgentWebTest to AgentWebITest
+
+ -  **core**  refine multi thread scenario concerns Issue105 ([339fefa8efb2719](https://github.com/bsorrentino/langgraph4j/commit/339fefa8efb27194dc0b610e96e136bb6f110684))
+   
 
 
 
