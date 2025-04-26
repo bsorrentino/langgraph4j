@@ -49,7 +49,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Apr 22, 2025 | `1.5.7` | official release
+| Apr 26, 2025 | `1.5.8` | official release
 
 ## How To - _(Java Notebook)_
 
@@ -84,7 +84,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version>1.5.7</version>
+    <version>1.5.8</version>
 </dependency>
 ```
 
