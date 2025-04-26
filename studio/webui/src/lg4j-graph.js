@@ -1,12 +1,17 @@
 import mermaid from 'mermaid';
 //const mermaidAPI = mermaid.mermaidAPI;
 import * as d3 from 'd3'
+import { debug } from './debug.js';
+
+const _DBG = debug( { on: false, topic: 'LG4jGraph' } )
+
 
 /**
- * WcMermaid
+ * Mermaid Component
  * @class
  */
 export class LG4jMermaid extends HTMLElement {
+
 
   constructor() {
     super();
@@ -117,38 +122,34 @@ export class LG4jMermaid extends HTMLElement {
       return
     } 
 
-    // console.debug( svgContainer );
     return mermaid.render( 'graph', this.#textContent )
         .then( res => { 
-          console.debug( "RENDER COMPLETE", svgContainer );
-          // svgContainer.innerHTML = res.svg
+          _DBG( "RENDER COMPLETE", svgContainer );
           const { width, height } = svgContainer.getBoundingClientRect();
-          // console.debug( res.svg )
-          console.debug( 'width:', width, 'height:', height);
+          _DBG( 'width:', width, 'height:', height);
           const translated = res.svg
             .replace( /height="[\d\.]+"/, `height="${height}"`) 
             .replace( /width="[\d\.]+"/, `width="${width}"`);
-          // console.debug( translated );
           svgContainer.innerHTML = translated;
         })
         .then( () => this.#svgPanZoom() )
         .then( () => {
-          console.debug( "boundingClientRect", svgContainer.getBoundingClientRect() );
-          for( const rc of svgContainer.getClientRects() ) {
-            console.debug( rc );
-          }
-        })
+          _DBG( () => {
+            _DBG("boundingClientRect", svgContainer.getBoundingClientRect() );
+            for( const rc of svgContainer.getClientRects() ) {
+              _DBG( rc );
+            }}
+          )})
         .catch( e => console.error( "RENDER ERROR", e ) )
 
   }
 
   #svgPanZoom() {
 
-    console.debug( '_lastTransform', this._lastTransform )
+    _DBG( '_lastTransform', this._lastTransform )
 
     // @ts-ignore
     const svgs = d3.select( this.shadowRoot ).select(".mermaid svg");
-    // console.debug( 'svgs', svgs )
 
     const self = this;
 
@@ -156,11 +157,9 @@ export class LG4jMermaid extends HTMLElement {
       // 'this' refers to the current DOM element
       const svg = d3.select(this);
       
-      // console.debug( 'svg', svg );
       svg.html("<g>" + svg.html() + "</g>");
 
       const inner = svg.select("g");
-      // console.debug( 'inner', inner )
    
       const zoom = d3.zoom().on("zoom", event => {
           inner.attr("transform", event.transform);
@@ -253,7 +252,7 @@ export class LG4jMermaid extends HTMLElement {
       nodes: pres,
       suppressErrors: true
     })
-    .then(() => console.debug("RUN COMPLETE"))
+    .then(() => _DBG("RUN COMPLETE"))
     .then(() => this.#svgPanZoom())
     .catch(e => console.error("RUN ERROR", e));
   }
