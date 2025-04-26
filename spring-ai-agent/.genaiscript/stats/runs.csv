@@ -1,0 +1,2 @@
+script,status,cost,total_tokens,prompt_tokens,completion_tokens,trace,version
+commit_text,success,0,0,0,0,2024-12-18T23-20-29-518Z.trace.md,1.86.0

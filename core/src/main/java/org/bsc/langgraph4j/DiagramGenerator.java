@@ -5,8 +5,10 @@ import org.bsc.langgraph4j.internal.edge.EdgeCondition;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.StateGraph.START;
 
 /**
@@ -61,8 +63,10 @@ public abstract class DiagramGenerator {
          *
          * @return the snake_case formatted string
          */
-        public String titleToSnakeCase() {
-            return title.replaceAll("[^a-zA-Z0-9]", "_");
+        public Optional<String> titleToSnakeCase() {
+            return ofNullable(title)
+                        .map( v -> v.replaceAll("[^a-zA-Z0-9]", "_"));
+
         }
 
         /**
@@ -268,10 +272,22 @@ public abstract class DiagramGenerator {
         call( ctx,  k, conditionName, CallStyle.CONDITIONAL);
 
         condition.mappings().forEach( (cond, to) -> {
+                var skipCond = Objects.equals(cond, to);
+
                 commentLine( ctx, !ctx.printConditionalEdge() );
-                call( ctx, conditionName, to, cond, CallStyle.CONDITIONAL );
+                if( skipCond ) {
+                    call( ctx, conditionName, to, CallStyle.CONDITIONAL );
+                }
+                else {
+                    call( ctx, conditionName, to, cond, CallStyle.CONDITIONAL );
+                }
                 commentLine( ctx, ctx.printConditionalEdge() );
-                call( ctx, k, to, cond, CallStyle.CONDITIONAL );
+                if( skipCond ) {
+                    call(ctx, k, to, CallStyle.CONDITIONAL);
+                }
+                else {
+                    call(ctx, k, to, cond, CallStyle.CONDITIONAL);
+                }
         });
     }
 

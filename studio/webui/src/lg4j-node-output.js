@@ -1,6 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'; 
 import ReactJson from '@microlink/react-json-view'
+import { debug } from './debug.js';
+
+const _DBG = debug( { on: true, topic: 'LG4JNodeOutput' } )
 
 
 /**
@@ -17,6 +20,7 @@ import ReactJson from '@microlink/react-json-view'
  * @file
  * @typedef {import('./types.js').UpdatedState} UpdatedState
  */
+
 
 export class LG4JNodeOutput extends HTMLElement {
     
@@ -47,7 +51,7 @@ export class LG4JNodeOutput extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'value') {
         if (newValue !== null) {
-          console.debug( "attributeChangedCallback.value", newValue )
+          _DBG( "attributeChangedCallback.value", newValue )
         }
       }
   }
@@ -56,7 +60,7 @@ export class LG4JNodeOutput extends HTMLElement {
 
       const value = this.textContent ?? '{}'
       
-      console.debug( "value", value )
+      _DBG( "value", value )
 
       this.root = this.#createRoot( JSON.parse(value) )
       

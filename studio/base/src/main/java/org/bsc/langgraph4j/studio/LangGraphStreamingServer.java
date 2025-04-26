@@ -400,7 +400,7 @@ public interface LangGraphStreamingServer {
 
                 var compiledGraph = stateGraph.compile();
 
-                var graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID, initData.title(), false);
+                var graph = compiledGraph.getGraph(GraphRepresentation.Type.MERMAID, /*initData.title()*/ null, false);
 
                 initData = new InitData(initData.title(), graph.content(), initData.args(), initData.threads());
             }

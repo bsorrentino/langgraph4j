@@ -1,6 +1,11 @@
 // @ts-nocheck
 import { JSONEditor } from '@json-editor/json-editor'
 
+import { debug } from './debug.js';
+
+const _DBG = debug( { on: false, topic: 'LG4JNodeOutputSchema' } )
+
+
 export class LG4JNodeOutputWithSchema extends HTMLElement {
     
     static get observedAttributes() {
@@ -54,7 +59,7 @@ export class LG4JNodeOutputWithSchema extends HTMLElement {
     attributeChangedCallback(name, oldValue, newValue) {
         if (name === 'value') {
           if (newValue !== null) {
-            console.debug( "attributeChangedCallback.value", newValue )
+            _DBG( "attributeChangedCallback.value", newValue )
             this.#editor?.setValue( JSON.parse(newValue) );
 
           }
@@ -64,7 +69,7 @@ export class LG4JNodeOutputWithSchema extends HTMLElement {
     connectedCallback() {
 
         const value = this.textContent
-        console.debug( "value", value )
+        _DBG( "value", value )
         this.#initialize( JSON.parse(value) )
         
     }
