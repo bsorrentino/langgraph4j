@@ -290,7 +290,7 @@ server.start().join();
 [Quarkus]: https://quarkus.io
 
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
-[springai-agentexecutor]: https://github.com/bsorrentino/langgraph4j/blob/main/samples/springai-agentexecutor
+[springai-agentexecutor]: https://github.com/bsorrentino/langgraph4j/blob/main/spring-ai-agent
 [agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/agent-executor
 [adaptive-rag]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/adaptive-rag
 [image-to-diagram]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/image-to-diagram
