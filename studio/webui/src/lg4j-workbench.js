@@ -1,6 +1,11 @@
 import TWStyles from './twlit.js';
 
 import { html, css, LitElement } from 'lit';
+import { debug } from './debug.js';
+
+
+const _DBG = debug( { on: true, topic: 'LG4JWorkbench' } )
+
 
 export class LG4JWorkbenchElement extends LitElement {
 
@@ -26,7 +31,7 @@ export class LG4JWorkbenchElement extends LitElement {
       slot = type.split('-')[0]
     }
 
-    console.debug( 'routeEvent', type, slot )
+    _DBG( 'routeEvent', type, slot )
     
     const event = new CustomEvent( type, { detail } );
 
@@ -62,7 +67,7 @@ export class LG4JWorkbenchElement extends LitElement {
    * @param {CustomEvent} e - The event object containing the updated data.
    */
   #routeUpdateEvent( e ) {
-    console.debug( 'got updated event', e );
+    _DBG( 'got updated event', e );
     this.#routeEvent( new CustomEvent( `${e.type}`, { detail: e.detail }), 'executor');
   }
 
@@ -88,7 +93,7 @@ export class LG4JWorkbenchElement extends LitElement {
 
   /**
    * 
-   * @param {CustomEvent<'start'|'stop'|'interrupted'>} e 
+   * @param {CustomEvent<'start'|'stop'|'interrupted'|'error'>} e 
    */
   #onStateUpdated( e ) {
     const elem = this.shadowRoot?.getElementById('spinner')
@@ -106,6 +111,7 @@ export class LG4JWorkbenchElement extends LitElement {
       }
       
     }
+    this.#routeEvent( e , 'result')
   }
 
   connectedCallback() {
