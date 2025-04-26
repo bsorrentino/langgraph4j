@@ -13,7 +13,6 @@ fi
 
 mvn versions:set -DnewVersion=$ver
 # unrelated parent
-mvn versions:set -DnewVersion=$ver -pl samples/springai-agentexecutor
 
 # after this, you need to commit the changes
 # mvn versions:commit
