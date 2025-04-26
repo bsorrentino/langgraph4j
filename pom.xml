@@ -39,7 +39,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <langchain4j.version>1.0.0-beta2</langchain4j.version>
+    <langchain4j.version>1.0.0-beta3</langchain4j.version>
   </properties>
 
   <distributionManagement>
