@@ -1,7 +1,7 @@
 
 # 🦜🕸️ LangGraph for Java
 
-[![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-blue)][javadocs] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
+[![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
@@ -117,9 +117,6 @@ public class AgentState {
    public final java.util.Map<String,Object> data() { ... }
 
    public final <T> Optional<T> value(String key) { ... }
-   public final <T> T value(String key, T defaultValue ) { ... }
-   public final <T> T value(String key, Supplier<T>  defaultProvider ) { ... }
-    
 
 }
 ```
@@ -205,17 +202,17 @@ class State extends MessagesState<ChatMessage> {
 
 }
 
-var toolNode = ToolNode.builder()
+var toolService = LC4jToolService.builder()
                     .toolSpecification( tools )
                     .build();
 
 var agent = Agent.builder()
         .chatLanguageModel(chatLanguageModel)
-        .tools(toolNode.toolSpecifications())
+        .tools(toolService.toolSpecifications())
         .build();
 
 var callAgent = new CallAgent(agent);
-var executeTools = new ExecuteTools(agent, toolNode);
+var executeTools = new ExecuteTools(agent, toolService);
                                  
 // Fluent Interface
 var app = new StateGraph<>(State.SCHEMA, State::new)
@@ -289,6 +286,7 @@ server.start().join();
 [Spring Boot]: https://spring.io/projects/spring-boot
 [Quarkus]: https://quarkus.io
 
+[documentation]: https://bsorrentino.github.io/langgraph4j/
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [springai-agentexecutor]: https://github.com/bsorrentino/langgraph4j/blob/main/spring-ai-agent
 [agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/agent-executor
