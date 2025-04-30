@@ -10,14 +10,15 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.langchain4j.serializer.std.LC4jStateSerializer;
 import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
+import org.bsc.langgraph4j.utils.EdgeMappings;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
-import static dev.langchain4j.model.chat.Capability.RESPONSE_FORMAT_JSON_SCHEMA;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
+import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 public class MultiAgentHandoffTest {
@@ -72,21 +73,40 @@ public class MultiAgentHandoffTest {
     public void testHandoff() throws Exception {
 
         var agentMarketplace = AgentMarketplace.builder()
-                .chatLanguageModel( AiModel.OPENAI.model )
+                .chatLanguageModel( AiModel.OLLAMA_QWEN3_14B.model )
                 .toolSpecification( handoffToPayment() )
                 .build();
+        var agentPayment = new AgentPayment();
 
-        var handoffProcessor = new HandoffProcessor( AiModel.OPENAI.model );
+        var handoffPreProcessor = new HandoffPreProcessor( AiModel.OLLAMA_QWEN3_14B.model );
+        var handoffPostProcessor = new HandoffPostProcessor();
 
         var stateSerializer = new LC4jStateSerializer<>(MultiAgentHandoff.State::new);
 
         var workflow = new StateGraph<>( MultiAgentHandoff.State.SCHEMA, stateSerializer )
                 .addNode( "marketplace", node_async(agentMarketplace) )
-                .addNode( "handoff_processor", node_async(handoffProcessor) )
-                .addNode( "payment", AgentPayment.of() )
+                .addNode( "handoff_preprocessor", node_async(handoffPreProcessor) )
+                .addNode( "handoff_postprocessor", node_async(handoffPostProcessor) )
+                .addNode( "payment", node_async(agentPayment) )
                 .addEdge( START, "marketplace" )
-                .addEdge( "marketplace", "handoff_processor")
-                .addEdge( "handoff_processor", END )
+                .addEdge( "marketplace", "handoff_preprocessor")
+                .addConditionalEdges( "handoff_preprocessor",
+                        edge_async( state ->
+                            state.isHandoff() ? "handoff_postprocessor" : END
+                        ),
+                        EdgeMappings.builder()
+                                .to( "handoff_postprocessor")
+                                .toEND()
+                                .build()
+                        )
+                .addConditionalEdges( "handoff_postprocessor",
+                        edge_async( state -> state.handoffFunction().orElse(END) ),
+                        EdgeMappings.builder()
+                                .to( "marketplace", "handoff_to_marketplace")
+                                .to( "payment", "handoff_to_payment" )
+                                .toEND()
+                                .build()
+                )
                 .compile();
                 ;
 

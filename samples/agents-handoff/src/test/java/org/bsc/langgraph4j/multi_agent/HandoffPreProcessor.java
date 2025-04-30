@@ -9,7 +9,9 @@ import org.bsc.langgraph4j.action.NodeAction;
 
 import java.util.Map;
 
-public class HandoffProcessor implements NodeAction<MultiAgentHandoff.State> {
+import static org.bsc.langgraph4j.utils.CollectionsUtils.mapOf;
+
+public class HandoffPreProcessor implements NodeAction<MultiAgentHandoff.State> {
 
     record HandoffEvaluationResult(
             @Description("Is it and handoff request") @JsonProperty(required = true) Boolean isHandoff,
@@ -26,7 +28,7 @@ public class HandoffProcessor implements NodeAction<MultiAgentHandoff.State> {
 
     private final Service service;
 
-    public HandoffProcessor(ChatLanguageModel model ) {
+    public HandoffPreProcessor(ChatLanguageModel model ) {
         this.service = AiServices.create( Service.class, model);
     }
 
@@ -36,6 +38,12 @@ public class HandoffProcessor implements NodeAction<MultiAgentHandoff.State> {
 
         var result = service.evaluate( agentResponse );
 
-        return Map.of();
+        return mapOf(
+                MultiAgentHandoff.State.HANDOFF_FLAG, result.isHandoff(),
+                MultiAgentHandoff.State.HANDOFF_FUNCTION, result.handoffFunction(),
+                MultiAgentHandoff.State.HANDOFF_INPUT, result.handoffInput()
+        );
+
+
     }
 }

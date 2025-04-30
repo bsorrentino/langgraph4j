@@ -2,7 +2,6 @@ package org.bsc.langgraph4j.multi_agent;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.request.ResponseFormat;
 import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
@@ -12,25 +11,13 @@ import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 import org.bsc.langgraph4j.multi_agent.executor.AgentExecutor;
-import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Map;
 
 
 public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
 
-    public static class Builder {
-        private final AgentExecutor.Builder delegate = AgentExecutor.builder();
-
-        public Builder chatLanguageModel( ChatLanguageModel model ) {
-            delegate.chatLanguageModel(model);
-            return this;
-        }
-
-        public Builder toolSpecification( LC4jToolService.Specification tool ) {
-            delegate.toolSpecification(tool);
-            return this;
-        }
+    public static class Builder extends AbstractAgentBuilder<AgentMarketplace> {
 
         public AgentMarketplace build() throws GraphStateException {
             return new AgentMarketplace( delegate );
@@ -44,7 +31,7 @@ public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
 
     private final CompiledGraph<AgentExecutor.State> agentExecutor;
 
-    private LC4jToolService.Specification searchIntoMarketplace() {
+    private LC4jToolService.Specification searchByProduct() {
         return new LC4jToolService.Specification(
                 ToolSpecification.builder()
                         .name("search_into_marketplace")
@@ -65,9 +52,7 @@ public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
                 }
         );
 
-
     }
-
 
     ResponseFormat responseFormat() {
         return ResponseFormat.builder()
@@ -88,19 +73,16 @@ public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
         final var systemMessage = SystemMessage.from("""
         You are the agent that provides the information on the product marketplace.
         
-        After complete your job you can handoff control to other agents to accomplishing the user request. 
-        report into result the function name requesting handoff
-        
+        After complete your job you can handoff control to other agents to accomplishing the user request.
+        report into result the function name requesting handoff.
         """);
-
 
         agentExecutor = builder
                 //.responseFormat(responseFormat())
                 .systemMessage( systemMessage )
-                .toolSpecification( searchIntoMarketplace() )
+                .toolSpecification( searchByProduct() )
                 .build()
                 .compile();
-
     }
 
     @Override
@@ -108,6 +90,10 @@ public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
 
         var result = agentExecutor.invoke( Map.of( "messages", state.messages() ) );
 
-        return result.map(AgentState::data).orElseGet(Map::of);
+        return result.flatMap(AgentExecutor.State::finalResponse)
+                .map( response -> Map.<String,Object>of( MultiAgentHandoff.State.AGENT_RESPONSE, response ))
+                .orElseGet(Map::of);
+
+        //return result.map(AgentState::data).orElseGet(Map::of);
     }
 }

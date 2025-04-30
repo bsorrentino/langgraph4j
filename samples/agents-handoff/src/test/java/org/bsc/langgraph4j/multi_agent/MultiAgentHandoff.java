@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j.multi_agent;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import org.bsc.langgraph4j.action.EdgeAction;
@@ -15,6 +16,9 @@ public interface MultiAgentHandoff {
     class State extends MessagesState<ChatMessage> {
 
         public static final String AGENT_RESPONSE = AgentExecutor.State.FINAL_RESPONSE;
+        public static final String HANDOFF_FLAG = "handoff_flag";
+        public static final String HANDOFF_FUNCTION = "handoff_function";
+        public static final String HANDOFF_INPUT = "handoff_input";
 
         public State(Map<String, Object> initData) {
             super(initData);
@@ -22,6 +26,18 @@ public interface MultiAgentHandoff {
 
         Optional<String> lastAgentResponse() {
             return this.<String>value(AGENT_RESPONSE);
+        }
+
+        boolean isHandoff() {
+            return this.<Boolean>value(HANDOFF_FLAG).orElse(false);
+        }
+
+        Optional<String> handoffFunction() {
+            return this.<String>value(HANDOFF_FUNCTION);
+        }
+
+        Optional<String> handoffInput() {
+            return this.<String>value(HANDOFF_INPUT);
         }
     }
 
