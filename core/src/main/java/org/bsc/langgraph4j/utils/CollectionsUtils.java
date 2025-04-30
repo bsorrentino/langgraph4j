@@ -92,15 +92,13 @@ public final class CollectionsUtils {
     }
 
     /**
-     * Creates a list containing the provided elements.
+     * Creates a list containing the provided elements. It allows null values.
      *
      * @param objects the elements to be included in the list
      * @param <T> the type of the elements
      * @return a list containing the provided elements
-     * @deprecated use the new Java Convenience Factory Methods for Collections
      */
     @SafeVarargs
-    @Deprecated
     public static <T> List<T> listOf(T... objects) {
         if( objects == null ) {
             return Collections.emptyList();
@@ -115,35 +113,31 @@ public final class CollectionsUtils {
     }
 
     /**
-     * Creates an empty map.
+     * Creates an empty map. It allows null values.
      *
      * @param <K> the type of the keys
      * @param <V> the type of the values
      * @return an empty map
-     * @deprecated use the new Java Convenience Factory Methods for Collections
      */
-    @Deprecated
     public static <K, V> Map<K, V> mapOf() {
         return emptyMap();
     }
 
     /**
-     * Creates a map containing a single key-value pair.
+     * Creates a map containing a single key-value pair. It allows null values.
      *
      * @param k1 the key
      * @param v1 the value
      * @param <K> the type of the key
      * @param <V> the type of the value
      * @return an unmodifiable map containing the provided key-value pair
-     * @deprecated use the new Java Convenience Factory Methods for Collections
      */
-    @Deprecated
     public static <K, V> Map<K, V> mapOf(K k1, V v1) {
         return Collections.singletonMap(k1, v1);
     }
 
     /**
-     * Creates a map containing two key-value pairs.
+     * Creates a map containing two key-value pairs. It allows null values.
      *
      * @param k1 the first key
      * @param v1 the first value
@@ -152,9 +146,7 @@ public final class CollectionsUtils {
      * @param <K> the type of the keys
      * @param <V> the type of the values
      * @return an unmodifiable map containing the provided key-value pairs
-     * @deprecated use the new Java Convenience Factory Methods for Collections
      */
-    @Deprecated
     public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2) {
         Map<K, V> result = new HashMap<K, V>();
         result.put(k1, v1);
@@ -163,7 +155,7 @@ public final class CollectionsUtils {
     }
 
     /**
-     * Creates a map containing three key-value pairs.
+     * Creates a map containing three key-value pairs. It allows null values.
      *
      * @param k1 the first key
      * @param v1 the first value
@@ -174,9 +166,7 @@ public final class CollectionsUtils {
      * @param <K> the type of the keys
      * @param <V> the type of the values
      * @return an unmodifiable map containing the provided key-value pairs
-     * @deprecated use the new Java Convenience Factory Methods for Collections
      */
-    @Deprecated
     public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3) {
         Map<K, V> result = new HashMap<K, V>();
         result.put(k1, v1);
@@ -185,7 +175,7 @@ public final class CollectionsUtils {
         return unmodifiableMap(result);
     }
     /**
-     * Creates a map containing three key-value pairs.
+     * Creates a map containing three key-value pairs. It allows null values.
      *
      * @param k1 the first key
      * @param v1 the first value
@@ -198,9 +188,7 @@ public final class CollectionsUtils {
      * @param <K> the type of the keys
      * @param <V> the type of the values
      * @return an unmodifiable map containing the provided key-value pairs
-     * @deprecated use the new Java Convenience Factory Methods for Collections
      */
-    @Deprecated
     public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
         Map<K, V> result = new HashMap<K, V>();
         result.put(k1, v1);
@@ -211,7 +199,7 @@ public final class CollectionsUtils {
     }
 
     /**
-     * Creates a map containing three key-value pairs.
+     * Creates a map containing three key-value pairs. It allows null values.
      *
      * @param k1 the first key
      * @param v1 the first value
@@ -226,9 +214,7 @@ public final class CollectionsUtils {
      * @param <K> the type of the keys
      * @param <V> the type of the values
      * @return an unmodifiable map containing the provided key-value pairs
-     * @deprecated use the new Java Convenience Factory Methods for Collections
      */
-    @Deprecated
     public static<K,V>  Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5) {
         Map<K, V> result = new HashMap<K, V>();
         result.put(k1, v1);
