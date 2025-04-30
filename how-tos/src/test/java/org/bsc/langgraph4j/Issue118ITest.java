@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
-public class Issue118Test {
+public class Issue118ITest {
 
     static org.slf4j.Logger log;
 
