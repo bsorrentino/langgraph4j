@@ -1,21 +1,20 @@
 package org.bsc.langgraph4j.multi_agent;
 
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.model.chat.request.ResponseFormat;
-import dev.langchain4j.model.chat.request.ResponseFormatType;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
-import dev.langchain4j.model.chat.request.json.JsonSchema;
+import dev.langchain4j.service.tool.ToolExecutor;
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.GraphStateException;
-import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 import org.bsc.langgraph4j.multi_agent.executor.AgentExecutor;
 
 import java.util.Map;
 
 
-public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
+public class AgentMarketplace implements ToolExecutor {
 
     public static class Builder extends AbstractAgentBuilder<AgentMarketplace> {
 
@@ -31,6 +30,18 @@ public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
 
     private final CompiledGraph<AgentExecutor.State> agentExecutor;
 
+    public LC4jToolService.Specification specification() {
+        var spec = ToolSpecification.builder()
+                .name("workplace")
+                .description("workplace agent, ask for information about products")
+                .parameters(JsonObjectSchema.builder()
+                        .addStringProperty("context",
+                                "all information request about the products")
+                        .build())
+                .build();
+        return new LC4jToolService.Specification(spec, this);
+    }
+
     private LC4jToolService.Specification searchByProduct() {
         return new LC4jToolService.Specification(
                 ToolSpecification.builder()
@@ -41,7 +52,6 @@ public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
                                 .build())
                         .build(),
                 ( request, param ) -> {
-                    System.out.println( request );
                     return """
                         {
                             product: "X",
@@ -54,31 +64,12 @@ public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
 
     }
 
-    ResponseFormat responseFormat() {
-        return ResponseFormat.builder()
-                .type(ResponseFormatType.JSON) // type can be either TEXT (default) or JSON
-                .jsonSchema(JsonSchema.builder()
-                        .name("AgentResult") // OpenAI requires specifying the name for the schema
-                        .rootElement(JsonObjectSchema.builder() // see [1] below
-                                .description("final result")
-                                .addStringProperty("response", "final overall summary")
-                                .addStringProperty("handoff", "comprehensive handoff information")
-                                //.required("response", "handoff")
-                                .build())
-                        .build())
-                .build();
-    }
-
     public AgentMarketplace( AgentExecutor.Builder builder ) throws GraphStateException {
         final var systemMessage = SystemMessage.from("""
         You are the agent that provides the information on the product marketplace.
-        
-        After complete your job you can handoff control to other agents to accomplishing the user request.
-        report into result the function name requesting handoff.
         """);
 
         agentExecutor = builder
-                //.responseFormat(responseFormat())
                 .systemMessage( systemMessage )
                 .toolSpecification( searchByProduct() )
                 .build()
@@ -86,14 +77,14 @@ public class AgentMarketplace implements NodeAction<MultiAgentHandoff.State> {
     }
 
     @Override
-    public Map<String, Object> apply(MultiAgentHandoff.State state) throws Exception {
+    public String execute(ToolExecutionRequest toolExecutionRequest, Object o) {
 
-        var result = agentExecutor.invoke( Map.of( "messages", state.messages() ) );
+        var userMessage = UserMessage.from( toolExecutionRequest.arguments() );
 
-        return result.flatMap(AgentExecutor.State::finalResponse)
-                .map( response -> Map.<String,Object>of( MultiAgentHandoff.State.AGENT_RESPONSE, response ))
-                .orElseGet(Map::of);
+        var result = agentExecutor.invoke( Map.of( "messages", userMessage ) );
 
-        //return result.map(AgentState::data).orElseGet(Map::of);
+        return result.flatMap(AgentExecutor.State::finalResponse).orElseThrow();
     }
+
+
 }
