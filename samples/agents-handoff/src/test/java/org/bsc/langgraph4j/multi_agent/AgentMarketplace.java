@@ -30,7 +30,7 @@ public class AgentMarketplace implements ToolExecutor {
 
     private final CompiledGraph<AgentExecutor.State> agentExecutor;
 
-    public LC4jToolService.Specification specification() {
+    public Map.Entry<ToolSpecification, ToolExecutor> asTool() {
         var spec = ToolSpecification.builder()
                 .name("workplace")
                 .description("workplace agent, ask for information about products")
@@ -39,11 +39,11 @@ public class AgentMarketplace implements ToolExecutor {
                                 "all information request about the products")
                         .build())
                 .build();
-        return new LC4jToolService.Specification(spec, this);
+        return Map.entry(spec, this);
     }
 
-    private LC4jToolService.Specification searchByProduct() {
-        return new LC4jToolService.Specification(
+    private Map.Entry<ToolSpecification, ToolExecutor> searchByProduct() {
+        return Map.entry(
                 ToolSpecification.builder()
                         .name("search_into_marketplace")
                         .description("search for a specific product in the marketplace")
@@ -71,7 +71,7 @@ public class AgentMarketplace implements ToolExecutor {
 
         agentExecutor = builder
                 .systemMessage( systemMessage )
-                .toolSpecification( searchByProduct() )
+                .tool( searchByProduct() )
                 .build()
                 .compile();
     }

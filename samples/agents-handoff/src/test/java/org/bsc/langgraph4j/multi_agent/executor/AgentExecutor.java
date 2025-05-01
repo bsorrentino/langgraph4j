@@ -1,10 +1,12 @@
 package org.bsc.langgraph4j.multi_agent.executor;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ChatMessageType;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
+import dev.langchain4j.service.tool.ToolExecutor;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.EdgeAction;
@@ -17,7 +19,6 @@ import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.bsc.langgraph4j.StateGraph.END;
@@ -103,10 +104,10 @@ public interface AgentExecutor {
         /**
          * Constructs an ExecuteTools instance with the specified agent and tool node.
          *
-         * @param toolService the tool node to be executed, must not be null
+         * @param toolMap the tool node to be executed, must not be null
          */
-        public ExecuteTools( LC4jToolService toolService) {
-            this.toolService = Objects.requireNonNull(toolService, "toolNode cannot be null");
+        public ExecuteTools( Map<ToolSpecification, ToolExecutor> toolMap) {
+            this.toolService = new LC4jToolService(toolMap);
         }
 
         /**
@@ -159,7 +160,7 @@ public interface AgentExecutor {
          *
          * @param agent the agent to be associated with this CallAgent
          */
-        public CallAgent( Agent agent ) {
+        CallAgent( Agent agent ) {
             this.agent = agent;
         }
 
@@ -178,7 +179,7 @@ public interface AgentExecutor {
                 return Map.of("messages", content);
             }
             if( response.finishReason() == FinishReason.STOP || response.finishReason() == null  ) {
-                return Map.of("agent_response", content.text());
+                return Map.of(State.FINAL_RESPONSE, content.text());
             }
 
             throw new IllegalStateException("Unsupported finish reason: " + response.finishReason() );
@@ -227,7 +228,7 @@ public interface AgentExecutor {
     /**
      * Builder class for constructing a graph of agent execution.
      */
-    class Builder extends Agent.Builder {
+    class Builder extends Agent.Builder<Builder> {
 
         private StateSerializer<State> stateSerializer;
 
@@ -258,8 +259,6 @@ public interface AgentExecutor {
                 throw new IllegalArgumentException("a chatLanguageModel or streamingChatLanguageModel is required!");
             }
 
-            final var toolNode = toolServiceBuilder.build();
-
             var agent = new Agent( this );
 
             if (stateSerializer == null) {
@@ -267,7 +266,7 @@ public interface AgentExecutor {
             }
 
             final var callAgent = new CallAgent(agent);
-            final var executeTools = new ExecuteTools(toolNode);
+            final var executeTools = new ExecuteTools(toolMap());
             final EdgeAction<State> shouldContinue = (state) ->
                     state.finalResponse()
                             .map(res -> "end")

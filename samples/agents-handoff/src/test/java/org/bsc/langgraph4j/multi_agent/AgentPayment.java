@@ -29,7 +29,7 @@ public class AgentPayment implements ToolExecutor {
 
     private final CompiledGraph<AgentExecutor.State> agentExecutor;
 
-    public LC4jToolService.Specification specification() {
+    public Map.Entry<ToolSpecification, ToolExecutor> asTool() {
         var spec = ToolSpecification.builder()
                 .name("payment")
                 .description("payment agent, request purchase and payment transactions")
@@ -38,11 +38,11 @@ public class AgentPayment implements ToolExecutor {
                                 "all information provided about the payment")
                         .build())
                 .build();
-        return new LC4jToolService.Specification(spec, this);
+        return Map.entry(spec, this);
     }
 
-    private LC4jToolService.Specification submitPayment() {
-        return new LC4jToolService.Specification(
+    private  Map.Entry<ToolSpecification, ToolExecutor> submitPayment() {
+        return Map.entry(
                 ToolSpecification.builder()
                         .name("submit_payment")
                         .description("submit a payment for a specific product")
@@ -56,15 +56,15 @@ public class AgentPayment implements ToolExecutor {
                         .build(),
                 ( request, param ) -> {
                     return """
-                        product bought successfully
+                        product bought successfully. code operation # 123456789A
                         """;
                 }
         );
 
     }
 
-    private LC4jToolService.Specification retrieveIBAN() {
-        return new LC4jToolService.Specification(
+    private Map.Entry<ToolSpecification, ToolExecutor> retrieveIBAN() {
+        return Map.entry(
                 ToolSpecification.builder()
                         .name("get_iban")
                         .description("retrieve IBAN information")
@@ -87,8 +87,8 @@ public class AgentPayment implements ToolExecutor {
         
         agentExecutor = builder
                 .systemMessage( systemMessage )
-                .toolSpecification( submitPayment() )
-                .toolSpecification( retrieveIBAN() )
+                .tool( submitPayment() )
+                .tool( retrieveIBAN() )
                 .build()
                 .compile();
 

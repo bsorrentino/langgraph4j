@@ -5,7 +5,6 @@ import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import org.bsc.langgraph4j.langchain4j.serializer.std.LC4jStateSerializer;
 import org.bsc.langgraph4j.multi_agent.executor.AgentExecutor;
 import org.junit.jupiter.api.Test;
 
@@ -56,8 +55,8 @@ public class MultiAgentHandoffTest {
 
         var agentExecutor = AgentExecutor.builder()
                 .chatLanguageModel(AiModel.OLLAMA_QWEN3_14B.model)
-                .toolSpecification( agentMarketplace.specification() )
-                .toolSpecification( agentPayment.specification() )
+                .tool( agentMarketplace.asTool() )
+                .tool( agentPayment.asTool() )
                 .build()
                 .compile()
                 ;

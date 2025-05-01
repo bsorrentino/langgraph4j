@@ -13,6 +13,7 @@ import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.service.tool.ToolExecutor;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolMapBuilder;
 import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 
 import java.util.ArrayList;
@@ -25,55 +26,55 @@ import static java.util.Optional.ofNullable;
 /**
  * Represents an agent that can process chat messages and execute actions using specified tools.
  */
-public class Agent {
+class Agent {
 
-    static public abstract class Builder {
-        final LC4jToolService.Builder toolServiceBuilder = LC4jToolService.builder();
+    static public abstract class Builder<T extends Builder<T>> extends LC4jToolMapBuilder<T> {
         ChatLanguageModel chatLanguageModel;
         StreamingChatLanguageModel streamingChatLanguageModel;
         SystemMessage systemMessage;
         ResponseFormat responseFormat;
 
-        public Builder chatLanguageModel( ChatLanguageModel chatLanguageModel ) {
+        @SuppressWarnings( "unchecked" )
+        protected T result() {
+            return (T)this;
+        }
+
+        public T chatLanguageModel( ChatLanguageModel chatLanguageModel ) {
             this.chatLanguageModel = chatLanguageModel;
-            return this;
+            return result();
         }
 
-        public Builder streamingChatLanguageModel( StreamingChatLanguageModel streamingChatLanguageModel ) {
+        public T streamingChatLanguageModel( StreamingChatLanguageModel streamingChatLanguageModel ) {
             this.streamingChatLanguageModel = streamingChatLanguageModel;
-            return this;
+            return result();
         }
 
-        public Builder systemMessage( SystemMessage systemMessage ) {
+        public T systemMessage( SystemMessage systemMessage ) {
             this.systemMessage = systemMessage;
-            return this;
+            return result();
         }
 
-        public Builder responseFormat( ResponseFormat responseFormat ) {
+        public T responseFormat( ResponseFormat responseFormat ) {
             this.responseFormat = responseFormat;
-            return this;
+            return result();
         }
+
         /**
          * Sets the tool specification for the graph builder.
          *
-         * @param objectsWithTool the tool specification
+         * @param objectsWithTools the tool specification
          * @return the updated GraphBuilder instance
          */
-        public Builder toolSpecification(Object objectsWithTool) {
-            toolServiceBuilder.specification(objectsWithTool);
-            return this;
+        @Deprecated
+        public T toolSpecification(Object objectsWithTools) {
+            super.toolsFromObject( objectsWithTools );
+            return result();
         }
 
-        /**
-         * Sets the tool specification with executor for the graph builder.
-         *
-         * @param spec    the tool specification
-         * @param executor the tool executor
-         * @return the updated GraphBuilder instance
-         */
-        public Builder toolSpecification(ToolSpecification spec, ToolExecutor executor) {
-            toolServiceBuilder.specification(spec, executor);
-            return this;
+        @Deprecated
+        public T toolSpecification(ToolSpecification spec, ToolExecutor executor) {
+            super.tool(spec, executor);
+            return result();
         }
 
         /**
@@ -82,11 +83,11 @@ public class Agent {
          * @param toolSpecification the tool specifications
          * @return the updated GraphBuilder instance
          */
-        public Builder toolSpecification(LC4jToolService.Specification toolSpecification) {
-            toolServiceBuilder.specification(toolSpecification);
-            return this;
+        @Deprecated
+        public T toolSpecification(LC4jToolService.Specification toolSpecification) {
+            super.tool(toolSpecification.value(), toolSpecification.executor());
+            return result();
         }
-
 
         public abstract StateGraph<AgentExecutor.State> build() throws GraphStateException;
     }
@@ -111,10 +112,8 @@ public class Agent {
         this.streamingChatLanguageModel = builder.streamingChatLanguageModel;
         this.systemMessage = ofNullable( builder.systemMessage ).orElseGet( () -> SystemMessage.from("You are a helpful assistant") );
 
-        var toolService = builder.toolServiceBuilder.build();
-
         var parametersBuilder = ChatRequestParameters.builder()
-                .toolSpecifications( toolService.toolSpecifications() );
+                .toolSpecifications( builder.toolMap().keySet().stream().toList() );
 
         if( builder.responseFormat != null ) {
             parametersBuilder.responseFormat(builder.responseFormat);
