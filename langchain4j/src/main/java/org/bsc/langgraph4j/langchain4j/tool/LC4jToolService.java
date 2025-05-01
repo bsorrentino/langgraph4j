@@ -17,8 +17,14 @@ public final  class LC4jToolService {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LC4jToolService.class);
 
-
-    public record Specification(ToolSpecification value, ToolExecutor executor) {
+    /**
+     * Tool specification data class
+     * @param value
+     * @param executor
+     * @deprecated use {@link Map.Entry<ToolSpecification, ToolExecutor>}  instead
+     */
+    @Deprecated
+    public record Specification(ToolSpecification value, ToolExecutor executor)  {
         public static LC4jToolService.Specification of(ToolSpecification value, ToolExecutor executor) {
             return new LC4jToolService.Specification(
                     Objects.requireNonNull(value, "value cannot be null"),
@@ -29,11 +35,7 @@ public final  class LC4jToolService {
     /**
      * Builder for {@link LC4jToolService}
      */
-    public static class Builder {
-        /**
-         * List of tool specification
-         */
-        private final List<LC4jToolService.Specification> toolSpecifications = new ArrayList<>();
+    public static class Builder extends LC4jToolMapBuilder<Builder> {
 
         /**
          * Adds a tool specification to the node
@@ -42,35 +44,31 @@ public final  class LC4jToolService {
          * @param executor the executor to use
          * @return the builder
          */
-        public LC4jToolService.Builder specification(ToolSpecification spec, ToolExecutor executor) {
-            return this.specification(LC4jToolService.Specification.of(spec, executor));
+        @Deprecated
+        public Builder specification(ToolSpecification spec, ToolExecutor executor) {
+            return super.tool(spec, executor);
         }
 
         /**
          * Adds a tool specification to the node
          *
-         * @param toolSpecifications the tool specification
+         * @param toolSpecification the tool specification
          * @return the builder
          */
-        public LC4jToolService.Builder specification(LC4jToolService.Specification toolSpecifications) {
-            this.toolSpecifications.add(toolSpecifications);
-            return this;
+        @Deprecated
+        public Builder specification(LC4jToolService.Specification toolSpecification) {
+            return super.tool( toolSpecification.value(), toolSpecification.executor());
         }
 
         /**
          * Adds all the methods annotated with {@link Tool} to the node
          *
-         * @param objectWithTool the object containing the tool
+         * @param objectWithTools the object containing the tools
          * @return the builder
          */
-        public LC4jToolService.Builder specification(Object objectWithTool) {
-            for (Method method : objectWithTool.getClass().getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Tool.class)) {
-                    final ToolExecutor toolExecutor = new DefaultToolExecutor(objectWithTool, method);
-                    toolSpecifications.add(new LC4jToolService.Specification(toolSpecificationFrom(method), toolExecutor));
-                }
-            }
-            return this;
+        @Deprecated
+        public Builder specification(Object objectWithTool) {
+            return super.toolsFromObject( objectWithTool );
         }
 
         /**
@@ -79,7 +77,7 @@ public final  class LC4jToolService {
          * @return the node
          */
         public LC4jToolService build() {
-            return new LC4jToolService(toolSpecifications);
+            return new LC4jToolService(toolMap());
         }
     }
 
@@ -87,11 +85,11 @@ public final  class LC4jToolService {
         return new LC4jToolService.Builder();
     }
 
-    private final List<LC4jToolService.Specification> entries;
+    private final Map<ToolSpecification, ToolExecutor> toolMap;
 
-    LC4jToolService(List<LC4jToolService.Specification> entries) {
-        this.entries = Objects.requireNonNull(entries, "entries cannot be null");
-        if (entries.isEmpty()) {
+    public LC4jToolService(  Map<ToolSpecification, ToolExecutor> toolMap ) {
+        this.toolMap = Objects.requireNonNull(toolMap, "toolMap cannot be null");
+        if (toolMap.isEmpty()) {
             throw new IllegalArgumentException("entries cannot be empty!");
         }
     }
@@ -102,9 +100,7 @@ public final  class LC4jToolService {
      * @return a list of tool specifications
      */
     public List<ToolSpecification> toolSpecifications() {
-        return this.entries.stream()
-                .map(LC4jToolService.Specification::value)
-                .collect(Collectors.toList());
+        return this.toolMap.keySet().stream().toList();
     }
 
     /**
@@ -119,11 +115,12 @@ public final  class LC4jToolService {
 
         log.trace("execute: {}", request.name());
 
-        return entries.stream()
-                .filter(v -> v.value().name().equals(request.name()))
+        return toolMap.entrySet().stream()
+                .filter(e -> Objects.equals(e.getKey().name(),request.name()))
+                .map(Map.Entry::getValue)
                 .findFirst()
                 .map(e -> {
-                    String value = e.executor().execute(request, memoryId);
+                    String value = e.execute(request, memoryId);
                     return new ToolExecutionResultMessage(request.id(), request.name(), value);
                 })
                 ;
