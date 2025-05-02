@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.multi_agent.executor;
+package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;

@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.multi_agent.executor;
+package org.bsc.langgraph4j.agentexecutor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.ChatMessage;
@@ -46,8 +46,10 @@ class Agent {
             return result();
         }
 
-        public T streamingChatLanguageModel( StreamingChatLanguageModel streamingChatLanguageModel ) {
-            this.streamingChatLanguageModel = streamingChatLanguageModel;
+        public T chatLanguageModel( StreamingChatLanguageModel streamingChatLanguageModel ) {
+            if( this.streamingChatLanguageModel == null ) {
+                this.streamingChatLanguageModel = streamingChatLanguageModel;
+            }
             return result();
         }
 

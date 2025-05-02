@@ -29,7 +29,7 @@ public class AgentExecutorAzureOpenAITest extends AbstractAgentExecutorTest {
 
         return AgentExecutor.builder()
                 .chatLanguageModel(chatLanguageModel)
-                .toolSpecification(new TestTool())
+                .toolsFromObject(new TestTool())
                 .build();
     }
 }
