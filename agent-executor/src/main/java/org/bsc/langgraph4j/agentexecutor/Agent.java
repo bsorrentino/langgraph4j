@@ -1,66 +1,106 @@
-package org.bsc.langgraph4j.agentexecutor;
+package org.bsc.langgraph4j.multi_agent.executor;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.data.message.*;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ChatRequestParameters;
+import dev.langchain4j.model.chat.request.ResponseFormat;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import dev.langchain4j.service.tool.ToolExecutor;
+import org.bsc.langgraph4j.GraphStateException;
+import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolMapBuilder;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.Optional.ofNullable;
 
 
 /**
  * Represents an agent that can process chat messages and execute actions using specified tools.
  */
-public class Agent {
+class Agent {
 
-    static public class Builder {
-        private ChatLanguageModel chatLanguageModel;
-        private StreamingChatLanguageModel streamingChatLanguageModel;
-        private List<ToolSpecification> tools = new ArrayList<>();
+    static public abstract class Builder<T extends Builder<T>> extends LC4jToolMapBuilder<T> {
+        ChatLanguageModel chatLanguageModel;
+        StreamingChatLanguageModel streamingChatLanguageModel;
+        SystemMessage systemMessage;
+        ResponseFormat responseFormat;
 
-        public Builder chatLanguageModel( ChatLanguageModel chatLanguageModel ) {
-            this.chatLanguageModel = chatLanguageModel;
-            return this;
+        @SuppressWarnings( "unchecked" )
+        protected T result() {
+            return (T)this;
         }
 
-        public Builder streamingChatLanguageModel( StreamingChatLanguageModel streamingChatLanguageModel ) {
+        public T chatLanguageModel( ChatLanguageModel chatLanguageModel ) {
+            if( this.chatLanguageModel == null ) {
+                this.chatLanguageModel = chatLanguageModel;
+            }
+            return result();
+        }
+
+        public T streamingChatLanguageModel( StreamingChatLanguageModel streamingChatLanguageModel ) {
             this.streamingChatLanguageModel = streamingChatLanguageModel;
-            return this;
+            return result();
         }
 
-        public Builder tool( ToolSpecification toolSpecification ) {
-            this.tools.add( toolSpecification );
-            return this;
+        public T systemMessage( SystemMessage systemMessage ) {
+            if( this.systemMessage == null ) {
+                this.systemMessage = systemMessage;
+            }
+            return result();
         }
 
-        public Builder tools( Collection<? extends ToolSpecification> toolSpecifications ) {
-            this.tools.addAll( toolSpecifications );
-            return this;
+        public T responseFormat( ResponseFormat responseFormat ) {
+            this.responseFormat = responseFormat;
+            return result();
         }
 
-        public Agent build() {
-            return new Agent(
-                    chatLanguageModel,
-                    streamingChatLanguageModel,
-                    tools
-            );
+        /**
+         * Sets the tool specification for the graph builder.
+         *
+         * @param objectsWithTools the tool specification
+         * @return the updated GraphBuilder instance
+         */
+        @Deprecated
+        public T toolSpecification(Object objectsWithTools) {
+            super.toolsFromObject( objectsWithTools );
+            return result();
         }
-    }
 
-    public static Builder builder() {
-        return new Builder();
+        @Deprecated
+        public T toolSpecification(ToolSpecification spec, ToolExecutor executor) {
+            super.tool(spec, executor);
+            return result();
+        }
+
+        /**
+         * Sets the tool specification for the graph builder.
+         *
+         * @param toolSpecification the tool specifications
+         * @return the updated GraphBuilder instance
+         */
+        @Deprecated
+        public T toolSpecification(LC4jToolService.Specification toolSpecification) {
+            super.tool(toolSpecification.value(), toolSpecification.executor());
+            return result();
+        }
+
+        public abstract StateGraph<AgentExecutor.State> build() throws GraphStateException;
     }
 
     private final ChatLanguageModel chatLanguageModel;
     private final StreamingChatLanguageModel streamingChatLanguageModel;
-    private final List<ToolSpecification> tools;
+    private final SystemMessage systemMessage;
+
+    final ChatRequestParameters parameters;
 
     /**
      * Checks if the agent is currently streaming.
@@ -71,34 +111,26 @@ public class Agent {
         return streamingChatLanguageModel != null;
     }
 
-    protected Agent( ChatLanguageModel chatLanguageModel,
-                   StreamingChatLanguageModel streaming,
-                     List<ToolSpecification> tools ) {
-        this.chatLanguageModel = chatLanguageModel;
-        this.streamingChatLanguageModel = streaming;
-        this.tools = tools;
+    protected Agent( Builder builder ) {
+        this.chatLanguageModel = builder.chatLanguageModel;
+        this.streamingChatLanguageModel = builder.streamingChatLanguageModel;
+        this.systemMessage = ofNullable( builder.systemMessage ).orElseGet( () -> SystemMessage.from("You are a helpful assistant") );
 
+        var parametersBuilder = ChatRequestParameters.builder()
+                .toolSpecifications( builder.toolMap().keySet().stream().toList() );
+
+        if( builder.responseFormat != null ) {
+            parametersBuilder.responseFormat(builder.responseFormat);
+        }
+
+        this.parameters =  parametersBuilder.build();
     }
 
     private ChatRequest prepareRequest(List<ChatMessage> messages ) {
 
-//        var text =  CollectionsUtils.last(messages).map( m ->
-//            switch( m.type() ) {
-//                case AI -> ((AiMessage)m).text() ;
-//                case USER -> ((UserMessage)m).singleText();
-//                case SYSTEM -> ((SystemMessage)m).text();
-//                case TOOL_EXECUTION_RESULT -> ((ToolExecutionResultMessage)m).text();
-//                case CUSTOM -> ((CustomMessage)m).text();
-//            }
-//        ).orElseThrow();
+        var reqMessages = new ArrayList<>( messages );
+        reqMessages.add(systemMessage);
 
-        var reqMessages = new ArrayList<ChatMessage>( messages );
-        reqMessages.add(SystemMessage.from("You are a helpful assistant"));
-
-
-        var parameters = ChatRequestParameters.builder()
-                .toolSpecifications(tools)
-                .build();
         return ChatRequest.builder()
                 .messages( reqMessages )
                 .parameters(parameters)

@@ -23,7 +23,6 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
 public class AgentExecutorStreamingTest {
 
     @BeforeAll
