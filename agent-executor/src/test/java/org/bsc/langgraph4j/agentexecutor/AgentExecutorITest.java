@@ -3,10 +3,9 @@ package org.bsc.langgraph4j.agentexecutor;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.bsc.langgraph4j.DotEnvConfig;
 import org.bsc.langgraph4j.StateGraph;
-import org.junit.jupiter.api.Disabled;
 
-@Disabled
-public class AgentExecutorTest  extends AbstractAgentExecutorTest {
+
+public class AgentExecutorITest extends AbstractAgentExecutorTest {
 
 
     @Override
@@ -25,7 +24,7 @@ public class AgentExecutorTest  extends AbstractAgentExecutorTest {
 
         return AgentExecutor.builder()
                 .chatLanguageModel(chatLanguageModel)
-                .toolSpecification(new TestTool())
+                .toolsFromObject(new TestTool())
                 .build();
 
     }
