@@ -28,7 +28,7 @@
 
         <dependency>
             <groupId>org.bsc.langgraph4j</groupId>
-            <artifactId>langgraph4j-langchain4j</artifactId>
+            <artifactId>langgraph4j-agent-executor</artifactId>
             <version>${project.version}</version>
         </dependency>
 

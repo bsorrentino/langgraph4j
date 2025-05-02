@@ -5,7 +5,7 @@ import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import org.bsc.langgraph4j.multi_agent.executor.AgentExecutor;
+import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -31,6 +31,15 @@ public class MultiAgentHandoffTest {
                 .logResponses(true)
                 .maxRetries(2)
                 .temperature(0.0)
+                .build() ),
+        OLLAMA_QWEN2_5_7B( OllamaChatModel.builder()
+                .modelName( "qwen2.5:7b" )
+                .baseUrl("http://localhost:11434")
+                .supportedCapabilities(Capability.RESPONSE_FORMAT_JSON_SCHEMA)
+                .logRequests(true)
+                .logResponses(true)
+                .maxRetries(2)
+                .temperature(0.0)
                 .build() )
         ;
 
@@ -46,11 +55,11 @@ public class MultiAgentHandoffTest {
     public void testHandoff() throws Exception {
 
         var agentMarketplace = AgentMarketplace.builder()
-                .chatLanguageModel( AiModel.OLLAMA_QWEN3_14B.model )
-                    .build();
+                .chatLanguageModel( AiModel.OLLAMA_QWEN2_5_7B.model )
+                .build();
 
         var agentPayment = AgentPayment.builder()
-                .chatLanguageModel( AiModel.OLLAMA_QWEN3_14B.model )
+                .chatLanguageModel( AiModel.OLLAMA_QWEN2_5_7B.model )
                 .build();
 
         var agentExecutor = AgentExecutor.builder()

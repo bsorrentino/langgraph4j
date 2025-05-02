@@ -1,24 +1,19 @@
 package org.bsc.langgraph4j.multi_agent;
 
-import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.service.tool.ToolExecutor;
-import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.GraphStateException;
-import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
-import org.bsc.langgraph4j.multi_agent.executor.AgentExecutor;
 
 import java.util.Map;
 
-public class AgentPayment implements ToolExecutor {
+public class AgentPayment extends AbstractAgent<AgentPayment.Builder,AgentPayment>  {
 
-    public static class Builder extends AbstractAgentBuilder<AgentPayment> {
+    public static class Builder extends AbstractAgent.Builder<AgentPayment.Builder,AgentPayment> {
 
         public AgentPayment build() throws GraphStateException {
-            return new AgentPayment( delegate );
+            return new AgentPayment( this );
         }
 
     }
@@ -27,25 +22,12 @@ public class AgentPayment implements ToolExecutor {
         return new AgentPayment.Builder();
     }
 
-    private final CompiledGraph<AgentExecutor.State> agentExecutor;
 
-    public Map.Entry<ToolSpecification, ToolExecutor> asTool() {
-        var spec = ToolSpecification.builder()
-                .name("payment")
-                .description("payment agent, request purchase and payment transactions")
-                .parameters(JsonObjectSchema.builder()
-                        .addStringProperty("context",
-                                "all information provided about the payment")
-                        .build())
-                .build();
-        return Map.entry(spec, this);
-    }
-
-    private  Map.Entry<ToolSpecification, ToolExecutor> submitPayment() {
-        return Map.entry(
+    private static final Map.Entry<ToolSpecification, ToolExecutor> submitPayment =
+        Map.entry(
                 ToolSpecification.builder()
                         .name("submit_payment")
-                        .description("submit a payment for a specific product")
+                        .description("submit a payment for purchasing a specific product")
                         .parameters(JsonObjectSchema.builder()
                                 .addStringProperty("product", "the product name to buy")
                                 .addNumberProperty("price", "the product price")
@@ -61,10 +43,8 @@ public class AgentPayment implements ToolExecutor {
                 }
         );
 
-    }
-
-    private Map.Entry<ToolSpecification, ToolExecutor> retrieveIBAN() {
-        return Map.entry(
+    private static final Map.Entry<ToolSpecification, ToolExecutor> retrieveIBAN =
+            Map.entry(
                 ToolSpecification.builder()
                         .name("get_iban")
                         .description("retrieve IBAN information")
@@ -78,30 +58,17 @@ public class AgentPayment implements ToolExecutor {
                 }
         );
 
-    }
 
-    public AgentPayment( AgentExecutor.Builder builder ) throws GraphStateException {
-        final var systemMessage = SystemMessage.from("""
-        You are the agent that provides payment service.
-        """);
-        
-        agentExecutor = builder
-                .systemMessage( systemMessage )
-                .tool( submitPayment() )
-                .tool( retrieveIBAN() )
-                .build()
-                .compile();
-
-    }
-
-    @Override
-    public String execute(ToolExecutionRequest toolExecutionRequest, Object o) {
-        var userMessage = UserMessage.from( toolExecutionRequest.arguments() );
-
-        var result = agentExecutor.invoke( Map.of( "messages", userMessage ) );
-
-        return result.flatMap(AgentExecutor.State::finalResponse).orElseThrow();
-
+    public AgentPayment( Builder builder ) throws GraphStateException {
+        super(builder
+                .name("payment")
+                .description("payment agent, request purchase and payment transactions")
+                .singleParameter("all information provided about the payment")
+                .systemMessage( SystemMessage.from("""
+                    You are the agent that provides payment service.
+                    """) )
+                .tool( submitPayment )
+                .tool( retrieveIBAN ) );
     }
 
 }
