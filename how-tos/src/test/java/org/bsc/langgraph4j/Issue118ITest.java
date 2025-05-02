@@ -32,9 +32,7 @@ public class Issue118ITest {
     @BeforeAll
     public static void init() throws Exception {
         try (var file = new java.io.FileInputStream("./logging.properties")) {
-            var lm = java.util.logging.LogManager.getLogManager();
-            lm.checkAccess();
-            lm.readConfiguration(file);
+            java.util.logging.LogManager.getLogManager().readConfiguration(file);
         }
 
         log = org.slf4j.LoggerFactory.getLogger("issue118");
