@@ -53,12 +53,13 @@ flowchart TD
         and 
         result gathering")
 	    LLM_1 e1_1@-->|actions invocation plan| actions_1
-        actions_1 -.-> LLM_1
-        actions_1 -->|invoke| action1_1
-        actions_1 -->|invoke| action2_1
-        actions_1 e2_1@-->|invoke| actionN_1
-        action1_1 -.-> actions_1
     end
+
+    actions_1 -.-> LLM_1
+    actions_1 -->|invoke| action1_1
+    actions_1 -->|invoke| action2_1
+    actions_1 e2_1@-->|invoke| actionN_1
+    action1_1 -.-> actions_1
 
     subgraph AGENT
         LLM("LLM
@@ -67,12 +68,13 @@ flowchart TD
         and 
         result gathering")
         LLM e1@-->|actions invocation plan| actions
-        actions -->|invoke| action2
-        actions -->|invoke| actionN    
-        action2 -.-> actions
-        actionN -.-> actions
-        actions -.-> LLM
   	end
+
+    actions -->|invoke| action2
+    actions -->|invoke| actionN    
+    action2 -.-> actions
+    actionN -.-> actions
+    actions -.-> LLM
 
     LLM -->|end| __END__
     
@@ -107,12 +109,13 @@ flowchart TD
         and 
         result gathering")
 	    LLM_1 e1_1@-->|actions invocation plan| actions_1
-        actions_1 -.-> LLM_1
-        actions_1 -->|invoke| action1_1
-        actions_1 -->|invoke| action2_1
-        actions_1 e2_1@-->|invoke| actionN_1
-        action1_1 -.-> actions_1
     end
+
+    actions_1 -.-> LLM_1
+    actions_1 -->|invoke| action1_1
+    actions_1 -->|invoke| action2_1
+    actions_1 e2_1@-->|invoke| actionN_1
+    action1_1 -.-> actions_1
     
     subgraph action2
         B@{ shape: brace-r, label: "Action2 as Agent" }
@@ -122,15 +125,16 @@ flowchart TD
         and 
         result gathering")
 	    LLM_2 e1_2@-->|actions invocation plan| actions_2
-        actions_2 -.-> LLM_2
-        actions_2 e3_2@-->|invoke| action1_2
-        actions_2 -->|invoke| action2_2
-        actions_2 e2_2@-->|invoke| actionN_2
-        action1_2 -.-> actions_2
-        action2_2 -.-> actions_2
-        actionN_2 -.-> actions_2
 
     end
+
+    actions_2 -.-> LLM_2
+    actions_2 e3_2@-->|invoke| action1_2
+    actions_2 -->|invoke| action2_2
+    actions_2 e2_2@-->|invoke| actionN_2
+    action1_2 -.-> actions_2
+    action2_2 -.-> actions_2
+    actionN_2 -.-> actions_2
 
     subgraph AGENT
         LLM("LLM
@@ -139,10 +143,12 @@ flowchart TD
         and 
         result gathering")
         LLM e1@-->|actions invocation plan| actions
-        actions -->|invoke| actionN
-        actionN -.-> actions
-        actions -.-> LLM
+        
   	end
+    
+    actions -->|invoke| actionN
+    actionN -.-> actions
+    actions -.-> LLM
 
     LLM -->|end| __END__
     
@@ -160,5 +166,4 @@ e2_1@{ animate: true }
 e1_2@{ animate: true }     
 e2_2@{ animate: true }     
 e3_2@{ animate: true }     
-
 ```
