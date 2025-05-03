@@ -60,6 +60,8 @@ flowchart TD
     actions_1 -->|invoke| action2_1
     actions_1 e2_1@-->|invoke| actionN_1
     action1_1 -.-> actions_1
+    action2_1 -.-> actions_1
+    actionN_1 -.-> actions_1
 
     subgraph AGENT
         LLM("LLM
@@ -116,7 +118,9 @@ flowchart TD
     actions_1 -->|invoke| action2_1
     actions_1 e2_1@-->|invoke| actionN_1
     action1_1 -.-> actions_1
-    
+    action2_1 -.-> actions_1
+    actionN_1 -.-> actions_1
+
     subgraph action2
         B@{ shape: brace-r, label: "Action2 as Agent" }
         LLM_2("LLM
