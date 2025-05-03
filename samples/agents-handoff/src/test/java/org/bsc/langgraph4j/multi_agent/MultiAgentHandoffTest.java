@@ -15,7 +15,7 @@ public class MultiAgentHandoffTest {
 
     enum AiModel {
 
-        OPENAI( OpenAiChatModel.builder()
+        OPENAI_GPT_4O_MINI( OpenAiChatModel.builder()
                 .apiKey( System.getenv("OPENAI_API_KEY") )
                 .modelName( "gpt-4o-mini" )
                 .supportedCapabilities(Set.of(Capability.RESPONSE_FORMAT_JSON_SCHEMA))
@@ -59,20 +59,20 @@ public class MultiAgentHandoffTest {
                 .build();
 
         var agentPayment = AgentPayment.builder()
-                .chatLanguageModel( AiModel.OLLAMA_QWEN2_5_7B.model )
+                .chatLanguageModel( AiModel.OLLAMA_QWEN3_14B.model )
                 .build();
 
-        var agentExecutor = AgentExecutor.builder()
+        var handoffExecutor = AgentHandoff.builder()
                 .chatLanguageModel(AiModel.OLLAMA_QWEN3_14B.model)
-                .tool( agentMarketplace.asTool() )
-                .tool( agentPayment.asTool() )
+                .agent( agentMarketplace )
+                .agent( agentPayment )
                 .build()
                 .compile()
                 ;
 
         var input = "search for product 'X' and purchase it";
 
-        var result = agentExecutor.invoke( Map.of( "messages", UserMessage.from(input)));
+        var result = handoffExecutor.invoke( Map.of( "messages", UserMessage.from(input)));
 
         System.out.println( result );
 
