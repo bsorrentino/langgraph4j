@@ -1,5 +1,5 @@
 package dev.langchain4j.adaptiverag;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -42,7 +42,7 @@ public record QuestionRewriter( String openApiKey ) implements Function<String, 
 
     /**
     * Applies a natural language processing pipeline to improve a given question.
-    * This method uses a ChatLanguageModel with specified configuration and an LLMService to generate and invoke a new, improved question based on the provided input.
+    * This method uses a ChatModel with specified configuration and an LLMService to generate and invoke a new, improved question based on the provided input.
     *
     * @param question The original question to be improved.
     * @return A string representing the improved question.
@@ -50,7 +50,7 @@ public record QuestionRewriter( String openApiKey ) implements Function<String, 
     @Override
     public String apply(String question) {
 
-        ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
+        ChatModel chatLanguageModel = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-3.5-turbo-0125" )
                 .timeout(Duration.ofMinutes(2))

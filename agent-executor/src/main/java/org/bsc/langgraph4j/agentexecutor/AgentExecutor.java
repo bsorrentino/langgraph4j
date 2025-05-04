@@ -252,10 +252,10 @@ public interface AgentExecutor {
          */
         public StateGraph<State> build() throws GraphStateException {
 
-            if (streamingChatLanguageModel != null && chatLanguageModel != null) {
+            if (streamingChatModel != null && chatModel != null) {
                 throw new IllegalArgumentException("chatLanguageModel and streamingChatLanguageModel are mutually exclusive!");
             }
-            if (streamingChatLanguageModel == null && chatLanguageModel == null) {
+            if (streamingChatModel == null && chatModel == null) {
                 throw new IllegalArgumentException("a chatLanguageModel or streamingChatLanguageModel is required!");
             }
 

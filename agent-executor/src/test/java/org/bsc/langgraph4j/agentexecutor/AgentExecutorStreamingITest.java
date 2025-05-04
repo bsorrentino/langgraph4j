@@ -43,7 +43,7 @@ public class AgentExecutorStreamingITest {
                 .build();
 
         return AgentExecutor.builder()
-                .chatLanguageModel(chatLanguageModel)
+                .chatModel(chatLanguageModel)
                 .toolsFromObject(new TestTool())
                 .build();
     }

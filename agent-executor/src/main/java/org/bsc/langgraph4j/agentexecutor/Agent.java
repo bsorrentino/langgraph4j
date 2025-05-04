@@ -3,8 +3,8 @@ package org.bsc.langgraph4j.agentexecutor;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.chat.StreamingChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.request.ResponseFormat;
@@ -29,8 +29,8 @@ import static java.util.Optional.ofNullable;
 class Agent {
 
     static public abstract class Builder<T extends Builder<T>> extends LC4jToolMapBuilder<T> {
-        ChatLanguageModel chatLanguageModel;
-        StreamingChatLanguageModel streamingChatLanguageModel;
+        ChatModel chatModel;
+        StreamingChatModel streamingChatModel;
         SystemMessage systemMessage;
         ResponseFormat responseFormat;
 
@@ -39,18 +39,28 @@ class Agent {
             return (T)this;
         }
 
-        public T chatLanguageModel( ChatLanguageModel chatLanguageModel ) {
-            if( this.chatLanguageModel == null ) {
-                this.chatLanguageModel = chatLanguageModel;
+        public T chatModel( ChatModel chatLanguageModel ) {
+            if( this.chatModel == null ) {
+                this.chatModel = chatLanguageModel;
             }
             return result();
         }
 
-        public T chatLanguageModel( StreamingChatLanguageModel streamingChatLanguageModel ) {
-            if( this.streamingChatLanguageModel == null ) {
-                this.streamingChatLanguageModel = streamingChatLanguageModel;
+        @Deprecated(forRemoval = true)
+        public T chatLanguageModel( ChatModel chatLanguageModel ) {
+            return chatModel( chatLanguageModel );
+        }
+
+        public T chatModel( StreamingChatModel streamingChatLanguageModel ) {
+            if( this.streamingChatModel == null ) {
+                this.streamingChatModel = streamingChatLanguageModel;
             }
             return result();
+        }
+
+        @Deprecated( forRemoval = true )
+        public T chatLanguageModel( StreamingChatModel streamingChatLanguageModel ) {
+            return chatModel( streamingChatLanguageModel );
         }
 
         public T systemMessage( SystemMessage systemMessage ) {
@@ -98,8 +108,8 @@ class Agent {
         public abstract StateGraph<AgentExecutor.State> build() throws GraphStateException;
     }
 
-    private final ChatLanguageModel chatLanguageModel;
-    private final StreamingChatLanguageModel streamingChatLanguageModel;
+    private final ChatModel chatLanguageModel;
+    private final StreamingChatModel streamingChatLanguageModel;
     private final SystemMessage systemMessage;
 
     final ChatRequestParameters parameters;
@@ -114,8 +124,8 @@ class Agent {
     }
 
     protected Agent( Builder builder ) {
-        this.chatLanguageModel = builder.chatLanguageModel;
-        this.streamingChatLanguageModel = builder.streamingChatLanguageModel;
+        this.chatLanguageModel = builder.chatModel;
+        this.streamingChatLanguageModel = builder.streamingChatModel;
         this.systemMessage = ofNullable( builder.systemMessage ).orElseGet( () -> SystemMessage.from("You are a helpful assistant") );
 
         var parametersBuilder = ChatRequestParameters.builder()

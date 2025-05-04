@@ -35,7 +35,7 @@ public class AgentWebITest {
                 .build();
 
         var agent = AiServices.builder(Assistant.class)
-                .chatLanguageModel(model)
+                .chatModel(model)
                 .contentRetriever(webSearchContentRetriever)
                 .build();
 

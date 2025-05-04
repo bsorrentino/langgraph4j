@@ -63,7 +63,7 @@ public class MCPIntegrationITest {
             }
 
             var agentBuilder = AgentExecutor.builder()
-                    .chatLanguageModel(model);
+                    .chatModel(model);
 
             for( var toolSpecification : mcpClient.listTools() ) {
                 agentBuilder.tool( toolSpecification, ( request, memoryId) -> mcpClient.executeTool( request) );

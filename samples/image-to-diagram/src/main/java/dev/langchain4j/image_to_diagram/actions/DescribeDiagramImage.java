@@ -4,7 +4,7 @@ import dev.langchain4j.data.message.*;
 import dev.langchain4j.image_to_diagram.state.Diagram;
 import dev.langchain4j.image_to_diagram.DiagramOutputParser;
 import dev.langchain4j.image_to_diagram.ImageToDiagram;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import org.bsc.langgraph4j.action.NodeAction;
 
@@ -21,14 +21,14 @@ public class DescribeDiagramImage implements NodeAction<ImageToDiagram.State> {
     /**
      * The language model responsible for generating the description.
      */
-    final ChatLanguageModel visionModel;
+    final ChatModel visionModel;
 
     /**
      * Constructs a `DescribeDiagramImage` instance with the given language model.
      *
      * @param visionModel The language model used to generate descriptions.
      */
-    public DescribeDiagramImage( ChatLanguageModel visionModel) {
+    public DescribeDiagramImage( ChatModel visionModel) {
         this.visionModel = Objects.requireNonNull(visionModel, "visionModel cannot be null");
     }
 

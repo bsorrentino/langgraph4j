@@ -23,7 +23,7 @@ public class AgentExecutorITest extends AbstractAgentExecutorTest {
                 .build();
 
         return AgentExecutor.builder()
-                .chatLanguageModel(chatLanguageModel)
+                .chatModel(chatLanguageModel)
                 .toolsFromObject(new TestTool())
                 .build();
 
