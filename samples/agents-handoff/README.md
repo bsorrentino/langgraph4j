@@ -53,7 +53,7 @@ e2@{ animate: true }
 ```
 
 It is interesting to note that the LLM reasoning process creates an **action plan**, while the agent platform handles **dispatching and gathering results**.
-Now, since the LLM (tools enabled) produce a well defined  **agent invocation plan** based on its input to solve the problem he is dealing with, what about behind the action we have another Agent ?
+Now, since the LLM (tools enabled) produce a well defined  **actions invocation plan** based on its input to solve the problem he is dealing with, what about behind the action we have another Agent ?
 
 ```mermaid
 ---
