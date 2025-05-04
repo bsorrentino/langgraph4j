@@ -1,6 +1,6 @@
-package org.bsc.langgraph4j.multi_agent;
+package org.bsc.langgraph4j.multi_agent.lc4j;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
@@ -12,8 +12,8 @@ public interface AgentHandoff {
    class Builder {
         final AgentExecutor.Builder delegate = AgentExecutor.builder();
 
-        public Builder chatLanguageModel(ChatLanguageModel model) {
-            delegate.chatLanguageModel(model);
+        public Builder chatModel(ChatModel model) {
+            delegate.chatModel(model);
             return this;
         }
 

@@ -1,17 +1,16 @@
-package org.bsc.langgraph4j.multi_agent;
+package org.bsc.langgraph4j.multi_agent.lc4j;
 
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.Capability;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import org.bsc.langgraph4j.agentexecutor.AgentExecutor;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
-public class MultiAgentHandoffTest {
+public class MultiAgentHandoffITest {
 
     enum AiModel {
 
@@ -43,9 +42,9 @@ public class MultiAgentHandoffTest {
                 .build() )
         ;
 
-        public final ChatLanguageModel model;
+        public final ChatModel model;
 
-        AiModel(  ChatLanguageModel model ) {
+        AiModel(  ChatModel model ) {
             this.model = model;
         }
     }
@@ -55,15 +54,15 @@ public class MultiAgentHandoffTest {
     public void testHandoff() throws Exception {
 
         var agentMarketplace = AgentMarketplace.builder()
-                .chatLanguageModel( AiModel.OLLAMA_QWEN2_5_7B.model )
+                .chatModel( AiModel.OLLAMA_QWEN2_5_7B.model )
                 .build();
 
         var agentPayment = AgentPayment.builder()
-                .chatLanguageModel( AiModel.OLLAMA_QWEN3_14B.model )
+                .chatModel( AiModel.OLLAMA_QWEN3_14B.model )
                 .build();
 
         var handoffExecutor = AgentHandoff.builder()
-                .chatLanguageModel(AiModel.OLLAMA_QWEN3_14B.model)
+                .chatModel(AiModel.OLLAMA_QWEN3_14B.model)
                 .agent( agentMarketplace )
                 .agent( agentPayment )
                 .build()

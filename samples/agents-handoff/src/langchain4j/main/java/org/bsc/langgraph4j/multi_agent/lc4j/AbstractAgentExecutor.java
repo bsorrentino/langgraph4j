@@ -1,10 +1,10 @@
-package org.bsc.langgraph4j.multi_agent;
+package org.bsc.langgraph4j.multi_agent.lc4j;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.tool.ToolExecutor;
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.GraphStateException;
@@ -18,8 +18,8 @@ public abstract class AbstractAgentExecutor<B extends AbstractAgentExecutor.Buil
 
         final AgentExecutor.Builder delegate = AgentExecutor.builder();
 
-        public B chatLanguageModel(ChatLanguageModel model) {
-            delegate.chatLanguageModel(model);
+        public B chatModel(ChatModel model) {
+            delegate.chatModel(model);
             return result();
         }
 

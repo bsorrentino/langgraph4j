@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.multi_agent;
+package org.bsc.langgraph4j.multi_agent.lc4j;
 
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
