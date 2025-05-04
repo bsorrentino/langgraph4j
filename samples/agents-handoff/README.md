@@ -57,7 +57,7 @@ Now, since the LLM (tools enabled) produce a well defined  **agent invocation pl
 
 ```mermaid
 ---
-title: Agent as Action
+title: ReAct Agent
 ---
 flowchart TD
 	__START__((start))
