@@ -9,7 +9,8 @@ Multi-agent systems consist of multiple interacting agents, each designed to per
 
 Agents Handoff refers to the mechanism where control and data ( context ) are transferred from one agent to another, enabling continuous and efficient task execution. This concept is pivotal in scenarios where tasks require diverse expertise or when tasks need to be distributed among multiple agents to optimize performance. 
 
-## How to implement Agents Handoff ?
+##
+How to implement Agents Handoff ?
 
 Before to evaluate possibly solutions take a more deeper look to "function calling" feature and their role in AI model
 
@@ -52,8 +53,8 @@ e1@{ animate: true }
 e2@{ animate: true }     
 ```
 
-It is interesting to note that the LLM reasoning process creates an **action plan**, while the agent platform handles **dispatching and gathering results**.
-Now, since the LLM (tools enabled) produce a well defined  **actions invocation plan** based on its input to solve the problem he is dealing with, what about behind the action we have another Agent ?
+It is interesting to note that the LLM reasoning process creates an **actions plan**, while the agent platform handles **dispatching and gathering results**.
+Now, since the LLM (tools enabled) produce a well defined  **actions invocation plan** based on its input to solve the problem he is dealing with, **what about behind the action we have another Agent ?**
 
 ```mermaid
 ---
@@ -112,6 +113,7 @@ e1_1@{ animate: true }
 e2_1@{ animate: true }     
 
 ```
+and iteratively we can continue to add new agents making complex multi agents scenarios
 
 ```mermaid
 ---
@@ -193,3 +195,13 @@ e1_2@{ animate: true }
 e2_2@{ animate: true }     
 e3_2@{ animate: true }     
 ```
+
+## Define Agent Roles and Capabilities using function calls 
+
+In this scenario we can consider to defining :
+
+* **Function description**
+  > It will become the Agent role and capabilities. This is crucial to feed the LLM in order to produce a "Actions execution plan" tah fit for purpose
+* **Function parameters**
+  > It will be the context on which the agent will operate as input for its LLM.
+  > By default it will be just one parameter named 'context'
