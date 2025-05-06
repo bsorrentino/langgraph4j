@@ -12,7 +12,7 @@
 	<version>1.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>langgraph4j::sample::springai::agentexecutor</name>
+	<name>langgraph4j::springai::agentexecutor</name>
 	<description>Sample using Langgraph4j with SpringAI</description>
 
 	<url/>
