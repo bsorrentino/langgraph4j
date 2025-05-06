@@ -2,6 +2,125 @@
 
 
 
+<!-- "name: v1.5.9" is a release tag -->
+
+## [v1.5.9](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.9) (2025-05-06)
+
+### Features
+
+ *  **sample/handoff**  second candidate version for spring-ai implementation ([54c371a43543c5b](https://github.com/bsorrentino/langgraph4j/commit/54c371a43543c5b79bf1ffed15d745ac44ce218d))
+     > work on #94
+   
+ *  **sample/handoff**  first candidate version for spring-ai implementation ([db42be92eaa0098](https://github.com/bsorrentino/langgraph4j/commit/db42be92eaa0098798b6554e16b3d67b70f83758))
+     > work on #94
+   
+ *  **sample/handoff**  setup for springai support ([29d50a12d34fd2c](https://github.com/bsorrentino/langgraph4j/commit/29d50a12d34fd2c8014d77539f7489a2bb96c526))
+   
+ *  **sample/handoff**  refine handoff sample ([64f07d3ac76a52f](https://github.com/bsorrentino/langgraph4j/commit/64f07d3ac76a52fff851f1f5dcd19276bd23015e))
+     > work on #94
+   
+ *  **sample/handoff**  finalize handoff sample using using agent-executor and langchain4j ([fed3d87702df5e2](https://github.com/bsorrentino/langgraph4j/commit/fed3d87702df5e2fe62ee22b2a20c288eb0324d7))
+     > resolve #94
+   
+ *  **langchain4j**  introduce new class LC4jToolMapBuilder to build a map of ToolSpecifications and ToolExecutors ([5e74f918db03ad2](https://github.com/bsorrentino/langgraph4j/commit/5e74f918db03ad20d7e806291392187e1fcf08f4))
+     > - Refactor LC4jToolService
+     > - Refactor ToolNode
+     > - Deprecate the older &#x60;Specification&#x60; record in favor of the more versatile and flexible map-based approach.
+   
+ *  **sample/handoff**  implementation based on handoff agents as functions ([ea1549410e319b9](https://github.com/bsorrentino/langgraph4j/commit/ea1549410e319b922f002bfc967616b26c06f9a5))
+     > work on #94
+   
+ *  **sample/handoff**  start experimentation with  multi agent handoff  workflow ([a65f5c6a1e8019e](https://github.com/bsorrentino/langgraph4j/commit/a65f5c6a1e8019e916cfb48b0a78174dddd31847))
+     > work on #94
+   
+
+
+### Documentation
+
+ -  **springai-agent**  update readme ([723ae83ef451082](https://github.com/bsorrentino/langgraph4j/commit/723ae83ef451082333c2be80e5c73f83827e31fa))
+
+ -  bump to release 1.5.9 ([fc28dea3e90d784](https://github.com/bsorrentino/langgraph4j/commit/fc28dea3e90d784344b74145f9dd72c65fff8d32))
+
+ -  **sample/handoff**  update readme ([02fc3f3455408f1](https://github.com/bsorrentino/langgraph4j/commit/02fc3f3455408f1096f89aaf0f8fb11a2ef177f5))
+     > work on #94
+
+ -  **sample/handoff**  update readme ([a986f829190f209](https://github.com/bsorrentino/langgraph4j/commit/a986f829190f2096b51f1f5d223e1b409f393c78))
+
+ -  **sample/handoff**  update readme ([e2c68a25c49029a](https://github.com/bsorrentino/langgraph4j/commit/e2c68a25c49029a9059d851c4ae8b0bf41bfc954))
+
+ -  **sample/handoff**  update readme ([89a37d070fca964](https://github.com/bsorrentino/langgraph4j/commit/89a37d070fca9646047ca8757ee7507a93d40a4d))
+
+ -  **sample/handoff**  update readme ([720f1cf0fc09c3a](https://github.com/bsorrentino/langgraph4j/commit/720f1cf0fc09c3a6215bfeaafe494dee5e7764b4))
+
+ -  **samples/handoff**  update readme ([be111d5225c23dc](https://github.com/bsorrentino/langgraph4j/commit/be111d5225c23dc4c4db07f1f53e0b02b4a32590))
+
+ -  **samples/handoff**  update readme ([89d062a44657edb](https://github.com/bsorrentino/langgraph4j/commit/89d062a44657edb23389d9ba786ed170d7380bbb))
+
+ -  **samples/handoff**  update readme ([1501f381478b4ff](https://github.com/bsorrentino/langgraph4j/commit/1501f381478b4ffb6ddf7a5256d4dc11999725de))
+
+ -  update home page ([55095c9f1cd36b8](https://github.com/bsorrentino/langgraph4j/commit/55095c9f1cd36b8fa8fbd9daa0e486b0c7750548))
+
+ -  update README ([036fb4e9b2963a4](https://github.com/bsorrentino/langgraph4j/commit/036fb4e9b2963a45d308603d5afd947573397107))
+
+ -  update README ([0f6292dedbc9303](https://github.com/bsorrentino/langgraph4j/commit/0f6292dedbc9303e02c7bf69b69611b68083e211))
+
+ -  fix link for spring-ai-agent ([60bb6f22b5acda2](https://github.com/bsorrentino/langgraph4j/commit/60bb6f22b5acda2f9bad027c857effece952864a))
+
+ -  fix link for spring-ai-agent ([f3e622eda636d8c](https://github.com/bsorrentino/langgraph4j/commit/f3e622eda636d8c0bcee479efc5f216ad5f6fca0))
+
+ -  update changelog ([64637f0ac4b11d0](https://github.com/bsorrentino/langgraph4j/commit/64637f0ac4b11d00de427318b03ee7a38bfec79a))
+
+
+### Refactor
+
+ -  **springai-agent**  support chat models and tools improvements ([9caa4c170614af5](https://github.com/bsorrentino/langgraph4j/commit/9caa4c170614af525b8351c97706c73e9f5a8835))
+    > - Deprecate ChatService interface
+ > - Refactored DemoConsoleController to use ChatModel and ToolCallback list
+ > - Refactored LangGraphStudioConfiguration to accept ChatModel and ToolCallback list
+
+ -  bump to langchain4j 1.0.0-rc1 ([762e3e4656755a8](https://github.com/bsorrentino/langgraph4j/commit/762e3e4656755a84ff2f228a8e4ae4d2f3b6caa8))
+    > - rename ChatLanguageModel to ChatModel
+
+ -  **studio/jetty**  refactored agent instantation   by replacing direct `specification` calls with more specific methods like `toolsFromObject` ([5916e5bb3023a82](https://github.com/bsorrentino/langgraph4j/commit/5916e5bb3023a82661da4e261dce3382d08b6a13))
+   
+ -  **lc4jtoolservice**  update tool configuration ([d4b3c3056a0d9c1](https://github.com/bsorrentino/langgraph4j/commit/d4b3c3056a0d9c1e969955c74f0e1de4a66cc990))
+    > Refactored tool service by replacing direct &#x60;specification&#x60; calls with more specific methods like &#x60;toolsFromObject&#x60;, &#x60;tool&#x60;
+
+ -  **how-to**  bump to langgraph4j 1.0.0-beta3 ([71077fd75d5570e](https://github.com/bsorrentino/langgraph4j/commit/71077fd75d5570e5fc5fdc14a6462d37182fa7d6))
+    > - remove usage of deprecated lm.checkAccess() method
+
+ -  **agent-executor**  simplify objects hierarchy ([96126dbe3e72fa8](https://github.com/bsorrentino/langgraph4j/commit/96126dbe3e72fa864463d83f8bd3b8f6e9afb341))
+   
+ -  **agent-executor**  simplify objects hierarchy ([2f1d462664b7948](https://github.com/bsorrentino/langgraph4j/commit/2f1d462664b7948da54c87bd755120a7287ce18b))
+   
+ -  **core/CollectionsUtils**  allow null values in collection factory methods ([a678136a1cdee03](https://github.com/bsorrentino/langgraph4j/commit/a678136a1cdee0369be24f9a642553b69bb9c549))
+    > - Updated methods to handle null values gracefully.
+ > - Removed deprecated annotations.
+
+
+### ALM 
+
+ -  **spring-ai**  add pring-ai-client-chat deps ([f254baf15261032](https://github.com/bsorrentino/langgraph4j/commit/f254baf15261032dbaf35b39ad3a4e668ca7c93b))
+   
+ -  add maven wrapper support ([08ddc80315c510e](https://github.com/bsorrentino/langgraph4j/commit/08ddc80315c510e99e62762bd839c4926644f5b3))
+   
+ -  **pom.xml**  bump langchain4j version to 1.0.0-beta3 ([2b3e632212e20bc](https://github.com/bsorrentino/langgraph4j/commit/2b3e632212e20bc9656d4c1266b841266de9e793))
+   
+ -  bump to new SNAPSHOT ([624990b697d8dc0](https://github.com/bsorrentino/langgraph4j/commit/624990b697d8dc0c76a7cfe347f4bf7c8fb33785))
+   
+
+### Test 
+
+ -  verify issue #118 ([6ac2adcd47b7313](https://github.com/bsorrentino/langgraph4j/commit/6ac2adcd47b73131ba781db7afe5da68a7f7ed98))
+   
+ -  **samples/agents-handoff**  try to create the complete context  for passing over handoff ([f5528a0a8316cb2](https://github.com/bsorrentino/langgraph4j/commit/f5528a0a8316cb2acbb6030d84b60f1f2a178377))
+    > work on #94
+
+
+
+
+
+
 <!-- "name: v1.5.8" is a release tag -->
 
 ## [v1.5.8](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.8) (2025-04-26)
