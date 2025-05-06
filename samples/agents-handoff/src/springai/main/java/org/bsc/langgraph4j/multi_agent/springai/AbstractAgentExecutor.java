@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j.multi_agent.springai;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.serializer.StateSerializer;
@@ -13,11 +14,9 @@ import org.springframework.ai.tool.ToolCallback;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractAgentExecutor<I extends AbstractAgentExecutor.Request, B extends AbstractAgent.Builder<B>> extends AbstractAgent<I,String,B> {
+public abstract class AbstractAgentExecutor<B extends AbstractAgent.Builder<B>> extends AbstractAgent<AbstractAgentExecutor.Request,String,B> {
 
-    public interface Request {
-        String asText();
-    }
+    public record Request( String input ) {};
 
     public static abstract class Builder<B extends AbstractAgent.Builder<B>> extends AbstractAgent.Builder<B> {
 
@@ -59,7 +58,7 @@ public abstract class AbstractAgentExecutor<I extends AbstractAgentExecutor.Requ
     final CompiledGraph<AgentExecutor.State> agentExecutor;
 
     protected AbstractAgentExecutor(Builder<B> builder) throws GraphStateException {
-        super(builder);
+        super(builder.inputType(Request.class));
 
         agentExecutor = builder.agentExecutorBuilder.build().compile();
     }
@@ -67,7 +66,7 @@ public abstract class AbstractAgentExecutor<I extends AbstractAgentExecutor.Requ
     @Override
     public String apply(Request request, ToolContext toolContext) {
 
-        var userMessage = new UserMessage( request.asText() );
+        var userMessage = new UserMessage( request.input() );
 
         var result = agentExecutor.invoke( Map.of( "messages", userMessage ) );
 

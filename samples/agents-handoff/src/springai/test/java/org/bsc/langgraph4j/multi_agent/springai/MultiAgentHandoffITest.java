@@ -2,9 +2,11 @@ package org.bsc.langgraph4j.multi_agent.springai;
 
 
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.content.Content;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
@@ -56,25 +58,20 @@ public class MultiAgentHandoffITest {
         }
     }
 
-    record Request( @JsonPropertyDescription("this is my property") String input ) {};
-
-    @Test
-    public void testInputType() {
-        var schema = JsonSchemaGenerator.generateForType(Request.class, JsonSchemaGenerator.SchemaOption.ALLOW_ADDITIONAL_PROPERTIES_BY_DEFAULT);
-
-        System.out.println( schema );
-
-    }
-
     @Test
     public void testHandoff() throws Exception {
         var agentMarketPlace = AgentMarketplace.builder()
                 .chatModel( AiModel.OLLAMA_QWEN2_5_7B.model )
                 .build();
 
+        var agentPayment = AgentPayment.builder()
+                .chatModel( AiModel.OLLAMA_QWEN2_5_7B.model )
+                .build();
+
         var handoffExecutor = AgentHandoff.builder()
                 .chatModel( AiModel.OLLAMA_QWEN2_5_7B.model )
                 .agent( agentMarketPlace )
+                .agent( agentPayment )
                 .build()
                 .compile();
 
@@ -82,6 +79,10 @@ public class MultiAgentHandoffITest {
 
         var result = handoffExecutor.invoke( Map.of( "messages", new UserMessage(input)));
 
-        System.out.println( result );
+        var response = result.flatMap(MessagesState::lastMessage)
+                .map(Content::getText)
+                .orElseThrow();
+
+        System.out.println( response );
     }
 }

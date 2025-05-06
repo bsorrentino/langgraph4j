@@ -5,17 +5,7 @@ import org.bsc.langgraph4j.GraphStateException;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 
-public class AgentMarketplace extends AbstractAgentExecutor<AgentMarketplace.Request,AgentMarketplace.Builder> {
-
-    public record Request(
-            @JsonPropertyDescription("all information request about the products") String input )
-            implements AbstractAgentExecutor.Request
-    {
-        @Override
-        public String asText() {
-            return input;
-        }
-    };
+public class AgentMarketplace extends AbstractAgentExecutor<AgentMarketplace.Builder> {
 
     static class Tools {
         record Product(
@@ -52,7 +42,7 @@ public class AgentMarketplace extends AbstractAgentExecutor<AgentMarketplace.Req
     }
 
     protected AgentMarketplace(Builder builder) throws GraphStateException {
-        super(builder.inputType(Request.class));
+        super(builder);
 
 
     }

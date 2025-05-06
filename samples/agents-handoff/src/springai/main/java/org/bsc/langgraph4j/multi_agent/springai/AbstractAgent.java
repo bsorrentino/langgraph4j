@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+import static java.lang.String.format;
+
 public abstract class AbstractAgent<I, O, B extends AbstractAgent.Builder<B>> implements BiFunction<I,ToolContext, O> {
 
     public static abstract class Builder<B extends Builder<B>> {
@@ -79,6 +81,20 @@ public abstract class AbstractAgent<I, O, B extends AbstractAgent.Builder<B>> im
         this.toolCallback = FunctionToolCallback.builder(
                 Objects.requireNonNull( builder.name, "name cannot be null!" ),
                 this)
+                .inputSchema(format("""
+                        {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "type": "object",
+                          "properties": {
+                            "input": {
+                              "type": "string",
+                              "description": "%s"
+                            }
+                          },
+                          "required": [ "input" ]
+                        }
+                        """,
+                        Objects.requireNonNull(builder.parameterDescription,"parameterDescription cannot be null!")))
                 .inputType( builder.inputType )
                 .description( builder.description )
                 .toolMetadata( builder.toolMetadata )
