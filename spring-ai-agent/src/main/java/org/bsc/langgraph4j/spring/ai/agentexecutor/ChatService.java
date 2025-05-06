@@ -6,9 +6,16 @@ import org.springframework.ai.tool.ToolCallback;
 
 import java.util.List;
 
+/**
+ * it should be considered and internal internal
+ *
+ * @deprecated
+ */
+@Deprecated
 public interface ChatService {
 
     ChatResponse execute(List<Message> messages );
 
     List<ToolCallback> tools();
+
 }

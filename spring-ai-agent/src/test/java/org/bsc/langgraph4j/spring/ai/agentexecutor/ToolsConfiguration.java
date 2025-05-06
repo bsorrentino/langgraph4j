@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * This configuration class provides methods to define and execute weather-related functions.
  */
 @Configuration
-public class FunctionsConfiguration {
+public class ToolsConfiguration {
 
     /**
      * Weather configuration properties.
@@ -24,7 +24,7 @@ public class FunctionsConfiguration {
      * Constructor for creating a new instance of FunctionsConfiguration.
      * @param props Weather configuration properties.
      */
-    public FunctionsConfiguration(WeatherConfig props) {
+    public ToolsConfiguration(WeatherConfig props) {
         this.props = props;
     }
 

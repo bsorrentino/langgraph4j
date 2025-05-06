@@ -3,10 +3,13 @@ package org.bsc.langgraph4j.spring.ai.agentexecutor;
 import org.bsc.langgraph4j.NodeOutput;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,10 +19,13 @@ import java.util.Map;
 public class DemoConsoleController implements CommandLineRunner {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DemoConsoleController.class);
 
-    private final ChatService chatService;
+    private final ChatModel chatModel;
+    private final List<ToolCallback> tools;
 
-    public DemoConsoleController(@Qualifier("ollama") ChatService chatService) {
-        this.chatService = chatService;
+    public DemoConsoleController( /*@Qualifier("ollama")*/ChatModel chatModel, List<ToolCallback> tools) {
+
+        this.chatModel = chatModel;
+        this.tools = tools;
     }
 
     /**
@@ -37,7 +43,8 @@ public class DemoConsoleController implements CommandLineRunner {
         log.info("Welcome to the Spring Boot CLI application!");
 
         var graph = AgentExecutor.builder()
-                        .chatService( chatService )
+                        .chatModel(chatModel)
+                        .tools(tools)
                         .build();
 
         var workflow = graph.compile();
