@@ -39,58 +39,44 @@ public class SpringAiDemoApplication {
 }
 ```
 
-### create ChatService
+### create ChatModel configuration
 
 ```java
-@Service("ollama")
-public class OllamaChatService implements ChatService {
-    public final List<ToolCallback> tools;
-    private final ChatClient chatClient;
+@Configuration
+public class ChatModelConfiguration {
 
-    public OllamaChatService( List<ToolCallback> agentFunctions ) {
-        this.tools = agentFunctions;
-        this.chatClient = chatClientBuilder()
-                .defaultSystem("You are a helpful AI Assistant answering questions.")
-                .defaultTools(agentFunctions)
+    @Bean
+    @Profile("ollama")
+    public ChatModel ollamaModel() {
+        return  OllamaChatModel.builder()
+                .ollamaApi( new OllamaApi( "http://localhost:11434" ) )
+                .defaultOptions(OllamaOptions.builder()
+                        .model("qwen2.5:7b")
+                        .temperature(0.1)
+                        .build())
                 .build();
     }
-    
-    public List<ToolCallback> tools() { return tools; }
 
-    public ChatResponse execute( List<Message> messages ) {
-        return chatClient
-                .prompt()
-                .messages( messages )
-                .call()
-                .chatResponse();
+    @Bean
+    @Profile("openai")
+    public ChatModel openaiModel() {
+        return OpenAiChatModel.builder()
+                .openAiApi(OpenAiApi.builder()
+                        .baseUrl("https://api.openai.com")
+                        .apiKey(System.getenv("OPENAI_API_KEY"))
+                        .build())
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .model("gpt-4o-mini")
+                        .logprobs(false)
+                        .temperature(0.1)
+                        .build())
+                .build();
+
     }
-
-    private ChatClient.Builder chatClientBuilder() {
-
-        OllamaApi api = new OllamaApi( );
-
-        var chatOptions = OllamaOptions.builder()
-                .model("qwen2.5:7b")
-                .temperature(0.1)
-                .build();
-
-        var chatModel = OllamaChatModel.builder()
-                .ollamaApi( api )
-                .defaultOptions(chatOptions)
-                .build();
-
-        var toolOptions = ToolCallingChatOptions.builder()
-                // IMPORTANT: Disable automatic tool execution
-                .internalToolExecutionEnabled(false) 
-                .build();
-
-        return ChatClient.builder(chatModel)
-                .defaultOptions(toolOptions);
-    }
-
 
 }
 ```
+
 ### create agent executor and run in a console application
 
 ```java
@@ -98,19 +84,26 @@ public class OllamaChatService implements ChatService {
 public class DemoConsoleController implements CommandLineRunner {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DemoConsoleController.class);
 
-    private final ChatService chatService;
+    private final ChatModel chatModel;
+    private final List<ToolCallback> tools;
 
-    public DemoConsoleController(@Qualifier("ollama") ChatService chatService) {
-        this.chatService = chatService;
+    public DemoConsoleController( ChatModel chatModel, List<ToolCallback> tools) {
+
+        this.chatModel = chatModel;
+        this.tools = tools;
     }
 
     @Override
     public void run(String... args) throws Exception {
 
-        var workflow = AgentExecutor.builder()
-                        .chatService( chatService )
-                        .build()
-                        .compile();
+        log.info("Welcome to the Spring Boot CLI application!");
+
+        var graph = AgentExecutor.builder()
+                        .chatModel(chatModel)
+                        .tools(tools)
+                        .build();
+
+        var workflow = graph.compile();
 
         var result = workflow.stream( Map.of( "messages", new UserMessage("what is the result of 234 + 45") ));
 
@@ -136,11 +129,15 @@ public class LangGraphStudioConfiguration extends AbstractLangGraphStudioConfig 
 
     final LangGraphFlow flow;
 
-    public LangGraphStudioConfiguration(@Qualifier("ollama") ChatService chatService ) throws GraphStateException {
+    public LangGraphStudioConfiguration(  ChatModel chatModel, List<ToolCallback> tools ) throws GraphStateException {
 
         var workflow = AgentExecutor.builder()
-                .chatService( chatService )
+                .chatModel( chatModel )
+                .tools( tools )
                 .build();
+
+        var mermaid = workflow.getGraph( GraphRepresentation.Type.MERMAID, "ReAct Agent", false );
+        System.out.println( mermaid.content() );
 
         this.flow = agentWorkflow( workflow );
     }
@@ -155,6 +152,7 @@ public class LangGraphStudioConfiguration extends AbstractLangGraphStudioConfig 
                         .checkpointSaver( new MemorySaver() )
                         .build())
                 .build();
+
     }
 
     @Override
