@@ -5,7 +5,6 @@ import org.bsc.langgraph4j.DotEnvConfig;
 import org.bsc.langgraph4j.StateGraph;
 import org.junit.jupiter.api.Disabled;
 
-@Disabled
 public class AgentExecutorAzureOpenAITest extends AbstractAgentExecutorTest {
 
     @Override
@@ -28,8 +27,8 @@ public class AgentExecutorAzureOpenAITest extends AbstractAgentExecutorTest {
                 .build();
 
         return AgentExecutor.builder()
-                .chatLanguageModel(chatLanguageModel)
-                .toolSpecification(new TestTool())
+                .chatModel(chatLanguageModel)
+                .toolsFromObject(new TestTool())
                 .build();
     }
 }

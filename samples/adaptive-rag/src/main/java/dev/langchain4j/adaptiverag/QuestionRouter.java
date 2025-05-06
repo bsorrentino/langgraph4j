@@ -1,5 +1,5 @@
 package dev.langchain4j.adaptiverag;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.structured.Description;
 import dev.langchain4j.service.AiServices;
@@ -58,7 +58,7 @@ public record QuestionRouter( String openApiKey ) implements Function<String, Qu
     @Override
     public Type apply(String question) {
 
-        ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
+        ChatModel chatLanguageModel = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-3.5-turbo-0125" )
                 .timeout(Duration.ofMinutes(2))

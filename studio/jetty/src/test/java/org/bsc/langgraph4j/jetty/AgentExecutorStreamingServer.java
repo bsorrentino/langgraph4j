@@ -21,8 +21,8 @@ public class AgentExecutorStreamingServer {
                 .build();
 
         var app = AgentExecutor.builder()
-                .chatLanguageModel(llm)
-                .toolSpecification( new TestTool() )
+                .chatModel(llm)
+                .toolsFromObject( new TestTool() )
                 .stateSerializer( AgentExecutor.Serializers.JSON.object() )
                 .build();
 

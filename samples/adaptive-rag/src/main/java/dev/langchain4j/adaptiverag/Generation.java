@@ -1,5 +1,5 @@
 package dev.langchain4j.adaptiverag;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.UserMessage;
@@ -46,7 +46,7 @@ public record Generation(String openApiKey)  implements BiFunction<String, List<
      */
     public String apply( String question, List<String> context) {
 
-        ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
+        ChatModel chatLanguageModel = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-3.5-turbo" )
                 .timeout(Duration.ofMinutes(2))

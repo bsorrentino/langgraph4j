@@ -13,6 +13,7 @@ import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ChatMesssageSerializer;
 import org.bsc.langgraph4j.langchain4j.serializer.std.ToolExecutionRequestSerializer;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 import org.bsc.langgraph4j.langchain4j.tool.ToolNode;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
@@ -67,8 +68,8 @@ public class StreamingTestITest {
                 .build();
 
         // setup tools
-        var tools = ToolNode.builder()
-                .specification(new SearchTool())
+        var tools = LC4jToolService.builder()
+                .toolsFromObject(new SearchTool())
                 .build();
 
         // Call Model

@@ -8,9 +8,12 @@ import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.studio.springboot.AbstractLangGraphStudioConfig;
 import org.bsc.langgraph4j.studio.springboot.LangGraphFlow;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
 import java.util.Objects;
 
 @Configuration
@@ -18,10 +21,11 @@ public class LangGraphStudioConfiguration extends AbstractLangGraphStudioConfig 
 
     final LangGraphFlow flow;
 
-    public LangGraphStudioConfiguration(@Qualifier("ollama") ChatService chatService ) throws GraphStateException {
+    public LangGraphStudioConfiguration( /*@Qualifier("ollama")*/ ChatModel chatModel, List<ToolCallback> tools ) throws GraphStateException {
 
         var workflow = AgentExecutor.builder()
-                .chatService( chatService )
+                .chatModel( chatModel )
+                .tools( tools )
                 .build();
 
         var mermaid = workflow.getGraph( GraphRepresentation.Type.MERMAID, "ReAct Agent", false );

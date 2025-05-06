@@ -10,7 +10,6 @@ import static dev.langchain4j.agent.tool.ToolSpecifications.toolSpecificationFro
 
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -41,11 +40,7 @@ public final class ToolNode  {
      * Builder for {@link ToolNode}
      */
     @Deprecated
-    public static class Builder {
-        /**
-         * List of tool specification
-         */
-        private final List<LC4jToolService.Specification> toolSpecifications = new ArrayList<>();
+    public static class Builder extends LC4jToolMapBuilder<Builder> {
 
         /**
          * Adds a tool specification to the node
@@ -55,7 +50,7 @@ public final class ToolNode  {
          * @return the builder
          */
         public Builder specification(ToolSpecification spec, ToolExecutor executor) {
-            return this.specification( Specification.of(spec, executor));
+            return this.tool( spec, executor );
         }
 
         /**
@@ -65,8 +60,7 @@ public final class ToolNode  {
          * @return the builder
          */
         public Builder specification(Specification toolSpecifications) {
-            this.toolSpecifications.add( new LC4jToolService.Specification(toolSpecifications.value(), toolSpecifications.executor()));
-            return this;
+            return super.tool( toolSpecifications.value(), toolSpecifications.executor());
         }
 
         /**
@@ -75,14 +69,8 @@ public final class ToolNode  {
          * @param objectWithTool the object containing the tool
          * @return the builder
          */
-        public Builder specification( Object objectWithTool ) {
-            for (Method method : objectWithTool.getClass().getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Tool.class)) {
-                    final ToolExecutor toolExecutor = new DefaultToolExecutor(objectWithTool, method);
-                    toolSpecifications.add(new LC4jToolService.Specification(toolSpecificationFrom(method), toolExecutor));
-                }
-            }
-            return this;
+        public Builder specification( Object objectWithTools ) {
+            return super.toolsFromObject( objectWithTools );
         }
 
         /**
@@ -91,7 +79,7 @@ public final class ToolNode  {
          * @return the node
          */
         public ToolNode build() {
-            return new ToolNode( new LC4jToolService(toolSpecifications) );
+            return new ToolNode( new LC4jToolService(toolMap()) );
         }
     }
 

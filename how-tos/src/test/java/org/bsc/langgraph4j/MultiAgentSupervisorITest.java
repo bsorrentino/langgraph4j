@@ -6,7 +6,7 @@ import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ResponseFormat;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.output.structured.Description;
@@ -80,7 +80,7 @@ public class MultiAgentSupervisorITest {
         final Service service;
         public final String[] members = {"researcher", "coder" };
 
-        public SupervisorAgent(ChatLanguageModel model ) {
+        public SupervisorAgent(ChatModel model ) {
 
             service = AiServices.create( Service.class, model );
         }
@@ -121,9 +121,9 @@ public class MultiAgentSupervisorITest {
 
         final Service service;
 
-        public ResearchAgent( ChatLanguageModel model ) {
+        public ResearchAgent( ChatModel model ) {
             service = AiServices.builder( Service.class )
-                            .chatLanguageModel(model)
+                            .chatModel(model)
                             .tools( new Tools() )
                             .build();
         }
@@ -161,9 +161,9 @@ public class MultiAgentSupervisorITest {
 
         final Service service;
 
-        public CoderAgent( ChatLanguageModel model ) {
+        public CoderAgent( ChatModel model ) {
             service = AiServices.builder( Service.class )
-                    .chatLanguageModel(model)
+                    .chatModel(model)
                     .tools( new Tools() )
                     .build();
         }
@@ -181,7 +181,7 @@ public class MultiAgentSupervisorITest {
         }
     }
 
-    final ChatLanguageModel model = OllamaChatModel.builder()
+    final ChatModel model = OllamaChatModel.builder()
                 .baseUrl( "http://localhost:11434" )
                 .temperature(0.0)
                 .logRequests(true)
@@ -192,7 +192,7 @@ public class MultiAgentSupervisorITest {
                 //.modelName("llama3.2:latest")
                 .build();
 
-    final ChatLanguageModel modelWithTool = OllamaChatModel.builder()
+    final ChatModel modelWithTool = OllamaChatModel.builder()
             .baseUrl( "http://localhost:11434" )
             .temperature(0.0)
             .logRequests(true)

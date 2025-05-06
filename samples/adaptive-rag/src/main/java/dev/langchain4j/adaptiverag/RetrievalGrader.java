@@ -1,5 +1,5 @@
 package dev.langchain4j.adaptiverag;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.structured.StructuredPrompt;
 import dev.langchain4j.model.input.structured.StructuredPromptProcessor;
@@ -71,7 +71,7 @@ public record RetrievalGrader( String openApiKey ) implements Function<Retrieval
     @Override
     public Score apply(Arguments args ) {
 
-        ChatLanguageModel chatLanguageModel = OpenAiChatModel.builder()
+        ChatModel chatLanguageModel = OpenAiChatModel.builder()
                 .apiKey( openApiKey )
                 .modelName( "gpt-3.5-turbo-0125" )
                 .timeout(Duration.ofMinutes(2))

@@ -6,9 +6,7 @@
 
 ```java
 try( var file = new java.io.FileInputStream("./logging.properties")) {
-    var lm = java.util.logging.LogManager.getLogManager();
-    lm.checkAccess(); 
-    lm.readConfiguration( file );
+    java.util.logging.LogManager.getLogManager().readConfiguration( file );
 }
 
 var log = org.slf4j.LoggerFactory.getLogger("llm-streaming");

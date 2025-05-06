@@ -11,6 +11,9 @@ import org.bsc.langgraph4j.utils.EdgeMappings;
 import org.bsc.langgraph4j.spring.ai.agentexecutor.std.AgentStateSerializer;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.ToolCallbacks;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -32,8 +35,12 @@ public interface AgentExecutor {
      * Class responsible for building a state graph.
      */
     class Builder {
-        private StateSerializer<State> stateSerializer;
-        private ChatService chatService;
+        StateSerializer<State> stateSerializer;
+        ChatModel chatModel;
+        ChatService chatService;
+        String systemMessage;
+
+        final List<ToolCallback> tools = new ArrayList<>();
 
         /**
          * Sets the state serializer for the graph builder.
@@ -46,6 +53,34 @@ public interface AgentExecutor {
             return this;
         }
 
+        public Builder chatModel(ChatModel chatModel) {
+            this.chatModel = chatModel;
+            return this;
+        }
+
+        public Builder defaultSystem(String systemMessage) {
+            this.systemMessage = systemMessage;
+            return this;
+        }
+
+        public Builder tool( ToolCallback tool ) {
+            this.tools.add( Objects.requireNonNull(tool, "tool cannot be null!") );
+            return this;
+        }
+
+        public Builder tools( List<ToolCallback> tools) {
+            this.tools.addAll( Objects.requireNonNull(tools, "tools cannot be null!") );
+            return this;
+        }
+
+        public Builder toolsFromObject(Object objectWithTools) {
+            var tools = ToolCallbacks.from( Objects.requireNonNull(objectWithTools, "objectWithTools cannot be null" ));
+            this.tools.addAll(List.of(tools));
+            return this;
+
+        }
+
+        @Deprecated(forRemoval = true)
         public Builder chatService(ChatService chatService) {
             this.chatService = chatService;
             return this;
@@ -61,13 +96,14 @@ public interface AgentExecutor {
          * @throws GraphStateException If there is an issue with building the graph state.
          */
         public StateGraph<State> build() throws GraphStateException {
-            Objects.requireNonNull( chatService, "chatService cannot be null!");
 
             if( stateSerializer == null ) {
                 stateSerializer = new AgentStateSerializer();
             }
 
-            Objects.requireNonNull( chatService, "chatService cannot be null!");
+            if( chatService == null ) {
+                chatService = new DefaultChatService( this );
+            }
 
             final var toolService = new SpringAIToolService( chatService.tools() );
 
@@ -129,7 +165,7 @@ public interface AgentExecutor {
      * @return A map containing the outcome of the agent call, either an action or a finish.
      */
     static Map<String,Object> callAgent( State state, ChatService chatService )  {
-        log.info( "callAgent" );
+        log.trace( "callAgent" );
 
         var messages = state.messages();
 

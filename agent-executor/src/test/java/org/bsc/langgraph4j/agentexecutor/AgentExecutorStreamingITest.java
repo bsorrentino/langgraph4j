@@ -10,7 +10,6 @@ import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.streaming.StreamingOutput;
 import org.bsc.langgraph4j.utils.CollectionsUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -23,8 +22,7 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
-public class AgentExecutorStreamingTest {
+public class AgentExecutorStreamingITest {
 
     @BeforeAll
     public static void loadEnv() {
@@ -45,8 +43,8 @@ public class AgentExecutorStreamingTest {
                 .build();
 
         return AgentExecutor.builder()
-                .chatLanguageModel(chatLanguageModel)
-                .toolSpecification(new TestTool())
+                .chatModel(chatLanguageModel)
+                .toolsFromObject(new TestTool())
                 .build();
     }
 

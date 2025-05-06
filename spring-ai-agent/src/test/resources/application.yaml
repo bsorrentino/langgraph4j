@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: ollama
   application:
     name: springai-agentexecutor
   main:

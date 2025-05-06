@@ -29,8 +29,8 @@ public class LangGraphStudioConfiguration extends AbstractLangGraphStudioConfig 
                 .build();
 
         var workflow =  AgentExecutor.builder()
-                .chatLanguageModel(chatLanguageModel)
-                .toolSpecification(new TestTool())
+                .chatModel(chatLanguageModel)
+                .toolsFromObject(new TestTool())
                 .build();
 
         this.flow = agentWorkflow( workflow );

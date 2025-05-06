@@ -5,7 +5,6 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.service.tool.ToolExecutionResult;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.junit.jupiter.api.Test;
 

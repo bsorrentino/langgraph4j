@@ -34,7 +34,7 @@ public class LC4jToolServiceTest {
 
         LC4jToolService.Builder builder = LC4jToolService.builder();
 
-        builder.specification( new TestTool() );
+        builder.toolsFromObject( new TestTool() );
 
         ToolSpecification toolSpecification = ToolSpecification.builder()
                 .name("getPCName")
@@ -43,7 +43,7 @@ public class LC4jToolServiceTest {
 
         ToolExecutor toolExecutor = (toolExecutionRequest, memoryId) -> "bsorrentino";
 
-        builder.specification( toolSpecification, toolExecutor);
+        builder.tool( toolSpecification, toolExecutor);
 
         toolSpecification = ToolSpecification.builder()
                 .name("specialSumTwoNumbers")
@@ -69,7 +69,7 @@ public class LC4jToolServiceTest {
             return String.valueOf(sum);
         };
 
-        builder.specification(toolSpecification, toolExecutor);
+        builder.tool(toolSpecification, toolExecutor);
 
         LC4jToolService toolNode = builder.build();
 
