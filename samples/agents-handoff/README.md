@@ -201,7 +201,7 @@ e3_2@{ animate: true }
 In this scenario we can consider to defining :
 
 * **Function description**
-  > It will become the Agent role and capabilities. This is crucial to feed the LLM in order to produce a "Actions execution plan" tah fit for purpose
+  > It will become the Agent role and capabilities. This is crucial to feed the LLM in order to produce a "Actions execution plan" that fit for purpose
 * **Function parameters**
   > It will be the context on which the agent will operate as input for its LLM.
   > By default it will be just one parameter named 'context'
