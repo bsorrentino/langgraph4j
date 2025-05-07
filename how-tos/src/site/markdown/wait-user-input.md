@@ -1,8 +1,6 @@
 # Wait for User Input
 
-
 **utility to render graph respresentation in PlantUML**
-
 
 ```java
 import net.sourceforge.plantuml.SourceStringReader;
@@ -94,6 +92,7 @@ var saver = new MemorySaver();
 var compileConfig = CompileConfig.builder()
                         .checkpointSaver(saver)
                         .interruptBefore("human_feedback")
+                        .releaseThread(true)
                         .build();
 
 var graph = builder.compile(compileConfig);
@@ -165,13 +164,13 @@ System.out.printf("\ngetNext()\n\twith invokeConfig:[%s]\n\twith updateConfig:[%
 ```
 
     --State before update--
-    StateSnapshot{node=step_1, state={messages=[Step 0, Step 1]}, config=RunnableConfig(threadId=Thread1, checkPointId=d35b4f81-0009-4998-89f2-abeb573a0efa, nextNode=human_feedback, streamMode=VALUES)}
+    StateSnapshot{node=step_1, state={messages=[Step 0, Step 1]}, config=RunnableConfig{ threadId=Thread1, checkPointId=98923510-ce29-4a73-a997-f1b4a8ea8c0e, nextNode=human_feedback, streamMode=VALUES }}
     
     --User Input--
     Tell me how you want to update the state: 'back'
     
     --State after update--
-    StateSnapshot{node=step_1, state={messages=[Step 0, Step 1], human_feedback=back}, config=RunnableConfig(threadId=Thread1, checkPointId=d35b4f81-0009-4998-89f2-abeb573a0efa, nextNode=human_feedback, streamMode=VALUES)}
+    StateSnapshot{node=step_1, state={messages=[Step 0, Step 1], human_feedback=back}, config=RunnableConfig{ threadId=Thread1, checkPointId=98923510-ce29-4a73-a997-f1b4a8ea8c0e, nextNode=human_feedback, streamMode=VALUES }}
     
     getNext()
     	with invokeConfig:[human_feedback]
@@ -189,7 +188,7 @@ for (var event : graph.stream(null, updateConfig)) {
 ```
 
     NodeOutput{node=human_feedback, state={messages=[Step 0, Step 1], human_feedback=back}}
-    NodeOutput{node=step_1, state={messages=[Step 0, Step 1, Step 1], human_feedback=back}}
+    NodeOutput{node=step_1, state={messages=[Step 0, Step 1], human_feedback=back}}
 
 
 ## Waif for user input (again) and update state
@@ -230,19 +229,7 @@ for (var event : graph.stream(null, updateConfig)) {
 }
 ```
 
-    NodeOutput{node=human_feedback, state={messages=[Step 0, Step 1, Step 1], human_feedback=next}}
-    NodeOutput{node=step_3, state={messages=[Step 0, Step 1, Step 1, Step 3], human_feedback=next}}
-    NodeOutput{node=__END__, state={messages=[Step 0, Step 1, Step 1, Step 3], human_feedback=next}}
-
-
-
-```java
-graph.getState(updateConfig).getState();
-```
-
-
-
-
-    {messages=[Step 0, Step 1, Step 1, Step 3], human_feedback=next}
-
+    NodeOutput{node=human_feedback, state={messages=[Step 0, Step 1], human_feedback=next}}
+    NodeOutput{node=step_3, state={messages=[Step 0, Step 1, Step 3], human_feedback=next}}
+    NodeOutput{node=__END__, state={messages=[Step 0, Step 1, Step 3], human_feedback=next}}
 
