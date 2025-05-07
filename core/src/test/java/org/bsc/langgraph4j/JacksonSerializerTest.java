@@ -77,12 +77,14 @@ public class JacksonSerializerTest {
         output.setSubGraph(true);
         String json = serializer.getObjectMapper().writeValueAsString(output);
 
-        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":true}", json );
+        assertEquals("""
+                {"node":"node","state":null,"subGraph":true,"interrupted":true,"end":false}""", json );
 
         output.setSubGraph(false);
         json = serializer.getObjectMapper().writeValueAsString(output);
 
-        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":false}", json );
+        assertEquals( """
+                {"node":"node","state":null,"subGraph":false,"interrupted":true,"end":false}""", json );
     }
 
     @Test
