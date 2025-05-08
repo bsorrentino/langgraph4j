@@ -82,13 +82,13 @@ public class JacksonSerializerTest {
                             .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
         var json = mapper.writeValueAsString(output);
         assertEquals("""
-                {"end":false,"interrupted":true,"node":"node","state":null,"subGraph":true}""", json );
+                {"end":false,"node":"node","state":null,"subGraph":true}""", json );
 
         output.setSubGraph(false);
         json = serializer.getObjectMapper().writeValueAsString(output);
 
         assertEquals( """
-                {"end":false,"interrupted":true,"node":"node","state":null,"subGraph":false}""", json );
+                {"end":false,"node":"node","state":null,"subGraph":false}""", json );
     }
 
     @Test

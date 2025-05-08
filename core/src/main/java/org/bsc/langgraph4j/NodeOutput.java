@@ -65,16 +65,6 @@ public class NodeOutput<State extends AgentState> {
         return state();
     }
 
-
-    /**
-     * Checks if the output refers to a graph interruption.
-     *
-     * @return {@code true} if the current node refres to a graph interruption.
-     */
-    public boolean isInterrupted() {
-        return !isEND();
-    }
-
     /**
      * Checks if the current node refers to the end of the graph.
      *
