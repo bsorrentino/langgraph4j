@@ -3,7 +3,7 @@
 
 [![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.5--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 
-LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
+LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j] and [Spring AI]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
 
 ## Features
@@ -68,7 +68,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Project         | Integrated With        
 |--------------|----------------| 
-[Agent Executor][springai-agentexecutor] |  [SpringAI]
+[Agent Executor][springai-agentexecutor] |  [Spring AI]
 [Agent Executor][agent-executor] |  [Langchain4j][langchain4j]
 [Image To PlantUML Diagram][image-to-diagram]   | [Langchain4j][langchain4j]
 [Adaptive RAG][adaptive-rag] | [Langchain4j][langchain4j]
@@ -261,7 +261,7 @@ return  app.stream( inputs );
 [adaptive-rag]: samples/adaptive-rag
 [image-to-diagram]: samples/image-to-diagram/
 
-[SpringAI]: https://spring.io/projects/spring-ai
+[Spring AI]: https://spring.io/projects/spring-ai
 [Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
 [CompletableFuture]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
 [article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
