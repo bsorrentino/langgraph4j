@@ -22,7 +22,7 @@ The diagram below show the architecture behind a ReAct Agent
 
 ```mermaid
 ---
-title: Function calling Anatomy
+title: ReACT Agent - Function calling Anatomy
 ---
 flowchart TD
 	__START__((start))
@@ -33,7 +33,7 @@ flowchart TD
 	actions("actions dispatching
     and 
     result gathering")
-	LLM e1@-->|actions invocation plan| actions
+	LLM e1@-->|actions execution plan| actions
 	end
     action1("action 1") 
     action2("action 2") 
@@ -56,9 +56,10 @@ e2@{ animate: true }
 It is interesting to note that the LLM reasoning process creates an **actions plan**, while the agent platform handles **dispatching and gathering results**.
 Now, since the LLM (tools enabled) produce a well defined  **actions invocation plan** based on its input to solve the problem he is dealing with, **what about behind the action we have another Agent ?**
 
+
 ```mermaid
 ---
-title: ReAct Agent
+title: Action as Agent
 ---
 flowchart TD
 	__START__((start))
@@ -75,7 +76,7 @@ flowchart TD
     	actions_1("actions dispatching
         and 
         result gathering")
-	    LLM_1 e1_1@-->|actions invocation plan| actions_1
+	    LLM_1 e1_1@-->|actions execution plan| actions_1
     end
 
     actions_1 -.-> LLM_1
@@ -92,7 +93,7 @@ flowchart TD
         actions("actions dispatching
         and 
         result gathering")
-        LLM e1@-->|actions invocation plan| actions
+        LLM e1@-->|actions execution plan| actions
   	end
 
     actions -->|invoke| action2
@@ -117,7 +118,7 @@ and iteratively we can continue to add new agents making complex multi agents sc
 
 ```mermaid
 ---
-title: Multiple Agents as Actions
+title: Multiple Actions as Agents
 ---
 flowchart TD
 	__START__((start))
