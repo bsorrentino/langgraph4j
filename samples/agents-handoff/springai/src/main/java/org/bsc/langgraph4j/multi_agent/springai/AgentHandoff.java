@@ -5,7 +5,6 @@ import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.spring.ai.agentexecutor.AgentExecutor;
 import org.bsc.langgraph4j.serializer.StateSerializer;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 
 import java.util.Objects;

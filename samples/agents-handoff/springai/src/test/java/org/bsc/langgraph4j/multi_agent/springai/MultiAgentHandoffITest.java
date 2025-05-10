@@ -1,7 +1,6 @@
 package org.bsc.langgraph4j.multi_agent.springai;
 
 
-import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -13,7 +12,6 @@ import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
-import org.springframework.ai.util.json.schema.JsonSchemaGenerator;
 
 import java.util.Map;
 
