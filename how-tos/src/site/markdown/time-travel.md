@@ -23,7 +23,9 @@ This works for [StateGraph](https://bsorrentino.github.io/langgraph4j/apidocs/or
 
 Below is an example.
 
+
 **Initialize logger**
+
 
 ```java
 try( var file = new java.io.FileInputStream("./logging.properties")) {

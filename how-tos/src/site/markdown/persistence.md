@@ -18,10 +18,8 @@ When creating any LangGraph workflow, you can set them up to persist their state
 
 
 ```java
-var lm = java.util.logging.LogManager.getLogManager();
-lm.checkAccess(); 
 try( var file = new java.io.FileInputStream("./logging.properties")) {
-    lm.readConfiguration( file );
+    java.util.logging.LogManager.getLogManager().readConfiguration( file );
 }
 ```
 

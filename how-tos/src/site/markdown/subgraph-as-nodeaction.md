@@ -1,6 +1,5 @@
 # Subgraph as node action sample
 
-
 **utility to render graph respresentation in PlantUML**
 
 
