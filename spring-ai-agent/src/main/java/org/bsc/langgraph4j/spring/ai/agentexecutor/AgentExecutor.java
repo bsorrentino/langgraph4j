@@ -13,6 +13,7 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.ToolCallbacks;
 
 import java.util.*;
@@ -73,11 +74,20 @@ public interface AgentExecutor {
             return this;
         }
 
+        public Builder tools(ToolCallbackProvider toolCallbackProvider) {
+            Objects.requireNonNull(toolCallbackProvider, "toolCallbackProvider cannot be null!");
+            var toolCallbacks = toolCallbackProvider.getToolCallbacks();
+            if (toolCallbacks.length == 0) {
+                throw new IllegalArgumentException("toolCallbackProvider.getToolCallbacks() cannot be empty!");
+            }
+            this.tools.addAll(List.of(toolCallbacks));
+            return this;
+        }
+
         public Builder toolsFromObject(Object objectWithTools) {
             var tools = ToolCallbacks.from( Objects.requireNonNull(objectWithTools, "objectWithTools cannot be null" ));
             this.tools.addAll(List.of(tools));
             return this;
-
         }
 
         @Deprecated(forRemoval = true)
