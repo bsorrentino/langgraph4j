@@ -16,35 +16,33 @@ import java.util.LinkedList;
 
 public class AiMessageDeserializer extends StdDeserializer<AiMessage> {
 
-    protected AiMessageDeserializer() {
-        super(AiMessage.class);
-    }
+	protected AiMessageDeserializer() {
+		super(AiMessage.class);
+	}
 
-    @Override
-    public AiMessage deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException, JacksonException {
-        var mapper = (ObjectMapper) jsonParser.getCodec();
-        ObjectNode node = mapper.readTree(jsonParser);
+	@Override
+	public AiMessage deserialize(JsonParser jsonParser, DeserializationContext ctx)
+			throws IOException, JacksonException {
+		var mapper = (ObjectMapper) jsonParser.getCodec();
+		ObjectNode node = mapper.readTree(jsonParser);
 
-        var text = node.findValue( "text" ).asText();
-        var requestsNode = node.findValue("toolExecutionRequests");
+		var text = node.findValue("text").asText();
+		var requestsNode = node.findValue("toolExecutionRequests");
 
-        if( requestsNode.isNull() || requestsNode.isEmpty() ) {
-            return AiMessage.from( text );
-        }
+		if (requestsNode.isNull() || requestsNode.isEmpty()) {
+			return AiMessage.from(text);
+		}
 
-        var requests = new LinkedList<ToolExecutionRequest>();
+		var requests = new LinkedList<ToolExecutionRequest>();
 
-        for (JsonNode requestNode : requestsNode) {
-            var request = mapper.treeToValue(requestNode,
-                    new TypeReference<ToolExecutionRequest>() {});
+		for (JsonNode requestNode : requestsNode) {
+			var request = mapper.treeToValue(requestNode, new TypeReference<ToolExecutionRequest>() {
+			});
 
-            requests.add(request);
-        }
+			requests.add(request);
+		}
 
-        return AiMessage.builder()
-                .text( text )
-                .toolExecutionRequests( requests)
-                .build();
-    }
+		return AiMessage.builder().text(text).toolExecutionRequests(requests).build();
+	}
 
 }

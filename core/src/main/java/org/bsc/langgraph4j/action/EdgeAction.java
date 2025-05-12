@@ -10,12 +10,12 @@ import org.bsc.langgraph4j.state.AgentState;
 @FunctionalInterface
 public interface EdgeAction<S extends AgentState> {
 
-    /**
-     * Applies this action to the given agent state.
-     *
-     * @param t the agent state
-     * @return a result of the action
-     * @throws Exception if an error occurs during the action
-     */
-    String apply(S t) throws Exception;
+	/**
+	 * Applies this action to the given agent state.
+	 * @param t the agent state
+	 * @return a result of the action
+	 * @throws Exception if an error occurs during the action
+	 */
+	String apply(S t) throws Exception;
+
 }

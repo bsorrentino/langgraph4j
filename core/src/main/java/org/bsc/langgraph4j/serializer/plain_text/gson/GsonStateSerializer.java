@@ -11,39 +11,39 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
- * Base Implementation of {@link PlainTextStateSerializer} using GSON library
- * . Need to be extended from specific state implementation
+ * Base Implementation of {@link PlainTextStateSerializer} using GSON library . Need to be
+ * extended from specific state implementation
+ *
  * @param <State> The type of the agent state to be serialized/deserialized.
  */
 public abstract class GsonStateSerializer<State extends AgentState> extends PlainTextStateSerializer<State> {
 
-    protected final Gson gson;
+	protected final Gson gson;
 
-    protected GsonStateSerializer(AgentStateFactory<State> stateFactory, Gson gson) {
-        super(stateFactory);
-        this.gson = gson;
-    }
+	protected GsonStateSerializer(AgentStateFactory<State> stateFactory, Gson gson) {
+		super(stateFactory);
+		this.gson = gson;
+	}
 
-    protected GsonStateSerializer(AgentStateFactory<State> stateFactory) {
-        this(stateFactory, new GsonBuilder()
-                                .serializeNulls()
-                                .create());
-    }
+	protected GsonStateSerializer(AgentStateFactory<State> stateFactory) {
+		this(stateFactory, new GsonBuilder().serializeNulls().create());
+	}
 
-    @Override
-    public String mimeType() {
-        return "application/json";
-    }
+	@Override
+	public String mimeType() {
+		return "application/json";
+	}
 
-    @Override
-    public void write(State object, ObjectOutput out) throws IOException {
-        String json = gson.toJson(object);
-        out.writeUTF(json);
+	@Override
+	public void write(State object, ObjectOutput out) throws IOException {
+		String json = gson.toJson(object);
+		out.writeUTF(json);
 
-    }
+	}
 
-    @Override
-    public State read(ObjectInput in) throws IOException, ClassNotFoundException {
-        return gson.fromJson(in.readUTF(), getStateType());
-    }
+	@Override
+	public State read(ObjectInput in) throws IOException, ClassNotFoundException {
+		return gson.fromJson(in.readUTF(), getStateType());
+	}
+
 }

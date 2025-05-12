@@ -11,60 +11,60 @@ import static java.lang.String.format;
  */
 public class NodeOutput<State extends AgentState> {
 
-    public static <State extends AgentState> NodeOutput<State> of( String node, State state ) {
-        return new NodeOutput<>(node, state);
-    }
+	public static <State extends AgentState> NodeOutput<State> of(String node, State state) {
+		return new NodeOutput<>(node, state);
+	}
 
-    /**
-     * The identifier of the node.
-     */
-    private final String node;
+	/**
+	 * The identifier of the node.
+	 */
+	private final String node;
 
-    /**
-     * The state associated with the node.
-     */
-    private final State state;
+	/**
+	 * The state associated with the node.
+	 */
+	private final State state;
 
-    /**
-     * If the output is from a subgraph.
-     */
-    private boolean subGraph = false;
+	/**
+	 * If the output is from a subgraph.
+	 */
+	private boolean subGraph = false;
 
-    protected void setSubGraph( boolean subgraph ) {
-        this.subGraph = subgraph;
-    }
+	protected void setSubGraph(boolean subgraph) {
+		this.subGraph = subgraph;
+	}
 
-    /**
-     * @return boolean if the output is from a subgraph
-     */
-    public boolean isSubGraph() {
-        return subGraph;
-    }
+	/**
+	 * @return boolean if the output is from a subgraph
+	 */
+	public boolean isSubGraph() {
+		return subGraph;
+	}
 
-    public String node() {
-        return node;
-    }
+	public String node() {
+		return node;
+	}
 
-    public State state() {
-        return state;
-    }
+	public State state() {
+		return state;
+	}
 
-    /**
-     * @deprecated Use {@link #state()} instead.
-     */
-    @Deprecated
-    public State getState( ) {
-        return state();
-    }
+	/**
+	 * @deprecated Use {@link #state()} instead.
+	 */
+	@Deprecated
+	public State getState() {
+		return state();
+	}
 
-    protected NodeOutput( String node, State state ) {
-        this.node = node;
-        this.state = state;
-    }
+	protected NodeOutput(String node, State state) {
+		this.node = node;
+		this.state = state;
+	}
 
-    @Override
-    public String toString() {
-        return format("NodeOutput{node=%s, state=%s}", node(), state());
-    }
+	@Override
+	public String toString() {
+		return format("NodeOutput{node=%s, state=%s}", node(), state());
+	}
 
 }

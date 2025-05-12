@@ -6,30 +6,30 @@ import org.springframework.context.annotation.Bean;
 
 public abstract class AbstractLangGraphStudioConfig {
 
-    public abstract LangGraphFlow getFlow();
+	public abstract LangGraphFlow getFlow();
 
-    @Bean
-    public ServletRegistrationBean<LangGraphStreamingServer.GraphInitServlet> initServletBean() {
+	@Bean
+	public ServletRegistrationBean<LangGraphStreamingServer.GraphInitServlet> initServletBean() {
 
-        var flow = getFlow();
+		var flow = getFlow();
 
-        var initServlet = new LangGraphStreamingServer.GraphInitServlet(flow.stateGraph(), flow.title(), flow.inputArgs());
-        var bean = new ServletRegistrationBean<>(
-                initServlet, "/init");
-        bean.setLoadOnStartup(1);
-        return bean;
-    }
+		var initServlet = new LangGraphStreamingServer.GraphInitServlet(flow.stateGraph(), flow.title(),
+				flow.inputArgs());
+		var bean = new ServletRegistrationBean<>(initServlet, "/init");
+		bean.setLoadOnStartup(1);
+		return bean;
+	}
 
-    @Bean
-    public ServletRegistrationBean<LangGraphStreamingServer.GraphStreamServlet> streamingServletBean() {
+	@Bean
+	public ServletRegistrationBean<LangGraphStreamingServer.GraphStreamServlet> streamingServletBean() {
 
-        var flow = getFlow();
+		var flow = getFlow();
 
-        var initServlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.compileConfig(), flow.inputArgs());
-        var bean = new ServletRegistrationBean<>(
-                initServlet, "/stream");
-        bean.setLoadOnStartup(1);
-        return bean;
-    }
+		var initServlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.compileConfig(),
+				flow.inputArgs());
+		var bean = new ServletRegistrationBean<>(initServlet, "/stream");
+		bean.setLoadOnStartup(1);
+		return bean;
+	}
 
 }

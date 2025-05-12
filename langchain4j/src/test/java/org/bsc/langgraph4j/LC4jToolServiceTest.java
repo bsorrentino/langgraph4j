@@ -18,88 +18,82 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LC4jToolServiceTest {
 
-    static class TestTool {
+	static class TestTool {
 
-        @Tool("tool for test AI agent executor")
-        String execTest(@P("test message") String message) {
+		@Tool("tool for test AI agent executor")
+		String execTest(@P("test message") String message) {
 
-            return format( "test tool executed: %s", message);
-        }
-    }
+			return format("test tool executed: %s", message);
+		}
 
+	}
 
-    @Test
-    public void invokeToolNode() {
-        Gson gson = new Gson();
+	@Test
+	public void invokeToolNode() {
+		Gson gson = new Gson();
 
-        LC4jToolService.Builder builder = LC4jToolService.builder();
+		LC4jToolService.Builder builder = LC4jToolService.builder();
 
-        builder.toolsFromObject( new TestTool() );
+		builder.toolsFromObject(new TestTool());
 
-        ToolSpecification toolSpecification = ToolSpecification.builder()
-                .name("getPCName")
-                .description("Returns a String - PC name the AI is currently running in. Returns null if station is not running")
-                .build();
+		ToolSpecification toolSpecification = ToolSpecification.builder()
+			.name("getPCName")
+			.description(
+					"Returns a String - PC name the AI is currently running in. Returns null if station is not running")
+			.build();
 
-        ToolExecutor toolExecutor = (toolExecutionRequest, memoryId) -> "bsorrentino";
+		ToolExecutor toolExecutor = (toolExecutionRequest, memoryId) -> "bsorrentino";
 
-        builder.tool( toolSpecification, toolExecutor);
+		builder.tool(toolSpecification, toolExecutor);
 
-        toolSpecification = ToolSpecification.builder()
-                .name("specialSumTwoNumbers")
-                .parameters(JsonObjectSchema.builder()
-                        .addNumberProperty("operand1","Operand 1 for specialK operation" )
-                        .addNumberProperty( "operand2", "Operand 2 for specialK operation" )
-                        .build())
-                .description("Returns a Float - sum of two numbers")
-                .build();
+		toolSpecification = ToolSpecification.builder()
+			.name("specialSumTwoNumbers")
+			.parameters(JsonObjectSchema.builder()
+				.addNumberProperty("operand1", "Operand 1 for specialK operation")
+				.addNumberProperty("operand2", "Operand 2 for specialK operation")
+				.build())
+			.description("Returns a Float - sum of two numbers")
+			.build();
 
-        toolExecutor = (toolExecutionRequest, memoryId) -> {
-            LinkedTreeMap<String, Object> arguments = null;
-            Object arguments1 = gson.fromJson(toolExecutionRequest.arguments(), Map.class);
-            if (arguments1 instanceof LinkedTreeMap)
-            {
-                @SuppressWarnings("unchecked")
-                LinkedTreeMap<String, Object> arguments2 = (LinkedTreeMap<String, Object>)arguments1;
-                arguments = arguments2;
-            }
-            float operand1 = Float.parseFloat(arguments.get("operand1").toString());
-            float operand2 = Float.parseFloat(arguments.get("operand2").toString());
-            float sum = operand1 + operand2;
-            return String.valueOf(sum);
-        };
+		toolExecutor = (toolExecutionRequest, memoryId) -> {
+			LinkedTreeMap<String, Object> arguments = null;
+			Object arguments1 = gson.fromJson(toolExecutionRequest.arguments(), Map.class);
+			if (arguments1 instanceof LinkedTreeMap) {
+				@SuppressWarnings("unchecked")
+				LinkedTreeMap<String, Object> arguments2 = (LinkedTreeMap<String, Object>) arguments1;
+				arguments = arguments2;
+			}
+			float operand1 = Float.parseFloat(arguments.get("operand1").toString());
+			float operand2 = Float.parseFloat(arguments.get("operand2").toString());
+			float sum = operand1 + operand2;
+			return String.valueOf(sum);
+		};
 
-        builder.tool(toolSpecification, toolExecutor);
+		builder.tool(toolSpecification, toolExecutor);
 
-        LC4jToolService toolNode = builder.build();
+		LC4jToolService toolNode = builder.build();
 
-        Optional<ToolExecutionResultMessage> result = toolNode.execute(
-                ToolExecutionRequest.builder()
-                        .name("specialSumTwoNumbers")
-                        .arguments("{\"operand1\": 1.0, \"operand2\": 2.0}")
-                        .build() );
+		Optional<ToolExecutionResultMessage> result = toolNode.execute(ToolExecutionRequest.builder()
+			.name("specialSumTwoNumbers")
+			.arguments("{\"operand1\": 1.0, \"operand2\": 2.0}")
+			.build());
 
-        assertTrue( result.isPresent() );
-        assertEquals("specialSumTwoNumbers", result.get().toolName());
-        assertEquals("3.0", result.get().text());
+		assertTrue(result.isPresent());
+		assertEquals("specialSumTwoNumbers", result.get().toolName());
+		assertEquals("3.0", result.get().text());
 
-        result = toolNode.execute(
-                ToolExecutionRequest.builder()
-                        .name("getPCName")
-                        .build() );
+		result = toolNode.execute(ToolExecutionRequest.builder().name("getPCName").build());
 
-        assertTrue( result.isPresent() );
-        assertEquals("getPCName", result.get().toolName());
-        assertEquals("bsorrentino", result.get().text());
+		assertTrue(result.isPresent());
+		assertEquals("getPCName", result.get().toolName());
+		assertEquals("bsorrentino", result.get().text());
 
-        result = toolNode.execute(
-                ToolExecutionRequest.builder()
-                        .name("execTest")
-                        .arguments("{ \"arg0\": \"test succeeded\"}")
-                        .build() );
+		result = toolNode.execute(
+				ToolExecutionRequest.builder().name("execTest").arguments("{ \"arg0\": \"test succeeded\"}").build());
 
-        assertTrue( result.isPresent() );
-        assertEquals("execTest", result.get().toolName());
-        assertEquals("test tool executed: test succeeded", result.get().text());
-    }
+		assertTrue(result.isPresent());
+		assertEquals("execTest", result.get().toolName());
+		assertEquals("test tool executed: test succeeded", result.get().text());
+	}
+
 }

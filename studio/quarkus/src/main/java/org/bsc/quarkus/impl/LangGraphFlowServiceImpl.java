@@ -18,58 +18,53 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 @ApplicationScoped
-public class LangGraphFlowServiceImpl  {
+public class LangGraphFlowServiceImpl {
 
-    private LangGraphFlow flow;
+	private LangGraphFlow flow;
 
-    @PostConstruct
-    void init() throws GraphStateException {
-        flow = sampleFlow();
-    }
-    @Produces
-    public LangGraphFlow getFlow()  {
-        return flow;
-    }
+	@PostConstruct
+	void init() throws GraphStateException {
+		flow = sampleFlow();
+	}
 
-    private LangGraphFlow sampleFlow() throws GraphStateException {
+	@Produces
+	public LangGraphFlow getFlow() {
+		return flow;
+	}
 
-        final EdgeAction<AgentState> conditionalAge  = new EdgeAction<>() {
-            int steps= 0;
-            @Override
-            public String apply(AgentState state) {
-                if( ++steps == 2 ) {
-                    steps = 0;
-                    return "end";
-                }
-                return "next";
-            }
-        };
+	private LangGraphFlow sampleFlow() throws GraphStateException {
 
-        var workflow = new StateGraph<>(AgentState::new)
-                .addNode("agent", node_async((state ) -> {
-                    System.out.println("agent ");
-                    System.out.println(state);
-                    if( state.value( "action_response").isPresent() ) {
-                        return Map.of("agent_summary", "This is just a DEMO summary");
-                    }
-                    return Map.of("agent_response", "This is an Agent DEMO response");
-                }) )
-                .addNode("action", node_async( state  -> {
-                    System.out.print( "action: ");
-                    System.out.println( state );
-                    return Map.of("action_response", "This is an Action DEMO response");
-                }))
-                .addEdge(START, "agent")
-                .addEdge("action", "agent" )
-                .addConditionalEdges("agent",
-                        edge_async(conditionalAge), Map.of( "next", "action", "end", END ) )
-                ;
+		final EdgeAction<AgentState> conditionalAge = new EdgeAction<>() {
+			int steps = 0;
 
-        return  LangGraphFlow.builder()
-                .title("LangGraph Studio (Sample)")
-                .stateGraph( workflow )
-                .build();
+			@Override
+			public String apply(AgentState state) {
+				if (++steps == 2) {
+					steps = 0;
+					return "end";
+				}
+				return "next";
+			}
+		};
 
-    }
+		var workflow = new StateGraph<>(AgentState::new).addNode("agent", node_async((state) -> {
+			System.out.println("agent ");
+			System.out.println(state);
+			if (state.value("action_response").isPresent()) {
+				return Map.of("agent_summary", "This is just a DEMO summary");
+			}
+			return Map.of("agent_response", "This is an Agent DEMO response");
+		})).addNode("action", node_async(state -> {
+			System.out.print("action: ");
+			System.out.println(state);
+			return Map.of("action_response", "This is an Action DEMO response");
+		}))
+			.addEdge(START, "agent")
+			.addEdge("action", "agent")
+			.addConditionalEdges("agent", edge_async(conditionalAge), Map.of("next", "action", "end", END));
+
+		return LangGraphFlow.builder().title("LangGraph Studio (Sample)").stateGraph(workflow).build();
+
+	}
 
 }

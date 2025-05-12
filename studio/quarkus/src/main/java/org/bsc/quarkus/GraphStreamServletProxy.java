@@ -10,21 +10,22 @@ import java.io.IOException;
 @WebServlet(name = "GraphStreamServlet", urlPatterns = "/stream", asyncSupported = true)
 public class GraphStreamServletProxy extends HttpServlet {
 
-    private final Servlet servlet;
+	private final Servlet servlet;
 
-    public GraphStreamServletProxy( LangGraphFlow flow ) {
-        super();
-        servlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.compileConfig(), flow.inputArgs() );
-    }
+	public GraphStreamServletProxy(LangGraphFlow flow) {
+		super();
+		servlet = new LangGraphStreamingServer.GraphStreamServlet(flow.stateGraph(), flow.compileConfig(),
+				flow.inputArgs());
+	}
 
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        servlet.init(config);
-    }
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		servlet.init(config);
+	}
 
-    @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        servlet.service(req, res);
-    }
+	@Override
+	public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+		servlet.service(req, res);
+	}
 
 }

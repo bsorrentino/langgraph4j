@@ -10,96 +10,95 @@ import java.util.function.Function;
 import static java.lang.String.format;
 
 /**
- * Represents a node in a graph, characterized by a unique identifier and a factory for creating
- * actions to be executed by the node. This is a generic record where the state type is specified
- * by the type parameter {@code State}.
+ * Represents a node in a graph, characterized by a unique identifier and a factory for
+ * creating actions to be executed by the node. This is a generic record where the state
+ * type is specified by the type parameter {@code State}.
  *
- * @param <State> the type of the state associated with the node; it must extend {@link AgentState}.
+ * @param <State> the type of the state associated with the node; it must extend
+ * {@link AgentState}.
  *
  */
 public class Node<State extends AgentState> {
 
-    public interface ActionFactory<State extends AgentState> {
-        AsyncNodeActionWithConfig<State> apply( CompileConfig config ) throws GraphStateException;
-    }
+	public interface ActionFactory<State extends AgentState> {
 
-    private final String id;
-    private final ActionFactory<State> actionFactory;
+		AsyncNodeActionWithConfig<State> apply(CompileConfig config) throws GraphStateException;
 
-    public Node(String id, ActionFactory<State> actionFactory ) {
-       this.id = id;
-       this.actionFactory = actionFactory;
-    }
+	}
 
-    /**
-     * Constructor that accepts only the `id` and sets `actionFactory` to null.
-     *
-     * @param id the unique identifier for the node
-     */
-    public Node(String id) {
-        this(id, null);
-    }
+	private final String id;
 
-    /**
-     * id
-     * @return  the unique identifier for the node.
-     */
-    public String id() {
-        return id;
-    }
+	private final ActionFactory<State> actionFactory;
 
-    /**
-     * actionFactory
-     * @return a factory function that takes a {@link CompileConfig} and returns an
-     *                   {@link AsyncNodeActionWithConfig} instance for the specified {@code State}.
-     */
-    public ActionFactory<State> actionFactory() {
-        return actionFactory;
-    }
+	public Node(String id, ActionFactory<State> actionFactory) {
+		this.id = id;
+		this.actionFactory = actionFactory;
+	}
 
-    public boolean isParallel() {
-        // return id.startsWith(PARALLEL_PREFIX);
-        return false;
-    }
+	/**
+	 * Constructor that accepts only the `id` and sets `actionFactory` to null.
+	 * @param id the unique identifier for the node
+	 */
+	public Node(String id) {
+		this(id, null);
+	}
 
-    public Node<State> withIdUpdated( Function<String,String> newId ) {
-        return new Node<>( newId.apply( id), actionFactory );
-    }
+	/**
+	 * id
+	 * @return the unique identifier for the node.
+	 */
+	public String id() {
+		return id;
+	}
 
-    /**
-     * Checks if this node is equal to another object.
-     *
-     * @param o the object to compare with
-     * @return true if this node is equal to the specified object, false otherwise
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null ) return false;
-        if( o instanceof Node<?> node ) {
-            return Objects.equals(id, node.id);
-        }
-        return false;
+	/**
+	 * actionFactory
+	 * @return a factory function that takes a {@link CompileConfig} and returns an
+	 * {@link AsyncNodeActionWithConfig} instance for the specified {@code State}.
+	 */
+	public ActionFactory<State> actionFactory() {
+		return actionFactory;
+	}
 
-    }
+	public boolean isParallel() {
+		// return id.startsWith(PARALLEL_PREFIX);
+		return false;
+	}
 
-    /**
-     * Returns the hash code value for this node.
-     *
-     * @return the hash code value for this node
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+	public Node<State> withIdUpdated(Function<String, String> newId) {
+		return new Node<>(newId.apply(id), actionFactory);
+	}
 
-    @Override
-    public String toString() {
-        return format( "Node(%s,%s)", id, actionFactory!=null ? "action" : "null" );
-    }
+	/**
+	 * Checks if this node is equal to another object.
+	 * @param o the object to compare with
+	 * @return true if this node is equal to the specified object, false otherwise
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null)
+			return false;
+		if (o instanceof Node<?> node) {
+			return Objects.equals(id, node.id);
+		}
+		return false;
+
+	}
+
+	/**
+	 * Returns the hash code value for this node.
+	 * @return the hash code value for this node
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public String toString() {
+		return format("Node(%s,%s)", id, actionFactory != null ? "action" : "null");
+	}
+
 }
-
-
-
-
-

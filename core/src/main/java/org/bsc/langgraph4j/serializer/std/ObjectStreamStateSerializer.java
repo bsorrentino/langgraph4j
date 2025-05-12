@@ -10,106 +10,112 @@ import java.io.ObjectOutput;
 import java.util.*;
 
 public class ObjectStreamStateSerializer<State extends AgentState> extends StateSerializer<State> {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ObjectStreamStateSerializer.class);
-    static class ListSerializer implements NullableObjectSerializer<List<Object>> {
 
-        @Override
-        public void write(List<Object> object, ObjectOutput out) throws IOException {
-            out.writeInt( object.size() );
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ObjectStreamStateSerializer.class);
 
-            for( Object value : object ) {
-                try {
-                    writeNullableObject( value, out );
-                } catch (IOException ex) {
-                    log.error( "Error writing collection value", ex );
-                    throw ex;
-                }
-            }
+	static class ListSerializer implements NullableObjectSerializer<List<Object>> {
 
-            out.flush();
+		@Override
+		public void write(List<Object> object, ObjectOutput out) throws IOException {
+			out.writeInt(object.size());
 
-        }
+			for (Object value : object) {
+				try {
+					writeNullableObject(value, out);
+				}
+				catch (IOException ex) {
+					log.error("Error writing collection value", ex);
+					throw ex;
+				}
+			}
 
-        @Override
-        public List<Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
-            List<Object> result = new ArrayList<>();
+			out.flush();
 
-            int size = in.readInt();
+		}
 
-            for (int i = 0; i < size; i++) {
+		@Override
+		public List<Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
+			List<Object> result = new ArrayList<>();
 
-                Object value = readNullableObject(in).orElse(null);
+			int size = in.readInt();
 
-                result.add(value);
+			for (int i = 0; i < size; i++) {
 
-            }
+				Object value = readNullableObject(in).orElse(null);
 
-            return result;
-        }
-    }
+				result.add(value);
 
-    static class MapSerializer implements NullableObjectSerializer<Map<String,Object>> {
+			}
 
-        @Override
-        public void write(Map<String,Object> object, ObjectOutput out) throws IOException {
-            out.writeInt( object.size() );
+			return result;
+		}
 
-            for( Map.Entry<String,Object> e : object.entrySet() ) {
-                try {
-                    out.writeUTF(e.getKey());
+	}
 
-                    writeNullableObject( e.getValue(), out );
+	static class MapSerializer implements NullableObjectSerializer<Map<String, Object>> {
 
-                } catch (IOException ex) {
-                    log.error( "Error writing map key '{}'", e.getKey(), ex );
-                    throw ex;
-                }
-            }
+		@Override
+		public void write(Map<String, Object> object, ObjectOutput out) throws IOException {
+			out.writeInt(object.size());
 
-            out.flush();
+			for (Map.Entry<String, Object> e : object.entrySet()) {
+				try {
+					out.writeUTF(e.getKey());
 
-        }
+					writeNullableObject(e.getValue(), out);
 
-        @Override
-        public Map<String, Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
-            Map<String, Object> result = new HashMap<>();
+				}
+				catch (IOException ex) {
+					log.error("Error writing map key '{}'", e.getKey(), ex);
+					throw ex;
+				}
+			}
 
-            int size = in.readInt();
+			out.flush();
 
-            for( int i = 0; i < size; i++ ) {
-                String key = in.readUTF();
+		}
 
-                Object value = readNullableObject(in).orElse(null);
+		@Override
+		public Map<String, Object> read(ObjectInput in) throws IOException, ClassNotFoundException {
+			Map<String, Object> result = new HashMap<>();
 
-                result.put(key, value);
+			int size = in.readInt();
 
-            }
-            return result;
-        }
+			for (int i = 0; i < size; i++) {
+				String key = in.readUTF();
 
-    }
+				Object value = readNullableObject(in).orElse(null);
 
-    private final SerializerMapper mapper = new SerializerMapper();
-    private final MapSerializer mapSerializer = new MapSerializer();
+				result.put(key, value);
 
-    public ObjectStreamStateSerializer( AgentStateFactory<State> stateFactory ) {
-        super(stateFactory);
-        mapper.register( Collection.class, new ListSerializer() );
-        mapper.register( Map.class, new MapSerializer() );
-    }
+			}
+			return result;
+		}
 
-    public SerializerMapper mapper() {
-        return mapper;
-    }
+	}
 
-    @Override
-    public void write(State object, ObjectOutput out) throws IOException {
-        mapSerializer.write(object.data(), mapper.objectOutputWithMapper(out));
-    }
+	private final SerializerMapper mapper = new SerializerMapper();
 
-    @Override
-    public final State read(ObjectInput in) throws IOException, ClassNotFoundException {
-        return stateFactory().apply(mapSerializer.read( mapper.objectInputWithMapper(in) ));
-    }
+	private final MapSerializer mapSerializer = new MapSerializer();
+
+	public ObjectStreamStateSerializer(AgentStateFactory<State> stateFactory) {
+		super(stateFactory);
+		mapper.register(Collection.class, new ListSerializer());
+		mapper.register(Map.class, new MapSerializer());
+	}
+
+	public SerializerMapper mapper() {
+		return mapper;
+	}
+
+	@Override
+	public void write(State object, ObjectOutput out) throws IOException {
+		mapSerializer.write(object.data(), mapper.objectOutputWithMapper(out));
+	}
+
+	@Override
+	public final State read(ObjectInput in) throws IOException, ClassNotFoundException {
+		return stateFactory().apply(mapSerializer.read(mapper.objectInputWithMapper(in)));
+	}
 
 }

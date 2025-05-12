@@ -9,16 +9,17 @@ import java.io.IOException;
 
 public class AiMessageSerializer extends StdSerializer<AiMessage> {
 
-    public AiMessageSerializer() {
-        super(AiMessage.class);
-    }
+	public AiMessageSerializer() {
+		super(AiMessage.class);
+	}
 
-    @Override
-    public void serialize(AiMessage msg, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        gen.writeStartObject();
-        gen.writeStringField("@type", msg.type().name());
-        gen.writeStringField("text", msg.text());
-        gen.writeObjectField("toolExecutionRequests", msg.toolExecutionRequests());
-        gen.writeEndObject();
-    }
+	@Override
+	public void serialize(AiMessage msg, JsonGenerator gen, SerializerProvider provider) throws IOException {
+		gen.writeStartObject();
+		gen.writeStringField("@type", msg.type().name());
+		gen.writeStringField("text", msg.text());
+		gen.writeObjectField("toolExecutionRequests", msg.toolExecutionRequests());
+		gen.writeEndObject();
+	}
+
 }

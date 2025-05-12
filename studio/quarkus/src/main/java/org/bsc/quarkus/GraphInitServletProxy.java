@@ -12,20 +12,21 @@ import java.io.IOException;
 @WebServlet(name = "GraphInitServlet", urlPatterns = "/init")
 public class GraphInitServletProxy extends HttpServlet {
 
-    private final Servlet servlet;
+	private final Servlet servlet;
 
-    public GraphInitServletProxy( LangGraphFlow flow ) {
-        super();
-        servlet = new LangGraphStreamingServer.GraphInitServlet(flow.stateGraph(), flow.title(), flow.inputArgs());
-    }
+	public GraphInitServletProxy(LangGraphFlow flow) {
+		super();
+		servlet = new LangGraphStreamingServer.GraphInitServlet(flow.stateGraph(), flow.title(), flow.inputArgs());
+	}
 
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        servlet.init(config);
-    }
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		servlet.init(config);
+	}
 
-    @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        servlet.service(req, res);
-    }
+	@Override
+	public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+		servlet.service(req, res);
+	}
+
 }

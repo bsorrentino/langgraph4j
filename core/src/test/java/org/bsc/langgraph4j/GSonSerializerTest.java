@@ -13,70 +13,69 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GSonSerializerTest {
 
-    static class State extends AgentState {
+	static class State extends AgentState {
 
-        /**
-         * Constructs an AgentState with the given initial data.
-         *
-         * @param initData the initial data for the agent state
-         */
-        public State(Map<String, Object> initData) {
-            super(initData);
-        }
-    }
+		/**
+		 * Constructs an AgentState with the given initial data.
+		 * @param initData the initial data for the agent state
+		 */
+		public State(Map<String, Object> initData) {
+			super(initData);
+		}
 
-    @Test
-    public void serializeWithTypeInferenceTest() throws IOException, ClassNotFoundException {
+	}
 
-        State state = new State( Map.of( "prop1", "value1") );
+	@Test
+	public void serializeWithTypeInferenceTest() throws IOException, ClassNotFoundException {
 
-        GsonStateSerializer<State> serializer = new GsonStateSerializer<State>(State::new) {};
+		State state = new State(Map.of("prop1", "value1"));
 
-        Class<?> type = serializer.getStateType();
+		GsonStateSerializer<State> serializer = new GsonStateSerializer<State>(State::new) {
+		};
 
-        assertEquals(State.class, type);
+		Class<?> type = serializer.getStateType();
 
-        byte[] bytes = serializer.writeObject(state);
+		assertEquals(State.class, type);
 
-        assertNotNull(bytes);
-        assertTrue(bytes.length > 0);
+		byte[] bytes = serializer.writeObject(state);
 
-        AgentState deserializedState = serializer.readObject(bytes);
+		assertNotNull(bytes);
+		assertTrue(bytes.length > 0);
 
-        assertNotNull(deserializedState);
-        assertEquals( 1, deserializedState.data().size() );
-        assertEquals( "value1", deserializedState.data().get("prop1") );
-    }
+		AgentState deserializedState = serializer.readObject(bytes);
 
-    static class GsonSerializer extends GsonStateSerializer<AgentState> {
+		assertNotNull(deserializedState);
+		assertEquals(1, deserializedState.data().size());
+		assertEquals("value1", deserializedState.data().get("prop1"));
+	}
 
-        public GsonSerializer() {
-            super(AgentState::new, new GsonBuilder()
-                    .serializeNulls()
-                    .create());
-        }
+	static class GsonSerializer extends GsonStateSerializer<AgentState> {
 
-        Gson getGson() {
-            return gson;
-        }
-    }
+		public GsonSerializer() {
+			super(AgentState::new, new GsonBuilder().serializeNulls().create());
+		}
 
-    @Test
-    public void NodOutputJGsonSerializationTest() throws Exception {
+		Gson getGson() {
+			return gson;
+		}
 
-        GsonSerializer serializer = new GsonSerializer();
+	}
 
-        NodeOutput<AgentState> output = NodeOutput.of("node", null);
-        output.setSubGraph(true);
-        String json = serializer.getGson().toJson(output);
+	@Test
+	public void NodOutputJGsonSerializationTest() throws Exception {
 
-        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":true}", json );
+		GsonSerializer serializer = new GsonSerializer();
 
-        output.setSubGraph(false);
-        json = serializer.getGson().toJson(output);
+		NodeOutput<AgentState> output = NodeOutput.of("node", null);
+		output.setSubGraph(true);
+		String json = serializer.getGson().toJson(output);
 
-        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":false}", json );
-    }
+		assertEquals("{\"node\":\"node\",\"state\":null,\"subGraph\":true}", json);
 
+		output.setSubGraph(false);
+		json = serializer.getGson().toJson(output);
+
+		assertEquals("{\"node\":\"node\",\"state\":null,\"subGraph\":false}", json);
+	}
 
 }

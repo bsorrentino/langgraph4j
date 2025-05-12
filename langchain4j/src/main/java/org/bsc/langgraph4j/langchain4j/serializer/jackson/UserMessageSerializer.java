@@ -9,18 +9,19 @@ import java.io.IOException;
 
 public class UserMessageSerializer extends StdSerializer<UserMessage> {
 
-    public UserMessageSerializer() {
-        super(UserMessage.class);
-    }
+	public UserMessageSerializer() {
+		super(UserMessage.class);
+	}
 
-    @Override
-    public void serialize(UserMessage msg, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        gen.writeStartObject();
-        gen.writeStringField("@type", msg.type().name());
-        if( msg.hasSingleText() )
-            gen.writeStringField("text", msg.singleText());
-        else
-            gen.writeObjectField("contents", msg.contents());
-        gen.writeEndObject();
-    }
+	@Override
+	public void serialize(UserMessage msg, JsonGenerator gen, SerializerProvider provider) throws IOException {
+		gen.writeStartObject();
+		gen.writeStringField("@type", msg.type().name());
+		if (msg.hasSingleText())
+			gen.writeStringField("text", msg.singleText());
+		else
+			gen.writeObjectField("contents", msg.contents());
+		gen.writeEndObject();
+	}
+
 }

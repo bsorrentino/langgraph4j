@@ -21,161 +21,148 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 public class LangGraphStreamingServerTest {
 
-    static class State extends AgentState {
+	static class State extends AgentState {
 
-        public static final String AGENT_RESPONSE = "agent_response";
-        public static final String ACTION_RESPONSE = "action_response";
+		public static final String AGENT_RESPONSE = "agent_response";
 
-        public State(Map<String, Object> initData) {
-            super(initData);
-        }
+		public static final String ACTION_RESPONSE = "action_response";
 
-        String input() {
-            return this.<String>value("input").orElseThrow();
-        }
+		public State(Map<String, Object> initData) {
+			super(initData);
+		}
 
-        Optional<String> agentResponse() {
-            return this.value(AGENT_RESPONSE);
-        }
+		String input() {
+			return this.<String>value("input").orElseThrow();
+		}
 
-        Optional<String> actionResponse() {
-            return this.value(ACTION_RESPONSE);
-        }
-    }
+		Optional<String> agentResponse() {
+			return this.value(AGENT_RESPONSE);
+		}
 
-    EdgeAction<State> conditionalAge = (state) -> {
-        System.out.println("condition");
-        System.out.println(state);
+		Optional<String> actionResponse() {
+			return this.value(ACTION_RESPONSE);
+		}
 
-        return state.agentResponse()
-                .filter(res ->!res.isBlank())
-                .map(res -> "end" )
-                .orElse("action");
-    };
+	}
 
+	EdgeAction<State> conditionalAge = (state) -> {
+		System.out.println("condition");
+		System.out.println(state);
 
-    NodeAction<State> agentNode = (state ) -> {
+		return state.agentResponse().filter(res -> !res.isBlank()).map(res -> "end").orElse("action");
+	};
 
-        System.out.println("agent ");
-        System.out.println(state);
+	NodeAction<State> agentNode = (state) -> {
 
-        Thread.sleep( 2000 );
+		System.out.println("agent ");
+		System.out.println(state);
 
-        if( state.actionResponse().map( res -> !res.isBlank() ).orElse(false) ) {
-            return Map.of(State.AGENT_RESPONSE, "We have successfully completed your request: " + state.input());
-        }
+		Thread.sleep(2000);
 
-        return Map.of( State.AGENT_RESPONSE, "");
+		if (state.actionResponse().map(res -> !res.isBlank()).orElse(false)) {
+			return Map.of(State.AGENT_RESPONSE, "We have successfully completed your request: " + state.input());
+		}
 
+		return Map.of(State.AGENT_RESPONSE, "");
 
-    };
+	};
 
-    AsyncNodeAction<State> actionNode = (state ) -> {
+	AsyncNodeAction<State> actionNode = (state) -> {
 
-        var result = new CompletableFuture<Map<String,Object>>();
+		var result = new CompletableFuture<Map<String, Object>>();
 
-        System.out.println("action ");
-        System.out.println(state);
+		System.out.println("action ");
+		System.out.println(state);
 
-        if( state.agentResponse().map( res -> !res.isBlank() ).orElse(false) ) {
-            result.complete(Map.of(State.ACTION_RESPONSE, "skipped"));
-        }
-        else {
-            try {
-                Thread.sleep(2000);
+		if (state.agentResponse().map(res -> !res.isBlank()).orElse(false)) {
+			result.complete(Map.of(State.ACTION_RESPONSE, "skipped"));
+		}
+		else {
+			try {
+				Thread.sleep(2000);
 
-                result.complete(Map.of(State.ACTION_RESPONSE, "the job request '" + state.input() + "' has been completed"));
+				result.complete(
+						Map.of(State.ACTION_RESPONSE, "the job request '" + state.input() + "' has been completed"));
 
-            } catch (InterruptedException e) {
-                result.completeExceptionally(e);
-            }
-        }
-        return result;
+			}
+			catch (InterruptedException e) {
+				result.completeExceptionally(e);
+			}
+		}
+		return result;
 
-    };
+	};
 
-    StateGraph<State> build() throws GraphStateException {
-        return new StateGraph<>(State::new)
-                .addNode("agent", node_async(agentNode) )
-                .addNode("action", actionNode )
-                .addEdge(START, "agent")
-                .addEdge("action", "agent" )
-                .addConditionalEdges("agent",
-                        edge_async(conditionalAge),
-                        EdgeMappings.builder()
-                                .to("action")
-                                .toEND( "end" )
-                                .build() )
-                ;
+	StateGraph<State> build() throws GraphStateException {
+		return new StateGraph<>(State::new).addNode("agent", node_async(agentNode))
+			.addNode("action", actionNode)
+			.addEdge(START, "agent")
+			.addEdge("action", "agent")
+			.addConditionalEdges("agent", edge_async(conditionalAge),
+					EdgeMappings.builder().to("action").toEND("end").build());
 
-    }
+	}
 
-    static class NoReleaseThread {
+	static class NoReleaseThread {
 
-        public static void main(String[] args) throws Exception {
+		public static void main(String[] args) throws Exception {
 
-            var workflow = new LangGraphStreamingServerTest().build();
+			var workflow = new LangGraphStreamingServerTest().build();
 
+			var server = LangGraphStreamingServerJetty.builder()
+				.port(8080)
+				.title("LANGGRAPH4j STUDIO - DEMO")
+				.addInputStringArg("input")
+				.stateGraph(workflow)
+				.compileConfig(CompileConfig.builder()
+					// .interruptBefore( "action" )
+					.build())
+				.build();
 
-            var server = LangGraphStreamingServerJetty.builder()
-                    .port(8080)
-                    .title("LANGGRAPH4j STUDIO - DEMO")
-                    .addInputStringArg("input")
-                    .stateGraph(workflow)
-                    .compileConfig(CompileConfig.builder()
-                            //.interruptBefore( "action" )
-                            .build())
-                    .build();
+			server.start().join();
 
-            server.start().join();
+		}
 
-        }
+	}
 
-    }
+	static class AutoReleaseThread {
 
-    static class AutoReleaseThread {
+		public static void main(String[] args) throws Exception {
 
-        public static void main(String[] args) throws Exception {
+			var workflow = new LangGraphStreamingServerTest().build();
 
-            var workflow = new LangGraphStreamingServerTest().build();
+			var server = LangGraphStreamingServerJetty.builder()
+				.port(8080)
+				.title("LANGGRAPH4j STUDIO - Auto Release Thread")
+				.addInputStringArg("input")
+				.stateGraph(workflow)
+				.compileConfig(CompileConfig.builder().releaseThread(true).build())
+				.build();
 
-            var server = LangGraphStreamingServerJetty.builder()
-                    .port(8080)
-                    .title("LANGGRAPH4j STUDIO - Auto Release Thread")
-                    .addInputStringArg("input")
-                    .stateGraph(workflow)
-                    .compileConfig(CompileConfig.builder()
-                            .releaseThread(true)
-                            .build())
-                    .build();
+			server.start().join();
 
-            server.start().join();
+		}
 
-        }
+	}
 
-    }
+	static class WithInterruption {
 
-    static class WithInterruption {
+		public static void main(String[] args) throws Exception {
 
-        public static void main(String[] args) throws Exception {
+			var workflow = new LangGraphStreamingServerTest().build();
 
-            var workflow = new LangGraphStreamingServerTest().build();
+			var server = LangGraphStreamingServerJetty.builder()
+				.port(8080)
+				.title("LANGGRAPH4j STUDIO - With Interruption")
+				.addInputStringArg("input")
+				.stateGraph(workflow)
+				.compileConfig(CompileConfig.builder().releaseThread(true).interruptBefore("action").build())
+				.build();
 
-            var server = LangGraphStreamingServerJetty.builder()
-                    .port(8080)
-                    .title("LANGGRAPH4j STUDIO - With Interruption")
-                    .addInputStringArg("input")
-                    .stateGraph(workflow)
-                    .compileConfig(CompileConfig.builder()
-                            .releaseThread(true)
-                            .interruptBefore("action")
-                            .build())
-                    .build();
+			server.start().join();
 
-            server.start().join();
+		}
 
-        }
-
-    }
+	}
 
 }

@@ -30,125 +30,113 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 class SearchTool {
 
-    @Tool("Use to surf the web, fetch current information, check the weather, and retrieve other information.")
-    String execQuery(@P("The query to use in your search.") String query) {
+	@Tool("Use to surf the web, fetch current information, check the weather, and retrieve other information.")
+	String execQuery(@P("The query to use in your search.") String query) {
 
-        // This is a placeholder for the actual implementation
-        return "Cold, with a low of 13 degrees";
-    }
+		// This is a placeholder for the actual implementation
+		return "Cold, with a low of 13 degrees";
+	}
+
 }
 
 public class StreamingTestITest {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StreamingTestITest.class);
 
-    @BeforeAll
-    public static void loadEnv() {
-        DotEnvConfig.load();
-    }
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StreamingTestITest.class);
 
-    @Test
-    public void streamingTest() throws Exception {
-        var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow(() -> new IllegalArgumentException("no APIKEY provided!"));
+	@BeforeAll
+	public static void loadEnv() {
+		DotEnvConfig.load();
+	}
 
-        var stateSerializer = new ObjectStreamStateSerializer<MessagesState<ChatMessage>>(MessagesState::new);
-        stateSerializer.mapper()
-                // Setup custom serializer for Langchain4j ToolExecutionRequest
-                .register(ToolExecutionRequest.class, new ToolExecutionRequestSerializer())
-                // Setup custom serializer for Langchain4j AiMessage
-                .register(ChatMessage.class, new ChatMesssageSerializer());
+	@Test
+	public void streamingTest() throws Exception {
+		var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
+			.orElseThrow(() -> new IllegalArgumentException("no APIKEY provided!"));
 
-        // setup streaming model
-        var model = OpenAiStreamingChatModel.builder()
-                .apiKey(openApiKey)
-                .modelName("gpt-4o-mini")
-                .logResponses(true)
-                .temperature(0.0)
-                .maxTokens(2000)
-                .build();
+		var stateSerializer = new ObjectStreamStateSerializer<MessagesState<ChatMessage>>(MessagesState::new);
+		stateSerializer.mapper()
+			// Setup custom serializer for Langchain4j ToolExecutionRequest
+			.register(ToolExecutionRequest.class, new ToolExecutionRequestSerializer())
+			// Setup custom serializer for Langchain4j AiMessage
+			.register(ChatMessage.class, new ChatMesssageSerializer());
 
-        // setup tools
-        var tools = LC4jToolService.builder()
-                .toolsFromObject(new SearchTool())
-                .build();
+		// setup streaming model
+		var model = OpenAiStreamingChatModel.builder()
+			.apiKey(openApiKey)
+			.modelName("gpt-4o-mini")
+			.logResponses(true)
+			.temperature(0.0)
+			.maxTokens(2000)
+			.build();
 
-        // Call Model
-        NodeAction<MessagesState<ChatMessage>> callModel = state -> {
-            log.info("CallModel:\n{}", state.messages());
+		// setup tools
+		var tools = LC4jToolService.builder().toolsFromObject(new SearchTool()).build();
 
-            var generator = StreamingChatGenerator.builder()
-                    .mapResult(response -> {
-                        log.info("MapResult: {}", response);
-                        return Map.of("messages", response.aiMessage());
-                    })
-                    .startingNode("agent")
-                    .startingState(state)
-                    .build();
+		// Call Model
+		NodeAction<MessagesState<ChatMessage>> callModel = state -> {
+			log.info("CallModel:\n{}", state.messages());
 
-            var params = ChatRequestParameters.builder()
-                    .toolSpecifications( tools.toolSpecifications() )
-                    .build();
-            var request = ChatRequest.builder()
-                    .parameters( params )
-                    .messages( state.messages() )
-                    .build();
-            model.chat(request, generator.handler() );
+			var generator = StreamingChatGenerator.builder().mapResult(response -> {
+				log.info("MapResult: {}", response);
+				return Map.of("messages", response.aiMessage());
+			}).startingNode("agent").startingState(state).build();
 
-            return Map.of("messages", generator);
-        };
+			var params = ChatRequestParameters.builder().toolSpecifications(tools.toolSpecifications()).build();
+			var request = ChatRequest.builder().parameters(params).messages(state.messages()).build();
+			model.chat(request, generator.handler());
 
-        // Route Message
-        EdgeAction<MessagesState<ChatMessage>> routeMessage = state -> {
-            log.info("routeMessage:\n{}", state.messages());
+			return Map.of("messages", generator);
+		};
 
-            var lastMessage = state.lastMessage()
-                    .orElseThrow(() -> (new IllegalStateException("last message not found!")));
+		// Route Message
+		EdgeAction<MessagesState<ChatMessage>> routeMessage = state -> {
+			log.info("routeMessage:\n{}", state.messages());
 
-            if (lastMessage instanceof AiMessage message) {
-                // If tools should be called
-                if (message.hasToolExecutionRequests()) return "next";
-            }
+			var lastMessage = state.lastMessage()
+				.orElseThrow(() -> (new IllegalStateException("last message not found!")));
 
-            // If no tools are called, we can finish (respond to the user)
-            return "exit";
-        };
+			if (lastMessage instanceof AiMessage message) {
+				// If tools should be called
+				if (message.hasToolExecutionRequests())
+					return "next";
+			}
 
-        // Invoke Tool
-        NodeAction<MessagesState<ChatMessage>> invokeTool = state -> {
-            log.info("invokeTool:\n{}", state.messages());
+			// If no tools are called, we can finish (respond to the user)
+			return "exit";
+		};
 
-            var lastMessage = state.lastMessage()
-                    .orElseThrow(() -> (new IllegalStateException("last message not found!")));
+		// Invoke Tool
+		NodeAction<MessagesState<ChatMessage>> invokeTool = state -> {
+			log.info("invokeTool:\n{}", state.messages());
 
+			var lastMessage = state.lastMessage()
+				.orElseThrow(() -> (new IllegalStateException("last message not found!")));
 
-            if (lastMessage instanceof AiMessage lastAiMessage) {
+			if (lastMessage instanceof AiMessage lastAiMessage) {
 
-                var result = tools.execute(lastAiMessage.toolExecutionRequests(), null)
-                        .orElseThrow(() -> (new IllegalStateException("no tool found!")));
+				var result = tools.execute(lastAiMessage.toolExecutionRequests(), null)
+					.orElseThrow(() -> (new IllegalStateException("no tool found!")));
 
-                return Map.of("messages", result);
+				return Map.of("messages", result);
 
-            }
+			}
 
-            throw new IllegalStateException("invalid last message");
-        };
+			throw new IllegalStateException("invalid last message");
+		};
 
-        // Define Graph
-        var workflow = new StateGraph<>(MessagesState.SCHEMA, stateSerializer)
-                .addNode("agent", node_async(callModel))
-                .addNode("tools", node_async(invokeTool))
-                .addEdge(START, "agent")
-                .addConditionalEdges("agent",
-                        edge_async(routeMessage),
-                        Map.of("next", "tools", "exit", END))
-                .addEdge("tools", "agent");
+		// Define Graph
+		var workflow = new StateGraph<>(MessagesState.SCHEMA, stateSerializer).addNode("agent", node_async(callModel))
+			.addNode("tools", node_async(invokeTool))
+			.addEdge(START, "agent")
+			.addConditionalEdges("agent", edge_async(routeMessage), Map.of("next", "tools", "exit", END))
+			.addEdge("tools", "agent");
 
-        var app = workflow.compile();
+		var app = workflow.compile();
 
-        for( var out : app.stream( Map.of( "messages", UserMessage.from( "what is the whether today?")) ) ) {
-            log.info( "{}", out );
-        }
+		for (var out : app.stream(Map.of("messages", UserMessage.from("what is the whether today?")))) {
+			log.info("{}", out);
+		}
 
-    }
+	}
 
 }

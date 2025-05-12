@@ -28,436 +28,391 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for simple App.
  */
-public class StateGraphMemorySaverTest
-{
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StateGraphMemorySaverTest.class);
-    static class State extends MessagesState<String> {
-
-        public State(Map<String, Object> initData) {
-            super( initData  );
-        }
-
-        int steps() {
-            return this.<Integer>value("steps").orElse(0);
-        }
-
-    }
-
-    NodeAction<State> agent_whether = state -> {
-        String lastMessage = state.lastMessage().orElseThrow( () -> new IllegalStateException("No last message!") );
-
-        if( lastMessage.contains( "temperature")) {
-            return Map.of("messages", "whether in Naples is sunny");
-        }
-        if( lastMessage.contains( "whether")) {
-            return Map.of("messages", "tool_calls");
-        }
-        if( lastMessage.contains( "bartolo")) {
-            return Map.of("messages", "Hi bartolo, nice to meet you too! How can I assist you today?");
-        }
-        if(state.messages().stream().anyMatch(m -> m.contains("bartolo"))) {
-            return Map.of("messages", "Hi, bartolo welcome back?");
-        }
-        throw new IllegalStateException( "unknown message!" );
-    };
-
-    // Simulate LLM agent
-    NodeAction<State> tool_whether = state ->
-            Map.of( "messages", "temperature in Napoli is 30 degree");
-
-    EdgeAction<State> shouldContinue_whether = state ->
-            state.lastMessage().filter( m -> m.equals("tool_calls")  )
-                    .map( m -> "tools" )
-                    .orElse(END);
-
-    @BeforeAll
-    public static void initLogging() throws IOException {
-        try( var is = StateGraphMemorySaverTest.class.getResourceAsStream("/logging.properties") ) {
-            LogManager.getLogManager().readConfiguration(is);
-        }
-    }
-
-    @Test
-    public void testCheckpointInitialState() throws Exception {
-        NodeAction<AgentState> agent_1 = state -> {
-            log.info( "agent_1");
-            return Map.of("agent_1:prop1", "agent_1:test");
-        };
-
-        var workflow = new StateGraph<>(AgentState::new)
-            .addNode("agent_1", node_async( agent_1 ))
-            .addEdge( START,"agent_1")
-            .addEdge( "agent_1",  END)
-        ;
-
-        var saver = new MemorySaver();
-
-        var compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
-
-        var runnableConfig = RunnableConfig.builder().build();
-        var app = workflow.compile( compileConfig );
-
-        Map<String, Object> inputs = Map.of( "input", "test1");
-
-        var initState = app.cloneState( app.getInitialState( inputs, runnableConfig ) );
-
-        assertEquals( 1, initState.data().size() );
-        assertTrue(  initState.value("input").isPresent() );
-        assertEquals( "test1", initState.value("input").get() );
-
-        //
-        // Test checkpoint not override inputs
-        //
-        var newState = new AgentState( Map.of( "input", "test2") );
-
-        saver.put( runnableConfig, Checkpoint.builder()
-                .state( newState.data() )
-                .nodeId(START)
-                .nextNodeId("agent_1")
-                .build() ) ;
-
-        app = workflow.compile( compileConfig );
-        initState = app.cloneState( app.getInitialState( inputs, runnableConfig ) );
-
-        assertEquals( 1, initState.data().size() );
-        assertTrue(  initState.value("input").isPresent() );
-        assertEquals( "test1", initState.value("input").get() );
-
-        // Test checkpoints are saved
-        newState = new AgentState( Map.of( "input", "test2", "agent_1:prop1", "agent_1:test") );
-        saver.put( runnableConfig, Checkpoint.builder()
-                .state( newState )
-                .nodeId( "agent_1")
-                .nextNodeId(END)
-                .build() ) ;
-        app = workflow.compile( compileConfig );
-        initState = app.cloneState( app.getInitialState( inputs, runnableConfig ) );
+public class StateGraphMemorySaverTest {
+
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StateGraphMemorySaverTest.class);
+
+	static class State extends MessagesState<String> {
+
+		public State(Map<String, Object> initData) {
+			super(initData);
+		}
+
+		int steps() {
+			return this.<Integer>value("steps").orElse(0);
+		}
+
+	}
+
+	NodeAction<State> agent_whether = state -> {
+		String lastMessage = state.lastMessage().orElseThrow(() -> new IllegalStateException("No last message!"));
+
+		if (lastMessage.contains("temperature")) {
+			return Map.of("messages", "whether in Naples is sunny");
+		}
+		if (lastMessage.contains("whether")) {
+			return Map.of("messages", "tool_calls");
+		}
+		if (lastMessage.contains("bartolo")) {
+			return Map.of("messages", "Hi bartolo, nice to meet you too! How can I assist you today?");
+		}
+		if (state.messages().stream().anyMatch(m -> m.contains("bartolo"))) {
+			return Map.of("messages", "Hi, bartolo welcome back?");
+		}
+		throw new IllegalStateException("unknown message!");
+	};
+
+	// Simulate LLM agent
+	NodeAction<State> tool_whether = state -> Map.of("messages", "temperature in Napoli is 30 degree");
+
+	EdgeAction<State> shouldContinue_whether = state -> state.lastMessage()
+		.filter(m -> m.equals("tool_calls"))
+		.map(m -> "tools")
+		.orElse(END);
+
+	@BeforeAll
+	public static void initLogging() throws IOException {
+		try (var is = StateGraphMemorySaverTest.class.getResourceAsStream("/logging.properties")) {
+			LogManager.getLogManager().readConfiguration(is);
+		}
+	}
+
+	@Test
+	public void testCheckpointInitialState() throws Exception {
+		NodeAction<AgentState> agent_1 = state -> {
+			log.info("agent_1");
+			return Map.of("agent_1:prop1", "agent_1:test");
+		};
 
-        assertEquals( 2, initState.data().size() );
-        assertTrue(  initState.value("input").isPresent() );
-        assertEquals( "test1", initState.value("input").get() );
-        assertTrue(  initState.value("agent_1:prop1").isPresent() );
-        assertEquals( "agent_1:test", initState.value("agent_1:prop1").get() );
+		var workflow = new StateGraph<>(AgentState::new).addNode("agent_1", node_async(agent_1))
+			.addEdge(START, "agent_1")
+			.addEdge("agent_1", END);
 
-        var checkpoints = saver.list(runnableConfig);
-        assertEquals( 2, checkpoints.size() );
-        Optional<Checkpoint> last = saver.get(runnableConfig);
-        assertTrue( last.isPresent() );
-        assertEquals( "agent_1", last.get().getNodeId() );
-        assertNotNull( last.get().getState().get("agent_1:prop1") );
-        assertEquals( "agent_1:test", last.get().getState().get("agent_1:prop1") );
+		var saver = new MemorySaver();
 
-        var tag = saver.release(runnableConfig);
+		var compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
 
-        assertIterableEquals( checkpoints, tag.checkpoints() );
+		var runnableConfig = RunnableConfig.builder().build();
+		var app = workflow.compile(compileConfig);
 
-        var checkpointsAfterTag = saver.list(runnableConfig);
-        assertTrue( checkpointsAfterTag.isEmpty() );
-    }
+		Map<String, Object> inputs = Map.of("input", "test1");
 
+		var initState = app.cloneState(app.getInitialState(inputs, runnableConfig));
 
-    @Test
-    public void testCheckpointSaverResubmit() throws Exception {
-        int expectedSteps = 5;
+		assertEquals(1, initState.data().size());
+		assertTrue(initState.value("input").isPresent());
+		assertEquals("test1", initState.value("input").get());
 
-        NodeAction<State> agent_1 = state -> {
-            int steps = state.steps() + 1;
-            log.info( "agent_1: step: {}", steps );
-            return Map.of("steps", steps, "messages", format( "agent_1:step %d", steps ));
-        };
+		//
+		// Test checkpoint not override inputs
+		//
+		var newState = new AgentState(Map.of("input", "test2"));
 
-        EdgeAction<State> shouldContinue = state -> {
-            int steps = state.steps();
-            if (steps >= expectedSteps) {
-                return "exit";
-            }
-            return "next";
-        };
+		saver.put(runnableConfig,
+				Checkpoint.builder().state(newState.data()).nodeId(START).nextNodeId("agent_1").build());
 
-        var workflow = new StateGraph<>(State.SCHEMA, State::new)
-                .addEdge(START, "agent_1")
-                .addNode("agent_1", node_async(agent_1))
-                .addConditionalEdges( "agent_1",
-                        edge_async( shouldContinue),
-                        Map.of( "next", "agent_1", "exit", END) );;
+		app = workflow.compile(compileConfig);
+		initState = app.cloneState(app.getInitialState(inputs, runnableConfig));
 
-        var saver = new VersionedMemorySaver();
+		assertEquals(1, initState.data().size());
+		assertTrue(initState.value("input").isPresent());
+		assertEquals("test1", initState.value("input").get());
 
-        var compileConfig = CompileConfig.builder()
-                .checkpointSaver(saver)
-                .build();
+		// Test checkpoints are saved
+		newState = new AgentState(Map.of("input", "test2", "agent_1:prop1", "agent_1:test"));
+		saver.put(runnableConfig, Checkpoint.builder().state(newState).nodeId("agent_1").nextNodeId(END).build());
+		app = workflow.compile(compileConfig);
+		initState = app.cloneState(app.getInitialState(inputs, runnableConfig));
 
-       var app = workflow.compile( compileConfig );
+		assertEquals(2, initState.data().size());
+		assertTrue(initState.value("input").isPresent());
+		assertEquals("test1", initState.value("input").get());
+		assertTrue(initState.value("agent_1:prop1").isPresent());
+		assertEquals("agent_1:test", initState.value("agent_1:prop1").get());
 
-        Map<String, Object> inputs = Map.of( "steps", 0 );
+		var checkpoints = saver.list(runnableConfig);
+		assertEquals(2, checkpoints.size());
+		Optional<Checkpoint> last = saver.get(runnableConfig);
+		assertTrue(last.isPresent());
+		assertEquals("agent_1", last.get().getNodeId());
+		assertNotNull(last.get().getState().get("agent_1:prop1"));
+		assertEquals("agent_1:test", last.get().getState().get("agent_1:prop1"));
 
-        var runnableConfig = RunnableConfig.builder()
-                                    .threadId("thread_1")
-                                    .build();
+		var tag = saver.release(runnableConfig);
 
-        var state = app.invoke( inputs, runnableConfig );
+		assertIterableEquals(checkpoints, tag.checkpoints());
 
-        assertTrue( state.isPresent() );
-        assertEquals( expectedSteps, state.get().steps() );
+		var checkpointsAfterTag = saver.list(runnableConfig);
+		assertTrue(checkpointsAfterTag.isEmpty());
+	}
 
-        var messages = state.get().messages();
-        assertFalse( messages.isEmpty() );
+	@Test
+	public void testCheckpointSaverResubmit() throws Exception {
+		int expectedSteps = 5;
 
-        log.info( "{}", messages );
+		NodeAction<State> agent_1 = state -> {
+			int steps = state.steps() + 1;
+			log.info("agent_1: step: {}", steps);
+			return Map.of("steps", steps, "messages", format("agent_1:step %d", steps));
+		};
 
-        assertEquals( expectedSteps, messages.size() );
-        for( int i = 0; i < messages.size(); i++ ) {
-            assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
-        }
+		EdgeAction<State> shouldContinue = state -> {
+			int steps = state.steps();
+			if (steps >= expectedSteps) {
+				return "exit";
+			}
+			return "next";
+		};
 
-        assertTrue( saver.lastVersionByThreadId(runnableConfig).isEmpty() );
+		var workflow = new StateGraph<>(State.SCHEMA, State::new).addEdge(START, "agent_1")
+			.addNode("agent_1", node_async(agent_1))
+			.addConditionalEdges("agent_1", edge_async(shouldContinue), Map.of("next", "agent_1", "exit", END));
+		;
 
-        var snapshot = app.getState( runnableConfig );
+		var saver = new VersionedMemorySaver();
 
-        assertNotNull( snapshot );
-        log.info( "SNAPSHOT:\n{}\n", snapshot );
+		var compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
 
-        // SUBMIT NEW THREAD 2
-        runnableConfig = RunnableConfig.builder()
-                .threadId("thread_2")
-                .build();
+		var app = workflow.compile(compileConfig);
 
-        state = app.invoke( emptyMap(), runnableConfig );
+		Map<String, Object> inputs = Map.of("steps", 0);
 
-        assertTrue( state.isPresent() );
-        assertEquals( expectedSteps, state.get().steps() );
-        messages = state.get().messages();
+		var runnableConfig = RunnableConfig.builder().threadId("thread_1").build();
 
-        log.info( "{}", messages );
+		var state = app.invoke(inputs, runnableConfig);
 
-        assertEquals( expectedSteps, messages.size() );
-        for( int i = 0; i < messages.size(); i++ ) {
-            assertEquals( format("agent_1:step %d", i+1), messages.get(i) );
-        }
+		assertTrue(state.isPresent());
+		assertEquals(expectedSteps, state.get().steps());
 
-        // RE-SUBMIT THREAD 1
-        state = app.invoke( emptyMap(), runnableConfig );
+		var messages = state.get().messages();
+		assertFalse(messages.isEmpty());
 
-        assertTrue( state.isPresent() );
-        assertEquals( expectedSteps + 1, state.get().steps() );
-        messages = state.get().messages();
+		log.info("{}", messages);
 
-        log.info( "{}", messages );
+		assertEquals(expectedSteps, messages.size());
+		for (int i = 0; i < messages.size(); i++) {
+			assertEquals(format("agent_1:step %d", i + 1), messages.get(i));
+		}
 
-        assertEquals( expectedSteps + 1, messages.size() );
+		assertTrue(saver.lastVersionByThreadId(runnableConfig).isEmpty());
 
-    }
+		var snapshot = app.getState(runnableConfig);
 
-    @Test
-    public void testViewAndUpdatePastGraphState() throws Exception {
+		assertNotNull(snapshot);
+		log.info("SNAPSHOT:\n{}\n", snapshot);
 
-        var workflow = new StateGraph<>(State.SCHEMA, State::new)
-                .addNode("agent", node_async(agent_whether) )
-                .addNode("tools", node_async(tool_whether) )
-                .addEdge(START, "agent")
-                .addConditionalEdges("agent",
-                        edge_async(shouldContinue_whether),
-                        Map.of("tools", "tools", END, END))
-                .addEdge("tools", "agent");
+		// SUBMIT NEW THREAD 2
+		runnableConfig = RunnableConfig.builder().threadId("thread_2").build();
 
+		state = app.invoke(emptyMap(), runnableConfig);
 
-        var saver = new MemorySaver();
+		assertTrue(state.isPresent());
+		assertEquals(expectedSteps, state.get().steps());
+		messages = state.get().messages();
 
-        var compileConfig = CompileConfig.builder()
-                .checkpointSaver(saver)
-                .build();
+		log.info("{}", messages);
 
-        var app = workflow.compile( compileConfig );
+		assertEquals(expectedSteps, messages.size());
+		for (int i = 0; i < messages.size(); i++) {
+			assertEquals(format("agent_1:step %d", i + 1), messages.get(i));
+		}
 
-        Map<String, Object> inputs = Map.of( "messages", "whether in Naples?") ;
+		// RE-SUBMIT THREAD 1
+		state = app.invoke(emptyMap(), runnableConfig);
 
-        var runnableConfig = RunnableConfig.builder()
-                .threadId("thread_1")
-                .build();
+		assertTrue(state.isPresent());
+		assertEquals(expectedSteps + 1, state.get().steps());
+		messages = state.get().messages();
 
-        var results = app.streamSnapshots( inputs, runnableConfig ).stream().collect( Collectors.toList() );
+		log.info("{}", messages);
 
-        results.forEach( r -> log.info( "{}: Node: {} - {}", r.getClass().getSimpleName(), r.node(), r.state().messages() ) );
+		assertEquals(expectedSteps + 1, messages.size());
 
-        assertEquals( 5, results.size() );
-        assertInstanceOf( NodeOutput.class, results.get(0) );
-        assertInstanceOf( StateSnapshot.class, results.get(1) );
-        assertInstanceOf( StateSnapshot.class, results.get(2) );
-        assertInstanceOf( StateSnapshot.class, results.get(3) );
-        assertInstanceOf( NodeOutput.class, results.get(4) );
+	}
 
-        var snapshot = app.getState(runnableConfig);
-        assertNotNull( snapshot );
-        assertEquals( END, snapshot.next() );
+	@Test
+	public void testViewAndUpdatePastGraphState() throws Exception {
 
-        log.info( "LAST SNAPSHOT:\n{}\n", snapshot );
+		var workflow = new StateGraph<>(State.SCHEMA, State::new).addNode("agent", node_async(agent_whether))
+			.addNode("tools", node_async(tool_whether))
+			.addEdge(START, "agent")
+			.addConditionalEdges("agent", edge_async(shouldContinue_whether), Map.of("tools", "tools", END, END))
+			.addEdge("tools", "agent");
 
-        var stateHistory = app.getStateHistory( runnableConfig );
-        stateHistory.forEach( state -> log.info( "SNAPSHOT HISTORY:\n{}\n", state ) );
-        assertNotNull( stateHistory );
-        assertEquals( 4, stateHistory.size() );
+		var saver = new MemorySaver();
 
-        for( StateSnapshot<State> s : stateHistory ) {
-            log.info( "SNAPSHOT HISTORY:\n{}\n", s );
-        }
+		var compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
 
-        results = app.stream( null, runnableConfig ).stream().collect( Collectors.toList() );
+		var app = workflow.compile(compileConfig);
 
-        assertNotNull( results );
-        assertFalse( results.isEmpty() );
-        assertEquals( 1, results.size() );
-        assertTrue( results.get(0).state().lastMessage().isPresent() );
-        assertEquals( "whether in Naples is sunny", results.get(0).state().lastMessage().get() );
+		Map<String, Object> inputs = Map.of("messages", "whether in Naples?");
 
-        Optional<StateSnapshot<State>> firstSnapshot = stateHistory.stream().reduce( (first, second) -> second); // take the last
-        assertTrue( firstSnapshot.isPresent() );
-        assertTrue( firstSnapshot.get().state().lastMessage().isPresent() );
-        assertEquals( "whether in Naples?", firstSnapshot.get().state().lastMessage().get() );
+		var runnableConfig = RunnableConfig.builder().threadId("thread_1").build();
 
-        var toReplay = firstSnapshot.get().config();
+		var results = app.streamSnapshots(inputs, runnableConfig).stream().collect(Collectors.toList());
 
-        toReplay = app.updateState( toReplay, Map.of( "messages", "i'm bartolo") );
-        results = app.stream( null, toReplay ).stream().collect( Collectors.toList() );
+		results
+			.forEach(r -> log.info("{}: Node: {} - {}", r.getClass().getSimpleName(), r.node(), r.state().messages()));
 
-        assertNotNull( results );
-        assertFalse( results.isEmpty() );
-        assertEquals( 2, results.size() );
-        assertEquals( END, results.get(1).node() );
-        assertTrue( results.get(1).state().lastMessage().isPresent() );
-        assertEquals( "Hi bartolo, nice to meet you too! How can I assist you today?", results.get(0).state().lastMessage().get() );
+		assertEquals(5, results.size());
+		assertInstanceOf(NodeOutput.class, results.get(0));
+		assertInstanceOf(StateSnapshot.class, results.get(1));
+		assertInstanceOf(StateSnapshot.class, results.get(2));
+		assertInstanceOf(StateSnapshot.class, results.get(3));
+		assertInstanceOf(NodeOutput.class, results.get(4));
 
-    }
+		var snapshot = app.getState(runnableConfig);
+		assertNotNull(snapshot);
+		assertEquals(END, snapshot.next());
 
-    @Test
-    public void testPauseAndUpdatePastGraphState() throws Exception {
+		log.info("LAST SNAPSHOT:\n{}\n", snapshot);
 
-        var workflow = new StateGraph<>(State.SCHEMA, State::new)
-                .addNode("agent", node_async(agent_whether) )
-                .addNode("tools", node_async(tool_whether) )
-                .addEdge(START, "agent")
-                .addConditionalEdges("agent",
-                        edge_async(shouldContinue_whether),
-                        Map.of("tools", "tools", END, END))
-                .addEdge("tools", "agent");
+		var stateHistory = app.getStateHistory(runnableConfig);
+		stateHistory.forEach(state -> log.info("SNAPSHOT HISTORY:\n{}\n", state));
+		assertNotNull(stateHistory);
+		assertEquals(4, stateHistory.size());
 
-        var saver = new MemorySaver();
+		for (StateSnapshot<State> s : stateHistory) {
+			log.info("SNAPSHOT HISTORY:\n{}\n", s);
+		}
 
-        var compileConfig = CompileConfig.builder()
-                .checkpointSaver(saver)
-                .interruptBefore("tools")
-                .build();
+		results = app.stream(null, runnableConfig).stream().collect(Collectors.toList());
 
-        var app = workflow.compile( compileConfig );
+		assertNotNull(results);
+		assertFalse(results.isEmpty());
+		assertEquals(1, results.size());
+		assertTrue(results.get(0).state().lastMessage().isPresent());
+		assertEquals("whether in Naples is sunny", results.get(0).state().lastMessage().get());
 
-        var runnableConfig = RunnableConfig.builder()
-                .threadId("thread_1")
-                .build();
+		Optional<StateSnapshot<State>> firstSnapshot = stateHistory.stream().reduce((first, second) -> second); // take
+																												// the
+																												// last
+		assertTrue(firstSnapshot.isPresent());
+		assertTrue(firstSnapshot.get().state().lastMessage().isPresent());
+		assertEquals("whether in Naples?", firstSnapshot.get().state().lastMessage().get());
 
-        log.info( "FIRST CALL WITH INTERRUPT BEFORE 'tools'");
-        Map<String,Object> inputs = Map.of( "messages", "whether in Naples?")  ;
-        var results = app.stream( inputs, runnableConfig ).stream()
-                                .peek( n -> log.info( "{}", n ) )
-                                .collect(Collectors.toList());
-        assertNotNull( results );
-        assertEquals( 2, results.size() );
-        assertEquals( START, results.get(0).node() );
-        assertEquals( "agent", results.get(1).node() );
-        assertTrue( results.get(1).state().lastMessage().isPresent() );
+		var toReplay = firstSnapshot.get().config();
 
-        var state = app.getState(runnableConfig);
+		toReplay = app.updateState(toReplay, Map.of("messages", "i'm bartolo"));
+		results = app.stream(null, toReplay).stream().collect(Collectors.toList());
 
-        assertNotNull( state );
-        assertEquals( "tools", state.next() );
+		assertNotNull(results);
+		assertFalse(results.isEmpty());
+		assertEquals(2, results.size());
+		assertEquals(END, results.get(1).node());
+		assertTrue(results.get(1).state().lastMessage().isPresent());
+		assertEquals("Hi bartolo, nice to meet you too! How can I assist you today?",
+				results.get(0).state().lastMessage().get());
 
-        log.info( "RESUME CALL");
-        results = app.stream( null, state.config() ).stream()
-                                        .peek(n -> log.info( "{}", n ) )
-                                        .collect(Collectors.toList());
+	}
 
-        assertNotNull( results );
-        assertEquals( 3, results.size() );
-        assertEquals( "tools", results.get(0).node() );
-        assertEquals( "agent", results.get(1).node() );
-        assertEquals( END, results.get(2).node() );
-        assertTrue( results.get(2).state().lastMessage().isPresent() );
-        assertEquals( "whether in Naples is sunny", results.get(2).state().lastMessage().get() );
+	@Test
+	public void testPauseAndUpdatePastGraphState() throws Exception {
 
-    }
+		var workflow = new StateGraph<>(State.SCHEMA, State::new).addNode("agent", node_async(agent_whether))
+			.addNode("tools", node_async(tool_whether))
+			.addEdge(START, "agent")
+			.addConditionalEdges("agent", edge_async(shouldContinue_whether), Map.of("tools", "tools", END, END))
+			.addEdge("tools", "agent");
 
-    @Test
-    public void testMemoryWithVersionsSaver() throws Exception {
+		var saver = new MemorySaver();
 
-        var threadId = "thread_1";
+		var compileConfig = CompileConfig.builder().checkpointSaver(saver).interruptBefore("tools").build();
 
-        var saver = new VersionedMemorySaver();
+		var app = workflow.compile(compileConfig);
 
-        // Check for error
-        var configWithVersion = RunnableConfig.builder()
-                .threadId(threadId)
-                .build();
+		var runnableConfig = RunnableConfig.builder().threadId("thread_1").build();
 
-        // Create a new version of thread_1
-        var configWithoutVersion = RunnableConfig.builder()
-                .threadId(threadId)
-                .build();
+		log.info("FIRST CALL WITH INTERRUPT BEFORE 'tools'");
+		Map<String, Object> inputs = Map.of("messages", "whether in Naples?");
+		var results = app.stream(inputs, runnableConfig)
+			.stream()
+			.peek(n -> log.info("{}", n))
+			.collect(Collectors.toList());
+		assertNotNull(results);
+		assertEquals(2, results.size());
+		assertEquals(START, results.get(0).node());
+		assertEquals("agent", results.get(1).node());
+		assertTrue(results.get(1).state().lastMessage().isPresent());
 
-        var checkpoint = Checkpoint.builder()
-                .state(new AgentState(Map.of()))
-                .nodeId(START)
-                .nextNodeId(END)
-                .build();
+		var state = app.getState(runnableConfig);
 
-        var newConfig = saver.put(configWithoutVersion, checkpoint);
+		assertNotNull(state);
+		assertEquals("tools", state.next());
 
-        var list = saver.list(newConfig);
+		log.info("RESUME CALL");
+		results = app.stream(null, state.config()).stream().peek(n -> log.info("{}", n)).collect(Collectors.toList());
 
-        assertEquals(1, list.size());
+		assertNotNull(results);
+		assertEquals(3, results.size());
+		assertEquals("tools", results.get(0).node());
+		assertEquals("agent", results.get(1).node());
+		assertEquals(END, results.get(2).node());
+		assertTrue(results.get(2).state().lastMessage().isPresent());
+		assertEquals("whether in Naples is sunny", results.get(2).state().lastMessage().get());
 
-        var tag = saver.release(newConfig);
+	}
 
-        assertEquals(1, tag.checkpoints().size());
+	@Test
+	public void testMemoryWithVersionsSaver() throws Exception {
 
-        var versions = saver.versionsByThreadId( threadId );
+		var threadId = "thread_1";
 
-        assertEquals(1, versions.size());
+		var saver = new VersionedMemorySaver();
 
-        // Check if checkpoints collection  is immutable
-        assertThrowsExactly(UnsupportedOperationException.class, () -> tag.checkpoints().remove(checkpoint));
+		// Check for error
+		var configWithVersion = RunnableConfig.builder().threadId(threadId).build();
 
-        var configWithVersion1 = RunnableConfig.builder()
-                    .threadId(threadId)
-                    .build();
+		// Create a new version of thread_1
+		var configWithoutVersion = RunnableConfig.builder().threadId(threadId).build();
 
-        assertEquals(1, tag.checkpoints().size());
+		var checkpoint = Checkpoint.builder().state(new AgentState(Map.of())).nodeId(START).nextNodeId(END).build();
 
-        versions = saver.versionsByThreadId(configWithVersion);
+		var newConfig = saver.put(configWithoutVersion, checkpoint);
 
-        assertEquals(1, versions.size());
-        assertEquals( checkpoint.getId(), list.stream().findFirst().map(Checkpoint::getId).orElseThrow() );
+		var list = saver.list(newConfig);
 
-        var checkpoint_1 = Checkpoint.builder()
-                .state(new AgentState(Map.of()))
-                .nodeId("test")
-                .nextNodeId(END)
-                .build();
-        var checkpoint_2 = Checkpoint.builder()
-                .state(new AgentState(Map.of()))
-                .nodeId("test_1")
-                .nextNodeId(END)
-                .build();
+		assertEquals(1, list.size());
 
-        configWithVersion1 = saver.put( configWithVersion1, checkpoint_1 );
+		var tag = saver.release(newConfig);
 
-        configWithVersion1 = saver.put( configWithVersion1.withCheckPointId(null), checkpoint_2 );
+		assertEquals(1, tag.checkpoints().size());
 
-        versions = saver.versionsByThreadId( threadId );
+		var versions = saver.versionsByThreadId(threadId);
 
-        assertEquals(1, versions.size());
+		assertEquals(1, versions.size());
 
-        var tag2 = saver.release(configWithVersion1);
+		// Check if checkpoints collection is immutable
+		assertThrowsExactly(UnsupportedOperationException.class, () -> tag.checkpoints().remove(checkpoint));
 
-        assertEquals(2, tag2.checkpoints().size());
+		var configWithVersion1 = RunnableConfig.builder().threadId(threadId).build();
 
-    }
+		assertEquals(1, tag.checkpoints().size());
+
+		versions = saver.versionsByThreadId(configWithVersion);
+
+		assertEquals(1, versions.size());
+		assertEquals(checkpoint.getId(), list.stream().findFirst().map(Checkpoint::getId).orElseThrow());
+
+		var checkpoint_1 = Checkpoint.builder().state(new AgentState(Map.of())).nodeId("test").nextNodeId(END).build();
+		var checkpoint_2 = Checkpoint.builder()
+			.state(new AgentState(Map.of()))
+			.nodeId("test_1")
+			.nextNodeId(END)
+			.build();
+
+		configWithVersion1 = saver.put(configWithVersion1, checkpoint_1);
+
+		configWithVersion1 = saver.put(configWithVersion1.withCheckPointId(null), checkpoint_2);
+
+		versions = saver.versionsByThreadId(threadId);
+
+		assertEquals(1, versions.size());
+
+		var tag2 = saver.release(configWithVersion1);
+
+		assertEquals(2, tag2.checkpoints().size());
+
+	}
 
 }

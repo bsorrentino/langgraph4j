@@ -19,229 +19,191 @@ import java.util.Optional;
  */
 public class Issue99Test {
 
-    static class State extends AgentState {
-        public static Map<String, Channel<?>> SCHEMA = Map.of();
+	static class State extends AgentState {
 
-        public State(Map<String, Object> initData) {
-            super(initData);
-        }
+		public static Map<String, Channel<?>> SCHEMA = Map.of();
 
-        public Optional<String> intent() {
-            return  value("intent");
-        }
-    }
+		public State(Map<String, Object> initData) {
+			super(initData);
+		}
 
-    static class IntentRecognizeNode implements NodeAction<State> {
+		public Optional<String> intent() {
+			return value("intent");
+		}
 
-        String intent;
+	}
 
-        public void setIntent( String intent ) {
-            this.intent = intent;
-        }
+	static class IntentRecognizeNode implements NodeAction<State> {
 
-        public String getIntent() {
-            return intent;
-        }
+		String intent;
 
-        @Override
-        public Map<String, Object> apply(State state) {
-            return Map.of( "intent", intent );
-        }
+		public void setIntent(String intent) {
+			this.intent = intent;
+		}
 
-    }
+		public String getIntent() {
+			return intent;
+		}
 
-    private StateGraph<State> subGraph1() throws GraphStateException {
-        // SubGraph1 Definition
-        return new StateGraph<>( State::new )
-                .addNode("work", node_async(state -> Map.of("step", "work1")))
-                .addEdge(START, "work")
-                .addEdge("work", END)
-                ;
+		@Override
+		public Map<String, Object> apply(State state) {
+			return Map.of("intent", intent);
+		}
 
-    }
+	}
 
-    private StateGraph<State> subGraph2() throws GraphStateException {
-        // SubGraph2 Definition
-        return new StateGraph<>( State::new )
-                .addNode("work", node_async(state -> Map.of("step", "work2")))
-                .addEdge(START, "work")
-                .addEdge("work", END)
-                ;
+	private StateGraph<State> subGraph1() throws GraphStateException {
+		// SubGraph1 Definition
+		return new StateGraph<>(State::new).addNode("work", node_async(state -> Map.of("step", "work1")))
+			.addEdge(START, "work")
+			.addEdge("work", END);
 
-    }
+	}
 
-    @Test
-    public void compliedSubgraphTest() throws GraphStateException {
+	private StateGraph<State> subGraph2() throws GraphStateException {
+		// SubGraph2 Definition
+		return new StateGraph<>(State::new).addNode("work", node_async(state -> Map.of("step", "work2")))
+			.addEdge(START, "work")
+			.addEdge("work", END);
 
-        var subGraph1 = subGraph1().compile();
-        var subGraph2 = subGraph2().compile();
+	}
 
-        var intentRecognizeNode = new IntentRecognizeNode();
+	@Test
+	public void compliedSubgraphTest() throws GraphStateException {
 
-        // MainGraph Definition
-        var graph = new StateGraph<>( State::new )
-                .addNode("intent_recognize", node_async(intentRecognizeNode))
-                .addNode("subAgent1", subGraph1)
-                .addNode("subAgent2", subGraph2)
+		var subGraph1 = subGraph1().compile();
+		var subGraph2 = subGraph2().compile();
 
-                .addEdge(START, "intent_recognize")
-                .addConditionalEdges("intent_recognize",
-                        edge_async( state ->
-                                state.intent().orElseThrow() ),
-                        Map.of("explain", "subAgent1",
-                                "query", "subAgent2"
-                        )
-                )
-                .addEdge("subAgent1", END)
-                .addEdge("subAgent2", END)
-                ;
+		var intentRecognizeNode = new IntentRecognizeNode();
 
+		// MainGraph Definition
+		var graph = new StateGraph<>(State::new).addNode("intent_recognize", node_async(intentRecognizeNode))
+			.addNode("subAgent1", subGraph1)
+			.addNode("subAgent2", subGraph2)
 
-        var workflow = graph.compile();
+			.addEdge(START, "intent_recognize")
+			.addConditionalEdges("intent_recognize", edge_async(state -> state.intent().orElseThrow()),
+					Map.of("explain", "subAgent1", "query", "subAgent2"))
+			.addEdge("subAgent1", END)
+			.addEdge("subAgent2", END);
 
-        // EXPLAIN
-        intentRecognizeNode.setIntent("explain");
-        var result = workflow.stream( Map.of("input", "explain me") )
-                .stream()
-                .peek(System.out::println)
-                .reduce((a, b) -> b)
-                .map(NodeOutput::state);
-        assertTrue( result.isPresent() );
-        assertEquals( "work1",result.get().data().get("step") );
-        assertEquals( intentRecognizeNode.getIntent() ,result.get().intent().orElseThrow() );
+		var workflow = graph.compile();
 
-        // QUERY
-        intentRecognizeNode.setIntent("query");
-        result = workflow.stream( Map.of("input", "search for") )
-                .stream()
-                .peek(System.out::println)
-                .reduce((a, b) -> b)
-                .map(NodeOutput::state);
-        assertTrue( result.isPresent() );
-        assertEquals( "work2",result.get().data().get("step") );
-        assertEquals( intentRecognizeNode.getIntent() ,result.get().intent().orElseThrow() );
-    }
+		// EXPLAIN
+		intentRecognizeNode.setIntent("explain");
+		var result = workflow.stream(Map.of("input", "explain me"))
+			.stream()
+			.peek(System.out::println)
+			.reduce((a, b) -> b)
+			.map(NodeOutput::state);
+		assertTrue(result.isPresent());
+		assertEquals("work1", result.get().data().get("step"));
+		assertEquals(intentRecognizeNode.getIntent(), result.get().intent().orElseThrow());
 
-    @Test
-    public void stateSubgraphTest() throws GraphStateException {
+		// QUERY
+		intentRecognizeNode.setIntent("query");
+		result = workflow.stream(Map.of("input", "search for"))
+			.stream()
+			.peek(System.out::println)
+			.reduce((a, b) -> b)
+			.map(NodeOutput::state);
+		assertTrue(result.isPresent());
+		assertEquals("work2", result.get().data().get("step"));
+		assertEquals(intentRecognizeNode.getIntent(), result.get().intent().orElseThrow());
+	}
 
-        var subGraph1 = subGraph1();
-        var subGraph2 = subGraph2();
+	@Test
+	public void stateSubgraphTest() throws GraphStateException {
 
-        var intentRecognizeNode = new IntentRecognizeNode();
+		var subGraph1 = subGraph1();
+		var subGraph2 = subGraph2();
 
-        // MainGraph Definition
-        var graph = new StateGraph<>( State::new )
-                .addNode("intent_recognize", node_async(intentRecognizeNode))
-                .addNode("subAgent1", subGraph1)
-                .addNode("subAgent2", subGraph2)
-                .addEdge(START, "intent_recognize")
-                .addConditionalEdges("intent_recognize",
-                        edge_async( state ->
-                                state.intent().orElseThrow() ),
-                        Map.of("explain", "subAgent1",
-                                "query", "subAgent2"
-                        )
-                )
-                .addEdge("subAgent1", END)
-                .addEdge("subAgent2", END)
-                ;
+		var intentRecognizeNode = new IntentRecognizeNode();
 
-        var workflow = graph.compile();
+		// MainGraph Definition
+		var graph = new StateGraph<>(State::new).addNode("intent_recognize", node_async(intentRecognizeNode))
+			.addNode("subAgent1", subGraph1)
+			.addNode("subAgent2", subGraph2)
+			.addEdge(START, "intent_recognize")
+			.addConditionalEdges("intent_recognize", edge_async(state -> state.intent().orElseThrow()),
+					Map.of("explain", "subAgent1", "query", "subAgent2"))
+			.addEdge("subAgent1", END)
+			.addEdge("subAgent2", END);
 
-        // System.out.println( workflow.getGraph( GraphRepresentation.Type.PLANTUML, "", false ));
+		var workflow = graph.compile();
 
-        // EXPLAIN
-        intentRecognizeNode.setIntent("explain");
-        var result = workflow.stream( Map.of("input", "explain me") )
-                .stream()
-                .peek(System.out::println)
-                .reduce((a, b) -> b)
-                .map(NodeOutput::state);
-        assertTrue( result.isPresent() );
-        assertEquals( "work1",result.get().data().get("step") );
-        assertEquals( intentRecognizeNode.getIntent() ,result.get().intent().orElseThrow() );
+		// System.out.println( workflow.getGraph( GraphRepresentation.Type.PLANTUML, "",
+		// false ));
 
-        // QUERY
-        intentRecognizeNode.setIntent("query");
-        result = workflow.stream( Map.of("input", "search for") )
-                .stream()
-                .peek(System.out::println)
-                .reduce((a, b) -> b)
-                .map(NodeOutput::state);
-        assertTrue( result.isPresent() );
-        assertEquals( "work2",result.get().data().get("step") );
-        assertEquals( intentRecognizeNode.getIntent() ,result.get().intent().orElseThrow() );
+		// EXPLAIN
+		intentRecognizeNode.setIntent("explain");
+		var result = workflow.stream(Map.of("input", "explain me"))
+			.stream()
+			.peek(System.out::println)
+			.reduce((a, b) -> b)
+			.map(NodeOutput::state);
+		assertTrue(result.isPresent());
+		assertEquals("work1", result.get().data().get("step"));
+		assertEquals(intentRecognizeNode.getIntent(), result.get().intent().orElseThrow());
 
+		// QUERY
+		intentRecognizeNode.setIntent("query");
+		result = workflow.stream(Map.of("input", "search for"))
+			.stream()
+			.peek(System.out::println)
+			.reduce((a, b) -> b)
+			.map(NodeOutput::state);
+		assertTrue(result.isPresent());
+		assertEquals("work2", result.get().data().get("step"));
+		assertEquals(intentRecognizeNode.getIntent(), result.get().intent().orElseThrow());
 
+	}
 
-    }
+	private <S extends AgentState> NodeOutput<S> evaluateWithConfig(StateGraph<S> graph, CompileConfig config)
+			throws GraphStateException {
+		var workflow = graph.compile(config);
 
+		var result = workflow.stream(Map.of()).stream().peek(System.out::println).reduce((a, b) -> b);
 
-    private <S extends AgentState> NodeOutput<S> evaluateWithConfig( StateGraph<S> graph, CompileConfig config ) throws GraphStateException {
-        var workflow = graph.compile(config);
+		assertTrue(result.isPresent());
+		return result.get();
+	}
 
-        var result = workflow.stream( Map.of() )
-                .stream()
-                .peek(System.out::println)
-                .reduce((a, b) -> b)
-                ;
+	@Test
+	public void stateSubgraphWithInterruptionTest() throws GraphStateException {
 
-        assertTrue( result.isPresent() );
-        return result.get();
-    }
+		var subGraph1 = subGraph1();
+		var subGraph2 = subGraph2();
 
-    @Test
-    public void stateSubgraphWithInterruptionTest() throws GraphStateException {
+		var intentRecognizeNode = new IntentRecognizeNode();
 
-        var subGraph1 = subGraph1();
-        var subGraph2 = subGraph2();
+		// MainGraph Definition
+		var graph = new StateGraph<>(State::new).addNode("intent_recognize", node_async(intentRecognizeNode))
+			.addNode("subAgent1", subGraph1)
+			.addNode("subAgent2", subGraph2)
+			.addEdge(START, "intent_recognize")
+			.addConditionalEdges("intent_recognize", edge_async(state -> state.intent().orElseThrow()),
+					Map.of("explain", "subAgent1", "query", "subAgent2"))
+			.addEdge("subAgent1", END)
+			.addEdge("subAgent2", END);
 
-        var intentRecognizeNode = new IntentRecognizeNode();
+		// EXPLAIN
+		intentRecognizeNode.setIntent("explain");
+		var result = evaluateWithConfig(graph, CompileConfig.builder().interruptBefore("subAgent1").build());
 
-        // MainGraph Definition
-        var graph = new StateGraph<>( State::new )
-                .addNode("intent_recognize", node_async(intentRecognizeNode))
-                .addNode("subAgent1", subGraph1)
-                .addNode("subAgent2", subGraph2)
-                .addEdge(START, "intent_recognize")
-                .addConditionalEdges("intent_recognize",
-                        edge_async( state ->
-                                state.intent().orElseThrow() ),
-                        Map.of("explain", "subAgent1",
-                                "query", "subAgent2"
-                        )
-                )
-                .addEdge("subAgent1", END)
-                .addEdge("subAgent2", END)
-                ;
+		assertNull(result.state().data().get("step"));
+		assertEquals(intentRecognizeNode.getIntent(), result.state().intent().orElseThrow());
 
-        // EXPLAIN
-        intentRecognizeNode.setIntent("explain");
-        var result = evaluateWithConfig( graph,
-                CompileConfig.builder()
-                        .interruptBefore("subAgent1")
-                        .build() );
+		result = evaluateWithConfig(graph, CompileConfig.builder().interruptAfter("work").build());
+		assertEquals("work1", result.state().data().get("step"));
+		assertEquals(intentRecognizeNode.getIntent(), result.state().intent().orElseThrow());
 
-        assertNull( result.state().data().get("step") );
-        assertEquals( intentRecognizeNode.getIntent() ,result.state().intent().orElseThrow() );
+		// QUERY
+		intentRecognizeNode.setIntent("query");
+		result = evaluateWithConfig(graph, CompileConfig.builder().interruptAfter("work").build());
+		assertEquals("work2", result.state().data().get("step"));
+		assertEquals(intentRecognizeNode.getIntent(), result.state().intent().orElseThrow());
 
-        result = evaluateWithConfig( graph,
-                CompileConfig.builder()
-                        .interruptAfter("work")
-                        .build() );
-        assertEquals( "work1",result.state().data().get("step") );
-        assertEquals( intentRecognizeNode.getIntent() ,result.state().intent().orElseThrow() );
-
-        // QUERY
-        intentRecognizeNode.setIntent("query");
-        result = evaluateWithConfig( graph,
-                CompileConfig.builder()
-                        .interruptAfter("work")
-                        .build() );
-        assertEquals( "work2",result.state().data().get("step") );
-        assertEquals( intentRecognizeNode.getIntent() ,result.state().intent().orElseThrow() );
-
-    }
+	}
 
 }

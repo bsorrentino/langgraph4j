@@ -12,15 +12,14 @@ import static java.lang.String.format;
  *
  * @param <S> the type of the state associated with the edge
  * @param action The action to be performed asynchronously when the edge condition is met.
- * @param mappings A map of string key-value pairs representing additional mappings for the edge condition.
+ * @param mappings A map of string key-value pairs representing additional mappings for
+ * the edge condition.
  */
-public record EdgeCondition<S extends AgentState>(AsyncEdgeAction<S> action, Map<String, String> mappings ) {
+public record EdgeCondition<S extends AgentState>(AsyncEdgeAction<S> action, Map<String, String> mappings) {
 
-    @Override
-    public String toString() {
-        return format( "EdgeCondition[ %s, mapping=%s",
-                action!=null ? "action" : "null",
-                mappings);
-    }
+	@Override
+	public String toString() {
+		return format("EdgeCondition[ %s, mapping=%s", action != null ? "action" : "null", mappings);
+	}
 
 }

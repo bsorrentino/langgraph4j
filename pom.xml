@@ -42,6 +42,8 @@
     <langchain4j.version>1.0.0-rc1</langchain4j.version>
     <langchain4j.beta>1.0.0-beta4</langchain4j.beta>
     <spring-ai.version>1.0.0-M7</spring-ai.version>
+
+    <spring-javaformat-maven-plugin.version>0.0.43</spring-javaformat-maven-plugin.version>
   </properties>
 
   <distributionManagement>
@@ -169,6 +171,21 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>3.0.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>io.spring.javaformat</groupId>
+          <artifactId>spring-javaformat-maven-plugin</artifactId>
+          <version>${spring-javaformat-maven-plugin.version}</version>
+          <executions>
+            <execution>
+              <phase>validate</phase>
+              <inherited>true</inherited>
+              <goals>
+                <goal>validate</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
 

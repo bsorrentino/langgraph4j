@@ -5,12 +5,12 @@ package org.bsc.langgraph4j;
  */
 public class GraphStateException extends Exception {
 
-    /**
-     * Constructs a new GraphStateException with the specified error message.
-     *
-     * @param errorMessage the detail message
-     */
-    public GraphStateException(String errorMessage) {
-        super(errorMessage);
-    }
+	/**
+	 * Constructs a new GraphStateException with the specified error message.
+	 * @param errorMessage the detail message
+	 */
+	public GraphStateException(String errorMessage) {
+		super(errorMessage);
+	}
+
 }

@@ -15,42 +15,38 @@ import java.util.Objects;
 @Configuration
 public class LangGraphStudioConfiguration extends AbstractLangGraphStudioConfig {
 
-    final LangGraphFlow flow;
+	final LangGraphFlow flow;
 
-    public LangGraphStudioConfiguration() throws GraphStateException {
+	public LangGraphStudioConfiguration() throws GraphStateException {
 
-        var chatLanguageModel = OpenAiChatModel.builder()
-                .apiKey( System.getenv( "OPENAI_API_KEY" ) )
-                .modelName( "gpt-4o-mini" )
-                .logResponses(true)
-                .maxRetries(2)
-                .temperature(0.0)
-                .maxTokens(2000)
-                .build();
+		var chatLanguageModel = OpenAiChatModel.builder()
+			.apiKey(System.getenv("OPENAI_API_KEY"))
+			.modelName("gpt-4o-mini")
+			.logResponses(true)
+			.maxRetries(2)
+			.temperature(0.0)
+			.maxTokens(2000)
+			.build();
 
-        var workflow =  AgentExecutor.builder()
-                .chatModel(chatLanguageModel)
-                .toolsFromObject(new TestTool())
-                .build();
+		var workflow = AgentExecutor.builder().chatModel(chatLanguageModel).toolsFromObject(new TestTool()).build();
 
-        this.flow = agentWorkflow( workflow );
-    }
+		this.flow = agentWorkflow(workflow);
+	}
 
-    private LangGraphFlow agentWorkflow( StateGraph<AgentExecutor.State> workflow ) throws GraphStateException {
+	private LangGraphFlow agentWorkflow(StateGraph<AgentExecutor.State> workflow) throws GraphStateException {
 
-        return  LangGraphFlow.builder()
-                .title("LangGraph Studio (LangChain4j)")
-                .addInputStringArg( "messages", true, v -> UserMessage.from( Objects.toString(v) ) )
-                .stateGraph( workflow )
-                .compileConfig( CompileConfig.builder()
-                        .checkpointSaver( new MemorySaver() )
-                        .build())
-                .build();
+		return LangGraphFlow.builder()
+			.title("LangGraph Studio (LangChain4j)")
+			.addInputStringArg("messages", true, v -> UserMessage.from(Objects.toString(v)))
+			.stateGraph(workflow)
+			.compileConfig(CompileConfig.builder().checkpointSaver(new MemorySaver()).build())
+			.build();
 
-    }
+	}
 
-    @Override
-    public LangGraphFlow getFlow() {
-        return this.flow;
-    }
+	@Override
+	public LangGraphFlow getFlow() {
+		return this.flow;
+	}
+
 }

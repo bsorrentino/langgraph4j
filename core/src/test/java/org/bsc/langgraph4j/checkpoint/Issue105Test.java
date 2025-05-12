@@ -17,45 +17,48 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class Issue105Test {
 
-    // Test using the following code in Memory Saver, since the '_checkpointsByThread' is private.
-    @Test
-    public void concurrentExceptionTest() throws Exception {
-        var memorySaver = new MemorySaver();
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        int count = 100;
-        CountDownLatch latch = new CountDownLatch(count);
-        var index = new AtomicInteger(0);
-        var futures = new ArrayList<Future<?>>();
+	// Test using the following code in Memory Saver, since the '_checkpointsByThread' is
+	// private.
+	@Test
+	public void concurrentExceptionTest() throws Exception {
+		var memorySaver = new MemorySaver();
+		ExecutorService executorService = Executors.newCachedThreadPool();
+		int count = 100;
+		CountDownLatch latch = new CountDownLatch(count);
+		var index = new AtomicInteger(0);
+		var futures = new ArrayList<Future<?>>();
 
-        for (int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 
-            var future = executorService.submit(() -> {
-                try {
+			var future = executorService.submit(() -> {
+				try {
 
-                    var threadName = format( "thread-%d", index.incrementAndGet() );
-                    System.out.println( threadName );
-                    memorySaver.list(RunnableConfig.builder().threadId(threadName).build());
+					var threadName = format("thread-%d", index.incrementAndGet());
+					System.out.println(threadName);
+					memorySaver.list(RunnableConfig.builder().threadId(threadName).build());
 
-                } finally {
-                    latch.countDown();
-                }
-            });
+				}
+				finally {
+					latch.countDown();
+				}
+			});
 
-            futures.add( future );
-        }
+			futures.add(future);
+		}
 
-        latch.await();
-        executorService.shutdown();
+		latch.await();
+		executorService.shutdown();
 
-        for( var future : futures ) {
+		for (var future : futures) {
 
-            assertTrue( future.isDone() );
-            assertNull( future.get() );
-        }
+			assertTrue(future.isDone());
+			assertNull(future.get());
+		}
 
-        int size = memorySaver._checkpointsByThread.size();
-        // size must be equals to count
+		int size = memorySaver._checkpointsByThread.size();
+		// size must be equals to count
 
-        assertEquals( count, size, "Checkpoint Lost during concurrency" );
-    }
+		assertEquals(count, size, "Checkpoint Lost during concurrency");
+	}
+
 }

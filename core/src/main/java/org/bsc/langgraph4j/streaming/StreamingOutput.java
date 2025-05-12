@@ -7,24 +7,24 @@ import static java.lang.String.format;
 
 public class StreamingOutput<State extends AgentState> extends NodeOutput<State> {
 
-    private final String chunk; // null
+	private final String chunk; // null
 
-    public StreamingOutput(String chunk, String node, State state) {
-        super(node, state);
+	public StreamingOutput(String chunk, String node, State state) {
+		super(node, state);
 
-        this.chunk = chunk;
-    }
+		this.chunk = chunk;
+	}
 
-    public String chunk() {
-        return chunk;
-    }
+	public String chunk() {
+		return chunk;
+	}
 
-    @Override
-    public String toString() {
-        if( node() == null ) {
-            return format("StreamingOutput{chunk=%s}", chunk());
-        }
-        return format("StreamingOutput{node=%s, state=%s, chunk=%s}", node(), state(), chunk());
-    }
+	@Override
+	public String toString() {
+		if (node() == null) {
+			return format("StreamingOutput{chunk=%s}", chunk());
+		}
+		return format("StreamingOutput{node=%s, state=%s, chunk=%s}", node(), state(), chunk());
+	}
 
 }

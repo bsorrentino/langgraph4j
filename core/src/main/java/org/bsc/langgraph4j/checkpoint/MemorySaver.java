@@ -12,99 +12,102 @@ import static java.util.Optional.ofNullable;
 
 public class MemorySaver implements BaseCheckpointSaver {
 
-    final Map<String, LinkedList<Checkpoint>> _checkpointsByThread = new HashMap<>();
-    private final ReentrantLock _lock = new ReentrantLock();
+	final Map<String, LinkedList<Checkpoint>> _checkpointsByThread = new HashMap<>();
 
-    public MemorySaver( ) {
-    }
+	private final ReentrantLock _lock = new ReentrantLock();
 
-    final LinkedList<Checkpoint> getCheckpoints( RunnableConfig config ) {
-        _lock.lock();
-        try {
-            var threadId = config.threadId().orElse(THREAD_ID_DEFAULT);
-            return _checkpointsByThread.computeIfAbsent(threadId, k -> new LinkedList<>());
+	public MemorySaver() {
+	}
 
-        } finally {
-            _lock.unlock();
-        }
-    }
+	final LinkedList<Checkpoint> getCheckpoints(RunnableConfig config) {
+		_lock.lock();
+		try {
+			var threadId = config.threadId().orElse(THREAD_ID_DEFAULT);
+			return _checkpointsByThread.computeIfAbsent(threadId, k -> new LinkedList<>());
 
-    final Optional<Checkpoint> getLast( LinkedList<Checkpoint> checkpoints, RunnableConfig config ) {
-        return (checkpoints.isEmpty() ) ? Optional.empty() : ofNullable(checkpoints.peek());
-    }
+		}
+		finally {
+			_lock.unlock();
+		}
+	}
 
-    @Override
-    public Collection<Checkpoint> list( RunnableConfig config ) {
+	final Optional<Checkpoint> getLast(LinkedList<Checkpoint> checkpoints, RunnableConfig config) {
+		return (checkpoints.isEmpty()) ? Optional.empty() : ofNullable(checkpoints.peek());
+	}
 
-        _lock.lock();
-        try {
-            final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
-            return unmodifiableCollection(checkpoints); // immutable checkpoints;
-        } finally {
-            _lock.unlock();
-        }
-    }
+	@Override
+	public Collection<Checkpoint> list(RunnableConfig config) {
 
-    @Override
-    public Optional<Checkpoint> get(RunnableConfig config) {
+		_lock.lock();
+		try {
+			final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
+			return unmodifiableCollection(checkpoints); // immutable checkpoints;
+		}
+		finally {
+			_lock.unlock();
+		}
+	}
 
-        _lock.lock();
-        try {
-            final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
-            if( config.checkPointId().isPresent() ) {
-                return config.checkPointId()
-                        .flatMap( id -> checkpoints.stream()
-                                .filter( checkpoint -> checkpoint.getId().equals(id) )
-                                .findFirst());
-            }
-            return getLast(checkpoints,config);
+	@Override
+	public Optional<Checkpoint> get(RunnableConfig config) {
 
-        }   finally {
-            _lock.unlock();
-        }
-    }
+		_lock.lock();
+		try {
+			final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
+			if (config.checkPointId().isPresent()) {
+				return config.checkPointId()
+					.flatMap(
+							id -> checkpoints.stream().filter(checkpoint -> checkpoint.getId().equals(id)).findFirst());
+			}
+			return getLast(checkpoints, config);
 
-    @Override
-    public RunnableConfig put(RunnableConfig config, Checkpoint checkpoint) throws Exception {
+		}
+		finally {
+			_lock.unlock();
+		}
+	}
 
-        _lock.lock();
-        try {
-            final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
+	@Override
+	public RunnableConfig put(RunnableConfig config, Checkpoint checkpoint) throws Exception {
 
-            if (config.checkPointId().isPresent()) { // Replace Checkpoint
-                String checkPointId = config.checkPointId().get();
-                int index = IntStream.range(0, checkpoints.size())
-                        .filter(i -> checkpoints.get(i).getId().equals(checkPointId))
-                        .findFirst()
-                        .orElseThrow(() -> (new NoSuchElementException(format("Checkpoint with id %s not found!", checkPointId))));
-                checkpoints.set(index, checkpoint );
-                return config;
-            }
+		_lock.lock();
+		try {
+			final LinkedList<Checkpoint> checkpoints = getCheckpoints(config);
 
-            checkpoints.push( checkpoint ); // Add Checkpoint
+			if (config.checkPointId().isPresent()) { // Replace Checkpoint
+				String checkPointId = config.checkPointId().get();
+				int index = IntStream.range(0, checkpoints.size())
+					.filter(i -> checkpoints.get(i).getId().equals(checkPointId))
+					.findFirst()
+					.orElseThrow(() -> (new NoSuchElementException(
+							format("Checkpoint with id %s not found!", checkPointId))));
+				checkpoints.set(index, checkpoint);
+				return config;
+			}
 
-            return RunnableConfig.builder(config)
-                    .checkPointId(checkpoint.getId())
-                    .build();
-        }
-        finally {
-            _lock.unlock();
-        }
-    }
+			checkpoints.push(checkpoint); // Add Checkpoint
 
-    @Override
-    public Tag release(RunnableConfig config) throws Exception {
+			return RunnableConfig.builder(config).checkPointId(checkpoint.getId()).build();
+		}
+		finally {
+			_lock.unlock();
+		}
+	}
 
-        _lock.lock();
-        try {
+	@Override
+	public Tag release(RunnableConfig config) throws Exception {
 
-            var threadId = config.threadId().orElse(THREAD_ID_DEFAULT);
+		_lock.lock();
+		try {
 
-            return new Tag( threadId, _checkpointsByThread.remove(threadId) );
+			var threadId = config.threadId().orElse(THREAD_ID_DEFAULT);
 
-        }
-        finally {
-            _lock.unlock();
-        }
-    }
+			return new Tag(threadId, _checkpointsByThread.remove(threadId));
+
+		}
+		finally {
+			_lock.unlock();
+		}
+	}
+
 }

@@ -10,92 +10,95 @@ import com.github.mustachejava.reflect.ReflectionObjectHandler;
 import java.io.*;
 import java.util.Map;
 
-public class Generator
-{
-    private static class MapMethodReflectionHandler extends ReflectionObjectHandler {
-        @Override
-        protected boolean areMethodsAccessible(Map<?, ?> map) {
-            return true;
-        }
-    }
+public class Generator {
 
-    public record Result( String stub, String implementation ) {}
+	private static class MapMethodReflectionHandler extends ReflectionObjectHandler {
 
-    final Mustache customAgentBuilderTemplate;
-    final Mustache customAgentBuilderImplTemplate;
+		@Override
+		protected boolean areMethodsAccessible(Map<?, ?> map) {
+			return true;
+		}
 
-    public static void main( String[] args ) throws Exception {
+	}
 
-        var definitionBuilder = new StringBuilder();
-        try (var reader = new BufferedReader(new InputStreamReader(System.in))) {
-            // Read one line
-            var line = "";
-            while ((line = reader.readLine()) != null) {
-                definitionBuilder.append(line).append('\n');
-                ;
-            }
-        }
+	public record Result(String stub, String implementation) {
+	}
 
-        if (definitionBuilder.isEmpty()) {
-            throw new IllegalArgumentException("expected input!");
-        }
+	final Mustache customAgentBuilderTemplate;
 
-        var gen = new Generator();
+	final Mustache customAgentBuilderImplTemplate;
 
-        var objectMapperYAML = new ObjectMapper((new YAMLFactory()));
+	public static void main(String[] args) throws Exception {
 
-        var graph = objectMapperYAML.readValue(definitionBuilder.toString(), GraphDefinition.Graph.class);
+		var definitionBuilder = new StringBuilder();
+		try (var reader = new BufferedReader(new InputStreamReader(System.in))) {
+			// Read one line
+			var line = "";
+			while ((line = reader.readLine()) != null) {
+				definitionBuilder.append(line).append('\n');
+				;
+			}
+		}
 
-        var stub = gen.generateBuilderFromDefinition(graph);
+		if (definitionBuilder.isEmpty()) {
+			throw new IllegalArgumentException("expected input!");
+		}
 
-        var implementation = gen.generateBuilderImplementationFromDefinition(graph);
+		var gen = new Generator();
 
-        var result = new Result(stub, implementation);
+		var objectMapperYAML = new ObjectMapper((new YAMLFactory()));
 
-        var objectMapper = new ObjectMapper();
+		var graph = objectMapperYAML.readValue(definitionBuilder.toString(), GraphDefinition.Graph.class);
 
-        System.out.println(objectMapper.writeValueAsString(result));
-    }
+		var stub = gen.generateBuilderFromDefinition(graph);
 
-    public Generator() {
-        var factory = new DefaultMustacheFactory() {
+		var implementation = gen.generateBuilderImplementationFromDefinition(graph);
 
-            /**
-             * skip value encoding
-             */
-            @Override
-            public void encode(String value, Writer writer) {
-                try {
-                    writer.write(value);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        factory.setObjectHandler(new MapMethodReflectionHandler());
-        this.customAgentBuilderTemplate = factory.compile("CustomAgentBuilder.mustache");
-        this.customAgentBuilderImplTemplate = factory.compile("CustomAgentBuilderImpl.mustache");
+		var result = new Result(stub, implementation);
 
-    }
+		var objectMapper = new ObjectMapper();
 
+		System.out.println(objectMapper.writeValueAsString(result));
+	}
 
-    public String generateBuilderFromDefinition( GraphDefinition.Graph graph ) throws IOException {
+	public Generator() {
+		var factory = new DefaultMustacheFactory() {
 
-        var out = new StringWriter();
+			/**
+			 * skip value encoding
+			 */
+			@Override
+			public void encode(String value, Writer writer) {
+				try {
+					writer.write(value);
+				}
+				catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
+		factory.setObjectHandler(new MapMethodReflectionHandler());
+		this.customAgentBuilderTemplate = factory.compile("CustomAgentBuilder.mustache");
+		this.customAgentBuilderImplTemplate = factory.compile("CustomAgentBuilderImpl.mustache");
 
-        customAgentBuilderTemplate.execute( out, graph ).flush();
+	}
 
-        return out.toString();
-    }
+	public String generateBuilderFromDefinition(GraphDefinition.Graph graph) throws IOException {
 
-    public String generateBuilderImplementationFromDefinition( GraphDefinition.Graph graph ) throws IOException {
+		var out = new StringWriter();
 
-        var out = new StringWriter();
+		customAgentBuilderTemplate.execute(out, graph).flush();
 
-        customAgentBuilderImplTemplate.execute( out, graph ).flush();
+		return out.toString();
+	}
 
-        return out.toString();
-    }
+	public String generateBuilderImplementationFromDefinition(GraphDefinition.Graph graph) throws IOException {
 
+		var out = new StringWriter();
+
+		customAgentBuilderImplTemplate.execute(out, graph).flush();
+
+		return out.toString();
+	}
 
 }

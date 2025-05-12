@@ -25,132 +25,124 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AdaptiveRagTest {
 
-    @BeforeAll
-    public static void beforeAll() throws Exception {
-        FileInputStream configFile = new FileInputStream("logging.properties");
-        LogManager.getLogManager().readConfiguration(configFile);
+	@BeforeAll
+	public static void beforeAll() throws Exception {
+		FileInputStream configFile = new FileInputStream("logging.properties");
+		LogManager.getLogManager().readConfiguration(configFile);
 
-        DotEnvConfig.load();
-    }
+		DotEnvConfig.load();
+	}
 
-    String getOpenAiKey() {
-        return DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no OPENAI APIKEY provided!"));
-    }
+	String getOpenAiKey() {
+		return DotEnvConfig.valueOf("OPENAI_API_KEY")
+			.orElseThrow(() -> new IllegalArgumentException("no OPENAI APIKEY provided!"));
+	}
 
-    String getTavilyApiKey() {
-        return DotEnvConfig.valueOf("TAVILY_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no TAVILY APIKEY provided!"));
-    }
+	String getTavilyApiKey() {
+		return DotEnvConfig.valueOf("TAVILY_API_KEY")
+			.orElseThrow(() -> new IllegalArgumentException("no TAVILY APIKEY provided!"));
+	}
 
-    @Test
-    public void QuestionRewriterTest() {
+	@Test
+	public void QuestionRewriterTest() {
 
-        String result = (new QuestionRewriter(getOpenAiKey())).apply("agent memory");
-        assertEquals("What is the role of memory in an agent's functioning?", result);
-    }
+		String result = (new QuestionRewriter(getOpenAiKey())).apply("agent memory");
+		assertEquals("What is the role of memory in an agent's functioning?", result);
+	}
 
-    @Test
-    public void RetrievalGraderTest() {
+	@Test
+	public void RetrievalGraderTest() {
 
-        String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
+		String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
+			.orElseThrow(() -> new IllegalArgumentException("no APIKEY provided!"));
 
-        RetrievalGrader grader = new RetrievalGrader(openApiKey);
+		RetrievalGrader grader = new RetrievalGrader(openApiKey);
 
-        ChromaEmbeddingStore chroma = new ChromaEmbeddingStore(
-                "http://localhost:8000",
-                "rag-chroma",
-                Duration.ofMinutes(2),
-                true,
-                true);
-        OpenAiEmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
-                .apiKey(openApiKey)
-                .build();
+		ChromaEmbeddingStore chroma = new ChromaEmbeddingStore("http://localhost:8000", "rag-chroma",
+				Duration.ofMinutes(2), true, true);
+		OpenAiEmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder().apiKey(openApiKey).build();
 
-        String question = "agent memory";
-        Embedding queryEmbedding = embeddingModel.embed(question).content();
+		String question = "agent memory";
+		Embedding queryEmbedding = embeddingModel.embed(question).content();
 
-        EmbeddingSearchRequest query = EmbeddingSearchRequest.builder()
-                .queryEmbedding( queryEmbedding )
-                .maxResults( 1 )
-                .minScore( 0.0 )
-                .build();
-        EmbeddingSearchResult<TextSegment> relevant = chroma.search( query );
+		EmbeddingSearchRequest query = EmbeddingSearchRequest.builder()
+			.queryEmbedding(queryEmbedding)
+			.maxResults(1)
+			.minScore(0.0)
+			.build();
+		EmbeddingSearchResult<TextSegment> relevant = chroma.search(query);
 
-        List<EmbeddingMatch<TextSegment>> matches = relevant.matches();
+		List<EmbeddingMatch<TextSegment>> matches = relevant.matches();
 
-        assertEquals( 1, matches.size() );
+		assertEquals(1, matches.size());
 
-        RetrievalGrader.Score answer =
-                grader.apply( new RetrievalGrader.Arguments(question, matches.get(0).embedded().text()));
+		RetrievalGrader.Score answer = grader
+			.apply(new RetrievalGrader.Arguments(question, matches.get(0).embedded().text()));
 
-        assertEquals( "no", answer.binaryScore);
+		assertEquals("no", answer.binaryScore);
 
+	}
 
-    }
+	@Test
+	public void WebSearchTest() {
 
-    @Test
-    public void WebSearchTest() {
+		WebSearchTool webSearchTool = new WebSearchTool(getTavilyApiKey());
+		List<Content> webSearchResults = webSearchTool.apply("agent memory");
 
-        WebSearchTool webSearchTool = new WebSearchTool(getTavilyApiKey());
-        List<Content> webSearchResults = webSearchTool.apply("agent memory");
+		String webSearchResultsText = webSearchResults.stream()
+			.map(content -> content.textSegment().text())
+			.collect(Collectors.joining("\n"));
 
-        String webSearchResultsText = webSearchResults.stream().map( content -> content.textSegment().text() )
-                .collect(Collectors.joining("\n"));
+		assertNotNull(webSearchResultsText);
 
-        assertNotNull( webSearchResultsText );
+		System.out.println(webSearchResultsText);
 
-        System.out.println( webSearchResultsText );
+	}
 
-    }
+	@Test
+	public void questionRouterTest() {
 
-    @Test
-    public void questionRouterTest() {
+		QuestionRouter qr = new QuestionRouter(getOpenAiKey());
 
-        QuestionRouter qr = new QuestionRouter(getOpenAiKey());
+		QuestionRouter.Type result = qr.apply("What are the stock options?");
 
-        QuestionRouter.Type result = qr.apply( "What are the stock options?");
+		assertEquals(QuestionRouter.Type.web_search, result);
 
-        assertEquals( QuestionRouter.Type.web_search, result );
+		result = qr.apply("agent memory?");
 
-        result = qr.apply( "agent memory?");
+		assertEquals(QuestionRouter.Type.vectorstore, result);
+	}
 
-        assertEquals( QuestionRouter.Type.vectorstore, result );
-    }
+	@Test
+	public void generationTest() {
 
+		ChromaStore retriever = ChromaStore.of(getOpenAiKey());
 
-    @Test
-    public void generationTest() {
+		String question = "agent memory";
+		EmbeddingSearchResult<TextSegment> relevantDocs = retriever.search(question);
 
-        ChromaStore retriever = ChromaStore.of(getOpenAiKey());
+		List<String> docs = relevantDocs.matches().stream().map(m -> m.embedded().text()).collect(Collectors.toList());
+		Generation qr = new Generation(getOpenAiKey());
 
-        String question = "agent memory";
-        EmbeddingSearchResult<TextSegment> relevantDocs = retriever.search(question);
+		String result = qr.apply(question, docs);
 
-        List<String> docs = relevantDocs.matches().stream()
-                                .map( m -> m.embedded().text() )
-                                .collect(Collectors.toList());
-        Generation qr = new Generation(getOpenAiKey());
+		System.out.println(result);
+	}
 
-        String result = qr.apply( question, docs );
+	@Test
+	public void getGraphTest() throws Exception {
 
-        System.out.println( result );
-    }
+		AdaptiveRag adaptiveRag = new AdaptiveRag(getOpenAiKey(), getTavilyApiKey());
 
-    @Test
-    public void getGraphTest() throws Exception {
+		org.bsc.langgraph4j.StateGraph<AdaptiveRag.State> graph = adaptiveRag.buildGraph();
 
-        AdaptiveRag adaptiveRag = new AdaptiveRag(getOpenAiKey(), getTavilyApiKey());
+		GraphRepresentation plantUml = graph.getGraph(GraphRepresentation.Type.PLANTUML, "Adaptive RAG");
 
-        org.bsc.langgraph4j.StateGraph<AdaptiveRag.State> graph = adaptiveRag.buildGraph();
+		System.out.println(plantUml.content());
 
-        GraphRepresentation plantUml = graph.getGraph( GraphRepresentation.Type.PLANTUML, "Adaptive RAG" );
+		GraphRepresentation mermaid = graph.getGraph(GraphRepresentation.Type.MERMAID, "Adaptive RAG");
 
-        System.out.println( plantUml.content() );
+		System.out.println(mermaid.content());
+	}
 
-        GraphRepresentation mermaid = graph.getGraph( GraphRepresentation.Type.MERMAID, "Adaptive RAG" );
-
-        System.out.println( mermaid.content() );
-    }
 }

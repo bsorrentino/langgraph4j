@@ -19,41 +19,36 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ChromaTest {
 
-    @BeforeEach
-    public void init() throws Exception {
-        FileInputStream configFile = new FileInputStream("logging.properties");
-        LogManager.getLogManager().readConfiguration(configFile);
+	@BeforeEach
+	public void init() throws Exception {
+		FileInputStream configFile = new FileInputStream("logging.properties");
+		LogManager.getLogManager().readConfiguration(configFile);
 
-        DotEnvConfig.load();
-    }
+		DotEnvConfig.load();
+	}
 
-    //@Test
-    public void connect() throws Exception {
-        String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
+	// @Test
+	public void connect() throws Exception {
+		String openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
+			.orElseThrow(() -> new IllegalArgumentException("no APIKEY provided!"));
 
-        ChromaEmbeddingStore chroma = new ChromaEmbeddingStore(
-                "http://localhost:8000",
-                "rag-chroma",
-                Duration.ofMinutes(2),
-                true,
-                true);
+		ChromaEmbeddingStore chroma = new ChromaEmbeddingStore("http://localhost:8000", "rag-chroma",
+				Duration.ofMinutes(2), true, true);
 
-        OpenAiEmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
-                .apiKey(openApiKey)
-                .build();
-        Embedding queryEmbedding = embeddingModel.embed( "What are the types of agent memory?" ).content();
+		OpenAiEmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder().apiKey(openApiKey).build();
+		Embedding queryEmbedding = embeddingModel.embed("What are the types of agent memory?").content();
 
-        EmbeddingSearchRequest query = EmbeddingSearchRequest.builder()
-                .queryEmbedding( queryEmbedding )
-                .maxResults( 3 )
-                .minScore( 0.0 )
-                .build();
-        EmbeddingSearchResult<TextSegment> relevant = chroma.search( query );
+		EmbeddingSearchRequest query = EmbeddingSearchRequest.builder()
+			.queryEmbedding(queryEmbedding)
+			.maxResults(3)
+			.minScore(0.0)
+			.build();
+		EmbeddingSearchResult<TextSegment> relevant = chroma.search(query);
 
-        List<EmbeddingMatch<TextSegment>> matches = relevant.matches();
+		List<EmbeddingMatch<TextSegment>> matches = relevant.matches();
 
-        assertEquals( 3, matches.size() );
-        System.out.println( matches );
-    }
+		assertEquals(3, matches.size());
+		System.out.println(matches);
+	}
+
 }

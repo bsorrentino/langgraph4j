@@ -8,10 +8,11 @@ import org.bsc.langgraph4j.state.AgentStateFactory;
 
 public class LC4jStateSerializer<State extends AgentState> extends ObjectStreamStateSerializer<State> {
 
-    public LC4jStateSerializer( AgentStateFactory<State> stateFactory ) {
-        super(stateFactory);
+	public LC4jStateSerializer(AgentStateFactory<State> stateFactory) {
+		super(stateFactory);
 
-        mapper().register(ToolExecutionRequest.class, new ToolExecutionRequestSerializer());
-        mapper().register(ChatMessage.class, new ChatMesssageSerializer());
-    }
+		mapper().register(ToolExecutionRequest.class, new ToolExecutionRequestSerializer());
+		mapper().register(ChatMessage.class, new ChatMesssageSerializer());
+	}
+
 }

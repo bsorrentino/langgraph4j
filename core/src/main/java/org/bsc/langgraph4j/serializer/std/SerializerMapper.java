@@ -11,126 +11,138 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 public class SerializerMapper {
-    static final Serializer<Object> DEFAULT_SERIALIZER = new Serializer<Object>() {
-        @Override
-        public void write(Object object, ObjectOutput out) throws IOException {
-            out.writeObject(object);
-        }
 
-        @Override
-        public Object read(ObjectInput in) throws IOException, ClassNotFoundException {
-            return in.readObject();
-        }
-    };
+	static final Serializer<Object> DEFAULT_SERIALIZER = new Serializer<Object>() {
+		@Override
+		public void write(Object object, ObjectOutput out) throws IOException {
+			out.writeObject(object);
+		}
 
-    static class Key {
-        private final String _className;
-        private final Class<?> _clazz;
+		@Override
+		public Object read(ObjectInput in) throws IOException, ClassNotFoundException {
+			return in.readObject();
+		}
+	};
 
-        public static Key of(Class<?> clazz) {
-            return new Key(clazz);
-        }
-        public static Key of(String  className ) {
-            return new Key(className);
-        }
+	static class Key {
 
-        private Key(Class<?> clazz) {
-            _className = clazz.getName();
-            _clazz = clazz;
-        }
+		private final String _className;
 
-        private Key(String className) {
-            _className = className;
-            _clazz = null;
-        }
+		private final Class<?> _clazz;
 
-        String getTypeName() { return _className; }
+		public static Key of(Class<?> clazz) {
+			return new Key(clazz);
+		}
 
-        Class<?> getType() { return _clazz; }
+		public static Key of(String className) {
+			return new Key(className);
+		}
 
-        @Override
-        public boolean equals(Object o) {
-            return Objects.equals( o, _className );
-        }
+		private Key(Class<?> clazz) {
+			_className = clazz.getName();
+			_clazz = clazz;
+		}
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(_className);
-        }
-    }
-    private final Map<Key, Serializer<?>> _serializers = new HashMap<>();
+		private Key(String className) {
+			_className = className;
+			_clazz = null;
+		}
 
-    public SerializerMapper register( Class<?> clazz, Serializer<?> serializer ) {
-        Objects.requireNonNull(clazz,"class cannot be null ");
-        Objects.requireNonNull(clazz,"serializer cannot be null ");
+		String getTypeName() {
+			return _className;
+		}
 
-        _serializers.put( Key.of(clazz), serializer);
-        return this;
-    }
+		Class<?> getType() {
+			return _clazz;
+		}
 
-    public boolean unregister( Class<? extends Serializer<?>> clazz ) {
-        Objects.requireNonNull( clazz, "Serializer's class cannot be null" );
-        Serializer<?> serializer = _serializers.remove( Key.of(clazz) );
-        return serializer != null;
-    }
+		@Override
+		public boolean equals(Object o) {
+			return Objects.equals(o, _className);
+		}
 
-    @SuppressWarnings("unchecked")
-    public Optional<Serializer<Object>> getSerializer( Class<?> clazz ) {
-        Objects.requireNonNull(clazz,"class cannot be null ");
-        Serializer<?> ser = _serializers.get( Key.of(clazz) );
+		@Override
+		public int hashCode() {
+			return Objects.hash(_className);
+		}
 
-        return ( ser != null ) ?
+	}
 
-            Optional.of((Serializer<Object>)ser) :
+	private final Map<Key, Serializer<?>> _serializers = new HashMap<>();
 
-            _serializers.entrySet().stream()
-                    .filter( e -> e.getKey().getType().isAssignableFrom(clazz) )
-                    .findFirst()
-                    .map( e -> (Serializer<Object>)e.getValue() )
-                ;
+	public SerializerMapper register(Class<?> clazz, Serializer<?> serializer) {
+		Objects.requireNonNull(clazz, "class cannot be null ");
+		Objects.requireNonNull(clazz, "serializer cannot be null ");
 
-    }
+		_serializers.put(Key.of(clazz), serializer);
+		return this;
+	}
 
-    @SuppressWarnings("unchecked")
-    public Optional<Serializer<Object>> getSerializer( String className ) {
-        Objects.requireNonNull(className,"className cannot be null ");
-        return Optional.ofNullable((Serializer<Object>)_serializers.get( Key.of(className) ));
-    }
+	public boolean unregister(Class<? extends Serializer<?>> clazz) {
+		Objects.requireNonNull(clazz, "Serializer's class cannot be null");
+		Serializer<?> serializer = _serializers.remove(Key.of(clazz));
+		return serializer != null;
+	}
 
-    public Serializer<Object> getDefaultSerializer() {
-        return DEFAULT_SERIALIZER;
-    }
+	@SuppressWarnings("unchecked")
+	public Optional<Serializer<Object>> getSerializer(Class<?> clazz) {
+		Objects.requireNonNull(clazz, "class cannot be null ");
+		Serializer<?> ser = _serializers.get(Key.of(clazz));
 
-    protected final ObjectOutput objectOutputWithMapper(ObjectOutput out) {
-        Objects.requireNonNull( out, "ObjectOutput cannot be null");
-        final ObjectOutputWithMapper mapperOut ;
-        if( out instanceof ObjectOutputWithMapper ) {
-            mapperOut = (ObjectOutputWithMapper)out;
-        } else {
-            mapperOut = new ObjectOutputWithMapper( out, this );
-        }
+		return (ser != null) ?
 
-        return mapperOut;
-    }
+				Optional.of((Serializer<Object>) ser) :
 
-    protected final ObjectInput objectInputWithMapper(ObjectInput in) {
-        Objects.requireNonNull( in, "ObjectInput cannot be null");
-        final ObjectInputWithMapper mapperIn ;
-        if( in instanceof ObjectInputWithMapper ) {
-            mapperIn = (ObjectInputWithMapper)in;
-        } else {
-            mapperIn = new ObjectInputWithMapper( in, this );
-        }
+				_serializers.entrySet()
+					.stream()
+					.filter(e -> e.getKey().getType().isAssignableFrom(clazz))
+					.findFirst()
+					.map(e -> (Serializer<Object>) e.getValue());
 
-        return mapperIn;
+	}
 
-    }
+	@SuppressWarnings("unchecked")
+	public Optional<Serializer<Object>> getSerializer(String className) {
+		Objects.requireNonNull(className, "className cannot be null ");
+		return Optional.ofNullable((Serializer<Object>) _serializers.get(Key.of(className)));
+	}
 
-    @Override
-    public String toString() {
-        List<String> typeNames = _serializers.keySet().stream().map(Key::getTypeName).collect(Collectors.toList());
-        return format( "SerializerMapper: \n%s", String.join("\n", typeNames) );
+	public Serializer<Object> getDefaultSerializer() {
+		return DEFAULT_SERIALIZER;
+	}
 
-    }
+	protected final ObjectOutput objectOutputWithMapper(ObjectOutput out) {
+		Objects.requireNonNull(out, "ObjectOutput cannot be null");
+		final ObjectOutputWithMapper mapperOut;
+		if (out instanceof ObjectOutputWithMapper) {
+			mapperOut = (ObjectOutputWithMapper) out;
+		}
+		else {
+			mapperOut = new ObjectOutputWithMapper(out, this);
+		}
+
+		return mapperOut;
+	}
+
+	protected final ObjectInput objectInputWithMapper(ObjectInput in) {
+		Objects.requireNonNull(in, "ObjectInput cannot be null");
+		final ObjectInputWithMapper mapperIn;
+		if (in instanceof ObjectInputWithMapper) {
+			mapperIn = (ObjectInputWithMapper) in;
+		}
+		else {
+			mapperIn = new ObjectInputWithMapper(in, this);
+		}
+
+		return mapperIn;
+
+	}
+
+	@Override
+	public String toString() {
+		List<String> typeNames = _serializers.keySet().stream().map(Key::getTypeName).collect(Collectors.toList());
+		return format("SerializerMapper: \n%s", String.join("\n", typeNames));
+
+	}
 
 }

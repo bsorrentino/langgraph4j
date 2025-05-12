@@ -17,49 +17,46 @@ import java.util.Map;
  */
 @Controller
 public class DemoConsoleController implements CommandLineRunner {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DemoConsoleController.class);
 
-    private final ChatModel chatModel;
-    private final List<ToolCallback> tools;
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DemoConsoleController.class);
 
-    public DemoConsoleController( /*@Qualifier("ollama")*/ChatModel chatModel, List<ToolCallback> tools) {
+	private final ChatModel chatModel;
 
-        this.chatModel = chatModel;
-        this.tools = tools;
-    }
+	private final List<ToolCallback> tools;
 
-    /**
-     * Executes the command-line interface to demonstrate a Spring Boot application.
-     * This method logs a welcome message, constructs a graph using an agent executor,
-     * compiles it into a workflow, invokes the workflow with a specific input,
-     * and then logs the final result.
-     *
-     * @param args Command line arguments (Unused in this context)
-     * @throws Exception If any error occurs during execution
-     */
-    @Override
-    public void run(String... args) throws Exception {
+	public DemoConsoleController( /* @Qualifier("ollama") */ChatModel chatModel, List<ToolCallback> tools) {
 
-        log.info("Welcome to the Spring Boot CLI application!");
+		this.chatModel = chatModel;
+		this.tools = tools;
+	}
 
-        var graph = AgentExecutor.builder()
-                        .chatModel(chatModel)
-                        .tools(tools)
-                        .build();
+	/**
+	 * Executes the command-line interface to demonstrate a Spring Boot application. This
+	 * method logs a welcome message, constructs a graph using an agent executor, compiles
+	 * it into a workflow, invokes the workflow with a specific input, and then logs the
+	 * final result.
+	 * @param args Command line arguments (Unused in this context)
+	 * @throws Exception If any error occurs during execution
+	 */
+	@Override
+	public void run(String... args) throws Exception {
 
-        var workflow = graph.compile();
+		log.info("Welcome to the Spring Boot CLI application!");
 
-        var result = workflow.stream( Map.of( "messages", new UserMessage("what is the result of 234 + 45") ));
+		var graph = AgentExecutor.builder().chatModel(chatModel).tools(tools).build();
 
-        var state = result.stream()
-                .peek( s -> System.out.println( s.node() ) )
-                .reduce((a, b) -> b)
-                .map( NodeOutput::state)
-                .orElseThrow();
+		var workflow = graph.compile();
 
-        log.info( "result: {}", state.lastMessage()
-                                    .map(AssistantMessage.class::cast)
-                                    .map(AssistantMessage::getText)
-                                    .orElseThrow() );
-    }
+		var result = workflow.stream(Map.of("messages", new UserMessage("what is the result of 234 + 45")));
+
+		var state = result.stream()
+			.peek(s -> System.out.println(s.node()))
+			.reduce((a, b) -> b)
+			.map(NodeOutput::state)
+			.orElseThrow();
+
+		log.info("result: {}",
+				state.lastMessage().map(AssistantMessage.class::cast).map(AssistantMessage::getText).orElseThrow());
+	}
+
 }

@@ -9,15 +9,15 @@ import java.util.Objects;
 
 public class SubCompiledGraphNode<State extends AgentState> extends Node<State> implements SubGraphNode<State> {
 
-    private final CompiledGraph<State> subGraph;
+	private final CompiledGraph<State> subGraph;
 
-    public SubCompiledGraphNode(String id, CompiledGraph<State> subGraph ) {
-        super(  Objects.requireNonNull(id, "id cannot be null"),
-                (config ) -> new SubCompiledGraphNodeAction<>(subGraph) );
-        this.subGraph = Objects.requireNonNull(subGraph, "subGraph cannot be null");
-    }
+	public SubCompiledGraphNode(String id, CompiledGraph<State> subGraph) {
+		super(Objects.requireNonNull(id, "id cannot be null"), (config) -> new SubCompiledGraphNodeAction<>(subGraph));
+		this.subGraph = Objects.requireNonNull(subGraph, "subGraph cannot be null");
+	}
 
-    public StateGraph<State> subGraph() {
-        return subGraph.stateGraph;
-    }
+	public StateGraph<State> subGraph() {
+		return subGraph.stateGraph;
+	}
+
 }

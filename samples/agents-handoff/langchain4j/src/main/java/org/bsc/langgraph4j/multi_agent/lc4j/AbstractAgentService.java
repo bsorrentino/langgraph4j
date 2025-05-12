@@ -13,53 +13,55 @@ import java.util.Map;
 
 public abstract class AbstractAgentService<B extends AbstractAgentService.Builder<B>> extends AbstractAgent<B> {
 
-    public static abstract class Builder<B extends AbstractAgentService.Builder<B>> extends AbstractAgent.Builder<B> {
+	public static abstract class Builder<B extends AbstractAgentService.Builder<B>> extends AbstractAgent.Builder<B> {
 
-        final AiServices<Service> delegate ;
+		final AiServices<Service> delegate;
 
-        public Builder() {
-            this.delegate = AiServices.builder( Service.class );
-        }
+		public Builder() {
+			this.delegate = AiServices.builder(Service.class);
+		}
 
-        public B chatModel(ChatModel model) {
-            delegate.chatModel(model);
-            return result();
-        }
+		public B chatModel(ChatModel model) {
+			delegate.chatModel(model);
+			return result();
+		}
 
-        public B tools(Map.Entry<ToolSpecification, ToolExecutor> entry) {
-            delegate.tools( entry );
-            return result();
-        }
+		public B tools(Map.Entry<ToolSpecification, ToolExecutor> entry) {
+			delegate.tools(entry);
+			return result();
+		}
 
-        public B toolFromObject( Object objectWithTools ) {
-            delegate.tools(objectWithTools);
-            return result();
-        }
+		public B toolFromObject(Object objectWithTools) {
+			delegate.tools(objectWithTools);
+			return result();
+		}
 
-        public B systemMessage(SystemMessage message) {
-            delegate.systemMessageProvider( ( param ) -> message.text() );
-            return result();
-        }
-    }
+		public B systemMessage(SystemMessage message) {
+			delegate.systemMessageProvider((param) -> message.text());
+			return result();
+		}
 
-    interface Service {
+	}
 
-        String execute(@UserMessage String message, @MemoryId Object memoryId);
-    }
+	interface Service {
 
-    private final Service agentService;
+		String execute(@UserMessage String message, @MemoryId Object memoryId);
 
-    public AbstractAgentService( Builder<B> builder )  {
-        super( builder );
+	}
 
-        agentService = builder.delegate.build();
-    }
+	private final Service agentService;
 
-    @Override
-    public String execute(ToolExecutionRequest toolExecutionRequest, Object o) {
+	public AbstractAgentService(Builder<B> builder) {
+		super(builder);
 
-        return agentService.execute( toolExecutionRequest.arguments(), o );
+		agentService = builder.delegate.build();
+	}
 
-    }
+	@Override
+	public String execute(ToolExecutionRequest toolExecutionRequest, Object o) {
+
+		return agentService.execute(toolExecutionRequest.arguments(), o);
+
+	}
 
 }
