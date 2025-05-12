@@ -14,119 +14,119 @@ import static java.lang.String.format;
 /**
  * The `PlantUMLAction` class provides utility methods for validating PlantUML code.
  *
- * It includes nested classes and static methods to handle the validation of PlantUML code blocks,
- * extracting errors if any, and returning results in a `CompletableFuture`.
+ * It includes nested classes and static methods to handle the validation of PlantUML code
+ * blocks, extracting errors if any, and returning results in a `CompletableFuture`.
  */
 public class PlantUMLAction {
 
-    /**
-     * Represents an error that occurred during the PlantUML code processing.
-     *
-     * This subclass extends `Exception` and includes additional information about the type of error.
-     */
-    public static class Error extends Exception {
+	/**
+	 * Represents an error that occurred during the PlantUML code processing.
+	 *
+	 * This subclass extends `Exception` and includes additional information about the
+	 * type of error.
+	 */
+	public static class Error extends Exception {
 
-        private final ErrorUmlType type;
+		private final ErrorUmlType type;
 
-        /**
-         * Gets the type of the error.
-         *
-         * @return the type of the error
-         */
-        public ErrorUmlType getType() {
-            return type;
-        }
+		/**
+		 * Gets the type of the error.
+		 * @return the type of the error
+		 */
+		public ErrorUmlType getType() {
+			return type;
+		}
 
-        /**
-         * Constructs a new `Error` instance with the given message and error type.
-         *
-         * @param message the detail message
-         * @param type    the type of the error
-         */
-        public Error(String message, ErrorUmlType type) {
-            super(message);
-            this.type = type;
-        }
+		/**
+		 * Constructs a new `Error` instance with the given message and error type.
+		 * @param message the detail message
+		 * @param type the type of the error
+		 */
+		public Error(String message, ErrorUmlType type) {
+			super(message);
+			this.type = type;
+		}
 
-    }
+	}
 
-    /**
-     * Validates PlantUML code and returns a `CompletableFuture`.
-     *
-     * This method takes a string containing PlantUML code, processes it,
-     * and completes the future exceptionally if an error is found.
-     *
-     * @param <T>   the type of the result
-     * @param code  the PlantUML code to validate
-     * @return a `CompletableFuture` that will contain the result or error
-     */
-    public static <T> CompletableFuture<T> validate(String code) {
-        CompletableFuture<T> result = new CompletableFuture<>();
+	/**
+	 * Validates PlantUML code and returns a `CompletableFuture`.
+	 *
+	 * This method takes a string containing PlantUML code, processes it, and completes
+	 * the future exceptionally if an error is found.
+	 * @param <T> the type of the result
+	 * @param code the PlantUML code to validate
+	 * @return a `CompletableFuture` that will contain the result or error
+	 */
+	public static <T> CompletableFuture<T> validate(String code) {
+		CompletableFuture<T> result = new CompletableFuture<>();
 
-        SourceStringReader reader = new SourceStringReader(code);
+		SourceStringReader reader = new SourceStringReader(code);
 
-        final List<BlockUml> blocks = reader.getBlocks();
-        if (blocks.size() != 1) {
-            result.completeExceptionally(new IllegalArgumentException("Invalid PlantUML code"));
-            return result;
-        }
+		final List<BlockUml> blocks = reader.getBlocks();
+		if (blocks.size() != 1) {
+			result.completeExceptionally(new IllegalArgumentException("Invalid PlantUML code"));
+			return result;
+		}
 
-        final Diagram system = blocks.get(0).getDiagram();
+		final Diagram system = blocks.get(0).getDiagram();
 
-        if (system instanceof PSystemError errors) {
-            ErrorUml err = errors.getFirstError();
+		if (system instanceof PSystemError errors) {
+			ErrorUml err = errors.getFirstError();
 
-            try (ByteArrayOutputStream png = new ByteArrayOutputStream()) {
-                reader.outputImage(png, 0, new FileFormatOption(FileFormat.UTXT));
+			try (ByteArrayOutputStream png = new ByteArrayOutputStream()) {
+				reader.outputImage(png, 0, new FileFormatOption(FileFormat.UTXT));
 
-                result.completeExceptionally(new Error(png.toString(), err.getType()));
+				result.completeExceptionally(new Error(png.toString(), err.getType()));
 
-            } catch (IOException e) {
-                result.completeExceptionally(e);
-            }
-        } else {
-            result.complete(null);
-        }
+			}
+			catch (IOException e) {
+				result.completeExceptionally(e);
+			}
+		}
+		else {
+			result.complete(null);
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    /**
-     * Validates PlantUML code with a single line error and returns a `CompletableFuture`.
-     *
-     * This method takes a string containing PlantUML code, processes it,
-     * and completes the future exceptionally if an error is found, formatted as a single-line error message.
-     *
-     * @param <T>   the type of the result
-     * @param code  the PlantUML code to validate
-     * @return a `CompletableFuture` that will contain the result or error
-     */
-    public static <T> CompletableFuture<T> validateWithSingleLineError(String code) {
-        CompletableFuture<T> result = new CompletableFuture<>();
+	/**
+	 * Validates PlantUML code with a single line error and returns a `CompletableFuture`.
+	 *
+	 * This method takes a string containing PlantUML code, processes it, and completes
+	 * the future exceptionally if an error is found, formatted as a single-line error
+	 * message.
+	 * @param <T> the type of the result
+	 * @param code the PlantUML code to validate
+	 * @return a `CompletableFuture` that will contain the result or error
+	 */
+	public static <T> CompletableFuture<T> validateWithSingleLineError(String code) {
+		CompletableFuture<T> result = new CompletableFuture<>();
 
-        SourceStringReader reader = new SourceStringReader(code);
+		SourceStringReader reader = new SourceStringReader(code);
 
-        final List<BlockUml> blocks = reader.getBlocks();
-        if (blocks.size() != 1) {
-            result.completeExceptionally(new IllegalArgumentException("Invalid PlantUML code"));
-            return result;
-        }
+		final List<BlockUml> blocks = reader.getBlocks();
+		if (blocks.size() != 1) {
+			result.completeExceptionally(new IllegalArgumentException("Invalid PlantUML code"));
+			return result;
+		}
 
-        final Diagram system = blocks.get(0).getDiagram();
+		final Diagram system = blocks.get(0).getDiagram();
 
-        if (system instanceof PSystemError errors) {
+		if (system instanceof PSystemError errors) {
 
-            ErrorUml err = errors.getFirstError();
-            String error = format("error '%s' at line %d : '%s'",
-                    err.getType(),
-                    err.getPosition(),
-                    errors.getSource().getLine(err.getLineLocation()));
+			ErrorUml err = errors.getFirstError();
+			String error = format("error '%s' at line %d : '%s'", err.getType(), err.getPosition(),
+					errors.getSource().getLine(err.getLineLocation()));
 
-            result.completeExceptionally(new Error(error, err.getType()));
-        } else {
-            result.complete(null);
-        }
+			result.completeExceptionally(new Error(error, err.getType()));
+		}
+		else {
+			result.complete(null);
+		}
 
-        return result;
-    }
+		return result;
+	}
+
 }

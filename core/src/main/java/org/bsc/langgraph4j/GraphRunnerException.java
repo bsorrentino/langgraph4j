@@ -5,12 +5,12 @@ package org.bsc.langgraph4j;
  */
 public class GraphRunnerException extends Exception {
 
-    /**
-     * Constructs a new GraphRunnerException with the specified error message.
-     *
-     * @param errorMessage the detail message
-     */
-    public GraphRunnerException(String errorMessage) {
-        super(errorMessage);
-    }
+	/**
+	 * Constructs a new GraphRunnerException with the specified error message.
+	 * @param errorMessage the detail message
+	 */
+	public GraphRunnerException(String errorMessage) {
+		super(errorMessage);
+	}
+
 }

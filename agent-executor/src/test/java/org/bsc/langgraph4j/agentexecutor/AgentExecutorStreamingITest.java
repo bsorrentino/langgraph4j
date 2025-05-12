@@ -24,141 +24,121 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AgentExecutorStreamingITest {
 
-    @BeforeAll
-    public static void loadEnv() {
-        DotEnvConfig.load();
-    }
+	@BeforeAll
+	public static void loadEnv() {
+		DotEnvConfig.load();
+	}
 
-    private StateGraph<AgentExecutor.State> newGraph()  throws Exception {
+	private StateGraph<AgentExecutor.State> newGraph() throws Exception {
 
-        var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
+		var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
+			.orElseThrow(() -> new IllegalArgumentException("no APIKEY provided!"));
 
-        var chatLanguageModel = OpenAiStreamingChatModel.builder()
-                .apiKey( openApiKey )
-                .modelName( "gpt-4o-mini" )
-                .logResponses(true)
-                .temperature(0.0)
-                .maxTokens(2000)
-                .build();
+		var chatLanguageModel = OpenAiStreamingChatModel.builder()
+			.apiKey(openApiKey)
+			.modelName("gpt-4o-mini")
+			.logResponses(true)
+			.temperature(0.0)
+			.maxTokens(2000)
+			.build();
 
-        return AgentExecutor.builder()
-                .chatModel(chatLanguageModel)
-                .toolsFromObject(new TestTool())
-                .build();
-    }
+		return AgentExecutor.builder().chatModel(chatLanguageModel).toolsFromObject(new TestTool()).build();
+	}
 
-    private List<AgentExecutor.State> executeAgent( String prompt )  throws Exception {
+	private List<AgentExecutor.State> executeAgent(String prompt) throws Exception {
 
-        return toStateList( newGraph().compile().stream( Map.of( "messages", UserMessage.from(prompt) ) ) );
-    }
+		return toStateList(newGraph().compile().stream(Map.of("messages", UserMessage.from(prompt))));
+	}
 
-    private List<AgentExecutor.State> executeAgent( String prompt,
-                                                    String threadId,
-                                                    BaseCheckpointSaver saver)  throws Exception
-    {
+	private List<AgentExecutor.State> executeAgent(String prompt, String threadId, BaseCheckpointSaver saver)
+			throws Exception {
 
-        CompileConfig compileConfig = CompileConfig.builder()
-                .checkpointSaver( saver )
-                .build();
+		CompileConfig compileConfig = CompileConfig.builder().checkpointSaver(saver).build();
 
-        var config = RunnableConfig.builder().threadId(threadId).build();
+		var config = RunnableConfig.builder().threadId(threadId).build();
 
-        var graph = newGraph().compile( compileConfig );
+		var graph = newGraph().compile(compileConfig);
 
-        return toStateList(  graph.stream(  Map.of( "messages", UserMessage.from(prompt) ), config ) );
-    }
+		return toStateList(graph.stream(Map.of("messages", UserMessage.from(prompt)), config));
+	}
 
-    private List<AgentExecutor.State> toStateList(AsyncGenerator<NodeOutput<AgentExecutor.State>> generator ) {
+	private List<AgentExecutor.State> toStateList(AsyncGenerator<NodeOutput<AgentExecutor.State>> generator) {
 
-        return generator.stream()
-                .filter( s -> {
-                    if( s instanceof StreamingOutput<AgentExecutor.State> streamingOutput) {
-                        System.out.printf( "%s '%s'\n", streamingOutput.node(), streamingOutput.chunk() );
-                        return false;
-                    }
-                    return true;
-                })
-                .peek( s -> System.out.printf( "NODE: %s\n", s.node() ) )
-                .map( NodeOutput::state)
-                .collect(Collectors.toList());
-    }
+		return generator.stream().filter(s -> {
+			if (s instanceof StreamingOutput<AgentExecutor.State> streamingOutput) {
+				System.out.printf("%s '%s'\n", streamingOutput.node(), streamingOutput.chunk());
+				return false;
+			}
+			return true;
+		}).peek(s -> System.out.printf("NODE: %s\n", s.node())).map(NodeOutput::state).collect(Collectors.toList());
+	}
 
-    @Test
-    void executeAgentWithSingleToolInvocation() throws Exception {
+	@Test
+	void executeAgentWithSingleToolInvocation() throws Exception {
 
-        var states = executeAgent("what is the result of test with messages: 'MY FIRST TEST'");
-        assertEquals( 5, states.size() );
-        var state = CollectionsUtils.last(states).orElse(null);
-        assertNotNull(state);
-        assertTrue(state.finalResponse().isPresent());
-        System.out.println(state.finalResponse().get());
+		var states = executeAgent("what is the result of test with messages: 'MY FIRST TEST'");
+		assertEquals(5, states.size());
+		var state = CollectionsUtils.last(states).orElse(null);
+		assertNotNull(state);
+		assertTrue(state.finalResponse().isPresent());
+		System.out.println(state.finalResponse().get());
 
+	}
 
-    }
+	@Test
+	void executeAgentWithDoubleToolInvocation() throws Exception {
 
-    @Test
-    void executeAgentWithDoubleToolInvocation() throws Exception {
+		var states = executeAgent(
+				"what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'");
+		assertEquals(5, states.size());
+		var state = CollectionsUtils.last(states).orElse(null);
+		assertNotNull(state);
+		assertTrue(state.finalResponse().isPresent());
+		System.out.println(state.finalResponse().get());
 
-        var states = executeAgent("what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'");
-        assertEquals( 5, states.size() );
-        var state = CollectionsUtils.last(states).orElse(null);
-        assertNotNull(state);
-        assertTrue(state.finalResponse().isPresent());
-        System.out.println(state.finalResponse().get());
+	}
 
-    }
+	@Test
+	void executeAgentWithDoubleToolInvocationWithCheckpoint() throws Exception {
 
-    @Test
-    void executeAgentWithDoubleToolInvocationWithCheckpoint() throws Exception {
+		var saver = new MemorySaver();
+		var states = executeAgent(
+				"what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'",
+				"thread_1", saver);
+		assertEquals(5, states.size());
+		var state = CollectionsUtils.last(states).orElse(null);
+		assertNotNull(state);
+		assertTrue(state.finalResponse().isPresent());
+		System.out.println(state.finalResponse().get());
 
-        var saver = new MemorySaver();
-        var states = executeAgent(
-                "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'",
-                "thread_1",
-                saver
-                );
-        assertEquals( 5, states.size() );
-        var state = CollectionsUtils.last(states).orElse(null);
-        assertNotNull(state);
-        assertTrue(state.finalResponse().isPresent());
-        System.out.println(state.finalResponse().get());
+		states = executeAgent(
+				"what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'",
+				"thread_1", saver);
+		assertEquals(3, states.size());
+		state = CollectionsUtils.last(states).orElse(null);
+		assertNotNull(state);
+		assertTrue(state.finalResponse().isPresent());
+		System.out.println(state.finalResponse().get());
 
-        states = executeAgent(
-                "what is the result of test with messages: 'MY FIRST TEST' and the result of test with message: 'MY SECOND TEST'",
-                "thread_1",
-                saver
-        );
-        assertEquals( 3, states.size() );
-        state = CollectionsUtils.last(states).orElse(null);
-        assertNotNull(state);
-        assertTrue(state.finalResponse().isPresent());
-        System.out.println(state.finalResponse().get());
+	}
 
+	@Test
+	public void getGraphTest() throws Exception {
 
-    }
+		var app = new StateGraph<>(AgentState::new).addEdge(START, "agent")
+			.addNode("agent", node_async(state -> Map.of()))
+			.addNode("action", node_async(state -> Map.of()))
+			.addConditionalEdges("agent", edge_async(state -> ""), Map.of("continue", "action", "end", END))
+			.addEdge("action", "agent")
+			.compile();
 
-    @Test
-    public void getGraphTest() throws Exception {
+		var plantUml = app.getGraph(GraphRepresentation.Type.PLANTUML, "Agent Executor");
 
-        var app = new StateGraph<>(AgentState::new)
-            .addEdge(START,"agent")
-            .addNode( "agent", node_async( state -> Map.of() ))
-            .addNode( "action", node_async( state -> Map.of() ))
-            .addConditionalEdges(
-                    "agent",
-                    edge_async(state -> ""),
-                    Map.of("continue", "action", "end", END)
-            )
-            .addEdge("action", "agent")
-            .compile();
+		System.out.println(plantUml.content());
 
-        var plantUml = app.getGraph( GraphRepresentation.Type.PLANTUML, "Agent Executor" );
+		var mermaid = app.getGraph(GraphRepresentation.Type.MERMAID, "Agent Executor");
 
-        System.out.println( plantUml.content() );
+		System.out.println(mermaid.content());
+	}
 
-        var mermaid = app.getGraph( GraphRepresentation.Type.MERMAID, "Agent Executor" );
-
-        System.out.println( mermaid.content() );
-    }
 }

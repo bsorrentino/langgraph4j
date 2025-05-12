@@ -9,28 +9,28 @@ import java.util.Objects;
 
 public interface AgentHandoff {
 
-   class Builder {
-        final AgentExecutor.Builder delegate = AgentExecutor.builder();
+	class Builder {
 
-        public Builder chatModel(ChatModel model) {
-            delegate.chatModel(model);
-            return this;
-        }
+		final AgentExecutor.Builder delegate = AgentExecutor.builder();
 
-        public <B extends AbstractAgent.Builder<B>> Builder agent(AbstractAgent<B> agent) {
-            delegate.tool( Objects.requireNonNull(agent, "agent cannot be null").asTool() );
-            return this;
-        }
+		public Builder chatModel(ChatModel model) {
+			delegate.chatModel(model);
+			return this;
+		}
 
-        public StateGraph<AgentExecutor.State> build() throws GraphStateException {
-            return delegate.build();
-        }
+		public <B extends AbstractAgent.Builder<B>> Builder agent(AbstractAgent<B> agent) {
+			delegate.tool(Objects.requireNonNull(agent, "agent cannot be null").asTool());
+			return this;
+		}
 
-    }
+		public StateGraph<AgentExecutor.State> build() throws GraphStateException {
+			return delegate.build();
+		}
 
-    static Builder builder() {
-        return new Builder();
-    }
+	}
 
+	static Builder builder() {
+		return new Builder();
+	}
 
 }

@@ -31,259 +31,255 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 
 public class MultiAgentSupervisorITest {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MultiAgentSupervisorITest.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MultiAgentSupervisorITest.class);
 
-   static class State extends MessagesState<ChatMessage> {
+	static class State extends MessagesState<ChatMessage> {
 
-        public Optional<String> next() {
-            return this.value("next");
-        }
+		public Optional<String> next() {
+			return this.value("next");
+		}
 
-        public State(Map<String, Object> initData) {
-            super( initData  );
-        }
-    }
+		public State(Map<String, Object> initData) {
+			super(initData);
+		}
 
-    static class StateSerializer extends ObjectStreamStateSerializer<State> {
+	}
 
-        public StateSerializer() {
-            super(State::new);
+	static class StateSerializer extends ObjectStreamStateSerializer<State> {
 
-            mapper().register(ToolExecutionRequest.class, new ToolExecutionRequestSerializer());
-            mapper().register(ChatMessage.class, new ChatMesssageSerializer());
-        }
-    }
+		public StateSerializer() {
+			super(State::new);
 
-    static class SupervisorAgent implements AsyncNodeAction<State> {
+			mapper().register(ToolExecutionRequest.class, new ToolExecutionRequestSerializer());
+			mapper().register(ChatMessage.class, new ChatMesssageSerializer());
+		}
 
+	}
 
-        static class Router {
-            @Description("Worker to route to next. If no workers needed, route to FINISH.")
-            String next;
+	static class SupervisorAgent implements AsyncNodeAction<State> {
 
-            @Override
-            public String toString() {
-                return format( "Router[next: %s]",next);
-            }
-        }
+		static class Router {
 
-        interface Service {
-            @SystemMessage( """
-                    You are a supervisor tasked with managing a conversation between the following workers: {{members}}.
-                    Given the following user request, respond with the worker to act next.
-                    Each worker will perform a task and respond with their results and status.
-                    When finished, respond with FINISH.
-                    """)
-            Router evaluate(@V("members") String members, @dev.langchain4j.service.UserMessage  String userMessage);
-        }
+			@Description("Worker to route to next. If no workers needed, route to FINISH.")
+			String next;
 
-        final Service service;
-        public final String[] members = {"researcher", "coder" };
+			@Override
+			public String toString() {
+				return format("Router[next: %s]", next);
+			}
 
-        public SupervisorAgent(ChatModel model ) {
+		}
 
-            service = AiServices.create( Service.class, model );
-        }
+		interface Service {
 
-        @Override
-        public CompletableFuture<Map<String, Object>> apply(State state) {
-            var m = String.join(",", members);
-            var message = state.lastMessage().orElseThrow();
-            var text = switch( message.type() ) {
-                case USER -> ((UserMessage)message).singleText();
-                case AI -> ((AiMessage)message).text();
-                default -> throw new IllegalStateException("unexpected message type: " + message.type() );
-            };
+			@SystemMessage("""
+					You are a supervisor tasked with managing a conversation between the following workers: {{members}}.
+					Given the following user request, respond with the worker to act next.
+					Each worker will perform a task and respond with their results and status.
+					When finished, respond with FINISH.
+					""")
+			Router evaluate(@V("members") String members, @dev.langchain4j.service.UserMessage String userMessage);
 
-            var result = service.evaluate( m, text );
-            return CompletableFuture.completedFuture(Map.of( "next", result.next ));
-        }
-    }
+		}
 
+		final Service service;
 
-    static class ResearchAgent implements AsyncNodeAction<State> {
-        static class Tools {
+		public final String[] members = { "researcher", "coder" };
 
-            @Tool("""
-            Use this to perform a research over internet
-            """)
-            String search(@P("internet query") String query) {
-                log.info( "search query: '{}'", query );
-                return """
-                the games will be in Italy at Cortina '2026
-                """;
-            }
-        }
+		public SupervisorAgent(ChatModel model) {
 
-        interface Service {
-            String search(@dev.langchain4j.service.UserMessage  String query);
-        }
+			service = AiServices.create(Service.class, model);
+		}
 
-        final Service service;
+		@Override
+		public CompletableFuture<Map<String, Object>> apply(State state) {
+			var m = String.join(",", members);
+			var message = state.lastMessage().orElseThrow();
+			var text = switch (message.type()) {
+				case USER -> ((UserMessage) message).singleText();
+				case AI -> ((AiMessage) message).text();
+				default -> throw new IllegalStateException("unexpected message type: " + message.type());
+			};
 
-        public ResearchAgent( ChatModel model ) {
-            service = AiServices.builder( Service.class )
-                            .chatModel(model)
-                            .tools( new Tools() )
-                            .build();
-        }
-        @Override
-        public CompletableFuture<Map<String, Object>> apply(State state) {
-            var message = state.lastMessage().orElseThrow();
-            var text = switch( message.type() ) {
-                case USER -> ((UserMessage)message).singleText();
-                case AI -> ((AiMessage)message).text();
-                default -> throw new IllegalStateException("unexpected message type: " + message.type() );
-            };
-            var result = service.search( text );
-            return CompletableFuture.completedFuture(Map.of( "messages", AiMessage.from(result) ));
+			var result = service.evaluate(m, text);
+			return CompletableFuture.completedFuture(Map.of("next", result.next));
+		}
 
-        }
-    }
+	}
 
-    static class CoderAgent implements AsyncNodeAction<State> {
-        static class Tools {
+	static class ResearchAgent implements AsyncNodeAction<State> {
 
-            @Tool("""
-                Use this to execute java code and do math. If you want to see the output of a value,
-                you should print it out with `System.out.println(...);`. This is visible to the user.""")
-            String search(@P("coder request") String request) {
-                log.info( "CoderTool request: '{}'", request );
-                return """
-                2
-                """;
-            }
-        }
+		static class Tools {
 
-        interface Service {
-            String evaluate(@dev.langchain4j.service.UserMessage String code);
-        }
+			@Tool("""
+					Use this to perform a research over internet
+					""")
+			String search(@P("internet query") String query) {
+				log.info("search query: '{}'", query);
+				return """
+						the games will be in Italy at Cortina '2026
+						""";
+			}
 
-        final Service service;
+		}
 
-        public CoderAgent( ChatModel model ) {
-            service = AiServices.builder( Service.class )
-                    .chatModel(model)
-                    .tools( new Tools() )
-                    .build();
-        }
-        @Override
-        public CompletableFuture<Map<String, Object>> apply(State state) {
-            var message = state.lastMessage().orElseThrow();
-            var text = switch( message.type() ) {
-                case USER -> ((UserMessage)message).singleText();
-                case AI -> ((AiMessage)message).text();
-                default -> throw new IllegalStateException("unexpected message type: " + message.type() );
-                };
-            var result = service.evaluate( text );
-            return CompletableFuture.completedFuture(Map.of( "messages", AiMessage.from(result) ));
+		interface Service {
 
-        }
-    }
+			String search(@dev.langchain4j.service.UserMessage String query);
 
-    final ChatModel model = OllamaChatModel.builder()
-                .baseUrl( "http://localhost:11434" )
-                .temperature(0.0)
-                .logRequests(true)
-                .logResponses(true)
-                .responseFormat( ResponseFormat.JSON)
-                // .format( "json" )
-                .modelName("deepseek-r1:14b")
-                //.modelName("llama3.2:latest")
-                .build();
+		}
 
-    final ChatModel modelWithTool = OllamaChatModel.builder()
-            .baseUrl( "http://localhost:11434" )
-            .temperature(0.0)
-            .logRequests(true)
-            .logResponses(true)
-            .modelName("llama3.1:latest")
-            .build();
+		final Service service;
 
-    @Test
-    public void testSupervisorService() {
+		public ResearchAgent(ChatModel model) {
+			service = AiServices.builder(Service.class).chatModel(model).tools(new Tools()).build();
+		}
 
-        /*
-        // SET OUTPUT SCHEMA
-        var responseFormat = ResponseFormat.builder()
-                .type(ResponseFormatType.JSON) // type can be either TEXT (default) or JSON
-                .jsonSchema(JsonSchema.builder()
-                        .name("Person") // OpenAI requires specifying the name for the schema
-                        .rootElement(JsonObjectSchema.builder() // see [1] below
-                                .addStringProperty("name")
-                                .addIntegerProperty("age")
-                                .addNumberProperty("height")
-                                .addBooleanProperty("married")
-                                .required("name", "age", "height", "married") // see [2] below
-                                .build())
-                        .build())
-                .build();
-        */
+		@Override
+		public CompletableFuture<Map<String, Object>> apply(State state) {
+			var message = state.lastMessage().orElseThrow();
+			var text = switch (message.type()) {
+				case USER -> ((UserMessage) message).singleText();
+				case AI -> ((AiMessage) message).text();
+				default -> throw new IllegalStateException("unexpected message type: " + message.type());
+			};
+			var result = service.search(text);
+			return CompletableFuture.completedFuture(Map.of("messages", AiMessage.from(result)));
 
-        var supervisor = new SupervisorAgent( model );
+		}
 
-        var result = supervisor.service.evaluate(
-                String.join(",", supervisor.members),
-                "where are next winter olympic games ?"  );
+	}
 
-        log.info( "SUPERVISOR RESULT {}", result);
+	static class CoderAgent implements AsyncNodeAction<State> {
 
-    }
+		static class Tools {
 
-    @Test
-    public void testResearcherService() {
+			@Tool("""
+					Use this to execute java code and do math. If you want to see the output of a value,
+					you should print it out with `System.out.println(...);`. This is visible to the user.""")
+			String search(@P("coder request") String request) {
+				log.info("CoderTool request: '{}'", request);
+				return """
+						2
+						""";
+			}
 
-        var researcher = new ResearchAgent(modelWithTool);
+		}
 
-        var result = researcher.service.search( "where are next winter olympic games ?"  );
+		interface Service {
 
-        log.info( "RESEARCHER RESULT {}", result);
+			String evaluate(@dev.langchain4j.service.UserMessage String code);
 
-    }
+		}
 
-    @Test
-    public void testCoderService() {
+		final Service service;
 
-        var coder = new CoderAgent(modelWithTool);
+		public CoderAgent(ChatModel model) {
+			service = AiServices.builder(Service.class).chatModel(model).tools(new Tools()).build();
+		}
 
-        var result = coder.service.evaluate( "what are the result of 1 + 1 ?"  );
+		@Override
+		public CompletableFuture<Map<String, Object>> apply(State state) {
+			var message = state.lastMessage().orElseThrow();
+			var text = switch (message.type()) {
+				case USER -> ((UserMessage) message).singleText();
+				case AI -> ((AiMessage) message).text();
+				default -> throw new IllegalStateException("unexpected message type: " + message.type());
+			};
+			var result = service.evaluate(text);
+			return CompletableFuture.completedFuture(Map.of("messages", AiMessage.from(result)));
 
-        log.info( "CODER RESULT {}", result);
+		}
 
-    }
+	}
 
-    @Test
-    void buildAndRunGraph() throws Exception {
+	final ChatModel model = OllamaChatModel.builder()
+		.baseUrl("http://localhost:11434")
+		.temperature(0.0)
+		.logRequests(true)
+		.logResponses(true)
+		.responseFormat(ResponseFormat.JSON)
+		// .format( "json" )
+		.modelName("deepseek-r1:14b")
+		// .modelName("llama3.2:latest")
+		.build();
 
-        var workflow = new StateGraph<>( State.SCHEMA, new StateSerializer() )
-                .addNode( "supervisor", new SupervisorAgent(model) )
-                .addNode( "coder", new CoderAgent(modelWithTool) )
-                .addNode( "researcher", new ResearchAgent(modelWithTool) )
-                .addEdge( START, "supervisor")
-                .addConditionalEdges( "supervisor",
-                        edge_async( state ->
-                            state.next().orElseThrow()
-                        ), Map.of(
-                                "FINISH", END,
-                                "coder", "coder",
-                                "researcher", "researcher"
-                        ))
-                .addEdge( "coder", "supervisor")
-                .addEdge( "researcher", "supervisor")
-                ;
-        var graph = workflow.compile();
+	final ChatModel modelWithTool = OllamaChatModel.builder()
+		.baseUrl("http://localhost:11434")
+		.temperature(0.0)
+		.logRequests(true)
+		.logResponses(true)
+		.modelName("llama3.1:latest")
+		.build();
 
-        for( var event : graph.stream( Map.of( "messages", UserMessage.from("what are the result of 1 + 1 ?"))) ) {
+	@Test
+	public void testSupervisorService() {
 
-            log.info( "{}", event );
-        }
+		/*
+		 * // SET OUTPUT SCHEMA var responseFormat = ResponseFormat.builder()
+		 * .type(ResponseFormatType.JSON) // type can be either TEXT (default) or JSON
+		 * .jsonSchema(JsonSchema.builder() .name("Person") // OpenAI requires specifying
+		 * the name for the schema .rootElement(JsonObjectSchema.builder() // see [1]
+		 * below .addStringProperty("name") .addIntegerProperty("age")
+		 * .addNumberProperty("height") .addBooleanProperty("married") .required("name",
+		 * "age", "height", "married") // see [2] below .build()) .build()) .build();
+		 */
 
-        for( var event : graph.stream( Map.of( "messages", UserMessage.from("where are next winter olympic games ?" ))) ) {
+		var supervisor = new SupervisorAgent(model);
 
-            log.info( "{}", event );
-        }
+		var result = supervisor.service.evaluate(String.join(",", supervisor.members),
+				"where are next winter olympic games ?");
 
-    }
+		log.info("SUPERVISOR RESULT {}", result);
+
+	}
+
+	@Test
+	public void testResearcherService() {
+
+		var researcher = new ResearchAgent(modelWithTool);
+
+		var result = researcher.service.search("where are next winter olympic games ?");
+
+		log.info("RESEARCHER RESULT {}", result);
+
+	}
+
+	@Test
+	public void testCoderService() {
+
+		var coder = new CoderAgent(modelWithTool);
+
+		var result = coder.service.evaluate("what are the result of 1 + 1 ?");
+
+		log.info("CODER RESULT {}", result);
+
+	}
+
+	@Test
+	void buildAndRunGraph() throws Exception {
+
+		var workflow = new StateGraph<>(State.SCHEMA, new StateSerializer())
+			.addNode("supervisor", new SupervisorAgent(model))
+			.addNode("coder", new CoderAgent(modelWithTool))
+			.addNode("researcher", new ResearchAgent(modelWithTool))
+			.addEdge(START, "supervisor")
+			.addConditionalEdges("supervisor", edge_async(state -> state.next().orElseThrow()),
+					Map.of("FINISH", END, "coder", "coder", "researcher", "researcher"))
+			.addEdge("coder", "supervisor")
+			.addEdge("researcher", "supervisor");
+		var graph = workflow.compile();
+
+		for (var event : graph.stream(Map.of("messages", UserMessage.from("what are the result of 1 + 1 ?")))) {
+
+			log.info("{}", event);
+		}
+
+		for (var event : graph.stream(Map.of("messages", UserMessage.from("where are next winter olympic games ?")))) {
+
+			log.info("{}", event);
+		}
+
+	}
+
 }
-
-

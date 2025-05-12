@@ -11,17 +11,18 @@ import java.util.Map;
 
 class ToolResponseMessageSerializer implements Serializer<ToolResponseMessage> {
 
-    @Override
-    public void write(ToolResponseMessage object, ObjectOutput out) throws IOException {
-        out.writeObject( object.getResponses() );
-        out.writeObject( object.getMetadata() );
-    }
+	@Override
+	public void write(ToolResponseMessage object, ObjectOutput out) throws IOException {
+		out.writeObject(object.getResponses());
+		out.writeObject(object.getMetadata());
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public ToolResponseMessage read(ObjectInput in) throws IOException, ClassNotFoundException {
-        var response = (List<ToolResponseMessage.ToolResponse>)in.readObject();
-        var metadata = (Map<String,Object>)in.readObject();
-        return new ToolResponseMessage( response, metadata );
-    }
+	@Override
+	@SuppressWarnings("unchecked")
+	public ToolResponseMessage read(ObjectInput in) throws IOException, ClassNotFoundException {
+		var response = (List<ToolResponseMessage.ToolResponse>) in.readObject();
+		var metadata = (Map<String, Object>) in.readObject();
+		return new ToolResponseMessage(response, metadata);
+	}
+
 }

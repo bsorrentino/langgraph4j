@@ -7,34 +7,31 @@ import org.bsc.langgraph4j.studio.jetty.LangGraphStreamingServerJetty;
 
 public class ImageToDiagramStreamingServer {
 
+	public static void main(String[] args) throws Exception {
 
-    public static void main(String[] args) throws Exception {
+		DotEnvConfig.load();
 
-        DotEnvConfig.load();
+		// var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
+		// .orElseThrow( () -> new IllegalArgumentException("no OPENAI API KEY
+		// provided!"));
 
-        // var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-        //        .orElseThrow( () -> new IllegalArgumentException("no OPENAI API KEY provided!"));
+		// var imageData = ImageLoader.loadImageAsBase64( "LangChainAgents.png" );
 
-        // var imageData = ImageLoader.loadImageAsBase64( "LangChainAgents.png" );
+		var agentExecutor = new ImageToDiagramProcess();
 
-        var agentExecutor = new ImageToDiagramProcess();
+		var workflow = agentExecutor.workflowWithCorrection();
 
-        var workflow = agentExecutor.workflowWithCorrection();
+		System.out.println(workflow.getGraph(GraphRepresentation.Type.MERMAID, "Image To Diagram", false).content());
 
-        System.out.println (
-                workflow.getGraph(GraphRepresentation.Type.MERMAID, "Image To Diagram", false)
-                        .content()
-        );
+		var server = LangGraphStreamingServerJetty.builder()
+			.port(8080)
+			.title("Image To Diagram")
+			.addInputImageArg("imageData")
+			.stateGraph(workflow)
+			.build();
 
-        var server = LangGraphStreamingServerJetty.builder()
-                .port(8080)
-                .title("Image To Diagram")
-                .addInputImageArg( "imageData" )
-                .stateGraph(workflow)
-                .build();
+		server.start().join();
 
-        server.start().join();
-
-    }
+	}
 
 }

@@ -8,143 +8,145 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class ObjectInputWithMapper implements ObjectInput {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ObjectInputWithMapper.class);
-    private final ObjectInput in;
-    private final SerializerMapper mapper;
 
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ObjectInputWithMapper.class);
 
-    public ObjectInputWithMapper(ObjectInput in, SerializerMapper mapper) {
-        this.in = Objects.requireNonNull(in, "in cannot be null");
-        this.mapper = Objects.requireNonNull(mapper, "mapper cannot be null");
-    }
+	private final ObjectInput in;
 
-    @Override
-    public Object readObject() throws ClassNotFoundException, IOException {
-        Object object = in.readObject();
+	private final SerializerMapper mapper;
 
-        if( object instanceof Class ) {
-            Class<?> type = (Class<?>) object;
+	public ObjectInputWithMapper(ObjectInput in, SerializerMapper mapper) {
+		this.in = Objects.requireNonNull(in, "in cannot be null");
+		this.mapper = Objects.requireNonNull(mapper, "mapper cannot be null");
+	}
 
-            Optional<Serializer<Object>> optSerializer = mapper.getSerializer(type);
+	@Override
+	public Object readObject() throws ClassNotFoundException, IOException {
+		Object object = in.readObject();
 
-            if( !optSerializer.isPresent() ) {
-                optSerializer = mapper.getSerializer(type.getName());
-            }
+		if (object instanceof Class) {
+			Class<?> type = (Class<?>) object;
 
+			Optional<Serializer<Object>> optSerializer = mapper.getSerializer(type);
 
-            Serializer<Object> serializer = optSerializer.orElseGet( () -> {
-                log.warn( "No serializer found for class {} in {}", type.getName(), mapper );
-                return mapper.getDefaultSerializer();
-            });
+			if (!optSerializer.isPresent()) {
+				optSerializer = mapper.getSerializer(type.getName());
+			}
 
-            return serializer.read(this);
-        }
+			Serializer<Object> serializer = optSerializer.orElseGet(() -> {
+				log.warn("No serializer found for class {} in {}", type.getName(), mapper);
+				return mapper.getDefaultSerializer();
+			});
 
-        return object;
-    }
+			return serializer.read(this);
+		}
 
-    @Override
-    public int read() throws IOException {
-        return in.read();
-    }
+		return object;
+	}
 
-    @Override
-    public int read(byte[] b) throws IOException {
-        return in.read(b);
-    }
+	@Override
+	public int read() throws IOException {
+		return in.read();
+	}
 
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        return in.read(b, off, len);
-    }
+	@Override
+	public int read(byte[] b) throws IOException {
+		return in.read(b);
+	}
 
-    @Override
-    public long skip(long n) throws IOException {
-        return in.skip(n);
-    }
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
+		return in.read(b, off, len);
+	}
 
-    @Override
-    public int available() throws IOException {
-        return in.available();
-    }
+	@Override
+	public long skip(long n) throws IOException {
+		return in.skip(n);
+	}
 
-    @Override
-    public void close() throws IOException {
-        in.close();
-    }
+	@Override
+	public int available() throws IOException {
+		return in.available();
+	}
 
-    @Override
-    public void readFully(byte[] b) throws IOException {
-        in.readFully(b);
-    }
+	@Override
+	public void close() throws IOException {
+		in.close();
+	}
 
-    @Override
-    public void readFully(byte[] b, int off, int len) throws IOException {
-        in.readFully(b, off, len);
-    }
+	@Override
+	public void readFully(byte[] b) throws IOException {
+		in.readFully(b);
+	}
 
-    @Override
-    public int skipBytes(int n) throws IOException {
-        return in.skipBytes(n);
-    }
+	@Override
+	public void readFully(byte[] b, int off, int len) throws IOException {
+		in.readFully(b, off, len);
+	}
 
-    @Override
-    public boolean readBoolean() throws IOException {
-        return in.readBoolean();
-    }
+	@Override
+	public int skipBytes(int n) throws IOException {
+		return in.skipBytes(n);
+	}
 
-    @Override
-    public byte readByte() throws IOException {
-        return in.readByte();
-    }
+	@Override
+	public boolean readBoolean() throws IOException {
+		return in.readBoolean();
+	}
 
-    @Override
-    public int readUnsignedByte() throws IOException {
-        return in.readUnsignedByte();
-    }
+	@Override
+	public byte readByte() throws IOException {
+		return in.readByte();
+	}
 
-    @Override
-    public short readShort() throws IOException {
-        return in.readShort();
-    }
+	@Override
+	public int readUnsignedByte() throws IOException {
+		return in.readUnsignedByte();
+	}
 
-    @Override
-    public int readUnsignedShort() throws IOException {
-        return in.readUnsignedShort();
-    }
+	@Override
+	public short readShort() throws IOException {
+		return in.readShort();
+	}
 
-    @Override
-    public char readChar() throws IOException {
-        return in.readChar();
-    }
+	@Override
+	public int readUnsignedShort() throws IOException {
+		return in.readUnsignedShort();
+	}
 
-    @Override
-    public int readInt() throws IOException {
-        return in.readInt();
-    }
+	@Override
+	public char readChar() throws IOException {
+		return in.readChar();
+	}
 
-    @Override
-    public long readLong() throws IOException {
-        return in.readLong();
-    }
+	@Override
+	public int readInt() throws IOException {
+		return in.readInt();
+	}
 
-    @Override
-    public float readFloat() throws IOException {
-        return in.readFloat();
-    }
+	@Override
+	public long readLong() throws IOException {
+		return in.readLong();
+	}
 
-    @Override
-    public double readDouble() throws IOException {
-        return in.readDouble();
-    }
+	@Override
+	public float readFloat() throws IOException {
+		return in.readFloat();
+	}
 
-    @Override
-    public String readLine() throws IOException {
-        return in.readLine();
-    }
+	@Override
+	public double readDouble() throws IOException {
+		return in.readDouble();
+	}
 
-    @Override
-    public String readUTF() throws IOException {
-        return in.readUTF();
-    }
+	@Override
+	public String readLine() throws IOException {
+		return in.readLine();
+	}
+
+	@Override
+	public String readUTF() throws IOException {
+		return in.readUTF();
+	}
+
 }

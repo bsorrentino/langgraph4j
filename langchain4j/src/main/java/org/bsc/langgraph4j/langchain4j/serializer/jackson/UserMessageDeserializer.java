@@ -10,18 +10,19 @@ import java.io.IOException;
 
 public class UserMessageDeserializer extends StdDeserializer<UserMessage> {
 
-    public UserMessageDeserializer() {
-        super(UserMessage.class);
-    }
+	public UserMessageDeserializer() {
+		super(UserMessage.class);
+	}
 
-    @Override
-    public UserMessage deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
-        return deserialize(p.getCodec().readTree(p));
-    }
+	@Override
+	public UserMessage deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+		return deserialize(p.getCodec().readTree(p));
+	}
 
-    protected UserMessage deserialize(JsonNode node) throws IOException {
-        var text = node.get("text").asText();
+	protected UserMessage deserialize(JsonNode node) throws IOException {
+		var text = node.get("text").asText();
 
-        return UserMessage.from( text );
-    }
+		return UserMessage.from(text);
+	}
+
 }

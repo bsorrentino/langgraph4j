@@ -9,52 +9,53 @@ import java.util.Objects;
 import static java.lang.String.*;
 
 public final class StateSnapshot<State extends AgentState> extends NodeOutput<State> {
-    private final RunnableConfig config;
 
-    public String next( ) {
-        return config.nextNode().orElse(null);
-    }
+	private final RunnableConfig config;
 
-    public RunnableConfig config() {
-        return config;
-    }
+	public String next() {
+		return config.nextNode().orElse(null);
+	}
 
-    /**
-     * @deprecated Use {@link #config()} instead.
-     */
-    @Deprecated
-    public RunnableConfig getConfig( ) {
-        return config();
-    }
+	public RunnableConfig config() {
+		return config;
+	}
 
-    /**
-     * @deprecated Use {@link #next()} instead.
-     */
-    @Deprecated
-    public String getNext( ) {
-        return next();
-    }
+	/**
+	 * @deprecated Use {@link #config()} instead.
+	 */
+	@Deprecated
+	public RunnableConfig getConfig() {
+		return config();
+	}
 
-    private StateSnapshot( String node, State state, RunnableConfig config) {
-        super(  Objects.requireNonNull(node, "node cannot be null"),
-                Objects.requireNonNull(state, "state cannot be null") );
-        this.config = Objects.requireNonNull(config, "config cannot be null");
-    }
+	/**
+	 * @deprecated Use {@link #next()} instead.
+	 */
+	@Deprecated
+	public String getNext() {
+		return next();
+	}
 
-    @Override
-    public String toString() {
+	private StateSnapshot(String node, State state, RunnableConfig config) {
+		super(Objects.requireNonNull(node, "node cannot be null"),
+				Objects.requireNonNull(state, "state cannot be null"));
+		this.config = Objects.requireNonNull(config, "config cannot be null");
+	}
 
-        return format("StateSnapshot{node=%s, state=%s, config=%s}", node(), state(), config());
-    }
+	@Override
+	public String toString() {
 
-    public static <State extends AgentState> StateSnapshot<State> of(Checkpoint checkpoint, RunnableConfig config, AgentStateFactory<State> factory) {
+		return format("StateSnapshot{node=%s, state=%s, config=%s}", node(), state(), config());
+	}
 
-        RunnableConfig newConfig = RunnableConfig.builder(config)
-                                .checkPointId( checkpoint.getId() )
-                                .nextNode( checkpoint.getNextNodeId() )
-                                .build() ;
-        return new StateSnapshot<>( checkpoint.getNodeId(), factory.apply(checkpoint.getState()), newConfig);
-    }
+	public static <State extends AgentState> StateSnapshot<State> of(Checkpoint checkpoint, RunnableConfig config,
+			AgentStateFactory<State> factory) {
 
+		RunnableConfig newConfig = RunnableConfig.builder(config)
+			.checkPointId(checkpoint.getId())
+			.nextNode(checkpoint.getNextNodeId())
+			.build();
+		return new StateSnapshot<>(checkpoint.getNodeId(), factory.apply(checkpoint.getState()), newConfig);
+	}
 
 }

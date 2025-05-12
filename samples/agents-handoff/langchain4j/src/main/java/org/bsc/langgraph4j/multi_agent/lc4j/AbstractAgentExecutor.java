@@ -14,47 +14,48 @@ import java.util.Map;
 
 public abstract class AbstractAgentExecutor<B extends AbstractAgentExecutor.Builder<B>> extends AbstractAgent<B> {
 
-    public static abstract class Builder<B extends AbstractAgentExecutor.Builder<B>> extends AbstractAgent.Builder<B> {
+	public static abstract class Builder<B extends AbstractAgentExecutor.Builder<B>> extends AbstractAgent.Builder<B> {
 
-        final AgentExecutor.Builder delegate = AgentExecutor.builder();
+		final AgentExecutor.Builder delegate = AgentExecutor.builder();
 
-        public B chatModel(ChatModel model) {
-            delegate.chatModel(model);
-            return result();
-        }
+		public B chatModel(ChatModel model) {
+			delegate.chatModel(model);
+			return result();
+		}
 
-        public B tool(Map.Entry<ToolSpecification, ToolExecutor> entry) {
-            delegate.tool(entry);
-            return result();
-        }
+		public B tool(Map.Entry<ToolSpecification, ToolExecutor> entry) {
+			delegate.tool(entry);
+			return result();
+		}
 
-        public B toolFromObject( Object objectWithTools ) {
-            delegate.toolsFromObject(objectWithTools);
-            return result();
-        }
+		public B toolFromObject(Object objectWithTools) {
+			delegate.toolsFromObject(objectWithTools);
+			return result();
+		}
 
-        public B systemMessage(SystemMessage message) {
-            delegate.systemMessage(message);
-            return result();
-        }
-    }
+		public B systemMessage(SystemMessage message) {
+			delegate.systemMessage(message);
+			return result();
+		}
 
-    private final CompiledGraph<AgentExecutor.State> agentExecutor;
+	}
 
-    public AbstractAgentExecutor( Builder<B> builder ) throws GraphStateException {
-        super( builder );
+	private final CompiledGraph<AgentExecutor.State> agentExecutor;
 
-        agentExecutor = builder.delegate.build().compile();
-    }
+	public AbstractAgentExecutor(Builder<B> builder) throws GraphStateException {
+		super(builder);
 
-    @Override
-    public String execute(ToolExecutionRequest toolExecutionRequest, Object o) {
+		agentExecutor = builder.delegate.build().compile();
+	}
 
-        var userMessage = UserMessage.from( toolExecutionRequest.arguments() );
+	@Override
+	public String execute(ToolExecutionRequest toolExecutionRequest, Object o) {
 
-        var result = agentExecutor.invoke( Map.of( "messages", userMessage ) );
+		var userMessage = UserMessage.from(toolExecutionRequest.arguments());
 
-        return result.flatMap(AgentExecutor.State::finalResponse).orElseThrow();
-    }
+		var result = agentExecutor.invoke(Map.of("messages", userMessage));
+
+		return result.flatMap(AgentExecutor.State::finalResponse).orElseThrow();
+	}
 
 }

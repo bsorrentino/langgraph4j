@@ -8,5 +8,6 @@ import java.io.IOException;
 @FunctionalInterface
 public interface JacksonDeserializer<T> {
 
-    T deserialize( JsonNode node ) throws IOException, JacksonException;
+	T deserialize(JsonNode node) throws IOException, JacksonException;
+
 }

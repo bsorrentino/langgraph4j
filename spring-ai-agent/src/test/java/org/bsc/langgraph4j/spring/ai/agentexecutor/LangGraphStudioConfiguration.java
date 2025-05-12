@@ -19,36 +19,33 @@ import java.util.Objects;
 @Configuration
 public class LangGraphStudioConfiguration extends AbstractLangGraphStudioConfig {
 
-    final LangGraphFlow flow;
+	final LangGraphFlow flow;
 
-    public LangGraphStudioConfiguration( /*@Qualifier("ollama")*/ ChatModel chatModel, List<ToolCallback> tools ) throws GraphStateException {
+	public LangGraphStudioConfiguration( /* @Qualifier("ollama") */ ChatModel chatModel, List<ToolCallback> tools)
+			throws GraphStateException {
 
-        var workflow = AgentExecutor.builder()
-                .chatModel( chatModel )
-                .tools( tools )
-                .build();
+		var workflow = AgentExecutor.builder().chatModel(chatModel).tools(tools).build();
 
-        var mermaid = workflow.getGraph( GraphRepresentation.Type.MERMAID, "ReAct Agent", false );
-        System.out.println( mermaid.content() );
+		var mermaid = workflow.getGraph(GraphRepresentation.Type.MERMAID, "ReAct Agent", false);
+		System.out.println(mermaid.content());
 
-        this.flow = agentWorkflow( workflow );
-    }
+		this.flow = agentWorkflow(workflow);
+	}
 
-    private LangGraphFlow agentWorkflow( StateGraph<AgentExecutor.State> workflow ) throws GraphStateException {
+	private LangGraphFlow agentWorkflow(StateGraph<AgentExecutor.State> workflow) throws GraphStateException {
 
-        return  LangGraphFlow.builder()
-                .title("LangGraph Studio (Spring AI)")
-                .addInputStringArg( "messages", true, v -> new UserMessage( Objects.toString(v) ) )
-                .stateGraph( workflow )
-                .compileConfig( CompileConfig.builder()
-                        .checkpointSaver( new MemorySaver() )
-                        .build())
-                .build();
+		return LangGraphFlow.builder()
+			.title("LangGraph Studio (Spring AI)")
+			.addInputStringArg("messages", true, v -> new UserMessage(Objects.toString(v)))
+			.stateGraph(workflow)
+			.compileConfig(CompileConfig.builder().checkpointSaver(new MemorySaver()).build())
+			.build();
 
-    }
+	}
 
-    @Override
-    public LangGraphFlow getFlow() {
-        return this.flow;
-    }
+	@Override
+	public LangGraphFlow getFlow() {
+		return this.flow;
+	}
+
 }

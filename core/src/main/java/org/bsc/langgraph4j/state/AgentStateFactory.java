@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j.state;
 
-
 import java.util.Map;
 import java.util.function.Function;
 
@@ -9,6 +8,6 @@ import java.util.function.Function;
  *
  * @param <State> the type of the agent state
  */
-public interface AgentStateFactory<State extends AgentState> extends Function<Map<String,Object>, State> {
+public interface AgentStateFactory<State extends AgentState> extends Function<Map<String, Object>, State> {
 
 }

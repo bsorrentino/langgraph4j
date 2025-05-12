@@ -17,57 +17,60 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Base Implementation of {@link PlainTextStateSerializer} using Jackson library.
- * Need to be extended from specific state implementation
+ * Base Implementation of {@link PlainTextStateSerializer} using Jackson library. Need to
+ * be extended from specific state implementation
  *
  * @param <State> The type of the agent state to be serialized/deserialized.
  */
-public abstract class JacksonStateSerializer <State extends AgentState> extends PlainTextStateSerializer<State> {
-    protected final ObjectMapper objectMapper;
+public abstract class JacksonStateSerializer<State extends AgentState> extends PlainTextStateSerializer<State> {
 
-    protected TypeMapper typeMapper = new TypeMapper();
+	protected final ObjectMapper objectMapper;
 
-    protected JacksonStateSerializer( AgentStateFactory<State> stateFactory ) {
-        this( stateFactory, new ObjectMapper() );
-        this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+	protected TypeMapper typeMapper = new TypeMapper();
 
-    }
+	protected JacksonStateSerializer(AgentStateFactory<State> stateFactory) {
+		this(stateFactory, new ObjectMapper());
+		this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
-    protected JacksonStateSerializer( AgentStateFactory<State> stateFactory, ObjectMapper objectMapper) {
-        super(stateFactory);
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
+	}
 
-        var module = new SimpleModule();
-        module.addDeserializer( Map.class, new GenericMapDeserializer(typeMapper) );
-        module.addDeserializer( List.class, new GenericListDeserializer(typeMapper) );
+	protected JacksonStateSerializer(AgentStateFactory<State> stateFactory, ObjectMapper objectMapper) {
+		super(stateFactory);
+		this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
 
-        this.objectMapper.registerModule( module );
+		var module = new SimpleModule();
+		module.addDeserializer(Map.class, new GenericMapDeserializer(typeMapper));
+		module.addDeserializer(List.class, new GenericListDeserializer(typeMapper));
 
-    }
+		this.objectMapper.registerModule(module);
 
-    public TypeMapper typeMapper() {
-        return typeMapper;
-    }
-    public ObjectMapper objectMapper() {
-        return objectMapper;
-    }
+	}
 
-    @Override
-    public String mimeType() {
-        return "application/json";
-    }
+	public TypeMapper typeMapper() {
+		return typeMapper;
+	}
 
-    @Override
-    public void write(State object, ObjectOutput out) throws IOException {
-        String json = objectMapper.writeValueAsString(object.data());
-        out.writeUTF(json);
-    }
+	public ObjectMapper objectMapper() {
+		return objectMapper;
+	}
 
-    @Override
-    public State read(ObjectInput in) throws IOException, ClassNotFoundException {
-        String json = in.readUTF();
-        var data = objectMapper.readValue(json, new TypeReference<Map<String,Object>>() {});
-        return stateFactory().apply(data);
-    }
+	@Override
+	public String mimeType() {
+		return "application/json";
+	}
+
+	@Override
+	public void write(State object, ObjectOutput out) throws IOException {
+		String json = objectMapper.writeValueAsString(object.data());
+		out.writeUTF(json);
+	}
+
+	@Override
+	public State read(ObjectInput in) throws IOException, ClassNotFoundException {
+		String json = in.readUTF();
+		var data = objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
+		});
+		return stateFactory().apply(data);
+	}
 
 }

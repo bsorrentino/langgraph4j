@@ -18,85 +18,83 @@ import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-
 public class Issue118ITest {
 
-    static org.slf4j.Logger log;
+	static org.slf4j.Logger log;
 
-    public static class State extends MessagesState<ChatMessage> {
-        public State(Map<String, Object> initData) {
-            super(initData);
-        }
-    }
+	public static class State extends MessagesState<ChatMessage> {
 
-    @BeforeAll
-    public static void init() throws Exception {
-        try (var file = new java.io.FileInputStream("./logging.properties")) {
-            java.util.logging.LogManager.getLogManager().readConfiguration(file);
-        }
+		public State(Map<String, Object> initData) {
+			super(initData);
+		}
 
-        log = org.slf4j.LoggerFactory.getLogger("issue118");
-    }
+	}
 
-    @Test
-    public void testinterruptGraphWhileStreamingNodeOutput() throws Exception {
-        // setup streaming model
-        var model = OllamaStreamingChatModel.builder()
-                .baseUrl("http://localhost:11434")
-                .temperature(0.0)
-                .logRequests(true)
-                .logResponses(true)
-                .modelName("llama3.1:latest")
-                .build();
+	@BeforeAll
+	public static void init() throws Exception {
+		try (var file = new java.io.FileInputStream("./logging.properties")) {
+			java.util.logging.LogManager.getLogManager().readConfiguration(file);
+		}
 
-        NodeAction<State> calculationNode = state -> {
+		log = org.slf4j.LoggerFactory.getLogger("issue118");
+	}
 
-            log.trace("calculationNode: {}", state.messages());
+	@Test
+	public void testinterruptGraphWhileStreamingNodeOutput() throws Exception {
+		// setup streaming model
+		var model = OllamaStreamingChatModel.builder()
+			.baseUrl("http://localhost:11434")
+			.temperature(0.0)
+			.logRequests(true)
+			.logResponses(true)
+			.modelName("llama3.1:latest")
+			.build();
 
-            var generator = StreamingChatGenerator.<State>builder()
-                    .mapResult(response -> Map.of("messages", response.aiMessage()))
-                    .startingNode("calculation")
-                    .startingState(state)
-                    .build();
+		NodeAction<State> calculationNode = state -> {
 
-            var request = ChatRequest.builder()
-                    .messages(state.messages())
-                    .build();
+			log.trace("calculationNode: {}", state.messages());
 
-            model.chat(request, generator.handler());
+			var generator = StreamingChatGenerator.<State>builder()
+				.mapResult(response -> Map.of("messages", response.aiMessage()))
+				.startingNode("calculation")
+				.startingState(state)
+				.build();
 
-            return Map.of("_streaming_messages", generator);
-        };
+			var request = ChatRequest.builder().messages(state.messages()).build();
 
-        NodeAction<State> summaryNode = state -> {
-            log.trace("summaryNode: {}", state.messages());
+			model.chat(request, generator.handler());
 
-            var lastMessage = state.lastMessage().orElseThrow();
+			return Map.of("_streaming_messages", generator);
+		};
 
-            return Map.of();
-        };
+		NodeAction<State> summaryNode = state -> {
+			log.trace("summaryNode: {}", state.messages());
 
-        var stateSerializer = new LC4jStateSerializer<State>(State::new);
+			var lastMessage = state.lastMessage().orElseThrow();
 
-        // Define Graph
-        var workflow = new StateGraph<State>(State.SCHEMA, stateSerializer)
-                .addNode("calculation", node_async(calculationNode))
-                .addNode("summary", node_async(summaryNode))
-                .addEdge(START, "calculation")
-                .addEdge("calculation", "summary" )
-                .addEdge("summary", END);
+			return Map.of();
+		};
 
-        var app = workflow.compile();
+		var stateSerializer = new LC4jStateSerializer<State>(State::new);
 
-        for( var out : app.stream( Map.of( "messages", UserMessage.from( "generate a UUID for me")) ) ) {
-            if( out instanceof StreamingOutput streaming ) {
-                log.info( "StreamingOutput{node={}, chunk={} }", streaming.node(), streaming.chunk() );
-            }
-            else {
-                log.info( "{} - {}", out.node(), out.state().lastMessage().orElseThrow() );
-            }
-        }
-    }
+		// Define Graph
+		var workflow = new StateGraph<State>(State.SCHEMA, stateSerializer)
+			.addNode("calculation", node_async(calculationNode))
+			.addNode("summary", node_async(summaryNode))
+			.addEdge(START, "calculation")
+			.addEdge("calculation", "summary")
+			.addEdge("summary", END);
 
+		var app = workflow.compile();
+
+		for (var out : app.stream(Map.of("messages", UserMessage.from("generate a UUID for me")))) {
+			if (out instanceof StreamingOutput streaming) {
+				log.info("StreamingOutput{node={}, chunk={} }", streaming.node(), streaming.chunk());
+			}
+			else {
+				log.info("{} - {}", out.node(), out.state().lastMessage().orElseThrow());
+			}
+		}
+	}
 
 }

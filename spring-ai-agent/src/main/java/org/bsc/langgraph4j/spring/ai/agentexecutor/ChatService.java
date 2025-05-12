@@ -14,8 +14,8 @@ import java.util.List;
 @Deprecated
 public interface ChatService {
 
-    ChatResponse execute(List<Message> messages );
+	ChatResponse execute(List<Message> messages);
 
-    List<ToolCallback> tools();
+	List<ToolCallback> tools();
 
 }

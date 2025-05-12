@@ -8,40 +8,43 @@ import org.junit.jupiter.api.Test;
 
 public class AgentWebITest {
 
-    public interface Assistant {
+	public interface Assistant {
 
-        String answer(String query);
-    }
+		String answer(String query);
 
-    @Test
-    public void webSearchTest() throws Exception {
+	}
 
-        // Let's create our web search content retriever.
-        var webSearchEngine = TavilyWebSearchEngine.builder()
-                .apiKey(System.getenv("TAVILY_API_KEY")) // get a free key: https://app.tavily.com/sign-in
-                .build();
+	@Test
+	public void webSearchTest() throws Exception {
 
-        var webSearchContentRetriever = WebSearchContentRetriever.builder()
-                .webSearchEngine(webSearchEngine)
-                .maxResults(3)
-                .build();
+		// Let's create our web search content retriever.
+		var webSearchEngine = TavilyWebSearchEngine.builder()
+			.apiKey(System.getenv("TAVILY_API_KEY")) // get a free key:
+														// https://app.tavily.com/sign-in
+			.build();
 
-        final var model = OllamaChatModel.builder()
-                .baseUrl("http://localhost:11434")
-                .temperature(0.0)
-                .logRequests(true)
-                .logResponses(true)
-                .modelName("qwen2.5-coder:latest")
-                .build();
+		var webSearchContentRetriever = WebSearchContentRetriever.builder()
+			.webSearchEngine(webSearchEngine)
+			.maxResults(3)
+			.build();
 
-        var agent = AiServices.builder(Assistant.class)
-                .chatModel(model)
-                .contentRetriever(webSearchContentRetriever)
-                .build();
+		final var model = OllamaChatModel.builder()
+			.baseUrl("http://localhost:11434")
+			.temperature(0.0)
+			.logRequests(true)
+			.logResponses(true)
+			.modelName("qwen2.5-coder:latest")
+			.build();
 
-        var result = agent.answer( "dammi la lista delle provincie della Campania (Italia) con la popolazione e la superficie");
+		var agent = AiServices.builder(Assistant.class)
+			.chatModel(model)
+			.contentRetriever(webSearchContentRetriever)
+			.build();
 
-        System.out.println( result );
-    }
+		var result = agent
+			.answer("dammi la lista delle provincie della Campania (Italia) con la popolazione e la superficie");
+
+		System.out.println(result);
+	}
 
 }

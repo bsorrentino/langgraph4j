@@ -15,90 +15,95 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JacksonSerializerTest {
 
-    static class State extends AgentState {
+	static class State extends AgentState {
 
-        /**
-         * needed for Jackson deserialization unless use a custom deserializer
-         */
-        protected State() {
-            super( Map.of() );
-        }
+		/**
+		 * needed for Jackson deserialization unless use a custom deserializer
+		 */
+		protected State() {
+			super(Map.of());
+		}
 
-        /**
-         * Constructs an AgentState with the given initial data.
-         *
-         * @param initData the initial data for the agent state
-         */
-        public State(Map<String, Object> initData) {
-            super(initData);
-        }
-    }
+		/**
+		 * Constructs an AgentState with the given initial data.
+		 * @param initData the initial data for the agent state
+		 */
+		public State(Map<String, Object> initData) {
+			super(initData);
+		}
 
-    @Test
-    public void serializeWithTypeInferenceTest() throws IOException, ClassNotFoundException {
+	}
 
-        State state = new State( Map.of( "prop1", "value1") );
+	@Test
+	public void serializeWithTypeInferenceTest() throws IOException, ClassNotFoundException {
 
-        JacksonStateSerializer<State> serializer = new JacksonStateSerializer<State>(State::new) {};
+		State state = new State(Map.of("prop1", "value1"));
 
-        Class<?> type = serializer.getStateType();
+		JacksonStateSerializer<State> serializer = new JacksonStateSerializer<State>(State::new) {
+		};
 
-        assertEquals(State.class, type);
+		Class<?> type = serializer.getStateType();
 
-        byte[] bytes = serializer.writeObject(state);
+		assertEquals(State.class, type);
 
-        assertNotNull(bytes);
-        assertTrue(bytes.length > 0);
+		byte[] bytes = serializer.writeObject(state);
 
-        AgentState deserializedState = serializer.readObject(bytes);
+		assertNotNull(bytes);
+		assertTrue(bytes.length > 0);
 
-        assertNotNull(deserializedState);
-        assertEquals( 1, deserializedState.data().size() );
-        assertEquals( "value1", deserializedState.data().get("prop1") );
-    }
+		AgentState deserializedState = serializer.readObject(bytes);
 
-    static class JacksonSerializer extends JacksonStateSerializer<AgentState> {
+		assertNotNull(deserializedState);
+		assertEquals(1, deserializedState.data().size());
+		assertEquals("value1", deserializedState.data().get("prop1"));
+	}
 
-        public JacksonSerializer() {
-            super(AgentState::new);
-        }
+	static class JacksonSerializer extends JacksonStateSerializer<AgentState> {
 
-        ObjectMapper getObjectMapper() {
-            return objectMapper;
-        }
-    }
+		public JacksonSerializer() {
+			super(AgentState::new);
+		}
 
-    @Test
-    public void NodOutputJacksonSerializationTest() throws Exception {
+		ObjectMapper getObjectMapper() {
+			return objectMapper;
+		}
 
-        JacksonSerializer serializer = new JacksonSerializer();
+	}
 
-        NodeOutput<AgentState> output = NodeOutput.of("node", null);
-        output.setSubGraph(true);
-        String json = serializer.getObjectMapper().writeValueAsString(output);
+	@Test
+	public void NodOutputJacksonSerializationTest() throws Exception {
 
-        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":true}", json );
+		JacksonSerializer serializer = new JacksonSerializer();
 
-        output.setSubGraph(false);
-        json = serializer.getObjectMapper().writeValueAsString(output);
+		NodeOutput<AgentState> output = NodeOutput.of("node", null);
+		output.setSubGraph(true);
+		String json = serializer.getObjectMapper().writeValueAsString(output);
 
-        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":false}", json );
-    }
+		assertEquals("{\"node\":\"node\",\"state\":null,\"subGraph\":true}", json);
 
-    @Test
-    public void TypeMapperTest() throws Exception {
+		output.setSubGraph(false);
+		json = serializer.getObjectMapper().writeValueAsString(output);
 
-        var mapper = new TypeMapper();
+		assertEquals("{\"node\":\"node\",\"state\":null,\"subGraph\":false}", json);
+	}
 
-        var tr = new TypeReference<State>() {};
-        System.out.println(tr.getType());
-        mapper.register( new TypeMapper.Reference<State>("MyState") { } );
+	@Test
+	public void TypeMapperTest() throws Exception {
 
-        var ref = mapper.getReference("MyState");
+		var mapper = new TypeMapper();
 
-        assertTrue( ref.isPresent() );
-        assertEquals( "MyState", ref.get().getTypeName() );
-        System.out.println( ref.get().getType() );
-        assertEquals( State.class, ref.get().getType() );
-    }
+		var tr = new TypeReference<State>() {
+		};
+		System.out.println(tr.getType());
+		mapper.register(new TypeMapper.Reference<State>("MyState") {
+		});
+
+		var ref = mapper.getReference("MyState");
+
+		assertTrue(ref.isPresent());
+		assertEquals("MyState", ref.get().getTypeName());
+		System.out.println(ref.get().getType());
+		assertEquals(State.class, ref.get().getType());
+	}
+
 }

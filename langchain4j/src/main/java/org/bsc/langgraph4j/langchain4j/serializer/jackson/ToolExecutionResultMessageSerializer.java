@@ -9,18 +9,19 @@ import java.io.IOException;
 
 public class ToolExecutionResultMessageSerializer extends StdSerializer<ToolExecutionResultMessage> {
 
-    public ToolExecutionResultMessageSerializer() {
-        super(ToolExecutionResultMessage.class);
-    }
+	public ToolExecutionResultMessageSerializer() {
+		super(ToolExecutionResultMessage.class);
+	}
 
-    @Override
-    public void serialize(ToolExecutionResultMessage msg, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        gen.writeStartObject();
-        gen.writeStringField("@type", msg.type().name());
-        gen.writeStringField("id", msg.id());
-        gen.writeStringField("toolName", msg.toolName());
-        gen.writeStringField("text", msg.text());
-        gen.writeEndObject();
-    }
+	@Override
+	public void serialize(ToolExecutionResultMessage msg, JsonGenerator gen, SerializerProvider provider)
+			throws IOException {
+		gen.writeStartObject();
+		gen.writeStringField("@type", msg.type().name());
+		gen.writeStringField("id", msg.id());
+		gen.writeStringField("toolName", msg.toolName());
+		gen.writeStringField("text", msg.text());
+		gen.writeEndObject();
+	}
 
 }

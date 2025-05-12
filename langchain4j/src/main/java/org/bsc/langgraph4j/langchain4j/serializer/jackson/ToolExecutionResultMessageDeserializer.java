@@ -11,20 +11,19 @@ import java.io.IOException;
 
 public class ToolExecutionResultMessageDeserializer extends StdDeserializer<ToolExecutionResultMessage> {
 
-    protected ToolExecutionResultMessageDeserializer() {
-        super(ToolExecutionResultMessage.class);
-    }
+	protected ToolExecutionResultMessageDeserializer() {
+		super(ToolExecutionResultMessage.class);
+	}
 
-    @Override
-    public ToolExecutionResultMessage deserialize(JsonParser parser, DeserializationContext ctx) throws IOException, JacksonException {
-        return deserialize(parser.getCodec().readTree(parser));
-    }
+	@Override
+	public ToolExecutionResultMessage deserialize(JsonParser parser, DeserializationContext ctx)
+			throws IOException, JacksonException {
+		return deserialize(parser.getCodec().readTree(parser));
+	}
 
-    protected ToolExecutionResultMessage deserialize(JsonNode node) throws IOException {
-        return new ToolExecutionResultMessage(
-                    node.get("id").asText(),
-                    node.get("toolName").asText(),
-                    node.get("text").asText() );
-    }
+	protected ToolExecutionResultMessage deserialize(JsonNode node) throws IOException {
+		return new ToolExecutionResultMessage(node.get("id").asText(), node.get("toolName").asText(),
+				node.get("text").asText());
+	}
 
 }

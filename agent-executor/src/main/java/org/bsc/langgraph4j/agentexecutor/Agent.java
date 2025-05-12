@@ -22,155 +22,158 @@ import java.util.Objects;
 
 import static java.util.Optional.ofNullable;
 
-
 /**
- * Represents an agent that can process chat messages and execute actions using specified tools.
+ * Represents an agent that can process chat messages and execute actions using specified
+ * tools.
  */
 class Agent {
 
-    static public abstract class Builder<T extends Builder<T>> extends LC4jToolMapBuilder<T> {
-        ChatModel chatModel;
-        StreamingChatModel streamingChatModel;
-        SystemMessage systemMessage;
-        ResponseFormat responseFormat;
+	static public abstract class Builder<T extends Builder<T>> extends LC4jToolMapBuilder<T> {
 
-        @SuppressWarnings( "unchecked" )
-        protected T result() {
-            return (T)this;
-        }
+		ChatModel chatModel;
 
-        public T chatModel( ChatModel chatLanguageModel ) {
-            if( this.chatModel == null ) {
-                this.chatModel = chatLanguageModel;
-            }
-            return result();
-        }
+		StreamingChatModel streamingChatModel;
 
-        @Deprecated(forRemoval = true)
-        public T chatLanguageModel( ChatModel chatLanguageModel ) {
-            return chatModel( chatLanguageModel );
-        }
+		SystemMessage systemMessage;
 
-        public T chatModel( StreamingChatModel streamingChatLanguageModel ) {
-            if( this.streamingChatModel == null ) {
-                this.streamingChatModel = streamingChatLanguageModel;
-            }
-            return result();
-        }
+		ResponseFormat responseFormat;
 
-        @Deprecated( forRemoval = true )
-        public T chatLanguageModel( StreamingChatModel streamingChatLanguageModel ) {
-            return chatModel( streamingChatLanguageModel );
-        }
+		@SuppressWarnings("unchecked")
+		protected T result() {
+			return (T) this;
+		}
 
-        public T systemMessage( SystemMessage systemMessage ) {
-            if( this.systemMessage == null ) {
-                this.systemMessage = systemMessage;
-            }
-            return result();
-        }
+		public T chatModel(ChatModel chatLanguageModel) {
+			if (this.chatModel == null) {
+				this.chatModel = chatLanguageModel;
+			}
+			return result();
+		}
 
-        public T responseFormat( ResponseFormat responseFormat ) {
-            this.responseFormat = responseFormat;
-            return result();
-        }
+		@Deprecated(forRemoval = true)
+		public T chatLanguageModel(ChatModel chatLanguageModel) {
+			return chatModel(chatLanguageModel);
+		}
 
-        /**
-         * Sets the tool specification for the graph builder.
-         *
-         * @param objectsWithTools the tool specification
-         * @return the updated GraphBuilder instance
-         */
-        @Deprecated
-        public T toolSpecification(Object objectsWithTools) {
-            super.toolsFromObject( objectsWithTools );
-            return result();
-        }
+		public T chatModel(StreamingChatModel streamingChatLanguageModel) {
+			if (this.streamingChatModel == null) {
+				this.streamingChatModel = streamingChatLanguageModel;
+			}
+			return result();
+		}
 
-        @Deprecated
-        public T toolSpecification(ToolSpecification spec, ToolExecutor executor) {
-            super.tool(spec, executor);
-            return result();
-        }
+		@Deprecated(forRemoval = true)
+		public T chatLanguageModel(StreamingChatModel streamingChatLanguageModel) {
+			return chatModel(streamingChatLanguageModel);
+		}
 
-        /**
-         * Sets the tool specification for the graph builder.
-         *
-         * @param toolSpecification the tool specifications
-         * @return the updated GraphBuilder instance
-         */
-        @Deprecated
-        public T toolSpecification(LC4jToolService.Specification toolSpecification) {
-            super.tool(toolSpecification.value(), toolSpecification.executor());
-            return result();
-        }
+		public T systemMessage(SystemMessage systemMessage) {
+			if (this.systemMessage == null) {
+				this.systemMessage = systemMessage;
+			}
+			return result();
+		}
 
-        public abstract StateGraph<AgentExecutor.State> build() throws GraphStateException;
-    }
+		public T responseFormat(ResponseFormat responseFormat) {
+			this.responseFormat = responseFormat;
+			return result();
+		}
 
-    private final ChatModel chatLanguageModel;
-    private final StreamingChatModel streamingChatLanguageModel;
-    private final SystemMessage systemMessage;
+		/**
+		 * Sets the tool specification for the graph builder.
+		 * @param objectsWithTools the tool specification
+		 * @return the updated GraphBuilder instance
+		 */
+		@Deprecated
+		public T toolSpecification(Object objectsWithTools) {
+			super.toolsFromObject(objectsWithTools);
+			return result();
+		}
 
-    final ChatRequestParameters parameters;
+		@Deprecated
+		public T toolSpecification(ToolSpecification spec, ToolExecutor executor) {
+			super.tool(spec, executor);
+			return result();
+		}
 
-    /**
-     * Checks if the agent is currently streaming.
-     *
-     * @return true if the agent is streaming, false otherwise.
-     */
-    public boolean isStreaming() {
-        return streamingChatLanguageModel != null;
-    }
+		/**
+		 * Sets the tool specification for the graph builder.
+		 * @param toolSpecification the tool specifications
+		 * @return the updated GraphBuilder instance
+		 */
+		@Deprecated
+		public T toolSpecification(LC4jToolService.Specification toolSpecification) {
+			super.tool(toolSpecification.value(), toolSpecification.executor());
+			return result();
+		}
 
-    protected Agent( Builder builder ) {
-        this.chatLanguageModel = builder.chatModel;
-        this.streamingChatLanguageModel = builder.streamingChatModel;
-        this.systemMessage = ofNullable( builder.systemMessage ).orElseGet( () -> SystemMessage.from("You are a helpful assistant") );
+		public abstract StateGraph<AgentExecutor.State> build() throws GraphStateException;
 
-        var parametersBuilder = ChatRequestParameters.builder()
-                .toolSpecifications( builder.toolMap().keySet().stream().toList() );
+	}
 
-        if( builder.responseFormat != null ) {
-            parametersBuilder.responseFormat(builder.responseFormat);
-        }
+	private final ChatModel chatLanguageModel;
 
-        this.parameters =  parametersBuilder.build();
-    }
+	private final StreamingChatModel streamingChatLanguageModel;
 
-    private ChatRequest prepareRequest(List<ChatMessage> messages ) {
+	private final SystemMessage systemMessage;
 
-        var reqMessages = new ArrayList<>( messages );
-        reqMessages.add(systemMessage);
+	final ChatRequestParameters parameters;
 
-        return ChatRequest.builder()
-                .messages( reqMessages )
-                .parameters(parameters)
-                .build();
-    }
+	/**
+	 * Checks if the agent is currently streaming.
+	 * @return true if the agent is streaming, false otherwise.
+	 */
+	public boolean isStreaming() {
+		return streamingChatLanguageModel != null;
+	}
 
-    /**
-     * Executes the agent's action based on the input and intermediate steps, using a streaming response handler.
-     *
-     * @param messages the messages to process.
-     * @param handler the handler for streaming responses.
-     */
-    public void execute(List<ChatMessage> messages, StreamingChatResponseHandler handler) {
-        Objects.requireNonNull(streamingChatLanguageModel, "streamingChatLanguageModel is required!");
+	protected Agent(Builder builder) {
+		this.chatLanguageModel = builder.chatModel;
+		this.streamingChatLanguageModel = builder.streamingChatModel;
+		this.systemMessage = ofNullable(builder.systemMessage)
+			.orElseGet(() -> SystemMessage.from("You are a helpful assistant"));
 
-        streamingChatLanguageModel.chat(prepareRequest(messages), handler);
+		var parametersBuilder = ChatRequestParameters.builder()
+			.toolSpecifications(builder.toolMap().keySet().stream().toList());
 
-    }
+		if (builder.responseFormat != null) {
+			parametersBuilder.responseFormat(builder.responseFormat);
+		}
 
-    /**
-     * Executes the agent's action based on the input and intermediate steps, returning a response.
-     *
-     * @param messages the messages to process.
-     * @return a response containing the generated AI message.
-     */
-    public ChatResponse execute(List<ChatMessage> messages ) {
-        Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
+		this.parameters = parametersBuilder.build();
+	}
 
-       return chatLanguageModel.chat(prepareRequest(messages));
-    }
+	private ChatRequest prepareRequest(List<ChatMessage> messages) {
+
+		var reqMessages = new ArrayList<>(messages);
+		reqMessages.add(systemMessage);
+
+		return ChatRequest.builder().messages(reqMessages).parameters(parameters).build();
+	}
+
+	/**
+	 * Executes the agent's action based on the input and intermediate steps, using a
+	 * streaming response handler.
+	 * @param messages the messages to process.
+	 * @param handler the handler for streaming responses.
+	 */
+	public void execute(List<ChatMessage> messages, StreamingChatResponseHandler handler) {
+		Objects.requireNonNull(streamingChatLanguageModel, "streamingChatLanguageModel is required!");
+
+		streamingChatLanguageModel.chat(prepareRequest(messages), handler);
+
+	}
+
+	/**
+	 * Executes the agent's action based on the input and intermediate steps, returning a
+	 * response.
+	 * @param messages the messages to process.
+	 * @return a response containing the generated AI message.
+	 */
+	public ChatResponse execute(List<ChatMessage> messages) {
+		Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
+
+		return chatLanguageModel.chat(prepareRequest(messages));
+	}
+
 }

@@ -14,67 +14,68 @@ import org.springframework.ai.tool.ToolCallback;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractAgentExecutor<B extends AbstractAgent.Builder<B>> extends AbstractAgent<AbstractAgentExecutor.Request,String,B> {
+public abstract class AbstractAgentExecutor<B extends AbstractAgent.Builder<B>>
+		extends AbstractAgent<AbstractAgentExecutor.Request, String, B> {
 
-    public record Request( String input ) {};
+	public record Request(String input) {
+	};
 
-    public static abstract class Builder<B extends AbstractAgent.Builder<B>> extends AbstractAgent.Builder<B> {
+	public static abstract class Builder<B extends AbstractAgent.Builder<B>> extends AbstractAgent.Builder<B> {
 
-        final AgentExecutor.Builder agentExecutorBuilder = new AgentExecutor.Builder();
+		final AgentExecutor.Builder agentExecutorBuilder = new AgentExecutor.Builder();
 
-        public B chatModel(ChatModel chatModel) {
-            agentExecutorBuilder.chatModel(chatModel);
-            return result();
-        }
+		public B chatModel(ChatModel chatModel) {
+			agentExecutorBuilder.chatModel(chatModel);
+			return result();
+		}
 
-        public B tool(ToolCallback tool) {
-            agentExecutorBuilder.tool(tool);
-            return result();
-        }
+		public B tool(ToolCallback tool) {
+			agentExecutorBuilder.tool(tool);
+			return result();
+		}
 
-        public B tools(List<ToolCallback> tools) {
-            agentExecutorBuilder.tools(tools);
-            return result();
-        }
+		public B tools(List<ToolCallback> tools) {
+			agentExecutorBuilder.tools(tools);
+			return result();
+		}
 
-        public B toolsFromObject(Object objectWithTools) {
-            agentExecutorBuilder.toolsFromObject(objectWithTools);
-            return result();
-        }
+		public B toolsFromObject(Object objectWithTools) {
+			agentExecutorBuilder.toolsFromObject(objectWithTools);
+			return result();
+		}
 
-        public B stateSerializer(StateSerializer<AgentExecutor.State> stateSerializer) {
-            this.agentExecutorBuilder.stateSerializer(stateSerializer);
-            return result();
-        }
+		public B stateSerializer(StateSerializer<AgentExecutor.State> stateSerializer) {
+			this.agentExecutorBuilder.stateSerializer(stateSerializer);
+			return result();
+		}
 
-        public B defaultSystem(String systemMessage) {
-            this.agentExecutorBuilder.defaultSystem(systemMessage);
-            return result();
-        }
+		public B defaultSystem(String systemMessage) {
+			this.agentExecutorBuilder.defaultSystem(systemMessage);
+			return result();
+		}
 
+	}
 
-    }
+	final CompiledGraph<AgentExecutor.State> agentExecutor;
 
-    final CompiledGraph<AgentExecutor.State> agentExecutor;
+	protected AbstractAgentExecutor(Builder<B> builder) throws GraphStateException {
+		super(builder.inputType(Request.class));
 
-    protected AbstractAgentExecutor(Builder<B> builder) throws GraphStateException {
-        super(builder.inputType(Request.class));
+		agentExecutor = builder.agentExecutorBuilder.build().compile();
+	}
 
-        agentExecutor = builder.agentExecutorBuilder.build().compile();
-    }
+	@Override
+	public String apply(Request request, ToolContext toolContext) {
 
-    @Override
-    public String apply(Request request, ToolContext toolContext) {
+		var userMessage = new UserMessage(request.input());
 
-        var userMessage = new UserMessage( request.input() );
+		var result = agentExecutor.invoke(Map.of("messages", userMessage));
 
-        var result = agentExecutor.invoke( Map.of( "messages", userMessage ) );
+		return result.flatMap(AgentExecutor.State::lastMessage)
+			.map(AssistantMessage.class::cast)
+			.map(AssistantMessage::getText)
+			.orElseThrow();
 
-        return result.flatMap(AgentExecutor.State::lastMessage)
-                .map(AssistantMessage.class::cast)
-                .map(AssistantMessage::getText)
-                .orElseThrow()
-                ;
+	}
 
-    }
 }

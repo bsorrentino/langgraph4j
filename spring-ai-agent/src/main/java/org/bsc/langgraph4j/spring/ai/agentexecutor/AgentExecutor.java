@@ -23,217 +23,213 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 /**
- * Represents the core component responsible for executing agent logic.
- * It includes methods for building and managing the execution graph,
- * as well as handling agent actions and state transitions.
+ * Represents the core component responsible for executing agent logic. It includes
+ * methods for building and managing the execution graph, as well as handling agent
+ * actions and state transitions.
  */
 public interface AgentExecutor {
 
-    org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AgentExecutor.class);
+	org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AgentExecutor.class);
 
-    /**
-     * Class responsible for building a state graph.
-     */
-    class Builder {
-        StateSerializer<State> stateSerializer;
-        ChatModel chatModel;
-        ChatService chatService;
-        String systemMessage;
+	/**
+	 * Class responsible for building a state graph.
+	 */
+	class Builder {
 
-        final List<ToolCallback> tools = new ArrayList<>();
+		StateSerializer<State> stateSerializer;
 
-        /**
-         * Sets the state serializer for the graph builder.
-         *
-         * @param stateSerializer the state serializer to set
-         * @return the current instance of GraphBuilder for method chaining
-         */
-        public Builder stateSerializer(StateSerializer<State> stateSerializer) {
-            this.stateSerializer = stateSerializer;
-            return this;
-        }
+		ChatModel chatModel;
 
-        public Builder chatModel(ChatModel chatModel) {
-            this.chatModel = chatModel;
-            return this;
-        }
+		ChatService chatService;
 
-        public Builder defaultSystem(String systemMessage) {
-            this.systemMessage = systemMessage;
-            return this;
-        }
+		String systemMessage;
 
-        public Builder tool( ToolCallback tool ) {
-            this.tools.add( Objects.requireNonNull(tool, "tool cannot be null!") );
-            return this;
-        }
+		final List<ToolCallback> tools = new ArrayList<>();
 
-        public Builder tools( List<ToolCallback> tools) {
-            this.tools.addAll( Objects.requireNonNull(tools, "tools cannot be null!") );
-            return this;
-        }
+		/**
+		 * Sets the state serializer for the graph builder.
+		 * @param stateSerializer the state serializer to set
+		 * @return the current instance of GraphBuilder for method chaining
+		 */
+		public Builder stateSerializer(StateSerializer<State> stateSerializer) {
+			this.stateSerializer = stateSerializer;
+			return this;
+		}
 
-        public Builder toolsFromObject(Object objectWithTools) {
-            var tools = ToolCallbacks.from( Objects.requireNonNull(objectWithTools, "objectWithTools cannot be null" ));
-            this.tools.addAll(List.of(tools));
-            return this;
+		public Builder chatModel(ChatModel chatModel) {
+			this.chatModel = chatModel;
+			return this;
+		}
 
-        }
+		public Builder defaultSystem(String systemMessage) {
+			this.systemMessage = systemMessage;
+			return this;
+		}
 
-        @Deprecated(forRemoval = true)
-        public Builder chatService(ChatService chatService) {
-            this.chatService = chatService;
-            return this;
-        }
+		public Builder tool(ToolCallback tool) {
+			this.tools.add(Objects.requireNonNull(tool, "tool cannot be null!"));
+			return this;
+		}
 
-        /**
-         * Builds and returns a StateGraph with the specified configuration.
-         * Initializes the stateSerializer if it's null. Then, constructs a new StateGraph object using the provided schema
-         * and serializer, adds an initial edge from the START node to "agent", and then proceeds to add nodes for "agent" and
-         * "action". It also sets up conditional edges from the "agent" node based on whether or not to continue.
-         *
-         * @return A configured StateGraph object.
-         * @throws GraphStateException If there is an issue with building the graph state.
-         */
-        public StateGraph<State> build() throws GraphStateException {
+		public Builder tools(List<ToolCallback> tools) {
+			this.tools.addAll(Objects.requireNonNull(tools, "tools cannot be null!"));
+			return this;
+		}
 
-            if( stateSerializer == null ) {
-                stateSerializer = new AgentStateSerializer();
-            }
+		public Builder toolsFromObject(Object objectWithTools) {
+			var tools = ToolCallbacks.from(Objects.requireNonNull(objectWithTools, "objectWithTools cannot be null"));
+			this.tools.addAll(List.of(tools));
+			return this;
 
-            if( chatService == null ) {
-                chatService = new DefaultChatService( this );
-            }
+		}
 
-            final var toolService = new SpringAIToolService( chatService.tools() );
+		@Deprecated(forRemoval = true)
+		public Builder chatService(ChatService chatService) {
+			this.chatService = chatService;
+			return this;
+		}
 
-            AsyncNodeAction<State> callAgentAction = node_async( state ->
-                    AgentExecutor.callAgent( state, chatService ));
+		/**
+		 * Builds and returns a StateGraph with the specified configuration. Initializes
+		 * the stateSerializer if it's null. Then, constructs a new StateGraph object
+		 * using the provided schema and serializer, adds an initial edge from the START
+		 * node to "agent", and then proceeds to add nodes for "agent" and "action". It
+		 * also sets up conditional edges from the "agent" node based on whether or not to
+		 * continue.
+		 * @return A configured StateGraph object.
+		 * @throws GraphStateException If there is an issue with building the graph state.
+		 */
+		public StateGraph<State> build() throws GraphStateException {
 
-            AsyncNodeAction<State> executeToolsAction = ( state ->
-                    AgentExecutor.executeTools( state, toolService ));
+			if (stateSerializer == null) {
+				stateSerializer = new AgentStateSerializer();
+			}
 
-            return new StateGraph<>(State.SCHEMA, stateSerializer)
-                    .addEdge(START,"agent")
-                    .addNode( "agent", callAgentAction )
-                    .addNode( "action", executeToolsAction )
-                    .addConditionalEdges(
-                            "agent",
-                            edge_async(AgentExecutor::shouldContinue),
-                            EdgeMappings.builder()
-                                    .to( "action", "continue" )
-                                    .toEND( "end")
-                                    .build()
-                    )
-                    .addEdge("action", "agent")
-                    ;
+			if (chatService == null) {
+				chatService = new DefaultChatService(this);
+			}
 
-        }
-    }
+			final var toolService = new SpringAIToolService(chatService.tools());
 
-    /**
-     * Returns a new instance of {@link Builder}.
-     *
-     * @return a new {@link Builder} object
-     */
-    static Builder builder() {
-        return new Builder();
-    }
+			AsyncNodeAction<State> callAgentAction = node_async(state -> AgentExecutor.callAgent(state, chatService));
 
-    /**
-     * Represents the state of an agent in a system.
-     * This class extends {@link AgentState} and defines constants for keys related to input, agent outcome,
-     * and intermediate steps. It includes a static map schema that specifies how these keys should be handled.
-     */
-    class State extends MessagesState<Message> {
+			AsyncNodeAction<State> executeToolsAction = (state -> AgentExecutor.executeTools(state, toolService));
 
-        /**
-         * Constructs a new State object using the initial data provided in the initData map.
-         *
-         * @param initData the map containing the initial settings for this state
-         */
-        public State(Map<String, Object> initData) {
-            super(initData);
-        }
+			return new StateGraph<>(State.SCHEMA, stateSerializer).addEdge(START, "agent")
+				.addNode("agent", callAgentAction)
+				.addNode("action", executeToolsAction)
+				.addConditionalEdges("agent", edge_async(AgentExecutor::shouldContinue),
+						EdgeMappings.builder().to("action", "continue").toEND("end").build())
+				.addEdge("action", "agent");
 
-    }
+		}
 
-    /**
-     * Calls an agent with the given state.
-     *
-     * @param state The current state containing input and intermediate steps.
-     * @return A map containing the outcome of the agent call, either an action or a finish.
-     */
-    static Map<String,Object> callAgent( State state, ChatService chatService )  {
-        log.trace( "callAgent" );
+	}
 
-        var messages = state.messages();
+	/**
+	 * Returns a new instance of {@link Builder}.
+	 * @return a new {@link Builder} object
+	 */
+	static Builder builder() {
+		return new Builder();
+	}
 
-        if( messages.isEmpty() ) {
-            throw new IllegalArgumentException("no input provided!");
-        }
+	/**
+	 * Represents the state of an agent in a system. This class extends {@link AgentState}
+	 * and defines constants for keys related to input, agent outcome, and intermediate
+	 * steps. It includes a static map schema that specifies how these keys should be
+	 * handled.
+	 */
+	class State extends MessagesState<Message> {
 
-        var response = chatService.execute( messages );
+		/**
+		 * Constructs a new State object using the initial data provided in the initData
+		 * map.
+		 * @param initData the map containing the initial settings for this state
+		 */
+		public State(Map<String, Object> initData) {
+			super(initData);
+		}
 
-        var output = response.getResult().getOutput();
+	}
 
-        return Map.of("messages", output );
+	/**
+	 * Calls an agent with the given state.
+	 * @param state The current state containing input and intermediate steps.
+	 * @return A map containing the outcome of the agent call, either an action or a
+	 * finish.
+	 */
+	static Map<String, Object> callAgent(State state, ChatService chatService) {
+		log.trace("callAgent");
 
-    }
+		var messages = state.messages();
 
-    /**
-     * Executes tools based on the provided state.
-     *
-     * @param state The current state containing necessary information to execute tools.
-     * @return A CompletableFuture containing a map with the intermediate steps, if successful. If there is no agent outcome or the tool service execution fails, an appropriate exception will be thrown.
-     */
-    static CompletableFuture<Map<String,Object>> executeTools( State state, SpringAIToolService toolService )  {
-        log.trace( "executeTools" );
+		if (messages.isEmpty()) {
+			throw new IllegalArgumentException("no input provided!");
+		}
 
-        var futureResult = new CompletableFuture<Map<String,Object>>();
+		var response = chatService.execute(messages);
 
-        var message = state.lastMessage();
+		var output = response.getResult().getOutput();
 
-        if(message.isEmpty()) {
-            futureResult.completeExceptionally( new IllegalArgumentException("no input provided!") );
-        }
-        else if( message.get() instanceof AssistantMessage assistantMessage ) {
-            if( assistantMessage.hasToolCalls() ) {
+		return Map.of("messages", output);
 
-                return toolService.executeFunctions( assistantMessage.getToolCalls() )
-                        .thenApply( result -> Map.of( "messages", result ));
+	}
 
-            }
-        }
-        else {
-            futureResult.completeExceptionally( new IllegalArgumentException("no AssistantMessage provided!") );
-        }
+	/**
+	 * Executes tools based on the provided state.
+	 * @param state The current state containing necessary information to execute tools.
+	 * @return A CompletableFuture containing a map with the intermediate steps, if
+	 * successful. If there is no agent outcome or the tool service execution fails, an
+	 * appropriate exception will be thrown.
+	 */
+	static CompletableFuture<Map<String, Object>> executeTools(State state, SpringAIToolService toolService) {
+		log.trace("executeTools");
 
-        return futureResult;
+		var futureResult = new CompletableFuture<Map<String, Object>>();
 
-    }
+		var message = state.lastMessage();
 
-    /**
-     * Determines whether the game should continue based on the current state.
-     *
-     * @param state The current state of the game.
-     * @return "end" if the game should end, otherwise "continue".
-     */
-    static String shouldContinue(State state) {
+		if (message.isEmpty()) {
+			futureResult.completeExceptionally(new IllegalArgumentException("no input provided!"));
+		}
+		else if (message.get() instanceof AssistantMessage assistantMessage) {
+			if (assistantMessage.hasToolCalls()) {
 
-        var message = state.lastMessage().orElseThrow();
+				return toolService.executeFunctions(assistantMessage.getToolCalls())
+					.thenApply(result -> Map.of("messages", result));
 
-        var finishReason = message.getMetadata().getOrDefault( "finishReason", "" );
+			}
+		}
+		else {
+			futureResult.completeExceptionally(new IllegalArgumentException("no AssistantMessage provided!"));
+		}
 
-        if( Objects.equals(finishReason, "STOP") ) {
-            return "end";
-        }
+		return futureResult;
 
-        if( message instanceof  AssistantMessage assistantMessage ) {
-            if( assistantMessage.hasToolCalls() ) {
-                return "continue";
-            }
-        }
-        return "end";
-    }
+	}
+
+	/**
+	 * Determines whether the game should continue based on the current state.
+	 * @param state The current state of the game.
+	 * @return "end" if the game should end, otherwise "continue".
+	 */
+	static String shouldContinue(State state) {
+
+		var message = state.lastMessage().orElseThrow();
+
+		var finishReason = message.getMetadata().getOrDefault("finishReason", "");
+
+		if (Objects.equals(finishReason, "STOP")) {
+			return "end";
+		}
+
+		if (message instanceof AssistantMessage assistantMessage) {
+			if (assistantMessage.hasToolCalls()) {
+				return "continue";
+			}
+		}
+		return "end";
+	}
+
 }

@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j;
 
-
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.AsyncGeneratorQueue;
 import org.junit.jupiter.api.Test;
@@ -13,117 +12,123 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncTest {
-    @Test
-    public void asyncIteratorTest() throws Exception {
 
-        String[] myArray = { "e1", "e2", "e3", "e4", "e5"};
+	@Test
+	public void asyncIteratorTest() throws Exception {
 
-        final AsyncGenerator<String> it = new AsyncGenerator<String>() {
+		String[] myArray = { "e1", "e2", "e3", "e4", "e5" };
 
-            private int cursor = 0;
-            @Override
-            public Data<String> next() {
+		final AsyncGenerator<String> it = new AsyncGenerator<String>() {
 
-                if (cursor == myArray.length) {
-                    return Data.done();
-                }
+			private int cursor = 0;
 
-                return Data.of(completedFuture(myArray[cursor++]));
-            }
-        };
+			@Override
+			public Data<String> next() {
 
-        List<String> result = new ArrayList<>();
+				if (cursor == myArray.length) {
+					return Data.done();
+				}
 
-        it.forEachAsync( result::add ).thenAccept( t -> {
-            System.out.println( "Finished");
-        }).join();
+				return Data.of(completedFuture(myArray[cursor++]));
+			}
+		};
 
-        for (String i : it) {
-            result.add(i);
-            System.out.println(i);
-        }
-        System.out.println( "Finished");
+		List<String> result = new ArrayList<>();
 
-        assertEquals(myArray.length, result.size() );
-        assertIterableEquals( List.of(myArray), result );
-    }
-    @Test
-    public void asyncQueueTest() throws Exception {
+		it.forEachAsync(result::add).thenAccept(t -> {
+			System.out.println("Finished");
+		}).join();
 
-        final AsyncGenerator<String> it = AsyncGeneratorQueue.of( new LinkedBlockingQueue<AsyncGenerator.Data<String>>(), queue -> {
-            for( int i = 0 ; i < 10 ; ++i ) {
-                queue.add( AsyncGenerator.Data.of( completedFuture("e"+i )) );
-            }
-        });
+		for (String i : it) {
+			result.add(i);
+			System.out.println(i);
+		}
+		System.out.println("Finished");
 
-        List<String> result = new ArrayList<>();
+		assertEquals(myArray.length, result.size());
+		assertIterableEquals(List.of(myArray), result);
+	}
 
-        it.forEachAsync(result::add).thenAccept( (t) -> {
-            System.out.println( "Finished");
-        }).join();
+	@Test
+	public void asyncQueueTest() throws Exception {
 
+		final AsyncGenerator<String> it = AsyncGeneratorQueue.of(new LinkedBlockingQueue<AsyncGenerator.Data<String>>(),
+				queue -> {
+					for (int i = 0; i < 10; ++i) {
+						queue.add(AsyncGenerator.Data.of(completedFuture("e" + i)));
+					}
+				});
 
-        assertEquals( 10, result.size());
-        assertIterableEquals(List.of("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"), result);
+		List<String> result = new ArrayList<>();
 
-    }
+		it.forEachAsync(result::add).thenAccept((t) -> {
+			System.out.println("Finished");
+		}).join();
 
+		assertEquals(10, result.size());
+		assertIterableEquals(List.of("e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9"), result);
 
-    @Test
-    public void asyncQueueToStreamTest() throws Exception {
+	}
 
-        // AsyncQueue initialized with a direct executor. No thread is used on next() invocation
-        final AsyncGenerator<String> it = AsyncGeneratorQueue.of( new LinkedBlockingQueue<AsyncGenerator.Data<String>>(), queue -> {
-            for( int i = 0 ; i < 10 ; ++i ) {
-                queue.add( AsyncGenerator.Data.of( completedFuture("e"+i )) );
-            }
-        });
+	@Test
+	public void asyncQueueToStreamTest() throws Exception {
 
-        java.util.stream.Stream<String> result = it.stream();
+		// AsyncQueue initialized with a direct executor. No thread is used on next()
+		// invocation
+		final AsyncGenerator<String> it = AsyncGeneratorQueue.of(new LinkedBlockingQueue<AsyncGenerator.Data<String>>(),
+				queue -> {
+					for (int i = 0; i < 10; ++i) {
+						queue.add(AsyncGenerator.Data.of(completedFuture("e" + i)));
+					}
+				});
 
-        java.util.Optional<String> lastElement =   result.reduce((a, b) -> b);
+		java.util.stream.Stream<String> result = it.stream();
 
-        assertTrue( lastElement.isPresent());
-        assertEquals( lastElement.get(), "e9" );
+		java.util.Optional<String> lastElement = result.reduce((a, b) -> b);
 
-    }
+		assertTrue(lastElement.isPresent());
+		assertEquals(lastElement.get(), "e9");
 
-    @Test
-    public void asyncQueueIteratorExceptionTest() throws Exception {
+	}
 
-        final AsyncGenerator<String> it = AsyncGeneratorQueue.of( new LinkedBlockingQueue<AsyncGenerator.Data<String>>(), queue -> {
-            for( int i = 0 ; i < 10 ; ++i ) {
-                queue.add( AsyncGenerator.Data.of( completedFuture("e"+i )) );
+	@Test
+	public void asyncQueueIteratorExceptionTest() throws Exception {
 
-                if( i == 2 ) {
-                    throw new RuntimeException("error test");
-                }
-            }
+		final AsyncGenerator<String> it = AsyncGeneratorQueue.of(new LinkedBlockingQueue<AsyncGenerator.Data<String>>(),
+				queue -> {
+					for (int i = 0; i < 10; ++i) {
+						queue.add(AsyncGenerator.Data.of(completedFuture("e" + i)));
 
-        });
+						if (i == 2) {
+							throw new RuntimeException("error test");
+						}
+					}
 
-        java.util.stream.Stream<String> result = it.stream();
+				});
 
-        assertThrows( Exception.class,  () -> result.reduce((a, b) -> b ));
+		java.util.stream.Stream<String> result = it.stream();
 
-    }
+		assertThrows(Exception.class, () -> result.reduce((a, b) -> b));
 
-    @Test
-    public void asyncQueueForEachExceptionTest() throws Exception {
+	}
 
-        final AsyncGenerator<String> it = AsyncGeneratorQueue.of( new LinkedBlockingQueue<AsyncGenerator.Data<String>>(), queue -> {
-            for( int i = 0 ; i < 10 ; ++i ) {
-                queue.add( AsyncGenerator.Data.of( completedFuture("e"+i )) );
+	@Test
+	public void asyncQueueForEachExceptionTest() throws Exception {
 
-                if( i == 2 ) {
-                    throw new RuntimeException("error test");
-                }
-            }
+		final AsyncGenerator<String> it = AsyncGeneratorQueue.of(new LinkedBlockingQueue<AsyncGenerator.Data<String>>(),
+				queue -> {
+					for (int i = 0; i < 10; ++i) {
+						queue.add(AsyncGenerator.Data.of(completedFuture("e" + i)));
 
-        });
+						if (i == 2) {
+							throw new RuntimeException("error test");
+						}
+					}
 
-        assertThrows( Exception.class, () -> it.forEachAsync( System.out::println ).get() );
+				});
 
-    }
+		assertThrows(Exception.class, () -> it.forEachAsync(System.out::println).get());
+
+	}
 
 }

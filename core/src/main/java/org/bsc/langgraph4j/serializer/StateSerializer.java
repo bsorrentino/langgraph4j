@@ -9,24 +9,24 @@ import java.util.Objects;
 
 public abstract class StateSerializer<State extends AgentState> implements Serializer<State> {
 
-    private final AgentStateFactory<State> stateFactory;
+	private final AgentStateFactory<State> stateFactory;
 
-    protected StateSerializer( AgentStateFactory<State> stateFactory) {
-        this.stateFactory = Objects.requireNonNull(stateFactory, "stateFactory cannot be null");
-    }
+	protected StateSerializer(AgentStateFactory<State> stateFactory) {
+		this.stateFactory = Objects.requireNonNull(stateFactory, "stateFactory cannot be null");
+	}
 
-    public final AgentStateFactory<State> stateFactory() {
-        return stateFactory;
-    }
+	public final AgentStateFactory<State> stateFactory() {
+		return stateFactory;
+	}
 
-    public final State stateOf( Map<String,Object> data) {
-        Objects.requireNonNull( data, "data cannot be null");
-        return stateFactory.apply( data);
-    }
+	public final State stateOf(Map<String, Object> data) {
+		Objects.requireNonNull(data, "data cannot be null");
+		return stateFactory.apply(data);
+	}
 
-    public final State cloneObject( Map<String,Object> data) throws IOException, ClassNotFoundException {
-        Objects.requireNonNull( data, "data cannot be null");
-        return cloneObject( stateFactory().apply(data) );
-    }
+	public final State cloneObject(Map<String, Object> data) throws IOException, ClassNotFoundException {
+		Objects.requireNonNull(data, "data cannot be null");
+		return cloneObject(stateFactory().apply(data));
+	}
 
 }

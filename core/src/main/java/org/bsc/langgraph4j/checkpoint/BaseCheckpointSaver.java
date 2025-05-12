@@ -7,21 +7,22 @@ import java.util.*;
 import static java.util.Optional.ofNullable;
 
 public interface BaseCheckpointSaver {
-    String THREAD_ID_DEFAULT = "$default";
 
-    record Tag(String threadId, Collection<Checkpoint> checkpoints) {
-        public Tag(String threadId, Collection<Checkpoint> checkpoints) {
-            this.threadId = threadId;
-            this.checkpoints = ofNullable(checkpoints).map(List::copyOf).orElseGet(List::of);
-        }
-    }
+	String THREAD_ID_DEFAULT = "$default";
 
-    Collection<Checkpoint> list(RunnableConfig config);
+	record Tag(String threadId, Collection<Checkpoint> checkpoints) {
+		public Tag(String threadId, Collection<Checkpoint> checkpoints) {
+			this.threadId = threadId;
+			this.checkpoints = ofNullable(checkpoints).map(List::copyOf).orElseGet(List::of);
+		}
+	}
 
-    Optional<Checkpoint> get(RunnableConfig config);
+	Collection<Checkpoint> list(RunnableConfig config);
 
-    RunnableConfig put(RunnableConfig config, Checkpoint checkpoint) throws Exception;
+	Optional<Checkpoint> get(RunnableConfig config);
 
-    Tag release(RunnableConfig config) throws Exception;
+	RunnableConfig put(RunnableConfig config, Checkpoint checkpoint) throws Exception;
+
+	Tag release(RunnableConfig config) throws Exception;
 
 }

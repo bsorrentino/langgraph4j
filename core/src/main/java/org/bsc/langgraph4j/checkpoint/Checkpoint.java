@@ -10,8 +10,8 @@ import static java.lang.String.format;
 /**
  * Represents a checkpoint of an agent state.
  *
- * The checkpoint is an immutable object that holds an {@link AgentState}
- * and a {@code String} that represents the next state.
+ * The checkpoint is an immutable object that holds an {@link AgentState} and a
+ * {@code String} that represents the next state.
  *
  * The checkpoint is serializable and can be persisted and restored.
  *
@@ -19,87 +19,90 @@ import static java.lang.String.format;
  */
 public class Checkpoint {
 
-    private String id = UUID.randomUUID().toString();
-    private Map<String,Object> state = null;
-    private String nodeId = null ;
-    private String nextNodeId = null;
+	private String id = UUID.randomUUID().toString();
 
-    public String getId() {
-        return id;
-    }
+	private Map<String, Object> state = null;
 
-    public Map<String, Object> getState() {
-        return state;
-    }
+	private String nodeId = null;
 
-    public String getNodeId() {
-        return nodeId;
-    }
+	private String nextNodeId = null;
 
-    public String getNextNodeId() {
-        return nextNodeId;
-    }
+	public String getId() {
+		return id;
+	}
 
-    private Checkpoint() {
-    }
+	public Map<String, Object> getState() {
+		return state;
+	}
 
-    public Checkpoint( Checkpoint checkpoint ) {
-        this.id = Objects.requireNonNull( checkpoint.id, "id cannot be null" );
-        this.state =  Objects.requireNonNull( checkpoint.state, "state cannot be null" );
-        this.nodeId = Objects.requireNonNull( checkpoint.nodeId, "nodeId cannot be null" );
-        this.nextNodeId =  Objects.requireNonNull( checkpoint.nextNodeId, "Checkpoint.nextNodeId cannot be null" );
-    }
+	public String getNodeId() {
+		return nodeId;
+	}
 
-    public static Builder builder() {
-        return new Builder();
-    }
+	public String getNextNodeId() {
+		return nextNodeId;
+	}
 
-    public static class Builder {
-        private final Checkpoint result = new Checkpoint();
+	private Checkpoint() {
+	}
 
-        public Builder id( String id ) {
-            result.id = id;
-            return this;
-        }
-        public Builder state( AgentState state ) {
-            result.state = state.data();
-            return this;
-        }
-        public Builder state( Map<String,Object> state ) {
-            result.state = state;
-            return this;
-        }
-        public Builder nodeId( String nodeId ) {
-            result.nodeId = nodeId;
-            return this;
-        }
-        public Builder nextNodeId( String nextNodeId ) {
-            result.nextNodeId = nextNodeId;
-            return this;
-        }
+	public Checkpoint(Checkpoint checkpoint) {
+		this.id = Objects.requireNonNull(checkpoint.id, "id cannot be null");
+		this.state = Objects.requireNonNull(checkpoint.state, "state cannot be null");
+		this.nodeId = Objects.requireNonNull(checkpoint.nodeId, "nodeId cannot be null");
+		this.nextNodeId = Objects.requireNonNull(checkpoint.nextNodeId, "Checkpoint.nextNodeId cannot be null");
+	}
 
-        public Checkpoint build() {
-            return result;
+	public static Builder builder() {
+		return new Builder();
+	}
 
-        }
-    }
+	public static class Builder {
 
-    public Checkpoint updateState(Map<String,Object> values, Map<String, Channel<?>> channels ) {
+		private final Checkpoint result = new Checkpoint();
 
-        Checkpoint result = new Checkpoint( this );
-        result.state = AgentState.updateState( state, values, channels );
-        return result;
-    }
+		public Builder id(String id) {
+			result.id = id;
+			return this;
+		}
 
-    @Override
-    public String toString() {
-        return  format("Checkpoint{ id=%s, nodeId=%s, nextNodeId=%s, state=%s }" ,
-                id,
-                nodeId,
-                nextNodeId,
-                state
-        );
-    }
+		public Builder state(AgentState state) {
+			result.state = state.data();
+			return this;
+		}
 
+		public Builder state(Map<String, Object> state) {
+			result.state = state;
+			return this;
+		}
+
+		public Builder nodeId(String nodeId) {
+			result.nodeId = nodeId;
+			return this;
+		}
+
+		public Builder nextNodeId(String nextNodeId) {
+			result.nextNodeId = nextNodeId;
+			return this;
+		}
+
+		public Checkpoint build() {
+			return result;
+
+		}
+
+	}
+
+	public Checkpoint updateState(Map<String, Object> values, Map<String, Channel<?>> channels) {
+
+		Checkpoint result = new Checkpoint(this);
+		result.state = AgentState.updateState(state, values, channels);
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return format("Checkpoint{ id=%s, nodeId=%s, nextNodeId=%s, state=%s }", id, nodeId, nextNodeId, state);
+	}
 
 }
