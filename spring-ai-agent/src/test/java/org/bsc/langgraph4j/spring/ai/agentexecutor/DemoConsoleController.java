@@ -23,7 +23,7 @@ public class DemoConsoleController implements CommandLineRunner {
     private final ChatModel chatModel;
     private final List<ToolCallback> tools;
 
-    public DemoConsoleController( /*@Qualifier("ollama")*/ChatModel chatModel, List<ToolCallback> tools) {
+    public DemoConsoleController( ChatModel chatModel, List<ToolCallback> tools) {
 
         this.chatModel = chatModel;
         this.tools = tools;
@@ -43,14 +43,14 @@ public class DemoConsoleController implements CommandLineRunner {
 
         log.info("Welcome to the Spring Boot CLI application!");
 
-        var graph = AgentExecutor.builder()
-                        .streamingChatModel(chatModel)
+        var agent = AgentExecutor.builder()
+                        //.streamingChatModel(chatModel)
+                        .chatModel(chatModel)
                         .tools(tools)
-                        .build();
+                        .build()
+                        .compile();
 
-        var workflow = graph.compile();
-
-        var result = workflow.stream( Map.of( "messages", new UserMessage("what is the result of 234 + 45") ));
+        var result = agent.stream( Map.of( "messages", new UserMessage("how is the weather in Napoli?") ));
 
         var state = result.stream()
                 .peek( s -> {

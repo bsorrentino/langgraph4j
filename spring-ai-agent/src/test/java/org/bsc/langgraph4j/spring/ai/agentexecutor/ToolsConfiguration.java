@@ -4,6 +4,9 @@ import org.bsc.langgraph4j.spring.ai.agentexecutor.function.math.AddFunction;
 import org.bsc.langgraph4j.spring.ai.agentexecutor.function.weather.WeatherConfig;
 import org.bsc.langgraph4j.spring.ai.agentexecutor.function.weather.WeatherFunction;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.ToolCallbacks;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.ai.tool.function.FunctionToolCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +48,7 @@ public class ToolsConfiguration {
      * Bean method to define the weather function callback.
      * @return A FunctionCallback object that wraps a WeatherFunction and provides metadata about it.
      */
+    /*
     @Bean
     public ToolCallback addToolCallback() {
 
@@ -53,7 +57,7 @@ public class ToolsConfiguration {
                 .inputType(AddFunction.Request.class)
                 .build();
     }
-
+    */
 
 
 
