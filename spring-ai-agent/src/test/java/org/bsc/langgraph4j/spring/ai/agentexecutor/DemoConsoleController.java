@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.spring.ai.agentexecutor;
 
 import org.bsc.langgraph4j.NodeOutput;
+import org.bsc.langgraph4j.streaming.StreamingOutput;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
@@ -43,7 +44,7 @@ public class DemoConsoleController implements CommandLineRunner {
         log.info("Welcome to the Spring Boot CLI application!");
 
         var graph = AgentExecutor.builder()
-                        .chatModel(chatModel)
+                        .streamingChatModel(chatModel)
                         .tools(tools)
                         .build();
 
@@ -52,7 +53,14 @@ public class DemoConsoleController implements CommandLineRunner {
         var result = workflow.stream( Map.of( "messages", new UserMessage("what is the result of 234 + 45") ));
 
         var state = result.stream()
-                .peek( s -> System.out.println( s.node() ) )
+                .peek( s -> {
+                    if( s instanceof StreamingOutput<?> sout ) {
+                        System.out.printf( "%s: (%s)\n", sout.node(), sout.chunk());
+                    }
+                    else {
+                        System.out.println(s.node());
+                    }
+                })
                 .reduce((a, b) -> b)
                 .map( NodeOutput::state)
                 .orElseThrow();

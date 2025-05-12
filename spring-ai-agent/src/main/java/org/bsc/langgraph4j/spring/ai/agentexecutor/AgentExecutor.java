@@ -5,6 +5,7 @@ import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.StateSerializer;
+import org.bsc.langgraph4j.spring.ai.generators.StreamingChatGenerator;
 import org.bsc.langgraph4j.spring.ai.tool.SpringAIToolService;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.utils.EdgeMappings;
@@ -39,6 +40,7 @@ public interface AgentExecutor {
         ChatModel chatModel;
         ChatService chatService;
         String systemMessage;
+        boolean streaming = false;
 
         final List<ToolCallback> tools = new ArrayList<>();
 
@@ -55,6 +57,12 @@ public interface AgentExecutor {
 
         public Builder chatModel(ChatModel chatModel) {
             this.chatModel = chatModel;
+            return this;
+        }
+
+        public Builder streamingChatModel(ChatModel chatModel) {
+            this.chatModel = chatModel;
+            this.streaming = true;
             return this;
         }
 
@@ -108,7 +116,7 @@ public interface AgentExecutor {
             final var toolService = new SpringAIToolService( chatService.tools() );
 
             AsyncNodeAction<State> callAgentAction = node_async( state ->
-                    AgentExecutor.callAgent( state, chatService ));
+                    AgentExecutor.callAgent( state, chatService, streaming ));
 
             AsyncNodeAction<State> executeToolsAction = ( state ->
                     AgentExecutor.executeTools( state, toolService ));
@@ -164,7 +172,7 @@ public interface AgentExecutor {
      * @param state The current state containing input and intermediate steps.
      * @return A map containing the outcome of the agent call, either an action or a finish.
      */
-    static Map<String,Object> callAgent( State state, ChatService chatService )  {
+    static Map<String,Object> callAgent( State state, ChatService chatService, boolean streaming )  {
         log.trace( "callAgent" );
 
         var messages = state.messages();
@@ -173,11 +181,24 @@ public interface AgentExecutor {
             throw new IllegalArgumentException("no input provided!");
         }
 
-        var response = chatService.execute( messages );
+        if( streaming ) {
+            var flux = chatService.streamingExecute( messages );
 
-        var output = response.getResult().getOutput();
+            var generator  = StreamingChatGenerator.builder()
+                    .startingNode("agent")
+                    .startingState( state )
+                    .mapResult( response -> Map.of( "messages", response.getResult().getOutput()))
+                    .build(flux);
 
-        return Map.of("messages", output );
+            return Map.of("messages", generator);
+        }
+        else {
+            var response = chatService.execute(messages);
+
+            var output = response.getResult().getOutput();
+
+            return Map.of("messages", output);
+        }
 
     }
 
