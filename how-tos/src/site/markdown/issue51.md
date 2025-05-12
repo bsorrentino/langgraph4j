@@ -47,17 +47,17 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.chat.request.ChatRequest;
 
 class OrchestratorAgent implements NodeAction<MyAgentState> {
 
-    private final ChatLanguageModel chatLanguageModel;
+    private final ChatModel chatModel;
 
-    public OrchestratorAgent( ChatLanguageModel chatLanguageModel ) {
-        this.chatLanguageModel = chatLanguageModel;
+    public OrchestratorAgent( ChatModel chatModel ) {
+        this.chatModel = chatModel;
     }
  
     public Map<String, Object> apply(MyAgentState state) throws Exception {

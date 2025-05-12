@@ -51,7 +51,7 @@ var chatLanguageModel = OllamaChatModel.builder()
 import org.bsc.langgraph4j.action.NodeActionWithConfig;
 import org.bsc.langgraph4j.RunnableConfig;
 import dev.langchain4j.service.AiServices;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.UserMessage;
@@ -60,9 +60,9 @@ class TestAction implements NodeActionWithConfig<State> {
 
     private final TestAssistant testAssistant;
 
-    public TestAction(ChatLanguageModel chatLanguageModel) {
+    public TestAction(ChatModel chatModel) {
         this.testAssistant = AiServices.builder(TestAssistant.class)
-                .chatLanguageModel(chatLanguageModel)
+                .chatModel(chatModel)
                 .chatMemoryProvider(memoryId -> MessageWindowChatMemory.withMaxMessages(20))
                 .build();
     }

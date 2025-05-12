@@ -1,6 +1,5 @@
 # Agent Executor
 
-
 **Initialize Logger**
 
 
@@ -62,7 +61,7 @@ import java.util.stream.Collectors;
 
 
 
-var chatLanguageModel = OpenAiChatModel.builder()
+var chatModel = OpenAiChatModel.builder()
     .apiKey( System.getenv("OPENAI_API_KEY") )
     //.modelName( "gpt-3.5-turbo-0125" )
     .modelName( "gpt-4o-mini" )
@@ -73,7 +72,7 @@ var chatLanguageModel = OpenAiChatModel.builder()
     .build();
 
 var stateGraph = AgentExecutor.builder()
-        .chatLanguageModel(chatLanguageModel)
+        .chatModel(chatModel)
         .objectsWithTools(List.of(new TestTool()))
         .build();
 
