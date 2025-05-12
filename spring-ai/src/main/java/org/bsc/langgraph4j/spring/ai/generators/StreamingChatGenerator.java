@@ -80,12 +80,14 @@ public interface StreamingChatGenerator {
                         return response;
                     }
 
-                    var lastMessage = lastResponse.getResult().getOutput();
                     var currentMessage = response.getResult().getOutput();
 
-                    if( lastMessage == null || currentMessage.hasToolCalls() ) {
+                    if( currentMessage.hasToolCalls() ) {
                         return response;
                     }
+
+                    var lastMessage = lastResponse.getResult().getOutput();
+
                     var newMessage =  new AssistantMessage(
                             ofNullable(currentMessage.getText())
                                     .map( text -> lastMessage.getText().concat( text ))
