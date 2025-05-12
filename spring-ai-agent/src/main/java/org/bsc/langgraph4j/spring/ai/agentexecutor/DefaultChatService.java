@@ -25,8 +25,9 @@ class DefaultChatService implements ChatService {
 
         chatClient = ChatClient.builder(builder.chatModel)
                 .defaultOptions(toolOptions)
-                .defaultTools( builder.tools )
-                .defaultSystem( builder.systemMessage != null ? builder.systemMessage :
+                .defaultToolCallbacks( builder.tools )
+                .defaultSystem( builder.systemMessage != null ?
+                        builder.systemMessage :
                         "You are a helpful AI Assistant answering questions." )
                 .build();
     }
