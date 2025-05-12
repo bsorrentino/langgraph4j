@@ -40,11 +40,10 @@ void displayDiagram( GraphRepresentation representation ) throws IOException {
 
 
 ```java
-var lm = java.util.logging.LogManager.getLogManager();
-lm.checkAccess(); 
 try( var file = new java.io.FileInputStream("./logging.properties")) {
-    lm.readConfiguration( file );
+    java.util.logging.LogManager.getLogManager().readConfiguration( file );
 }
+
 var log = org.slf4j.LoggerFactory.getLogger("multi-agent-supervisor");
 ```
 
@@ -106,7 +105,7 @@ import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import org.bsc.langgraph4j.action.NodeAction;
 import java.util.concurrent.CompletableFuture;
 import static java.lang.String.format;
@@ -137,7 +136,7 @@ class SupervisorAgent implements NodeAction<State> {
     final Service service;
     public final String[] members = {"researcher", "coder" };
 
-    public SupervisorAgent(ChatLanguageModel model ) {
+    public SupervisorAgent(ChatModel model ) {
 
         service = AiServices.create( Service.class, model );
     }
@@ -189,9 +188,9 @@ class ResearchAgent implements NodeAction<State> {
 
     final Service service;
 
-    public ResearchAgent( ChatLanguageModel model ) {
+    public ResearchAgent( ChatModel model ) {
         service = AiServices.builder( Service.class )
-                        .chatLanguageModel(model)
+                        .chatModel(model)
                         .tools( new Tools() )
                         .build();
     }
@@ -237,9 +236,9 @@ class CoderAgent implements NodeAction<State> {
 
     final Service service;
 
-    public CoderAgent( ChatLanguageModel model ) throws Exception {
+    public CoderAgent( ChatModel model ) throws Exception {
         service = AiServices.builder( Service.class )
-                .chatLanguageModel(model)
+                .chatModel(model)
                 .tools( new Tools() )
                 .build();
     }
@@ -265,7 +264,7 @@ class CoderAgent implements NodeAction<State> {
 ```java
 import dev.langchain4j.model.ollama.OllamaChatModel;
 
-final ChatLanguageModel model = OllamaChatModel.builder()
+var model = OllamaChatModel.builder()
     .baseUrl( "http://localhost:11434" )
     .temperature(0.0)
     .logRequests(true)
@@ -274,7 +273,7 @@ final ChatLanguageModel model = OllamaChatModel.builder()
     .modelName("deepseek-r1:14b")
     .build();
 
-final ChatLanguageModel modelWithTool = OllamaChatModel.builder()
+var modelWithTool = OllamaChatModel.builder()
     .baseUrl( "http://localhost:11434" )
     .temperature(0.0)
     .logRequests(true)

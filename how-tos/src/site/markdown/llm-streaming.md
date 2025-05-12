@@ -1,4 +1,4 @@
-# Langchain4j LLM streaming
+# How to integrate Langchain4j LLM streaming in Langgraph4j
 
 
 **Initialize Logger**
@@ -17,7 +17,6 @@ var log = org.slf4j.LoggerFactory.getLogger("llm-streaming");
 
 ```java
 import dev.langchain4j.model.StreamingResponseHandler;
-import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.output.Response;
 import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;

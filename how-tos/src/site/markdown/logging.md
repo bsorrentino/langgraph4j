@@ -1,13 +1,26 @@
+```java
+String userHomeDir = System.getProperty("user.home");
+String localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
+String slf4jVersion = "2.0.9";
+String langgraph4jVersion = "1.5-SNAPSHOT";
+```
 
+
+```java
+%dependency /add-repo local \{localRespoUrl} release|never snapshot|always
+// %dependency /list-repos
+%dependency /add org.bsc.langgraph4j:langgraph4j-core:\{langgraph4jVersion}
+%dependency /add org.slf4j:slf4j-jdk14:\{slf4jVersion}
+
+%dependency /resolve
+```
 
 ## Initialize Logger 
 
 
 ```java
-var lm = java.util.logging.LogManager.getLogManager();
-lm.checkAccess(); 
 try( var file = new java.io.FileInputStream("./logging.properties")) {
-    lm.readConfiguration( file );
+    java.util.logging.LogManager.getLogManager().readConfiguration( file );
     java.util.logging.Logger.getLogger("").addHandler(new java.util.logging.ConsoleHandler());
 }
 ```

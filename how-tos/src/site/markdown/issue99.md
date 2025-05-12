@@ -2,7 +2,6 @@
 
 Verify "**Edge Update Logic Error During Subgraph Processing**" 
 
-
 **Initialize Logger**
 
 
