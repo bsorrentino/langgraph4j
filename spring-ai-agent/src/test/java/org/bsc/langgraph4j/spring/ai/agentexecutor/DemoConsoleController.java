@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.spring.ai.agentexecutor;
 
 import org.bsc.langgraph4j.NodeOutput;
+import org.bsc.langgraph4j.streaming.StreamingOutput;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
@@ -22,7 +23,7 @@ public class DemoConsoleController implements CommandLineRunner {
     private final ChatModel chatModel;
     private final List<ToolCallback> tools;
 
-    public DemoConsoleController( /*@Qualifier("ollama")*/ChatModel chatModel, List<ToolCallback> tools) {
+    public DemoConsoleController( ChatModel chatModel, List<ToolCallback> tools) {
 
         this.chatModel = chatModel;
         this.tools = tools;
@@ -42,17 +43,24 @@ public class DemoConsoleController implements CommandLineRunner {
 
         log.info("Welcome to the Spring Boot CLI application!");
 
-        var graph = AgentExecutor.builder()
+        var agent = AgentExecutor.builder()
+                        //.streamingChatModel(chatModel)
                         .chatModel(chatModel)
                         .tools(tools)
-                        .build();
+                        .build()
+                        .compile();
 
-        var workflow = graph.compile();
-
-        var result = workflow.stream( Map.of( "messages", new UserMessage("what is the result of 234 + 45") ));
+        var result = agent.stream( Map.of( "messages", new UserMessage("how is the weather in Napoli?") ));
 
         var state = result.stream()
-                .peek( s -> System.out.println( s.node() ) )
+                .peek( s -> {
+                    if( s instanceof StreamingOutput<?> sout ) {
+                        System.out.printf( "%s: (%s)\n", sout.node(), sout.chunk());
+                    }
+                    else {
+                        System.out.println(s.node());
+                    }
+                })
                 .reduce((a, b) -> b)
                 .map( NodeOutput::state)
                 .orElseThrow();
