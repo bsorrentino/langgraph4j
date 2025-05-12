@@ -2,7 +2,10 @@ package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.state.AgentState;
 
+import java.util.Objects;
+
 import static java.lang.String.format;
+import static org.bsc.langgraph4j.StateGraph.END;
 
 /**
  * Represents the output of a node in a graph.
@@ -41,6 +44,11 @@ public class NodeOutput<State extends AgentState> {
         return subGraph;
     }
 
+    /**
+     * Returns the the node name.
+     *
+     * @return the node name
+     */
     public String node() {
         return node;
     }
@@ -52,9 +60,18 @@ public class NodeOutput<State extends AgentState> {
     /**
      * @deprecated Use {@link #state()} instead.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public State getState( ) {
         return state();
+    }
+
+    /**
+     * Checks if the current node refers to the end of the graph.
+     *
+     * @return {@code true} if the current node refers to the end of the graph
+     */
+    public boolean isEND() {
+        return Objects.equals(node(),END);
     }
 
     protected NodeOutput( String node, State state ) {

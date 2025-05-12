@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.bsc.langgraph4j</groupId>
 		<artifactId>langgraph4j-parent</artifactId>
-		<version>1.5.9</version>
+		<version>1.5.10</version>
 	</parent>
 
 	<artifactId>langgraph4j-springai-agentexecutor</artifactId>
-	<version>1.5.9</version>
+	<version>1.5.10</version>
 	<packaging>jar</packaging>
 
-	<name>langgraph4j::sample::springai::agentexecutor</name>
+	<name>langgraph4j::springai::agentexecutor</name>
 	<description>Sample using Langgraph4j with SpringAI</description>
 
 	<url/>
@@ -26,8 +26,6 @@
 	</developers>
 
 	<properties>
-		<java.version>17</java.version>
-        <spring-ai.version>1.0.0-M7</spring-ai.version>
 	</properties>
 
 	<dependencies>

@@ -71,12 +71,20 @@ public class WeatherFunction implements Function<WeatherFunction.Request, Weathe
     public WeatherFunction.Response apply(WeatherFunction.Request weatherRequest) {
         log.info("Weather Request: {}", weatherRequest);
 
-        var response = restClient.get()
-                .uri("/current.json?key={key}&q={q}", weatherProps.apiKey(), weatherRequest.city())
-                .retrieve()
-                .body(Response.class);
-        log.info("Weather API Response:\n{}", response);
+        try {
+            var response = restClient.get()
+                    .uri("/current.json?key={key}&q={q}", weatherProps.apiKey(), weatherRequest.city())
+                    .retrieve()
+                    .body(Response.class);
+            log.info("Weather API Response:\n{}", response);
 
-        return response;
+            return response;
+        } catch (Exception e) {
+            // Mock
+            return new Response(
+                    new Location( weatherRequest.city(), "", "", 0L,0L),
+                    new Current( "13", new Condition("cold"), "", ""));
+
+        }
     }
 }

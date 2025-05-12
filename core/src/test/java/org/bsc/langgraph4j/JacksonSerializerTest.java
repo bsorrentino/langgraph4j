@@ -1,7 +1,10 @@
 package org.bsc.langgraph4j;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.bsc.langgraph4j.serializer.plain_text.jackson.JacksonStateSerializer;
 import org.bsc.langgraph4j.serializer.plain_text.jackson.TypeMapper;
 import org.bsc.langgraph4j.state.AgentState;
@@ -75,14 +78,17 @@ public class JacksonSerializerTest {
 
         NodeOutput<AgentState> output = NodeOutput.of("node", null);
         output.setSubGraph(true);
-        String json = serializer.getObjectMapper().writeValueAsString(output);
-
-        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":true}", json );
+        var mapper = serializer.getObjectMapper()
+                            .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+        var json = mapper.writeValueAsString(output);
+        assertEquals("""
+                {"end":false,"node":"node","state":null,"subGraph":true}""", json );
 
         output.setSubGraph(false);
         json = serializer.getObjectMapper().writeValueAsString(output);
 
-        assertEquals( "{\"node\":\"node\",\"state\":null,\"subGraph\":false}", json );
+        assertEquals( """
+                {"end":false,"node":"node","state":null,"subGraph":false}""", json );
     }
 
     @Test
