@@ -2,6 +2,89 @@
 
 
 
+<!-- "name: v1.5.10" is a release tag -->
+
+## [v1.5.10](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.10) (2025-05-12)
+
+### Features
+
+ *  **how-to**  add 'How to integrate Spring AI LLM streaming in Langgraph4j' notebook ([9772013ce53efbc](https://github.com/bsorrentino/langgraph4j/commit/9772013ce53efbc91ed61be3a7fe53e5795b29b5))
+     > work on #125
+   
+ *  **spring-ai-agent**  add streaming chat model support ([3300c3d3dd218b3](https://github.com/bsorrentino/langgraph4j/commit/3300c3d3dd218b35412f88b4f1d1c09e7142ac59))
+     > work on #125
+   
+ *  **spring-ai**  adds streaming chat generator ([453978e47b96754](https://github.com/bsorrentino/langgraph4j/commit/453978e47b96754669a734b4ee51345103b21013))
+     > work on #125
+   
+
+### Bug Fixes
+
+ -  **spring-ai-agent**  use `defaultToolCallbacks` instead of `defaultTools`. ([62187aa71f76d13](https://github.com/bsorrentino/langgraph4j/commit/62187aa71f76d13928c16860e7caf97f26f02b5c))
+
+
+### Documentation
+
+ -  **how-to**  update site documentation ([2463697aa257b06](https://github.com/bsorrentino/langgraph4j/commit/2463697aa257b06e0643d7be93086be9fc6afb70))
+
+ -  bump to 1.5.10 version ([8b944f6178a9d5a](https://github.com/bsorrentino/langgraph4j/commit/8b944f6178a9d5a9736afa386b14871df8be8add))
+
+ -  **agent-handoff**  update readme ([575b622d63f2c16](https://github.com/bsorrentino/langgraph4j/commit/575b622d63f2c161b7586fa251f5e5667a80bc09))
+
+ -  update changelog ([4136ed144356349](https://github.com/bsorrentino/langgraph4j/commit/4136ed14435634902316b2aa7423ed2bd71d4aff))
+
+
+### Refactor
+
+ -  **spring-ai**  reorder conditional checks to improve readability and performance in `StreamingChatGenerator` ([4edd9272b0ba966](https://github.com/bsorrentino/langgraph4j/commit/4edd9272b0ba966e95ef3415ecd8501475dcb721))
+    > work on #125
+
+ -  **how-to**  update notebook title 'How to integrate Langchain4j LLM streaming in Langgraph4j' ([6dafde10e290d37](https://github.com/bsorrentino/langgraph4j/commit/6dafde10e290d37812e427bf4c4369f3a0f5e3f8))
+   
+ -  **NodeOutput**  remove 'isInterrupted' method and simplify JSON output in JacksonSerializerTest ([60c52c16b148d9c](https://github.com/bsorrentino/langgraph4j/commit/60c52c16b148d9c64c500eb165ef6605669b8dd7))
+   
+ -  **core/NodeOutput**  Add helper methods to check for graph interruption and END state ([faf574f3a3f2634](https://github.com/bsorrentino/langgraph4j/commit/faf574f3a3f2634a6835cbe4f3fd083d2fce1b9d))
+    > - Introduced &#x60;isInterrupted()&#x60; method to determine if the output refers to a graph interruption by checking against non-END states.
+ > - Added &#x60;isEND()&#x60; method to verify if the current node represents the end of the graph using a direct string comparison with &quot;END&quot;.
+ > - Updated Javadoc comments for clarity and to reflect changes in functionality.
+
+ -  **howto**  code refinements ([a0aadb493c1e49a](https://github.com/bsorrentino/langgraph4j/commit/a0aadb493c1e49aeef74c53ffa7d0797df93d088))
+   
+ -  **springai-agent**  rename project ([ae76a1b339d3cf1](https://github.com/bsorrentino/langgraph4j/commit/ae76a1b339d3cf1387be674b7af8cf1b4468cd2c))
+   
+ -  **sample/handoff**  change projects layout ([92960eaa56076a6](https://github.com/bsorrentino/langgraph4j/commit/92960eaa56076a635c1e6a2feb02f43d66c48081))
+   
+
+### ALM 
+
+ -  bump to 1.5.10 version ([dc93fc9de86c8a2](https://github.com/bsorrentino/langgraph4j/commit/dc93fc9de86c8a2834807ba66f92edef760723c9))
+   
+ -  **core**  bump to  async-generator 3.2.0 version ([450747a01b91efd](https://github.com/bsorrentino/langgraph4j/commit/450747a01b91efd50291809fcb2f1324979c08ec))
+    > work on #125
+
+ -  **README.md**  update integrated projects to reflect Spring AI integration ([d996b67b62c30fa](https://github.com/bsorrentino/langgraph4j/commit/d996b67b62c30fa9e63016b0f53de3d13da31ae2))
+   
+ -  merge PR #121 ([4bb7e1082a17adf](https://github.com/bsorrentino/langgraph4j/commit/4bb7e1082a17adf77cc75740c24d439020e73df2))
+   
+ -  bump to new SNAPSHOT ([7518a3c9976e74d](https://github.com/bsorrentino/langgraph4j/commit/7518a3c9976e74d20b9ef2e1bad4b89ac82314a1))
+   
+
+### Test 
+
+ -  **spring-ai-agent**  refine agent executor test implementation ([53512a825890b0d](https://github.com/bsorrentino/langgraph4j/commit/53512a825890b0d6a1d403aca91226655fcd1e4f))
+   
+ -  **spring-ai**  test streaming chat generator ([3827f8753825e76](https://github.com/bsorrentino/langgraph4j/commit/3827f8753825e761c9a60a80f4516d17eb92d02d))
+    > work on #125
+
+ -  **core**  alphabetically sort JSON properties for consistency ([bebca7f7dee4a05](https://github.com/bsorrentino/langgraph4j/commit/bebca7f7dee4a0589474035fde4127722e52062f))
+   
+ -  **core**  add optional fields to JSON output ([5b1ed3167223a70](https://github.com/bsorrentino/langgraph4j/commit/5b1ed3167223a70db6606047b781e0ad5215a187))
+   
+
+
+
+
+
 <!-- "name: v1.5.9" is a release tag -->
 
 ## [v1.5.9](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.9) (2025-05-06)
