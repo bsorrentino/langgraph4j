@@ -40,7 +40,7 @@ jobs:
           java-version: 17
       - name: Deploy site to Github pages
         run: |
-          mvn -B site:site site:stage
+          mvn -B site:site site:stage -T1
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
