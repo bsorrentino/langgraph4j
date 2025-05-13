@@ -1,6 +1,9 @@
-# 🦜🕸️ LangGraph4j utilities for [Spring AI] to langgraph4j integration
+# 🦜🕸️ LangGraph4j utilities for [Spring AI]  integration
+
+## Features 
 
 - [x] Serializer ( Java Stream based )
+- [x] LLM streaming support
 - [x] Tools
 
 
