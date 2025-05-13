@@ -1,6 +1,5 @@
 package org.bsc.langgraph4j;
 
-import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.Capability;
@@ -15,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class Issue128Test {
+public class Issue128ITest {
 
     class DummyTool {
 
