@@ -90,7 +90,8 @@ public final  class LC4jToolService {
     public LC4jToolService(  Map<ToolSpecification, ToolExecutor> toolMap ) {
         this.toolMap = Objects.requireNonNull(toolMap, "toolMap cannot be null");
         if (toolMap.isEmpty()) {
-            throw new IllegalArgumentException("entries cannot be empty!");
+            log.warn( "tool chain is empty!" );
+            // throw new IllegalArgumentException("entries cannot be empty!");
         }
     }
 

@@ -108,8 +108,8 @@ class Agent {
         public abstract StateGraph<AgentExecutor.State> build() throws GraphStateException;
     }
 
-    private final ChatModel chatLanguageModel;
-    private final StreamingChatModel streamingChatLanguageModel;
+    private final ChatModel chatModel;
+    private final StreamingChatModel streamingChatModel;
     private final SystemMessage systemMessage;
 
     final ChatRequestParameters parameters;
@@ -120,12 +120,12 @@ class Agent {
      * @return true if the agent is streaming, false otherwise.
      */
     public boolean isStreaming() {
-        return streamingChatLanguageModel != null;
+        return streamingChatModel != null;
     }
 
     protected Agent( Builder builder ) {
-        this.chatLanguageModel = builder.chatModel;
-        this.streamingChatLanguageModel = builder.streamingChatModel;
+        this.chatModel = builder.chatModel;
+        this.streamingChatModel = builder.streamingChatModel;
         this.systemMessage = ofNullable( builder.systemMessage ).orElseGet( () -> SystemMessage.from("You are a helpful assistant") );
 
         var parametersBuilder = ChatRequestParameters.builder()
@@ -140,8 +140,10 @@ class Agent {
 
     private ChatRequest prepareRequest(List<ChatMessage> messages ) {
 
-        var reqMessages = new ArrayList<>( messages );
-        reqMessages.add(systemMessage);
+        var reqMessages = new ArrayList<ChatMessage>() {{
+            add(systemMessage);
+            addAll(messages);
+        }};
 
         return ChatRequest.builder()
                 .messages( reqMessages )
@@ -156,9 +158,9 @@ class Agent {
      * @param handler the handler for streaming responses.
      */
     public void execute(List<ChatMessage> messages, StreamingChatResponseHandler handler) {
-        Objects.requireNonNull(streamingChatLanguageModel, "streamingChatLanguageModel is required!");
+        Objects.requireNonNull(streamingChatModel, "streamingChatLanguageModel is required!");
 
-        streamingChatLanguageModel.chat(prepareRequest(messages), handler);
+        streamingChatModel.chat(prepareRequest(messages), handler);
 
     }
 
@@ -169,8 +171,8 @@ class Agent {
      * @return a response containing the generated AI message.
      */
     public ChatResponse execute(List<ChatMessage> messages ) {
-        Objects.requireNonNull(chatLanguageModel, "chatLanguageModel is required!");
+        Objects.requireNonNull(chatModel, "chatLanguageModel is required!");
 
-       return chatLanguageModel.chat(prepareRequest(messages));
+       return chatModel.chat(prepareRequest(messages));
     }
 }

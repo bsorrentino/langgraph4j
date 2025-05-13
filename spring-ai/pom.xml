@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.5.10</version>
+        <version>1.5.11</version>
     </parent>
 
     <artifactId>langgraph4j-spring-ai</artifactId>
@@ -18,7 +18,6 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-ai.version>1.0.0-M7</spring-ai.version>
     </properties>
 
     <dependencyManagement>
