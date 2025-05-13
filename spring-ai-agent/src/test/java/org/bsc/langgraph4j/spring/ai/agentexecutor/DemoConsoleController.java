@@ -44,7 +44,7 @@ public class DemoConsoleController implements CommandLineRunner {
 
         var graph = AgentExecutor.builder()
                         .chatModel(chatModel)
-                        .tools(tools)
+                        .tools(tools) // Support without providing tools
                         .build();
 
         var workflow = graph.compile();
