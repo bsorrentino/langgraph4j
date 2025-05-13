@@ -4,7 +4,7 @@
 [![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.5--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j] and [Spring AI]
-> It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
+> It is inspired by [LangGraph] solution part of [LangChain AI project][langchain.ai].
 
 ## Features
 
