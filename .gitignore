@@ -45,3 +45,6 @@ how-tos/log.*
 
 ### Postegres VSCode plugin
 *.session.sql
+
+### genaiscript
+.genaiscript/
