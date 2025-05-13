@@ -2,6 +2,55 @@
 
 
 
+<!-- "name: v1.5.11" is a release tag -->
+
+## [v1.5.11](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.11) (2025-05-13)
+
+### Features
+
+ *  **spring-ai-agent**  allows empty tool chain ([8d1e9298f2fb066](https://github.com/bsorrentino/langgraph4j/commit/8d1e9298f2fb0667c394dfa80ab6ad362211e48c))
+     > merge #132
+   
+ *  **langchain4j**  allows empty tool chain ([a7cb6623972c2de](https://github.com/bsorrentino/langgraph4j/commit/a7cb6623972c2dee27291d517c0f97d2b8d62fd6))
+   
+
+### Bug Fixes
+
+ -  **agent-executor**  update prompt ordering to feed model ([25fa3aabec6ee7f](https://github.com/bsorrentino/langgraph4j/commit/25fa3aabec6ee7f59aa54a102f861151fc71eb56))
+     > resolve #128
+
+ -  SpringAI DefaultChatService support not tools ([331a2f43a71ff94](https://github.com/bsorrentino/langgraph4j/commit/331a2f43a71ff94d62ae93c38793ba93746eb319))
+     > Signed-off-by: lambochen &lt;lambochen@yeah.net&gt;
+
+
+### Documentation
+
+ -  bump to release 1.5.11 ([7b2fe23a0ad9460](https://github.com/bsorrentino/langgraph4j/commit/7b2fe23a0ad9460b6e260dc76495a09666d47fb9))
+
+ -  update  multi-agent handoff samples links ([ea4485fcfc4ab67](https://github.com/bsorrentino/langgraph4j/commit/ea4485fcfc4ab671037c7ebb0c579217f6781c37))
+
+ -  add multi-agent handoff samples ([ecaa645e9bd197a](https://github.com/bsorrentino/langgraph4j/commit/ecaa645e9bd197a06abcc13539b03bd3ef764b55))
+
+ -  update changelog ([93da456742479c2](https://github.com/bsorrentino/langgraph4j/commit/93da456742479c2b9519ba70c029d72989fa26f5))
+
+
+
+### ALM 
+
+ -  update git ignore ([15be2a511ffcff1](https://github.com/bsorrentino/langgraph4j/commit/15be2a511ffcff1940937d420cf2730acd4658bf))
+   
+ -  update git ignore ([7e04d31ce9665b1](https://github.com/bsorrentino/langgraph4j/commit/7e04d31ce9665b1ba2f9298efe5319183bcfb692))
+   
+ -  merge PR #121 ([4a4ad5435143fb4](https://github.com/bsorrentino/langgraph4j/commit/4a4ad5435143fb4fbc24c70e5b38a7ffe7665353))
+   
+ -  bump to new SNAPSHOT ([3ca6104f0346574](https://github.com/bsorrentino/langgraph4j/commit/3ca6104f034657454187bc9bec8ae9e27650913d))
+   
+
+
+
+
+
+
 <!-- "name: v1.5.10" is a release tag -->
 
 ## [v1.5.10](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.10) (2025-05-12)
