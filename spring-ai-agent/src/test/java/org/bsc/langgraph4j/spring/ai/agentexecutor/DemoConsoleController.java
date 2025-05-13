@@ -46,7 +46,7 @@ public class DemoConsoleController implements CommandLineRunner {
         var agent = AgentExecutor.builder()
                         //.streamingChatModel(chatModel)
                         .chatModel(chatModel)
-                        .tools(tools)
+                        .tools(tools) // Support without providing tools
                         .build()
                         .compile();
 

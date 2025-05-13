@@ -23,13 +23,18 @@ class DefaultChatService implements ChatService {
                 .internalToolExecutionEnabled(false) // Disable automatic tool execution
                 .build();
 
-        chatClient = ChatClient.builder(builder.chatModel)
+        var chatClientBuilder = ChatClient.builder(builder.chatModel)
                 .defaultOptions(toolOptions)
                 .defaultToolCallbacks( builder.tools )
                 .defaultSystem( builder.systemMessage != null ?
                         builder.systemMessage :
-                        "You are a helpful AI Assistant answering questions." )
-                .build();
+                        "You are a helpful AI Assistant answering questions." );
+                        
+        if (!builder.tools.isEmpty()) {
+            chatClientBuilder.defaultTools(builder.tools);
+        }
+
+        this.chatClient = chatClientBuilder.build();
     }
 
     @Override
