@@ -70,6 +70,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 |--------------|----------------| 
 [Agent Executor][springai-agentexecutor] |  [Spring AI]
 [Agent Executor][agent-executor] |  [Langchain4j][langchain4j]
+[Agent Handoff][samples/agents-handoff/springai] |  [Spring AI]
+[Agent handoff][samples/agents-handoff/langchain4j] |  [Langchain4j][langchain4j]
 [Image To PlantUML Diagram][image-to-diagram]   | [Langchain4j][langchain4j]
 [Adaptive RAG][adaptive-rag] | [Langchain4j][langchain4j]
 
@@ -233,6 +235,7 @@ return  app.stream( inputs );
 
 # References
 
+* [LangGraph4j - Multi-Agent handoff implementation with Spring AI](https://bsorrentino.github.io/bsorrentino/ai/2025/05/10/Langgraph4j-agent-handoff.html)
 * [Microsoft JDConf 2025 - AI Agents Graph: Your following tool in your Java AI journey](https://youtu.be/Sp36wdpobpI?si=dXDTD9k16hM8A8KQ)
 * [Enhancing AI Agent Development: A Hands-On Weekend with LangGraph4J](https://www.linkedin.com/pulse/enhancing-ai-agent-development-hands-on-weekend-langgraph4j-chung-ha-iu3be/)
 * [LangGraph4j Generator - Visually scaffold LangGraph Java code](https://dev.to/bsorrentino/langgraph4j-generator-2ika)
