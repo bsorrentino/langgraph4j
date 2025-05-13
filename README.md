@@ -70,8 +70,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 |--------------|----------------| 
 [Agent Executor][springai-agentexecutor] |  [Spring AI]
 [Agent Executor][agent-executor] |  [Langchain4j][langchain4j]
-[Agent Handoff][samples/agents-handoff/springai] |  [Spring AI]
-[Agent handoff][samples/agents-handoff/langchain4j] |  [Langchain4j][langchain4j]
+[Agent Handoff](samples/agents-handoff/springai) |  [Spring AI]
+[Agent handoff](samples/agents-handoff/langchain4j) |  [Langchain4j][langchain4j]
 [Image To PlantUML Diagram][image-to-diagram]   | [Langchain4j][langchain4j]
 [Adaptive RAG][adaptive-rag] | [Langchain4j][langchain4j]
 
