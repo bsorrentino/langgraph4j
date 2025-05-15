@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j.internal.node;
 
 import org.bsc.langgraph4j.*;
+import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 
@@ -20,7 +21,7 @@ import static java.lang.String.format;
 public class Node<State extends AgentState> {
 
     public interface ActionFactory<State extends AgentState> {
-        AsyncNodeActionWithConfig<State> apply( CompileConfig config ) throws GraphStateException;
+        AsyncCommandAction<State> apply(CompileConfig config ) throws GraphStateException;
     }
 
     private final String id;

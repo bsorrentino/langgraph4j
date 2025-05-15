@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j;
 
+import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
@@ -175,7 +176,7 @@ public class StateGraph<State extends AgentState> {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
-        Node<State> node = new Node<>(id, (config ) -> actionWithConfig);
+        Node<State> node = new Node<>(id, (config ) -> AsyncCommandAction.of(actionWithConfig) );
 
         if (nodes.elements.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);

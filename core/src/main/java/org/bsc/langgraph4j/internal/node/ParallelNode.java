@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.internal.node;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.RunnableConfig;
+import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
@@ -71,7 +72,7 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
     }
 
     public ParallelNode(String id, List<AsyncNodeActionWithConfig<State>> actions, Map<String, Channel<?>> channels) {
-        super(format( "%s(%s)", PARALLEL_PREFIX, id), (config ) -> new AsyncParallelNodeAction<>( actions, channels ));
+        super(format( "%s(%s)", PARALLEL_PREFIX, id), (config ) -> AsyncCommandAction.of(new AsyncParallelNodeAction<>( actions, channels )));
     }
 
     @Override

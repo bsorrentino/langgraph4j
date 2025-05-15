@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j;
 
 import org.bsc.async.AsyncGenerator;
+import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
@@ -42,7 +43,7 @@ public class CompiledGraph<State extends AgentState> {
 
     public final StateGraph<State> stateGraph;
 
-    final Map<String, AsyncNodeActionWithConfig<State>> nodes = new LinkedHashMap<>();
+    final Map<String, AsyncCommandAction<State>> nodes = new LinkedHashMap<>();
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
 
     private final ProcessedNodesEdgesAndConfig<State> processedData;
@@ -122,7 +123,7 @@ public class CompiledGraph<State extends AgentState> {
 
                 var actions = parallelNodeStream.get()
                                     //.map( target -> nodes.remove(target.id()) )
-                                    .map( target -> nodes.get(target.id()) )
+                                    .map( target -> nodes.get(target.id()).asAsyncNodeActionWithConfig() )
                                     .toList();
 
                 var parallelNode = new ParallelNode<>( e.sourceId(), actions, stateGraph.getChannels() );
@@ -517,17 +518,17 @@ public class CompiledGraph<State extends AgentState> {
                     ;
         }
 
-        private CompletableFuture<Data<Output>> evaluateAction(AsyncNodeActionWithConfig<State> action, State withState ) {
+        private CompletableFuture<Data<Output>> evaluateAction(AsyncCommandAction<State> action, State withState ) {
 
-                return action.apply( withState, config ).thenApply( partialState -> {
+                return action.apply( withState, config ).thenApply( command -> {
                     try {
 
-                        Optional<Data<Output>> embed = getEmbedGenerator( partialState );
+                        Optional<Data<Output>> embed = getEmbedGenerator( command.update() );
                         if( embed.isPresent() ) {
                             return embed.get();
                         }
 
-                        currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
+                        currentState = AgentState.updateState(currentState, command.update(), stateGraph.getChannels());
                         nextNodeId   = nextNodeId(currentNodeId, currentState);
 
                         return Data.of( getNodeOutput() );
@@ -633,7 +634,7 @@ public class CompiledGraph<State extends AgentState> {
 
                 currentNodeId = nextNodeId;
 
-                AsyncNodeActionWithConfig<State> action = nodes.get(currentNodeId);
+                var action = nodes.get(currentNodeId);
 
                 if (action == null)
                     throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
