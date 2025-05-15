@@ -21,37 +21,36 @@ public class MultiAgentHandoffITest {
 
         OPENAI_GPT_4O_MINI(
                 OpenAiChatModel.builder()
-                .openAiApi(OpenAiApi.builder()
-                        .baseUrl("https://api.openai.com")
-                        .apiKey(System.getenv("OPENAI_API_KEY"))
-                        .build())
-                .defaultOptions(OpenAiChatOptions.builder()
-                        .model("gpt-4o-mini")
-                        .logprobs(false)
-                        .temperature(0.1)
-                        .build())
-                .build()),
+                        .openAiApi(OpenAiApi.builder()
+                                .baseUrl("https://api.openai.com")
+                                .apiKey(System.getenv("OPENAI_API_KEY"))
+                                .build())
+                        .defaultOptions(OpenAiChatOptions.builder()
+                                .model("gpt-4o-mini")
+                                .logprobs(false)
+                                .temperature(0.1)
+                                .build())
+                        .build()),
         OLLAMA_QWEN3_14B(
                 OllamaChatModel.builder()
-                .ollamaApi( new OllamaApi("http://localhost:11434") )
-                .defaultOptions(OllamaOptions.builder()
-                        .model("qwen3.1:14b")
-                        .temperature(0.1)
-                        .build())
-                .build() ),
+                        .ollamaApi(OllamaApi.builder().baseUrl("http://localhost:11434").build())
+                        .defaultOptions(OllamaOptions.builder()
+                                .model("qwen3.1:14b")
+                                .temperature(0.1)
+                                .build())
+                        .build()),
         OLLAMA_QWEN2_5_7B(
                 OllamaChatModel.builder()
-                        .ollamaApi( new OllamaApi("http://localhost:11434") )
+                        .ollamaApi(OllamaApi.builder().baseUrl("http://localhost:11434").build())
                         .defaultOptions(OllamaOptions.builder()
                                 .model("qwen2.5:7b")
                                 .temperature(0.1)
                                 .build())
-                        .build());
-        ;
+                        .build());;
 
         public final ChatModel model;
 
-        AiModel(  ChatModel model ) {
+        AiModel(ChatModel model) {
             this.model = model;
         }
     }
@@ -59,28 +58,28 @@ public class MultiAgentHandoffITest {
     @Test
     public void testHandoff() throws Exception {
         var agentMarketPlace = AgentMarketplace.builder()
-                .chatModel( AiModel.OLLAMA_QWEN2_5_7B.model )
+                .chatModel(AiModel.OLLAMA_QWEN2_5_7B.model)
                 .build();
 
         var agentPayment = AgentPayment.builder()
-                .chatModel( AiModel.OLLAMA_QWEN2_5_7B.model )
+                .chatModel(AiModel.OLLAMA_QWEN2_5_7B.model)
                 .build();
 
         var handoffExecutor = AgentHandoff.builder()
-                .chatModel( AiModel.OLLAMA_QWEN2_5_7B.model )
-                .agent( agentMarketPlace )
-                .agent( agentPayment )
+                .chatModel(AiModel.OLLAMA_QWEN2_5_7B.model)
+                .agent(agentMarketPlace)
+                .agent(agentPayment)
                 .build()
                 .compile();
 
         var input = "search for product 'X' and purchase it";
 
-        var result = handoffExecutor.invoke( Map.of( "messages", new UserMessage(input)));
+        var result = handoffExecutor.invoke(Map.of("messages", new UserMessage(input)));
 
         var response = result.flatMap(MessagesState::lastMessage)
                 .map(Content::getText)
                 .orElseThrow();
 
-        System.out.println( response );
+        System.out.println(response);
     }
 }
