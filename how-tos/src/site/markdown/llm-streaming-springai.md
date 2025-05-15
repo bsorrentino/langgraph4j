@@ -45,7 +45,6 @@ import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
-import org.springframework.ai.tool.ToolCallbacks;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.ai.tool.function.FunctionToolCallback;
@@ -83,7 +82,7 @@ enum AiModel {
                         .build()),        
         OLLAMA_QWEN2_5_7B(
             OllamaChatModel.builder()
-                    .ollamaApi( new OllamaApi("http://localhost:11434") )
+                    .ollamaApi( OllamaApi.builder().baseUrl("http://localhost:11434").build() )
                     .defaultOptions(OllamaOptions.builder()
                             .model("qwen2.5:7b")
                             .temperature(0.1)
@@ -155,7 +154,6 @@ for( var item : generator ) {
 ## Use StreamingChatGenerator in Agent Executor
 
 ## Set up the agent's tools
-
 
 
 
