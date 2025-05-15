@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>org.bsc.langgraph4j</groupId>
 		<artifactId>langgraph4j-parent</artifactId>
-		<version>1.5-SNAPSHOT</version>
+		<version>1.5.12</version>
 	</parent>
 
 	<artifactId>langgraph4j-springai-agentexecutor</artifactId>
-	<version>1.5-SNAPSHOT</version>
+	<version>1.5.12</version>
 	<packaging>jar</packaging>
 
 	<name>langgraph4j::springai::agentexecutor</name>
