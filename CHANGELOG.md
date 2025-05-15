@@ -2,6 +2,62 @@
 
 
 
+<!-- "name: v1.5.12" is a release tag -->
+
+## [v1.5.12](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.12) (2025-05-15)
+
+
+### Bug Fixes
+
+ -  **spring-ai-agent**  to use `defaultToolCallbacks` instead of `defaultTools` ([561039f7401ea29](https://github.com/bsorrentino/langgraph4j/commit/561039f7401ea29b6002e52416fbdc174f4f7316))
+
+
+### Documentation
+
+ -  bump to version 1.5.12 ([83d49280f1f9a75](https://github.com/bsorrentino/langgraph4j/commit/83d49280f1f9a75dd00b472472e6c6bc64d4252a))
+
+ -  add ai generated documentation ([ac04593e9ec081b](https://github.com/bsorrentino/langgraph4j/commit/ac04593e9ec081be5c8214f716ea98e540558b2e))
+
+ -  update site documentation ([8747d7fc3dd547c](https://github.com/bsorrentino/langgraph4j/commit/8747d7fc3dd547ce3b1959fb0b6ecde2205d873c))
+
+ -  update readme ([acc8e7d74411f41](https://github.com/bsorrentino/langgraph4j/commit/acc8e7d74411f41b9df301fa9e0786851352d850))
+
+ -  update readme ([a2854663b16d590](https://github.com/bsorrentino/langgraph4j/commit/a2854663b16d59075212261a0acac095cd337737))
+
+ -  update changelog ([7cd740e0d9836eb](https://github.com/bsorrentino/langgraph4j/commit/7cd740e0d9836eb5e582a6c6bfb4007d5d131ca8))
+
+
+### Refactor
+
+ -  **llm-streaming-springai**  use OllamaApi  builder ([36f13ff69dc998a](https://github.com/bsorrentino/langgraph4j/commit/36f13ff69dc998a23d10e5cd236cc438d2d839e7))
+   
+ -  **deploy-snapshot**  update branch ref from main to develop ([5d359d50471cd76](https://github.com/bsorrentino/langgraph4j/commit/5d359d50471cd76d2012b869b01e980b17230347))
+   
+ -  **deploy-pages**  apply concurrency flag to build process ([35c4dd7d55b8f3f](https://github.com/bsorrentino/langgraph4j/commit/35c4dd7d55b8f3f2dd86694b10a45f38a1528b81))
+   
+ -  **deploy-snapshot**  update branch trigger from main to develop ([13771c5fd0a25ce](https://github.com/bsorrentino/langgraph4j/commit/13771c5fd0a25ceb637f2671726bd6c017528fdf))
+   
+
+### ALM 
+
+ -  bump to version 1.5.12 ([2e51063fb67628b](https://github.com/bsorrentino/langgraph4j/commit/2e51063fb67628beb1985d3da1bedf9fed796023))
+   
+ -  **how-to**  build: bump langchain4j version to 1.0.0 / 1.0.0-beta5 ([88aac32f9475bf2](https://github.com/bsorrentino/langgraph4j/commit/88aac32f9475bf2e20d897fd786a181e86b3575b))
+   
+ -  bump langchain4j version to 1.0.0 / 1.0.0-beta5 ([3c75e0c9b723258](https://github.com/bsorrentino/langgraph4j/commit/3c75e0c9b7232585eae8035c3fb8bc1314579c7c))
+   
+ -  **deploy-snapshot**  add  source jar generation ([d3f942fd1c591e2](https://github.com/bsorrentino/langgraph4j/commit/d3f942fd1c591e2f3197a7b8c4eb7635dee1e333))
+   
+ -  **site-run**  apply concurrency flag to build process ([50990ecab017753](https://github.com/bsorrentino/langgraph4j/commit/50990ecab0177534d5fd01c3bb0b8398aeea2f23))
+   
+ -  bump to new SNAPSHOT ([c050dc6868c9fd3](https://github.com/bsorrentino/langgraph4j/commit/c050dc6868c9fd33f35d0b490ccd93299c3f607c))
+   
+
+
+
+
+
+
 <!-- "name: v1.5.11" is a release tag -->
 
 ## [v1.5.11](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.11) (2025-05-13)
