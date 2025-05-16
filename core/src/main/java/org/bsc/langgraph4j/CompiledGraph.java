@@ -36,6 +36,33 @@ import static org.bsc.langgraph4j.StateGraph.START;
 public class CompiledGraph<State extends AgentState> {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CompiledGraph.class);
 
+    /**
+     * Enum representing various error messages related to graph runner.
+     */
+    enum RunnableErrors {
+        missingNodeInEdgeMapping("cannot find edge mapping for id: '%s' in conditional edge with sourceId: '%s' "),
+        missingNode("node with id: '%s' doesn't exist!"),
+        missingEdge("edge with sourceId: '%s' doesn't exist!"),
+        executionError("%s");
+
+        private final String errorMessage;
+
+        RunnableErrors(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+
+        /**
+         * Creates a new GraphRunnerException with the formatted error message.
+         *
+         * @param args the arguments to format the error message
+         * @return a new GraphRunnerException
+         */
+        GraphRunnerException exception(String... args) {
+            return new GraphRunnerException(format(errorMessage, (Object[]) args));
+        }
+    }
+
+
     public enum StreamMode {
         VALUES,
         SNAPSHOTS
@@ -237,7 +264,7 @@ public class CompiledGraph<State extends AgentState> {
     private String nextNodeId( EdgeValue<State> route , Map<String,Object> state, String nodeId ) throws Exception {
 
         if( route == null ) {
-            throw StateGraph.RunnableErrors.missingEdge.exception(nodeId);
+            throw RunnableErrors.missingEdge.exception(nodeId);
         }
         if( route.id() != null ) {
             return route.id();
@@ -248,11 +275,11 @@ public class CompiledGraph<State extends AgentState> {
             String newRoute = condition.apply(derefState).get();
             String result = route.value().mappings().get(newRoute);
             if( result == null ) {
-                throw StateGraph.RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
+                throw RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
             }
             return result;
         }
-        throw StateGraph.RunnableErrors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
+        throw RunnableErrors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
     }
 
     /**
@@ -529,7 +556,18 @@ public class CompiledGraph<State extends AgentState> {
                         }
 
                         currentState = AgentState.updateState(currentState, command.update(), stateGraph.getChannels());
-                        nextNodeId   = nextNodeId(currentNodeId, currentState);
+
+                        if( command.gotoNode().isPresent() ) {
+                            var proposedNextNodeId = command.gotoNode().get();
+
+                            if( !nodes.containsKey(proposedNextNodeId) ) {
+                                return Data.error( RunnableErrors.missingNode.exception(proposedNextNodeId) );
+                            }
+                            nextNodeId = proposedNextNodeId;
+                        }
+                        else {
+                            nextNodeId = nextNodeId(currentNodeId, currentState);
+                        }
 
                         return Data.of( getNodeOutput() );
                     }
@@ -637,7 +675,7 @@ public class CompiledGraph<State extends AgentState> {
                 var action = nodes.get(currentNodeId);
 
                 if (action == null)
-                    throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
+                    throw RunnableErrors.missingNode.exception(currentNodeId);
 
                 return evaluateAction(action, cloneState(currentState) ).get();
             }

@@ -66,32 +66,6 @@ public class StateGraph<State extends AgentState> {
         }
     }
 
-    /**
-     * Enum representing various error messages related to graph runner.
-     */
-    enum RunnableErrors {
-        missingNodeInEdgeMapping("cannot find edge mapping for id: '%s' in conditional edge with sourceId: '%s' "),
-        missingNode("node with id: '%s' doesn't exist!"),
-        missingEdge("edge with sourceId: '%s' doesn't exist!"),
-        executionError("%s");
-
-        private final String errorMessage;
-
-        RunnableErrors(String errorMessage) {
-            this.errorMessage = errorMessage;
-        }
-
-        /**
-         * Creates a new GraphRunnerException with the formatted error message.
-         *
-         * @param args the arguments to format the error message
-         * @return a new GraphRunnerException
-         */
-        GraphRunnerException exception(String... args) {
-            return new GraphRunnerException(format(errorMessage, (Object[]) args));
-        }
-    }
-
     public static String END = "__END__";
     public static String START = "__START__";
 
