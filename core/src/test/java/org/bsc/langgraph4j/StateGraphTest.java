@@ -2,6 +2,7 @@ package org.bsc.langgraph4j;
 
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.*;
 import org.junit.jupiter.api.Test;
@@ -107,6 +108,37 @@ public class StateGraphTest {
 
         assertIterableEquals(sortMap(expected), sortMap(result.get().data()));
         //assertDictionaryOfAnyEqual( expected, result.data )
+
+    }
+
+    @Test
+    public void testRunnableConfigMetadata() throws Exception {
+
+        var agent = AsyncNodeActionWithConfig.node_async((state, config) -> {
+
+            assertTrue( config.getMetadata("configData").isPresent() );
+
+            log.info("agent_1\n{}", state);
+            return Map.of("prop1", "test");
+        });
+
+        var workflow = new StateGraph<>(AgentState::new)
+                .addEdge(START, "agent_1")
+                .addNode("agent_1", agent)
+                .addEdge("agent_1", END);
+
+        var app = workflow.compile();
+
+        var config = RunnableConfig.builder()
+                        .addMetadata("configData", "test")
+                        .build();
+
+        var result = app.invoke(Map.of("input", "test1"), config);
+        assertTrue(result.isPresent());
+
+        Map<String, String> expected = Map.of("input", "test1", "prop1", "test");
+
+        assertIterableEquals(sortMap(expected), sortMap(result.get().data()));
 
     }
 
