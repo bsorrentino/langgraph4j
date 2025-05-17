@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j.internal.edge;
 
+import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.state.AgentState;
 
@@ -14,7 +15,7 @@ import static java.lang.String.format;
  * @param action The action to be performed asynchronously when the edge condition is met.
  * @param mappings A map of string key-value pairs representing additional mappings for the edge condition.
  */
-public record EdgeCondition<S extends AgentState>(AsyncEdgeAction<S> action, Map<String, String> mappings ) {
+public record EdgeCondition<S extends AgentState>(AsyncCommandAction<S> action, Map<String, String> mappings ) {
 
     @Override
     public String toString() {
