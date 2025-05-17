@@ -3,7 +3,7 @@ package org.bsc.langgraph4j;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
-import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
+import org.bsc.langgraph4j.action.Command;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.internal.edge.Edge;
@@ -225,7 +225,11 @@ public class CompiledGraph<State extends AgentState> {
 
         String nextNodeId = null;
         if( asNode != null ) {
-            nextNodeId = nextNodeId( asNode, branchCheckpoint.getState() );
+            var nextNodeCommand = nextNodeId( asNode, branchCheckpoint.getState(), config );
+
+            nextNodeId = nextNodeCommand.gotoNode().get();
+            branchCheckpoint =  branchCheckpoint.updateState( nextNodeCommand.update(), stateGraph.getChannels() );
+
         }
         // update checkpoint in saver
         RunnableConfig newConfig = saver.put( config, branchCheckpoint );
@@ -261,23 +265,29 @@ public class CompiledGraph<State extends AgentState> {
         this.maxIterations = maxIterations;
     }
 
-    private String nextNodeId( EdgeValue<State> route , Map<String,Object> state, String nodeId ) throws Exception {
+    private Command nextNodeId(EdgeValue<State> route , Map<String,Object> state, String nodeId, RunnableConfig config ) throws Exception {
 
         if( route == null ) {
             throw RunnableErrors.missingEdge.exception(nodeId);
         }
         if( route.id() != null ) {
-            return route.id();
+            return new Command(route.id(), state);
         }
         if( route.value() != null ) {
             State derefState = stateGraph.getStateFactory().apply(state);
-            org.bsc.langgraph4j.action.AsyncEdgeAction<State> condition = route.value().action();
-            String newRoute = condition.apply(derefState).get();
+
+            var command = route.value().action().apply(derefState,config).get();
+
+            var newRoute = command.gotoNode().orElseThrow( () -> RunnableErrors.executionError.exception( "edge action returns null gotoNode" ));
+
             String result = route.value().mappings().get(newRoute);
             if( result == null ) {
                 throw RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
             }
-            return result;
+
+            var currentState = AgentState.updateState(state, command.update(), stateGraph.getChannels());
+
+            return new Command(result, currentState);
         }
         throw RunnableErrors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
     }
@@ -287,17 +297,17 @@ public class CompiledGraph<State extends AgentState> {
      *
      * @param nodeId the current node ID
      * @param state the current state
-     * @return the next node ID
+     * @return the next node command
      * @throws Exception if there is an error determining the next node ID
      */
-    private String nextNodeId(String nodeId, Map<String,Object> state) throws Exception {
-        return nextNodeId(edges.get(nodeId), state, nodeId);
+    private Command nextNodeId(String nodeId, Map<String,Object> state, RunnableConfig config) throws Exception {
+        return nextNodeId(edges.get(nodeId), state, nodeId, config  );
 
     }
 
-    private String getEntryPoint( Map<String,Object> state ) throws Exception {
+    private Command getEntryPoint( Map<String,Object> state, RunnableConfig config ) throws Exception {
         var entryPoint = this.edges.get(START);
-        return nextNodeId(entryPoint, state, "entryPoint");
+        return nextNodeId(entryPoint, state, "entryPoint", config);
     }
 
     private boolean shouldInterruptBefore( String nodeId, String previousNodeId ) {
@@ -538,7 +548,10 @@ public class CompiledGraph<State extends AgentState> {
                                 }
                             }
 
-                            nextNodeId = nextNodeId(currentNodeId, currentState);
+                            var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
+                            nextNodeId = nextNodeCommand.gotoNode().get();
+                            currentState = nextNodeCommand.update();
+
                             resumedFromEmbed = true;
                         });
                     })
@@ -557,7 +570,7 @@ public class CompiledGraph<State extends AgentState> {
 
                         currentState = AgentState.updateState(currentState, command.update(), stateGraph.getChannels());
 
-                        if( command.gotoNode().isPresent() ) {
+                        if( command.gotoNode().isPresent() ) { // Evaluate next node from node result
                             var proposedNextNodeId = command.gotoNode().get();
 
                             if( !nodes.containsKey(proposedNextNodeId) ) {
@@ -566,7 +579,10 @@ public class CompiledGraph<State extends AgentState> {
                             nextNodeId = proposedNextNodeId;
                         }
                         else {
-                            nextNodeId = nextNodeId(currentNodeId, currentState);
+                            var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
+                            nextNodeId = nextNodeCommand.gotoNode().get();
+                            currentState = nextNodeCommand.update();
+
                         }
 
                         return Data.of( getNodeOutput() );
@@ -586,7 +602,11 @@ public class CompiledGraph<State extends AgentState> {
             return action.apply( withState ).thenApply(  partialState -> {
                 try {
                     currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
-                    nextNodeId = nextNodeId(currentNodeId, currentState);
+
+                    var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
+                    nextNodeId = nextNodeCommand.gotoNode().get();
+                    currentState = nextNodeCommand.update();
+
 
                     Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
                     return ( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
@@ -642,7 +662,9 @@ public class CompiledGraph<State extends AgentState> {
                 }
 
                 if( START.equals(currentNodeId) ) {
-                    nextNodeId = getEntryPoint( currentState );
+                    var nextNodeCommand = getEntryPoint(currentState, config) ;
+                    nextNodeId = nextNodeCommand.gotoNode().get();
+                    currentState = nextNodeCommand.update();
 
                     var cp = addCheckpoint( config, START, currentState, nextNodeId );
 
