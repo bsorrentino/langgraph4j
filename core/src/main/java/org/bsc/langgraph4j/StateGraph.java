@@ -285,7 +285,7 @@ public class StateGraph<State extends AgentState> {
             throw Errors.edgeMappingIsEmpty.exception(sourceId);
         }
 
-        var newEdge =  new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>(condition, mappings)) );
+        var newEdge =  new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>( AsyncCommandAction.of(condition), mappings)) );
 
         if( edges.elements.contains( newEdge ) ) {
             throw Errors.duplicateConditionalEdgeError.exception(sourceId);
