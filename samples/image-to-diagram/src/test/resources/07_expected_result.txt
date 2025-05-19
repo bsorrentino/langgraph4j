@@ -1,6 +1,0 @@
-@startuml
-actor Alice
-rectangle "first Element"
-rectangle "second Element"
-Alice --> "first Element"
-@enduml

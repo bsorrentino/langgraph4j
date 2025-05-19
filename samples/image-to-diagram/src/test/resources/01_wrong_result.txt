@@ -1,8 +1,0 @@
-@startuml
-participant Alice
-oval Bob
-participant Jack
-diamond "My Friend" as M
-Bob --> Alice : hello
-M --> Jack
-@enduml

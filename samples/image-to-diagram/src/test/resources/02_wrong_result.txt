@@ -1,7 +1,0 @@
-@startuml
-actor Alice
-oval Bob
-actor Jack
-oval MyFriend
-Bob --> Alice : hello
-@enduml
