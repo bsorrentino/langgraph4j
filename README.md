@@ -1,7 +1,7 @@
 
 # 🦜🕸️ LangGraph for Java
 
-‼️ **HAS BEEN PLANNED PROJECT RELOCATION FROM PERSONAL TO [langgraph4j](https://github.com/langgraph4j/) SPACE** ‼️
+‼️ **has been planned project relocation from personal to [langgraph4j](https://github.com/langgraph4j/) space** ‼️
 ----
 
 [![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.5--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
