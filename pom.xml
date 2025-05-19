@@ -198,7 +198,6 @@
     <module>studio/jetty</module>
     <module>studio/springboot</module>
     <module>studio/quarkus</module>
-    <module>generator</module>
   </modules>
 
   <profiles>
