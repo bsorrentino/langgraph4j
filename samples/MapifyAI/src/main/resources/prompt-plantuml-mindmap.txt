@@ -1,5 +1,0 @@
-as my PlantUML expert, analyze the following structured conversation summary and transform it in a mindmap using the PlantUML syntax.
-The expected output must be only a valid PlantUML mindmap.
-
-Summary:
-{{summary}}

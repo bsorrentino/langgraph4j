@@ -1,7 +1,0 @@
-@startuml
-rectangle Bob
-rectangle MyFriend
-actor Alice
-actor Jack
-Bob --> Alice : hello
-@enduml

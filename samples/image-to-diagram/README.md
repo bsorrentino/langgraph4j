@@ -1,6 +1,7 @@
 # Langgraph4j - Image To Diagram
 
-‼️ **PROJECTS HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-examples](https://github.com/langgraph4j/langgraph4j-examples)** ‼️
+‼️ **PROJECT HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-examples](https://github.com/langgraph4j/langgraph4j-examples)** ‼️
+----
 
 ## Generate PlantUML diagram from Image
 

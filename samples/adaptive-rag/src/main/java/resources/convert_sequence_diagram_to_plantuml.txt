@@ -1,8 +1,0 @@
-Translate the diagram description into plantUML syntax.
-Also put the diagram description in the legend in the form:
-legend
-<description with a bullet point for each steps>
-end legend
-
-diagram description with title {{diagram_title}}:
-{{diagram_description}}

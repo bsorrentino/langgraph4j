@@ -1,8 +1,0 @@
-@startuml
-participant Alice
-rectangle Bob
-participant Jack
-rectangle "My Friend" as M
-Bob --> Alice : hello
-M --> Jack
-@enduml

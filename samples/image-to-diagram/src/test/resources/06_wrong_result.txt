@@ -1,8 +1,0 @@
-@startuml
-allowmixing
-diamond MyFriend
-actor Alice
-actor Jack
-oval Bob
-Bob --> Alice : hello
-@enduml

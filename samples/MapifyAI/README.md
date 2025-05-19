@@ -1,6 +1,7 @@
 # MapifyAI
 
-‼️ **PROJECTS HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-examples](https://github.com/langgraph4j/langgraph4j-examples)** ‼️
+‼️ **PROJECT HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-examples](https://github.com/langgraph4j/langgraph4j-examples)** ‼️
+----
 
 From a Audio or Transcription to Mind-Map Diagram with this AI-powered tool.
 This Application allows from an Audio or Transcription concerning a discussion, a meeting, etc ... to generate a "_meaningful mind-map diagram_", that represent the touched key points. 

@@ -1,7 +1,7 @@
 # Langgraph4j - Multi-Agent handoff
 
-‼️ **PROJECTS HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-examples](https://github.com/langgraph4j/langgraph4j-examples)** ‼️
-
+‼️ **PROJECT HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-examples](https://github.com/langgraph4j/langgraph4j-examples)** ‼️
+----
 
 ##  Understanding Multi-Agent Architecture 
 
