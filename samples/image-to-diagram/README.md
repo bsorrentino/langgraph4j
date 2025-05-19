@@ -1,5 +1,8 @@
 # Langgraph4j - Image To Diagram
 
+‼️ **PROJECT HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-examples](https://github.com/langgraph4j/langgraph4j-examples)** ‼️
+----
+
 ## Generate PlantUML diagram from Image
 
 The "<u>Generate PlantUML diagram from Image</u>" flow  involves structured sequence of steps. Initially, an agent receives an image and is responsible for analyzing and describing its content. This description is then passed to a specialized agent equipped with the skills to translate the description into PlantUML code. To ensure precision in diagram generation, the type of diagram identified within the image dictates the selection of the appropriately skilled agent for the translation task. This ensures that each diagram type is handled by an agent with specific expertise relevant to that diagram. 
@@ -97,11 +100,6 @@ end
 	evaluate_result:::evaluate_result --> __END__:::__END__
 
 ```
-
----- 
-> Go to [code](src/main/java/dev/langchain4j/image_to_diagram)
-
-
 
 [agentexecutor]: agentexecutor.puml.png
 [image_to_diagram]: image_to_diagram.puml.png

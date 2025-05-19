@@ -1,5 +1,8 @@
-[![MapifyAI](images/cover.jpg)
 # MapifyAI
+
+‼️ **PROJECT HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-examples](https://github.com/langgraph4j/langgraph4j-examples)** ‼️
+----
+
 From a Audio or Transcription to Mind-Map Diagram with this AI-powered tool.
 This Application allows from an Audio or Transcription concerning a discussion, a meeting, etc ... to generate a "_meaningful mind-map diagram_", that represent the touched key points. 
 This representation joined with summary provide a more complete and understandable informations 
@@ -17,7 +20,18 @@ To implement process from audio to diagram I have create several skilled agents 
 
 ### Diagram of Agentic Architecture
 
+```mermaid
+flowchart TD
+    start([__start__])
+    stop([__end__])
+    start -->|Audio| transcribe[transcribe-from-audio]
+    transcribe -->|Transcription| keypoints[keypoints-from-transcript]
+    start -->|Transcription| keypoints
+
+    keypoints -->|Keypoints summary| summary[summary-to-mindmap]
+    summary -->|Mindmap structure| mindmap[mindmap-to-mermaid]
+    mindmap -->|Mermaid script| stop
+```
 
 [AssemblyAI]: https://www.assemblyai.com
 [OpenAI]: https://openai.com/api/
-

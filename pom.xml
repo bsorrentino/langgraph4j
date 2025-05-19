@@ -193,16 +193,11 @@
     <module>spring-ai</module>
     <module>agent-executor</module>
     <module>how-tos</module>
-    <module>samples/agents-handoff/langchain4j</module>
-    <module>samples/agents-handoff/springai</module>
-    <module>samples/image-to-diagram</module>
-    <module>samples/adaptive-rag</module>
     <module>spring-ai-agent</module>
     <module>studio/base</module>
     <module>studio/jetty</module>
     <module>studio/springboot</module>
     <module>studio/quarkus</module>
-    <module>generator</module>
   </modules>
 
   <profiles>

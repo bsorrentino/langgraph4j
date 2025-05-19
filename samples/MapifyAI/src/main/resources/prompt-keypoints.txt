@@ -1,6 +1,0 @@
-Analyze the following conversation and extract the key points discussed.
-Organize them into categories such as ‘Main Topics’, ‘Subtopics’ and ‘Details’.
-Ensure that the structure is suitable for creating a mindmap.
-
-Conversation:
-{{conversation}}
