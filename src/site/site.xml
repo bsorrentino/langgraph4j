@@ -39,11 +39,12 @@
 
         <menu name="Modules">
             <item name="Core" href="core/langgraph4j-core/index.html"/>
-            <item name="Langchain4j integration" href="langchain4j/samples/agents-handoff/langgraph4j-langchain4j/index.html"/>
+            <item name="Langchain4j integration" href="langchain4j/langgraph4j-langchain4j/index.html"/>
+            <item name="Langchain4j Agent Executor" href="agent-executor/langgraph4j-agent-executor/index.html"/>
             <item name="Spring AI integration" href="spring-ai/langgraph4j-spring-ai/index.html"/>
-            <item name="Agent Executor" href="agent-executor/langgraph4j-agent-executor/index.html"/>
+            <item name="Spring AI Agent Executor" href="spring-ai-agent/langgraph4j-springai-agentexecutor/index.html"/>
             <item name="Studio" href="studio/base/studio/langgraph4j-studio/index.html"/>
-            <item name="Generator+Builder" href="generator/generator/index.html"/>
+            <item name="Builder" href="https://langgraph4j.github.io/langgraph4j-builder/"/>
         </menu>
         <menu name="References">
             <item name="How To(s)" href="how-tos/langgraph4j-howtos/index.html"/>

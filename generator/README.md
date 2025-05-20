@@ -1,5 +1,8 @@
 # Langgraph4j generator
 
+‼️ **PROJECT HAS BEEN RELOCATED TO [langgraph4j/langgraph4j-builder](https://github.com/langgraph4j/langgraph4j-builder)** ‼️
+----
+
 This module generate a langgraph4j scaffold from a [Domain Specific Language (DSL)][DSL] based on [YAML] format.
 
 **DSL Example**

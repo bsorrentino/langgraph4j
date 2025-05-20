@@ -1,4 +1,0 @@
-describe the diagram in the image step by step so we can translate it into diagram-as-code syntax. 
-
- {{format_instructions}}
-Must not include the "JSON schema" in the response

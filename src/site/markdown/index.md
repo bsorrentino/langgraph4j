@@ -1,6 +1,9 @@
 
 # 🦜🕸️ LangGraph for Java
 
+‼️ **has been planned project relocation from personal to [langgraph4j](https://github.com/langgraph4j/) space** ‼️
+----
+
 [![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
@@ -60,11 +63,12 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Project         | Integrated With        
 |--------------|----------------| 
-[Agent Executor][springai-agentexecutor] |  [SpringAI]
+[Agent Executor][springai-agentexecutor] |  [Spring AI]
 [Agent Executor][agent-executor] |  [Langchain4j][langchain4j]
-[Image To PlantUML Diagram][image-to-diagram]   | [Langchain4j][langchain4j]
-[Adaptive RAG][adaptive-rag] | [Langchain4j][langchain4j]
-
+[Agent Handoff](https://github.com/langgraph4j/langgraph4j-examples/tree/main/agents-handoff/springai) |  [Spring AI]
+[Agent handoff](https://github.com/langgraph4j/langgraph4j-examples/tree/main/agents-handoff/langchain4j) |  [Langchain4j][langchain4j]
+[Image To PlantUML Diagram](https://github.com/langgraph4j/langgraph4j-examples/tree/main/image-to-diagram)   | [Langchain4j][langchain4j]
+[Adaptive RAG](https://github.com/langgraph4j/langgraph4j-examples/tree/main/adaptive-rag) | [Langchain4j][langchain4j]
 
 ## Releases
 
@@ -290,8 +294,6 @@ server.start().join();
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [springai-agentexecutor]: https://github.com/bsorrentino/langgraph4j/blob/main/spring-ai-agent
 [agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/agent-executor
-[adaptive-rag]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/adaptive-rag
-[image-to-diagram]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/image-to-diagram
 [howto-presistence]: https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/persistence.ipynb
 [howto-timetravel]: https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/time-travel.ipynb
 

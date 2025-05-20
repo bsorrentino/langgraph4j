@@ -1,10 +1,14 @@
 
 # 🦜🕸️ LangGraph for Java
 
+‼️ **has been planned project relocation from personal to [langgraph4j](https://github.com/langgraph4j/) space** ‼️
+----
+
 [![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.5--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j] and [Spring AI]
 > It is inspired by [LangGraph] solution, part of [LangChain AI project][langchain.ai].
+
 
 ## Features
 
@@ -70,10 +74,11 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 |--------------|----------------| 
 [Agent Executor][springai-agentexecutor] |  [Spring AI]
 [Agent Executor][agent-executor] |  [Langchain4j][langchain4j]
-[Agent Handoff](samples/agents-handoff/springai) |  [Spring AI]
-[Agent handoff](samples/agents-handoff/langchain4j) |  [Langchain4j][langchain4j]
-[Image To PlantUML Diagram][image-to-diagram]   | [Langchain4j][langchain4j]
-[Adaptive RAG][adaptive-rag] | [Langchain4j][langchain4j]
+[Agent Handoff](https://github.com/langgraph4j/langgraph4j-examples/tree/main/agents-handoff/springai) |  [Spring AI]
+[Agent handoff](https://github.com/langgraph4j/langgraph4j-examples/tree/main/agents-handoff/langchain4j) |  [Langchain4j][langchain4j]
+[Image To PlantUML Diagram](https://github.com/langgraph4j/langgraph4j-examples/tree/main/image-to-diagram)   | [Langchain4j][langchain4j]
+[Adaptive RAG](https://github.com/langgraph4j/langgraph4j-examples/tree/main/adaptive-rag) | [Langchain4j][langchain4j]
+
 
 ## Quick Start 
 
@@ -261,8 +266,6 @@ return  app.stream( inputs );
 [javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
 [springai-agentexecutor]: spring-ai-agent
 [agent-executor]: agent-executor/
-[adaptive-rag]: samples/adaptive-rag
-[image-to-diagram]: samples/image-to-diagram/
 
 [Spring AI]: https://spring.io/projects/spring-ai
 [Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
