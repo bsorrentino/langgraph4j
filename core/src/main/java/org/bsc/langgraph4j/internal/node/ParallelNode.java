@@ -72,7 +72,7 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
     }
 
     public ParallelNode(String id, List<AsyncNodeActionWithConfig<State>> actions, Map<String, Channel<?>> channels) {
-        super(format( "%s(%s)", PARALLEL_PREFIX, id), (config ) -> AsyncCommandAction.of(new AsyncParallelNodeAction<>( actions, channels )));
+        super(format( "%s(%s)", PARALLEL_PREFIX, id), (config ) -> new AsyncParallelNodeAction<>( actions, channels ));
     }
 
     @Override

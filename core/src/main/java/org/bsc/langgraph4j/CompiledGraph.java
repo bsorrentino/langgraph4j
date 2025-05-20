@@ -3,6 +3,7 @@ package org.bsc.langgraph4j;
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
+import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.action.Command;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
@@ -70,7 +71,7 @@ public class CompiledGraph<State extends AgentState> {
 
     public final StateGraph<State> stateGraph;
 
-    final Map<String, AsyncCommandAction<State>> nodes = new LinkedHashMap<>();
+    final Map<String, AsyncNodeActionWithConfig<State>> nodes = new LinkedHashMap<>();
     final Map<String, EdgeValue<State>> edges = new LinkedHashMap<>();
 
     private final ProcessedNodesEdgesAndConfig<State> processedData;
@@ -150,7 +151,7 @@ public class CompiledGraph<State extends AgentState> {
 
                 var actions = parallelNodeStream.get()
                                     //.map( target -> nodes.remove(target.id()) )
-                                    .map( target -> nodes.get(target.id()).asAsyncNodeActionWithConfig() )
+                                    .map( target -> nodes.get(target.id()) )
                                     .toList();
 
                 var parallelNode = new ParallelNode<>( e.sourceId(), actions, stateGraph.getChannels() );
@@ -558,32 +559,21 @@ public class CompiledGraph<State extends AgentState> {
                     ;
         }
 
-        private CompletableFuture<Data<Output>> evaluateAction(AsyncCommandAction<State> action, State withState ) {
+        private CompletableFuture<Data<Output>> evaluateAction(AsyncNodeActionWithConfig<State> action, State withState ) {
 
-                return action.apply( withState, config ).thenApply( command -> {
+                return action.apply( withState, config ).thenApply( updateState -> {
                     try {
 
-                        Optional<Data<Output>> embed = getEmbedGenerator( command.update() );
+                        Optional<Data<Output>> embed = getEmbedGenerator( updateState );
                         if( embed.isPresent() ) {
                             return embed.get();
                         }
 
-                        currentState = AgentState.updateState(currentState, command.update(), stateGraph.getChannels());
+                        currentState = AgentState.updateState(currentState, updateState, stateGraph.getChannels());
 
-                        if( command.gotoNode().isPresent() ) { // Evaluate next node from node result
-                            var proposedNextNodeId = command.gotoNode().get();
-
-                            if( !nodes.containsKey(proposedNextNodeId) ) {
-                                return Data.error( RunnableErrors.missingNode.exception(proposedNextNodeId) );
-                            }
-                            nextNodeId = proposedNextNodeId;
-                        }
-                        else {
-                            var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
-                            nextNodeId = nextNodeCommand.gotoNode().get();
-                            currentState = nextNodeCommand.update();
-
-                        }
+                        var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
+                        nextNodeId = nextNodeCommand.gotoNode().get();
+                        currentState = nextNodeCommand.update();
 
                         return Data.of( getNodeOutput() );
                     }

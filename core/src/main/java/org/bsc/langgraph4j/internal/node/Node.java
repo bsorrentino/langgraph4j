@@ -21,7 +21,7 @@ import static java.lang.String.format;
 public class Node<State extends AgentState> {
 
     public interface ActionFactory<State extends AgentState> {
-        AsyncCommandAction<State> apply(CompileConfig config ) throws GraphStateException;
+        AsyncNodeActionWithConfig<State> apply(CompileConfig config ) throws GraphStateException;
     }
 
     private final String id;

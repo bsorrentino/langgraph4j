@@ -21,20 +21,6 @@ public interface AsyncCommandAction<S extends AgentState> extends BiFunction<S, 
         };
     }
 
-    default AsyncNodeActionWithConfig<S> asAsyncNodeActionWithConfig() {
-        return (state, config) -> this.apply(state, config).thenApply( Command::update );
-    }
-
-    static <S extends AgentState> AsyncCommandAction<S> of(AsyncNodeAction<S> action) {
-        return (state, config) ->
-                    action.apply(state).thenApply( result -> new Command( result) );
-    }
-
-    static <S extends AgentState> AsyncCommandAction<S> of(AsyncNodeActionWithConfig<S> action) {
-        return (state, config) ->
-                action.apply(state, config).thenApply( result -> new Command( result));
-    }
-
     static <S extends AgentState> AsyncCommandAction<S> of(AsyncEdgeAction<S> action) {
         return (state, config) ->
                 action.apply(state).thenApply( result -> new Command( result, null));

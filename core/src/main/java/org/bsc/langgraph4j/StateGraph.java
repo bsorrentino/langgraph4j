@@ -135,7 +135,18 @@ public class StateGraph<State extends AgentState> {
      * @param action the action to be performed by the node
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
-    public StateGraph<State> addNode(String id, AsyncCommandAction<State> action) throws GraphStateException {
+    public StateGraph<State> addNode(String id, AsyncNodeAction<State> action) throws GraphStateException {
+        return addNode( id,  AsyncNodeActionWithConfig.of(action) );
+    }
+
+    /**
+     *
+     * @param id the identifier of the node
+     * @param action the action to be performed by the node
+     * @return this
+     * @throws GraphStateException if the node identifier is invalid or the node already exists
+     */
+    public StateGraph<State> addNode(String id, AsyncNodeActionWithConfig<State> action) throws GraphStateException {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
@@ -147,28 +158,6 @@ public class StateGraph<State extends AgentState> {
 
         nodes.elements.add(node);
         return this;
-    }
-
-    /**
-     * Adds a node to the graph.
-     *
-     * @param id     the identifier of the node
-     * @param action the action to be performed by the node
-     * @throws GraphStateException if the node identifier is invalid or the node already exists
-     */
-    public StateGraph<State> addNode(String id, AsyncNodeAction<State> action) throws GraphStateException {
-        return addNode( id,  AsyncNodeActionWithConfig.of(action) );
-    }
-
-    /**
-     *
-     * @param id the identifier of the node
-     * @param actionWithConfig the action to be performed by the node
-     * @return this
-     * @throws GraphStateException if the node identifier is invalid or the node already exists
-     */
-    public StateGraph<State> addNode(String id, AsyncNodeActionWithConfig<State> actionWithConfig) throws GraphStateException {
-        return addNode( id, AsyncCommandAction.of(actionWithConfig) );
     }
 
     /**

@@ -14,7 +14,7 @@ public class SubCompiledGraphNode<State extends AgentState> extends Node<State> 
 
     public SubCompiledGraphNode(String id, CompiledGraph<State> subGraph ) {
         super(  Objects.requireNonNull(id, "id cannot be null"),
-                (config ) -> AsyncCommandAction.of( new SubCompiledGraphNodeAction<>(subGraph) ));
+                (config ) -> new SubCompiledGraphNodeAction<>(subGraph) );
         this.subGraph = Objects.requireNonNull(subGraph, "subGraph cannot be null");
     }
 
