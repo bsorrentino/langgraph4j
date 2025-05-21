@@ -1,7 +1,9 @@
+# Maven
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+langgraph4j-bom/.flattened-pom.xml
 
 ### IntelliJ IDEA ###
 .idea/
