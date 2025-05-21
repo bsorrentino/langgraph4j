@@ -41,9 +41,10 @@
     <url>https://github.com/bsorrentino/langgraph4j</url>
 
     <scm>
+        <connection>scm:git: https://github.com/bsorrentino/langgraph4j.git</connection>
+        <developerConnection>scm:git: https://github.com/bsorrentino/langgraph4j.git</developerConnection>
         <url>https://github.com/bsorrentino/langgraph4j</url>
-        <connection>git@github.com:bsorrentino/langgraph4j.git</connection>
-        <developerConnection>git@github.com:bsorrentino/langgraph4j.git</developerConnection>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencyManagement>
