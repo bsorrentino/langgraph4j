@@ -2,17 +2,92 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v1.5.13" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+## [v1.5.13](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.13) (2025-05-21)
 
+### Features
+
+ *  add support for BOM ([3ae1e6951c312b8](https://github.com/bsorrentino/langgraph4j/commit/3ae1e6951c312b8c0237ca2a2c27e6b388680fd2))
+     > merge  PR #146
+   
+ *  **core**  add metadata support to RunnableConfig ([3f98f574e5e6104](https://github.com/bsorrentino/langgraph4j/commit/3f98f574e5e6104730fd339e79108683ba2b8cd6))
+     > - Introduced &#x60;HasMetadata&#x60;
+     > - Refactored &#x60;RunnableConfig&#x60; to include metadata management using builder.
+     > - Added unit tests for metadata handling in &#x60;StateGraphTest&#x60;.
+     > resolve #137
+   
+
+### Bug Fixes
+
+ -  **bom**  update scm connection URLs ([7c1b4b5a822e514](https://github.com/bsorrentino/langgraph4j/commit/7c1b4b5a822e514f6b9ee0dc1a449ce6077d1b3f))
+     > - changed &#x60;GIT_SCM_CONNECTION_URL&#x60; from SSH to HTTPS adding scm: prefix
 
 
 ### Documentation
 
+ -  bump to release 1.5.13 ([aa5ac6cd779a169](https://github.com/bsorrentino/langgraph4j/commit/aa5ac6cd779a169edc14b19414b68dcac926b532))
+
+ -  update link to relocated project langgraph4j-builder ([f5251fec321beb0](https://github.com/bsorrentino/langgraph4j/commit/f5251fec321beb03bdd0236642004636ac7c636f))
+     > work on #139
+
+ -  update link to relocated project langgraph4j-builder ([cf8414a154d8b51](https://github.com/bsorrentino/langgraph4j/commit/cf8414a154d8b512d8c10890cf9d1c0786e7f898))
+     > work on #139
+
+ -  **spring-ai-agent**  add site ([964fee3656fee1b](https://github.com/bsorrentino/langgraph4j/commit/964fee3656fee1b81dd02a0406346d31e4ad9418))
+
+ -  adds message to inform about relocation of sample projects ([2916696edeeb9ec](https://github.com/bsorrentino/langgraph4j/commit/2916696edeeb9ec2ae09677eb3cb28920a8ebbc3))
+     > - update links
+     > work on #139
+
+ -  adds message to inform about relocation of sample projects ([5f48629cabc7048](https://github.com/bsorrentino/langgraph4j/commit/5f48629cabc70483f01d999416f0da7405398071))
+     > work on #139
+
+ -  adds message to inform about relocation of sample projects ([edbcd1fecbb1a35](https://github.com/bsorrentino/langgraph4j/commit/edbcd1fecbb1a358a849c77417b603ca2cc43e92))
+     > work on #139
+
+ -  update changelog ([62818f344b5f4e3](https://github.com/bsorrentino/langgraph4j/commit/62818f344b5f4e31268b48b19239f9799e670c60))
+
  -  update changelog ([ae18f63ee946f33](https://github.com/bsorrentino/langgraph4j/commit/ae18f63ee946f331e5ef3054f0ea82e342d140aa))
 
 
+### Refactor
+
+ -  **studio/jetty**  relocate test to langgraph4j-examples project ([428193ad49e143a](https://github.com/bsorrentino/langgraph4j/commit/428193ad49e143a5423b49430502f42a65c35909))
+    > - remove dependencies
+ > work on #139
+
+ -  **studio/jetty**  relocate test to langgraph4j-examples project ([8706ad4a7c669d9](https://github.com/bsorrentino/langgraph4j/commit/8706ad4a7c669d98cc76375ad00e97ad8c1a2e1c))
+    > work on #139
+
+
+### ALM 
+
+ -  **how-to**  bump langchain4j version to v1.0.1 ([4e93c14754e14ad](https://github.com/bsorrentino/langgraph4j/commit/4e93c14754e14ad545dc8d079393e08fbc3457a4))
+    > Bump dependencies:
+ > - Increase langchain4j version from 1.0.0 to 1.0.1
+ > - Update beta version from 1.0.0-beta5 to 1.0.1-beta6
+
+ -  bump to version 1.5.13 ([2476b94b8a16d6d](https://github.com/bsorrentino/langgraph4j/commit/2476b94b8a16d6d9b9c0dd41a726dd87ed89f7b6))
+   
+ -  bump langchain4j version to v1.0.1 ([6c04795e0c8cbaa](https://github.com/bsorrentino/langgraph4j/commit/6c04795e0c8cbaab9b172384a7e686d9213a4600))
+    > Bump dependencies:
+ > - Increase langchain4j version from 1.0.0 to 1.0.1
+ > - Update beta version from 1.0.0-beta5 to 1.0.1-beta6
+
+ -  update to developer version 1.5-SNAPSHOT ([cf8e6ad98c72df2](https://github.com/bsorrentino/langgraph4j/commit/cf8e6ad98c72df2762d0852109d8ad81d127c7a1))
+   
+ -  **generator**  remove relocated implementation ([b84f498be42ee24](https://github.com/bsorrentino/langgraph4j/commit/b84f498be42ee241d29c721d6891eaf3d5a19f1d))
+    > work on #139
+
+ -  remove relocated generator module from build ([0250f7a8d3231e2](https://github.com/bsorrentino/langgraph4j/commit/0250f7a8d3231e203171cf159a4e8095f9c025ef))
+    > work on #139
+
+ -  **samples**  remove relocated implementation ([bc110bb83ce06d3](https://github.com/bsorrentino/langgraph4j/commit/bc110bb83ce06d367a6412e93185e9f82bcefd0e))
+    > work on #139
+
+ -  remove samples modules from build ([8bd3858913cada3](https://github.com/bsorrentino/langgraph4j/commit/8bd3858913cada3070d1b72589e536be0b8ebce7))
+    > work on #139
 
 
 
