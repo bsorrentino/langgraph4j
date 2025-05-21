@@ -39,8 +39,8 @@
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <langchain4j.version>1.0.0</langchain4j.version>
-    <langchain4j.beta>1.0.0-beta5</langchain4j.beta>
+    <langchain4j.version>1.0.1</langchain4j.version>
+    <langchain4j.beta>1.0.1-beta6</langchain4j.beta>
     <spring-ai.version>1.0.0</spring-ai.version>
   </properties>
 
