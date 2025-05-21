@@ -1,9 +1,11 @@
 package org.bsc.langgraph4j;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 
 /**
  * A final class representing configuration for a runnable task.
@@ -11,11 +13,12 @@ import static java.lang.String.format;
  * and stream mode, providing methods to modify these parameters safely
  * without permanently altering the original configuration.
  */
-public final class RunnableConfig {
-    private String threadId;
-    private String checkPointId;
-    private String nextNode;
-    private CompiledGraph.StreamMode streamMode = CompiledGraph.StreamMode.VALUES;
+public final class RunnableConfig implements HasMetadata<RunnableConfig.Builder> {
+    private final String threadId;
+    private final String checkPointId;
+    private final String nextNode;
+    private final CompiledGraph.StreamMode streamMode;
+    private final Map<String,Object> metadata;
 
     /**
      * Returns the stream mode of the compiled graph.
@@ -31,7 +34,7 @@ public final class RunnableConfig {
      * @return the thread ID wrapped in an {@code Optional}, or an empty {@code Optional} if no thread ID is set.
      */
     public Optional<String> threadId() {
-        return Optional.ofNullable(threadId);
+        return ofNullable(threadId);
     }
     /**
      * Returns the current {@code checkPointId} wrapped in an {@link Optional}.
@@ -39,7 +42,7 @@ public final class RunnableConfig {
      * @return an {@link Optional} containing the {@code checkPointId}, or {@link Optional#empty()} if it is null.
      */
     public Optional<String> checkPointId() {
-        return Optional.ofNullable(checkPointId);
+        return ofNullable(checkPointId);
     }
     /**
      * Returns an {@code Optional} describing the next node in the sequence,
@@ -48,7 +51,7 @@ public final class RunnableConfig {
      * @return an {@code Optional} describing the next node, or an empty {@code Optional}
      */
     public Optional<String> nextNode() {
-        return Optional.ofNullable(nextNode);
+        return ofNullable(nextNode);
     }
 
     /**
@@ -61,9 +64,10 @@ public final class RunnableConfig {
         if( this.streamMode == streamMode ) {
             return this;
         }
-        RunnableConfig newConfig = new RunnableConfig(this);
-        newConfig.streamMode = streamMode;
-        return newConfig;
+
+        return RunnableConfig.builder(this)
+                .streamMode(streamMode)
+                .build();
     }
 
     /**
@@ -77,9 +81,24 @@ public final class RunnableConfig {
         if( Objects.equals(this.checkPointId, checkPointId ) ) {
             return this;
         }
-        RunnableConfig newConfig = new RunnableConfig(this);
-        newConfig.checkPointId = checkPointId;
-        return newConfig;
+        return RunnableConfig.builder(this)
+                .checkPointId(checkPointId)
+                .build();
+
+    }
+
+    /**
+     * return metadata value for key
+     *
+     * @param key given metadata key
+     * @return metadata value for key if any
+     */
+    @Override
+    public Optional<Object> getMetadata(String key) {
+        if( key == null ) {
+            return Optional.empty();
+        }
+        return ofNullable( metadata ).map( m -> m.get(key) );
     }
 
     /**
@@ -103,22 +122,29 @@ public final class RunnableConfig {
      * This class provides a fluent interface to set various properties of a 
      * {@link RunnableConfig} object and then build the final configuration.
      */
-    public static class Builder {
-        private final RunnableConfig config;
+    public static class Builder extends HasMetadata.Builder<Builder> {
+        private String threadId;
+        private String checkPointId;
+        private String nextNode;
+        private CompiledGraph.StreamMode streamMode = CompiledGraph.StreamMode.VALUES;
 
         /**
          * Constructs a new instance of the {@link Builder} with default configuration settings.
          * Initializes a new {@link RunnableConfig} object for configuration purposes.
          */
-        Builder() {;
-            this.config = new RunnableConfig();
-        }
+        Builder() {}
+
         /** Initializes a new instance of the {@code Builder} class with the specified {@link RunnableConfig}.
          * 
          * @param config The configuration to be used for initialization.
          */
         Builder( RunnableConfig config ) {
-            this.config = new RunnableConfig(config);
+            Objects.requireNonNull(config, "config cannot be null!");
+            this.threadId       = config.threadId;
+            this.checkPointId   = config.checkPointId;
+            this.nextNode       = config.nextNode;
+            this.streamMode     = config.streamMode;
+            this.metadata       = config.metadata;
         }
         /**
          * Sets the ID of the thread.
@@ -127,7 +153,7 @@ public final class RunnableConfig {
          * @return a reference to this {@code Builder} object so that method calls can be chained together
          */
         public Builder threadId(String threadId) {
-            this.config.threadId = threadId;
+            this.threadId = threadId;
             return this;
         }
         /**
@@ -137,7 +163,7 @@ public final class RunnableConfig {
          * @return {@literal this} - a reference to the current `Builder` instance
          */
         public Builder checkPointId(String checkPointId) {
-            this.config.checkPointId = checkPointId;
+            this.checkPointId = checkPointId;
             return this;
         }
         /**
@@ -147,7 +173,7 @@ public final class RunnableConfig {
          * @return This builder instance, allowing for method chaining.
          */
         public Builder nextNode(String nextNode) {
-            this.config.nextNode = nextNode;
+            this.nextNode = nextNode;
             return this;
         }
         /**
@@ -157,7 +183,7 @@ public final class RunnableConfig {
          * @return A reference to this builder for method chaining.
          */
         public Builder streamMode(CompiledGraph.StreamMode streamMode) {
-            this.config.streamMode = streamMode;
+            this.streamMode = streamMode;
             return this;
         }
         /**
@@ -166,27 +192,23 @@ public final class RunnableConfig {
          * @return the configured {@code RunnableConfig} object
          */
         public RunnableConfig build() {
-            return config;
+            return new RunnableConfig(this);
         }
     }
-
     /**
      * Creates a new instance of {@code RunnableConfig} as a copy of the provided {@code config}.
      *
-     * @param config The configuration to copy.
-     * @throws NullPointerException If {@code config} is null.
+     * @param Builder The configuration builder.
      */
-    private RunnableConfig( RunnableConfig config ) {
-        Objects.requireNonNull( config, "config cannot be null" );
-        this.threadId = config.threadId;
-        this.checkPointId = config.checkPointId;
-        this.nextNode = config.nextNode;
-        this.streamMode = config.streamMode;
+    private RunnableConfig( Builder builder ) {
+        this.threadId       = builder.threadId;
+        this.checkPointId   = builder.checkPointId;
+        this.nextNode       = builder.nextNode;
+        this.streamMode     = builder.streamMode;
+        this.metadata       = ofNullable(builder.metadata)
+                                .map( Map::copyOf )
+                                .orElse(null);
     }
-    /**
-     * Default constructor for the {@link RunnableConfig} class. Private to prevent instantiation from outside the class.
-     */
-    private RunnableConfig() {}
 
     @Override
     public String toString() {

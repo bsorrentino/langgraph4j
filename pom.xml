@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.5.12</version>
+  <version>1.5.13</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -21,6 +21,11 @@
       <id>bsorrentino</id>
       <name>Bartolomeo Sorrentino</name>
       <email>bartolomeo.sorrentino@gmail.com</email>
+    </developer>
+    <developer>
+      <id>lambochen</id>
+      <name>lambochen</name>
+      <email>lambochen@yeah.net</email>
     </developer>
   </developers>
   <scm>
@@ -39,9 +44,10 @@
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <langchain4j.version>1.0.0</langchain4j.version>
-    <langchain4j.beta>1.0.0-beta5</langchain4j.beta>
-    <spring-ai.version>1.0.0-RC1</spring-ai.version>
+    <langchain4j.version>1.0.1</langchain4j.version>
+    <langchain4j.beta>1.0.1-beta6</langchain4j.beta>
+    <spring-ai.version>1.0.0</spring-ai.version>
+    <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
   </properties>
 
   <distributionManagement>
@@ -189,15 +195,24 @@
 
   <modules>
     <module>core</module>
+    <module>langgraph4j-bom</module>
+
+    <!-- LangGraph4j Integrate with LangChain4j -->
     <module>langchain4j</module>
-    <module>spring-ai</module>
     <module>agent-executor</module>
-    <module>how-tos</module>
+
+    <!-- LangGraph4j Integrate with Spring AI -->
+    <module>spring-ai</module>
     <module>spring-ai-agent</module>
+
+    <!-- studio -->
     <module>studio/base</module>
     <module>studio/jetty</module>
-    <module>studio/springboot</module>
     <module>studio/quarkus</module>
+    <module>studio/springboot</module>
+
+    <!-- examples -->
+    <module>how-tos</module>
   </modules>
 
   <profiles>
