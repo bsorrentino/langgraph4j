@@ -22,6 +22,11 @@
       <name>Bartolomeo Sorrentino</name>
       <email>bartolomeo.sorrentino@gmail.com</email>
     </developer>
+    <developer>
+      <id>lambochen</id>
+      <name>lambochen</name>
+      <email>lambochen@yeah.net</email>
+    </developer>
   </developers>
   <scm>
     <connection>scm:git: https://github.com/bsorrentino/langgraph4j.git </connection>
@@ -42,6 +47,7 @@
     <langchain4j.version>1.0.1</langchain4j.version>
     <langchain4j.beta>1.0.1-beta6</langchain4j.beta>
     <spring-ai.version>1.0.0</spring-ai.version>
+    <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
   </properties>
 
   <distributionManagement>
@@ -189,15 +195,24 @@
 
   <modules>
     <module>core</module>
+    <module>langgraph4j-bom</module>
+
+    <!-- LangGraph4j Integrate with LangChain4j -->
     <module>langchain4j</module>
-    <module>spring-ai</module>
     <module>agent-executor</module>
-    <module>how-tos</module>
+
+    <!-- LangGraph4j Integrate with Spring AI -->
+    <module>spring-ai</module>
     <module>spring-ai-agent</module>
+
+    <!-- studio -->
     <module>studio/base</module>
     <module>studio/jetty</module>
-    <module>studio/springboot</module>
     <module>studio/quarkus</module>
+    <module>studio/springboot</module>
+
+    <!-- examples -->
+    <module>how-tos</module>
   </modules>
 
   <profiles>
