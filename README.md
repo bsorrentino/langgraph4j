@@ -1,10 +1,11 @@
 
 # 🦜🕸️ LangGraph for Java
 
-‼️ **has been planned project relocation from personal to [langgraph4j](https://github.com/langgraph4j/) space** ‼️
+‼️ **has been planned project relocation from personal to [langgraph4j](https://github.com/langgraph4j/) space**
 ----
 
-[![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.5--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
+[License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)[![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.5--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases][![discord](https://img.shields.io/discord/1364514593765986365?logo=discord&style=flat)](https://discord.gg/szVVztSYKh)
+
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j] and [Spring AI]
 > It is inspired by [LangGraph] solution, part of [LangChain AI project][langchain.ai].
