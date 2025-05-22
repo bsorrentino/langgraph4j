@@ -9,6 +9,10 @@
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j]
 > It is a porting of original [LangGraph] from [LangChain AI project][langchain.ai] in Java fashion
 
+## Getting Started
+
+**New to LangGraph4j? Start here!** Our comprehensive **[Getting Started Guide](GETTING_STARTED.md)** will walk you through the core concepts, installation, and your first application.
+
 ## Features
 
 - [x] StateGraph
@@ -81,7 +85,8 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 | May 21, 2025 | `1.5.13` | official release
 
 
-## Quick Start
+## Quick Overview (Core Snippets)
+For a detailed explanation of these concepts and a step-by-step guide to building your first application, please see our full [Getting Started Guide](GETTING_STARTED.md). The snippets below offer a compact view of the main components.
 
 ### Adding LangGraph dependency
 
