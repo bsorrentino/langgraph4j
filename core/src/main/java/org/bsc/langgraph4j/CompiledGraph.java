@@ -176,6 +176,16 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     /**
+     * Get the last StateSnapshot of the given RunnableConfig.
+     *
+     * @param config - the RunnableConfig
+     * @return the last StateSnapshot of the given RunnableConfig if any
+     */
+    Optional<StateSnapshot<State>> lastStateOf( RunnableConfig config ) {
+        return getStateHistory( config ).stream().findFirst();
+    }
+
+    /**
      * Update the state of the graph with the given values.
      * If asNode is given, it will be used to determine the next node to run.
      * If not given, the next node will be determined by the state graph.
