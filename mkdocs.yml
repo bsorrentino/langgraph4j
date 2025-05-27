@@ -1,4 +1,6 @@
 site_name: LangGraph4j
+docs_dir: target/mkdocs
+site_dir: target/sitedocs
 repo_url: https://github.com/bsorrentino/langgraph4j
 theme:
   name: material
@@ -64,4 +66,4 @@ nav:
       - Parallel Branch: how-tos/parallel-branch.ipynb
       - PlantUML: how-tos/plantuml.ipynb
   - References: references.md
-  - JavaDoc: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
+  - JavaDoc: apidocs/index.html
