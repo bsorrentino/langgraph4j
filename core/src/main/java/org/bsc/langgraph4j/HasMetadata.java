@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public interface HasMetadata<B extends HasMetadata.Builder> {
+public interface HasMetadata<B extends HasMetadata.Builder<B>> {
 
     /**
      * return metadata value for key
@@ -14,10 +14,11 @@ public interface HasMetadata<B extends HasMetadata.Builder> {
      */
     Optional<Object> getMetadata(String key );
 
-    class Builder<B extends Builder> {
+    class Builder<B extends Builder<B>> {
         protected Map<String,Object> metadata;
 
-        B addMetadata( String key, Object value ) {
+        @SuppressWarnings("unchecked")
+        public B addMetadata( String key, Object value ) {
             if( metadata == null ) {
                 // Lazy initialization of metadata map
                 metadata = new HashMap<>();
@@ -29,3 +30,4 @@ public interface HasMetadata<B extends HasMetadata.Builder> {
         };
     }
 }
+
