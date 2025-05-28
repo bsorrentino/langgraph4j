@@ -4,6 +4,12 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ChatMessageType;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.ChatRequestParameters;
+import dev.langchain4j.model.chat.request.ResponseFormat;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.service.tool.ToolExecutor;
@@ -14,13 +20,17 @@ import org.bsc.langgraph4j.action.NodeAction;
 import org.bsc.langgraph4j.langchain4j.generators.StreamingChatGenerator;
 import org.bsc.langgraph4j.langchain4j.serializer.jackson.LC4jJacksonStateSerializer;
 import org.bsc.langgraph4j.langchain4j.serializer.std.LC4jStateSerializer;
+import org.bsc.langgraph4j.langchain4j.tool.LC4jToolMapBuilder;
 import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
@@ -149,20 +159,38 @@ public interface AgentExecutor {
      * The CallAgent class implements the NodeAction interface for handling
      * actions related to an AgentExecutor's state.
      */
-    class CallAgent implements NodeAction<State> {
+    class CallModel implements NodeAction<State> {
 
-        private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CallAgent.class);
+        private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CallModel.class);
 
-        final Agent agent;
+        private final ChatModel chatModel;
+        private final StreamingChatModel streamingChatModel;
+        private final SystemMessage systemMessage;
+
+        final ChatRequestParameters parameters;
+
+        public boolean isStreaming() {
+            return streamingChatModel != null;
+        }
 
         /**
          * Constructs a CallAgent with the specified agent.
          *
-         * @param agent the agent to be associated with this CallAgent
+         * @param builder the builder used to construct the Agent
          */
-        CallAgent( Agent agent ) {
-            this.agent = agent;
-        }
+        CallModel(Builder builder ) {
+            this.chatModel = builder.chatModel;
+            this.streamingChatModel = builder.streamingChatModel;
+            this.systemMessage = ofNullable( builder.systemMessage ).orElseGet( () -> SystemMessage.from("You are a helpful assistant") );
+
+            var parametersBuilder = ChatRequestParameters.builder()
+                    .toolSpecifications( builder.toolMap().keySet().stream().toList() );
+
+            if( builder.responseFormat != null ) {
+                parametersBuilder.responseFormat(builder.responseFormat);
+            }
+
+            this.parameters =  parametersBuilder.build();        }
 
         /**
          * Maps the result of the response from an AI message to a structured format.
@@ -185,6 +213,19 @@ public interface AgentExecutor {
             throw new IllegalStateException("Unsupported finish reason: " + response.finishReason() );
         }
 
+        private ChatRequest prepareRequest(List<ChatMessage> messages ) {
+
+            var reqMessages = new ArrayList<ChatMessage>() {{
+                add(systemMessage);
+                addAll(messages);
+            }};
+
+            return ChatRequest.builder()
+                    .messages( reqMessages )
+                    .parameters(parameters)
+                    .build();
+        }
+
         /**
          * Applies the action to the given state and returns the result.
          *
@@ -193,7 +234,7 @@ public interface AgentExecutor {
          * @throws IllegalArgumentException if no input is provided in the state
          */
         @Override
-        public Map<String,Object> apply( AgentExecutor.State state )  {
+        public Map<String,Object> apply( State state )  {
             log.trace( "callAgent" );
             var messages = state.messages();
 
@@ -201,21 +242,21 @@ public interface AgentExecutor {
                 throw new IllegalArgumentException("no input provided!");
             }
 
-            if( agent.isStreaming()) {
+            if( isStreaming()) {
 
-                var generator = StreamingChatGenerator.<AgentExecutor.State>builder()
+                var generator = StreamingChatGenerator.<State>builder()
                         .mapResult( this::mapResult )
                         .startingNode("agent")
                         .startingState( state )
                         .build();
-                agent.execute(messages, generator.handler());
+                streamingChatModel.chat(prepareRequest(messages),  generator.handler());
 
                 return Map.of( "_generator", generator);
 
 
             }
             else {
-                var response = agent.execute(messages);
+                var response = chatModel.chat(prepareRequest(messages));
 
                 return mapResult(response);
             }
@@ -228,9 +269,79 @@ public interface AgentExecutor {
     /**
      * Builder class for constructing a graph of agent execution.
      */
-    class Builder extends Agent.Builder<Builder> {
+    class Builder extends LC4jToolMapBuilder<Builder> {
 
         private StateSerializer<State> stateSerializer;
+        ChatModel chatModel;
+        StreamingChatModel streamingChatModel;
+        SystemMessage systemMessage;
+        ResponseFormat responseFormat;
+
+        public Builder chatModel( ChatModel chatModel ) {
+            if( this.chatModel == null ) {
+                this.chatModel = chatModel;
+            }
+            return this;
+        }
+
+        @Deprecated(forRemoval = true)
+        public Builder chatLanguageModel( ChatModel chatModel ) {
+            return chatModel( chatModel );
+        }
+
+        public Builder chatModel( StreamingChatModel streamingChatModel ) {
+            if( this.streamingChatModel == null ) {
+                this.streamingChatModel = streamingChatModel;
+            }
+            return this;
+        }
+
+        @Deprecated( forRemoval = true )
+        public Builder chatLanguageModel( StreamingChatModel streamingChatModel ) {
+            return chatModel( streamingChatModel );
+        }
+
+        public Builder systemMessage( SystemMessage systemMessage ) {
+            if( this.systemMessage == null ) {
+                this.systemMessage = systemMessage;
+            }
+            return this;
+        }
+
+        public Builder responseFormat( ResponseFormat responseFormat ) {
+            this.responseFormat = responseFormat;
+            return this;
+        }
+
+        /**
+         * Sets the tool specification for the graph builder.
+         *
+         * @param objectsWithTools the tool specification
+         * @return the updated GraphBuilder instance
+         */
+        @Deprecated
+        public Builder toolSpecification(Object objectsWithTools) {
+            super.toolsFromObject( objectsWithTools );
+            return this;
+        }
+
+        @Deprecated
+        public Builder toolSpecification(ToolSpecification spec, ToolExecutor executor) {
+            super.tool(spec, executor);
+            return this;
+        }
+
+        /**
+         * Sets the tool specification for the graph builder.
+         *
+         * @param toolSpecification the tool specifications
+         * @return the updated GraphBuilder instance
+         */
+        @Deprecated
+        public Builder toolSpecification(LC4jToolService.Specification toolSpecification) {
+            super.tool(toolSpecification.value(), toolSpecification.executor());
+            return this;
+        }
 
 
         /**
@@ -259,13 +370,11 @@ public interface AgentExecutor {
                 throw new IllegalArgumentException("a chatLanguageModel or streamingChatLanguageModel is required!");
             }
 
-            var agent = new Agent( this );
-
             if (stateSerializer == null) {
                 stateSerializer = Serializers.STD.object();
             }
 
-            final var callAgent = new CallAgent(agent);
+            final var callAgent = new CallModel(this);
             final var executeTools = new ExecuteTools(toolMap());
             final EdgeAction<State> shouldContinue = (state) ->
                     state.finalResponse()
