@@ -2,6 +2,69 @@
 
 
 
+<!-- "name: v1.5.14" is a release tag -->
+
+## [v1.5.14](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.14) (2025-05-28)
+
+### Features
+
+ *  **lc4j**  add tools from MCP client ([fdf9f66272b851b](https://github.com/bsorrentino/langgraph4j/commit/fdf9f66272b851bafaeb0ac751ead1be8720398c))
+   
+ *  **core**  add method to retrieve last StateSnapshot for RunnableConfig ([e425f0d41a7b3b8](https://github.com/bsorrentino/langgraph4j/commit/e425f0d41a7b3b8dd1f4289df981f50fe69c58c0))
+     > - Added a new method &#x60;lastStateOf&#x60; in &#x60;CompiledGraph.java&#x60; to fetch the latest &#x60;StateSnapshot&#x60; associated with a given &#x60;RunnableConfig&#x60;.
+   
+ *  Add comprehensive Getting Started guide ([658877ce1cd56be](https://github.com/bsorrentino/langgraph4j/commit/658877ce1cd56be6f29d605d6d198555c37433e0))
+     > This commit introduces a new comprehensive &quot;Getting Started&quot; document (&#x60;GETTING_STARTED.md&#x60;) to help new users understand and use LangGraph4j.
+     > The new guide covers:
+     > - Introduction to LangGraph4j
+     > - Core features and benefits
+     > - Detailed explanation of core concepts (StateGraph, AgentState, Nodes, Edges, Compilation, Checkpoints)
+     > - Installation instructions
+     > - A simple, step-by-step &quot;Your First Graph&quot; example
+     > - Overview of key capabilities (Async, Streaming, Persistence, Visualization, etc.)
+     > - Pointers for next steps (how-tos, samples, Javadocs)
+     > The main &#x60;index.md&#x60; file has been updated to:
+     > - Prominently link to the new &#x60;GETTING_STARTED.md&#x60;.
+     > - Reframe the existing &quot;Quick Start&quot; section as a &quot;Quick Overview&quot; for users who need a fast recap of core snippets, directing new users to the full guide.
+   
+
+### Bug Fixes
+
+ -  **core**  update addMetadata visibility to public ([3a36c44166b36ce](https://github.com/bsorrentino/langgraph4j/commit/3a36c44166b36ce3889debf144e0ce2e22ea0163))
+     > resolve issue #137
+
+
+### Documentation
+
+ -  bump to version 1.5.14 ([fcea5ebff9be3f9](https://github.com/bsorrentino/langgraph4j/commit/fcea5ebff9be3f9b72b7fa662814e981500300bb))
+
+ -  update documentation ([81dbbd4d935eb22](https://github.com/bsorrentino/langgraph4j/commit/81dbbd4d935eb22df07da2a5865f2e607e9a37bb))
+
+ -  update documentation ([37be59061863aa1](https://github.com/bsorrentino/langgraph4j/commit/37be59061863aa1b08839103dd238913266f5cdd))
+
+ -  update documentation ([2f849edafabee82](https://github.com/bsorrentino/langgraph4j/commit/2f849edafabee829ee3b76fa7583e82b1d619cd9))
+
+ -  update changelog ([b0d496e1b33f750](https://github.com/bsorrentino/langgraph4j/commit/b0d496e1b33f7507c1289388e86f84a9a387dc27))
+
+
+### Refactor
+
+ -  **AgentExecutor**  Reorganize class and methods ([aebb4693675068c](https://github.com/bsorrentino/langgraph4j/commit/aebb4693675068c5133ecff467c488b52e23db01))
+    > - move Agent execution logic to CallModel.
+
+
+### ALM 
+
+ -  bump to version 1.5.14 ([be8f317b0ddca63](https://github.com/bsorrentino/langgraph4j/commit/be8f317b0ddca639e0264540aad348c60b1fa7ad))
+   
+ -  bump to 1.5-SNAPSHOT ([9ef3bff75482928](https://github.com/bsorrentino/langgraph4j/commit/9ef3bff754829288d160911757f1e46bd3a5cf45))
+   
+
+
+
+
+
+
 <!-- "name: v1.5.13" is a release tag -->
 
 ## [v1.5.13](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.13) (2025-05-21)
