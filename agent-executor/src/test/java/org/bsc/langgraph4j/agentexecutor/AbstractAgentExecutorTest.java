@@ -22,10 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractAgentExecutorTest {
 
-    @BeforeAll
-    public static void loadEnv() {
-        DotEnvConfig.load();
-    }
 
     protected abstract  StateGraph<AgentExecutor.State> newGraph()  throws Exception ;
 

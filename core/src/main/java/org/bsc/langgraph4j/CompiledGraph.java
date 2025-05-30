@@ -312,11 +312,7 @@ public class CompiledGraph<State extends AgentState> {
     }
 
     Map<String,Object> getInitialStateFromSchema() {
-        return  stateGraph.getChannels().entrySet().stream()
-                .filter( c -> c.getValue().getDefault().isPresent() )
-                .collect(Collectors.toMap(Map.Entry::getKey, e ->
-                    e.getValue().getDefault().get().get()
-                ));
+        return stateGraph.getStateFactory().initialDataFromSchema(stateGraph.getChannels());
     }
 
     Map<String,Object> getInitialState(Map<String,Object> inputs, RunnableConfig config) {
@@ -324,7 +320,7 @@ public class CompiledGraph<State extends AgentState> {
         return compileConfig.checkpointSaver()
                 .flatMap( saver -> saver.get( config ) )
                 .map( cp -> AgentState.updateState( cp.getState(), inputs, stateGraph.getChannels() ))
-                .orElseGet( () -> AgentState.updateState(getInitialStateFromSchema(), inputs, stateGraph.getChannels() ));
+                .orElseGet( () -> AgentState.updateState( getInitialStateFromSchema(), inputs, stateGraph.getChannels() ));
     }
 
     State cloneState( Map<String,Object> data ) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
