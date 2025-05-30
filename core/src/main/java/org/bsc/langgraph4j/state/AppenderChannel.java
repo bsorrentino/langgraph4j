@@ -213,7 +213,8 @@ public class AppenderChannel<T> implements Channel<List<T>> {
     public final Object update( String key, Object oldValue, Object newValue) {
 
         if( newValue == null ) {
-            return oldValue;
+            // if newValue is null the channel is reset to the default value
+            return getDefault().orElse(ArrayList::new).get();
         }
 
         boolean oldValueIsList = oldValue instanceof List<?>;

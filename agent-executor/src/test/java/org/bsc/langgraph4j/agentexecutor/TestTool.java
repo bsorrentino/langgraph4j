@@ -20,4 +20,10 @@ public class TestTool {
         lastResult = format( "test tool ('%s') executed with result 'OK'", message);
         return lastResult;
     }
+
+    @Tool("return current number of system thread allocated by application")
+    int threadCount() {
+        return Thread.getAllStackTraces().size();
+    }
+
 }

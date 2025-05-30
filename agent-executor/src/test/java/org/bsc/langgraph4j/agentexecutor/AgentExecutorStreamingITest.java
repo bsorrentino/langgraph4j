@@ -24,18 +24,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AgentExecutorStreamingITest {
 
-    @BeforeAll
-    public static void loadEnv() {
-        DotEnvConfig.load();
-    }
-
     private StateGraph<AgentExecutor.State> newGraph()  throws Exception {
 
-        var openApiKey = DotEnvConfig.valueOf("OPENAI_API_KEY")
-                .orElseThrow( () -> new IllegalArgumentException("no APIKEY provided!"));
-
         var chatLanguageModel = OpenAiStreamingChatModel.builder()
-                .apiKey( openApiKey )
+                .apiKey( System.getenv( "OPENAI_API_KEY") )
                 .modelName( "gpt-4o-mini" )
                 .logResponses(true)
                 .temperature(0.0)
