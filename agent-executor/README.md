@@ -1,4 +1,4 @@
-# Langgraph4j - Agent Executor (AKA ReACT Agent)
+# Langgraph4j - Agent Executor
 
 The "<u>Agent Executor</u>" flow involves a sequence of steps where the agent receives a query, decides on necessary actions, invokes tools, processes responses, iteratively performs tasks if needed, and finally returns a synthesized response to the user. 
 
@@ -32,7 +32,7 @@ public void main( String args[] ) throws Exception {
 
     var toolExecutor = (toolExecutionRequest, memoryId) -> getPCName();
 
-    var chatModel = OpenAiChatModel.builder()
+    var chatLanguageModel = OpenAiChatModel.builder()
             .apiKey( System.getenv( "OPENAI_API_KEY" ) )
             .modelName( "gpt-4o-mini" )
             .logResponses(true)
@@ -44,10 +44,10 @@ public void main( String args[] ) throws Exception {
 
     var agentExecutor = AgentExecutor.graphBuilder()
                 .chatLanguageModel(chatLanguageModel)
-                // add object with tools
-                .toolFromObjects(new TestTool())
+                // add object with tool
+                .toolSpecification(new TestTool())
                 // add dynamic tool
-                .tool(toolSpecification, toolExecutor)
+                .toolExecutor(toolSpecification, toolExecutor)
                 .build();
 
     var workflow = agentExecutor.compile();

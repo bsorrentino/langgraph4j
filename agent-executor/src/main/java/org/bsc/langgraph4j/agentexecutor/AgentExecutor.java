@@ -24,7 +24,6 @@ import org.bsc.langgraph4j.langchain4j.tool.LC4jToolMapBuilder;
 import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.StateSerializer;
-import org.bsc.langgraph4j.utils.EdgeMappings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,15 +31,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
+import static org.bsc.langgraph4j.StateGraph.END;
 import static org.bsc.langgraph4j.StateGraph.START;
 import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 /**
- * Interface representing an Agent Executor (AKA ReACT agent).
+ * Interface representing an Agent Executor.
  */
 public interface AgentExecutor {
-    org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AgentExecutor.class);
 
     /**
      * Represents the state of an agent.
@@ -106,6 +105,7 @@ public interface AgentExecutor {
      */
     class ExecuteTools implements NodeAction<State> {
 
+        private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExecuteTools.class);
         /**
          * The tool node that will be executed.
          */
@@ -137,6 +137,7 @@ public interface AgentExecutor {
                     .map( m -> (AiMessage)m )
                     .filter(AiMessage::hasToolExecutionRequests)
                     .map(AiMessage::toolExecutionRequests);
+            //.orElseThrow(() -> new IllegalArgumentException("no tool execution request found!"));
 
             if( toolExecutionRequests.isEmpty() ) {
                 return Map.of("agent_response", "no tool execution request found!" );
@@ -159,6 +160,8 @@ public interface AgentExecutor {
      * actions related to an AgentExecutor's state.
      */
     class CallModel implements NodeAction<State> {
+
+        private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CallModel.class);
 
         private final ChatModel chatModel;
         private final StreamingChatModel streamingChatModel;
@@ -384,16 +387,14 @@ public interface AgentExecutor {
                     .addEdge(START, "agent")
                     .addConditionalEdges("agent",
                             edge_async(shouldContinue),
-                            EdgeMappings.builder()
-                                .to("action", "continue")
-                                .toEND( "end" )
-                                .build())
+                            Map.of("continue", "action", "end", END)
+                    )
                     .addEdge("action", "agent");
         }
     }
 
     /**
-     * Creates a new Builder instance.
+     * Creates a new GraphBuilder instance.
      *
      * @return a new Builder
      */

@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.agentexecutor.studio;
+package org.bsc.langgraph4j.agentexecutor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
