@@ -1,0 +1,69 @@
+site_name: LangGraph4j
+docs_dir: target/mkdocs
+site_dir: target/sitedocs
+repo_url: https://github.com/bsorrentino/langgraph4j
+theme:
+  name: material
+  logo: images/langgraph4j-icon.png
+  features:
+    - navigation.tabs
+    - toc.integrate
+    - toc.integrate.toc
+    - toc.integrate.toc.inline
+plugins:
+  - mkdocs-jupyter
+  - search
+  - tags
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+nav:
+  - Home: 
+    - Overview: index.md    
+    - Core Library:       
+      - Examples: https://github.com/langgraph4j/langgraph4j-examples
+      - JavaDoc: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
+    - How to(s): 
+      - Adaptive RAG: how-tos/adaptiverag.ipynb
+      - Agent Executor: how-tos/agentexecutor.ipynb
+      - Agent Executor with MCP: how-tos/agentexecutor-mcp.ipynb
+      - Multi-agent supervisor: how-tos/multi-agent-supervisor.ipynb
+      - Add persistence (“memory”) to your graph: how-tos/persistence.ipynb
+      - View and Update past graph state: how-tos/time-travel.ipynb
+      - Wait for User input: how-tos/wait-user-input.ipynb
+      - Subgraph as state graph: how-tos/subgraph-as-stategraph.ipynb
+      - Subgraph as compiled graph: how-tos/subgraph-as-compiledgraph.ipynb
+      - Subgraph as node action: how-tos/subgraph-as-nodeaction.ipynb
+      - Langchain4j LLM Streaming: how-tos/llm-streaming.ipynb
+      - Parallel Branch: how-tos/parallel-branch.ipynb
+      - PlantUML: how-tos/plantuml.ipynb
+    - LangGraph4j Studio: studio/index.md
+    - LangGraph4j Builder: builder/index.md
+    - Integrations: integration.md      
+    - Latest Release Notes: release-notes.md
+  - Getting Started: getting-started.md
+  - Features: features.md  
+  - Tutorial:
+      - Core Library: core/low_level.md
+      - Streaming: core/streaming.md
+      - Subgraphs: core/subgraph.md
+  - Examples: https://github.com/langgraph4j/langgraph4j-examples
+  - How to(s): 
+      - Adaptive RAG: how-tos/adaptiverag.ipynb
+      - Agent Executor: how-tos/agentexecutor.ipynb
+      - Agent Executor with MCP: how-tos/agentexecutor-mcp.ipynb
+      - Multi-agent supervisor: how-tos/multi-agent-supervisor.ipynb
+      - Add persistence (“memory”) to your graph: how-tos/persistence.ipynb
+      - View and Update past graph state: how-tos/time-travel.ipynb
+      - Wait for User input: how-tos/wait-user-input.ipynb
+      - Subgraph as state graph: how-tos/subgraph-as-stategraph.ipynb
+      - Subgraph as compiled graph: how-tos/subgraph-as-compiledgraph.ipynb
+      - Subgraph as node action: how-tos/subgraph-as-nodeaction.ipynb
+      - Langchain4j LLM Streaming: how-tos/llm-streaming.ipynb
+      - Parallel Branch: how-tos/parallel-branch.ipynb
+      - PlantUML: how-tos/plantuml.ipynb
+  - References: references.md
+  - JavaDoc: apidocs/index.html
