@@ -25,7 +25,7 @@ nav:
     - Overview: index.md    
     - Core Library:       
       - Examples: https://github.com/langgraph4j/langgraph4j-examples
-      - JavaDoc: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
+      # - JavaDoc: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
     - How to(s): 
       - Adaptive RAG: how-tos/adaptiverag.ipynb
       - Agent Executor: how-tos/agentexecutor.ipynb

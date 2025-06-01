@@ -2,7 +2,7 @@
 
 An **embed playground webapp** that runs a Langgraph4j workflow in visual way.
 
-![demo](base/src/site/resources/studio-demo.gifstudio-demo.gif)
+![demo](base/src/site/resources/studio-demo.gif)
 
 ## Features
 
