@@ -373,7 +373,7 @@ LangGraph4j is packed with features to build sophisticated agentic applications:
 
 Now that you have a basic understanding of LangGraph4j, here's how you can continue your journey:
 
-*   **Explore the `how-tos`:** The [`how-tos/`](how-tos) directory in the repository contains Jupyter notebooks (runnable with Java kernels like [IJava](https://github.com/SpencerPark/IJava)) that demonstrate various features with code examples.
+*   **Explore the `how-to`:** The [`how-tos/`](how-tos) directory in the repository contains Jupyter notebooks (runnable with Java kernels like [IJava](https://github.com/SpencerPark/IJava)) that demonstrate various features with code examples.
 *   **Study the Examples:** Check out the examples from [here](https://github.com/langgraph4j/langgraph4j-examples) for more complete application examples, including integrations with Langchain4j and Spring AI.
 *   **Consult the Javadocs:** For detailed information on classes and methods, refer to the [API documentation (Javadocs)][javadocs]. *(Link might need updating if official project documentation site changes)*
 *   **Experiment!** The best way to learn is by doing. Try modifying the examples or building your own simple graphs.
@@ -429,14 +429,14 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [AgentExecutor]: https://github.com/langchain-ai/langchain/blob/master/libs/langchain/langchain/agents/agent.py
 [java-async-generator]: https://github.com/bsorrentino/java-async-generator
 
+[how-tos/plantuml.ipynb]: how-tos/plantuml.ipynb
+[how-tos/persistence.ipyb]: how-tos/persistence.ipyb
+[how-tos/llm-streaming.ipynb]: how-tos/llm-streaming.ipynb
+[how-tos/time-travel.ipynb]: how-tos/time-travel.ipynb
+[how-tos/subgraph-as-nodeaction.ipynb]: how-tos/subgraph-as-nodeaction.ipynb
+[how-tos/subgraph-as-compiledgraph.ipynb]: how-tos/subgraph-as-compiledgraph.ipynb
+[how-tos/subgraph-as-stategraph.ipynb]: how-tos/subgraph-as-stategraph.ipynb
 <!-- 
-[how-tos/plantuml.ipynb]: how-tos/langgraph4j-howtos/plantuml.html
-[how-tos/persistence.ipyb]: how-tos/langgraph4j-howtos/persistence.html
-[how-tos/llm-streaming.ipynb]: how-tos/langgraph4j-howtos/llm-streaming.html
-[how-tos/time-travel.ipynb]: how-tos/langgraph4j-howtos/time-travel.html
-[how-tos/subgraph-as-nodeaction.ipynb]: how-tos/langgraph4j-howtos/subgraph-as-nodeaction.html
-[how-tos/subgraph-as-compiledgraph.ipynb]: how-tos/langgraph4j-howtos/subgraph-as-compiledgraph.html
-[how-tos/subgraph-as-stategraph.ipynb]:how-tos/langgraph4j-howtos/subgraph-as-stategraph.html
 [generator]: https://github.com/bsorrentino/langgraph4j/tree/main/generator
 [Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
 [releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
