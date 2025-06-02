@@ -17,10 +17,10 @@ public interface AsyncNodeActionWithConfig<S extends AgentState> extends BiFunct
     /**
      * Applies this action to the given agent state.
      *
-     * @param t the agent state
+     * @param state the agent state
      * @return a CompletableFuture representing the result of the action
      */
-    CompletableFuture<Map<String, Object>> apply(S t, RunnableConfig config);
+    CompletableFuture<Map<String, Object>> apply(S state, RunnableConfig config);
 
 
     /**

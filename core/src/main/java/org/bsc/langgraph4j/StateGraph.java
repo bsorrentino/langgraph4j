@@ -194,7 +194,7 @@ public class StateGraph<State extends AgentState> {
      * @param subGraph the compiled subgraph to be added
      * @return this state graph instance
      * @throws GraphStateException if the node identifier is invalid or the node already exists
-     * @Deprecated use {@code addNode( String, CompiledGraph<State> )} instead
+     * @deprecated use {@code addNode( String, CompiledGraph<State> )} instead
      */
     @Deprecated
     public StateGraph<State> addSubgraph(String id, CompiledGraph<State> subGraph) throws GraphStateException {

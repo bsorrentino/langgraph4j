@@ -23,7 +23,7 @@ public interface AsyncCommandAction<S extends AgentState> extends BiFunction<S, 
 
     static <S extends AgentState> AsyncCommandAction<S> of(AsyncEdgeAction<S> action) {
         return (state, config) ->
-                action.apply(state).thenApply( result -> new Command( result, null));
+                action.apply(state).thenApply(Command::new);
     }
 
 }

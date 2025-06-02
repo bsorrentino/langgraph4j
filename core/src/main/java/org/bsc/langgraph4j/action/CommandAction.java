@@ -5,5 +5,5 @@ import org.bsc.langgraph4j.state.AgentState;
 
 @FunctionalInterface
 public interface CommandAction<S extends AgentState> {
-    Command apply(S t, RunnableConfig config) throws Exception;
+    Command apply(S state, RunnableConfig config) throws Exception;
 }

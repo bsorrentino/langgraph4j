@@ -238,7 +238,7 @@ public class CompiledGraph<State extends AgentState> {
         if( asNode != null ) {
             var nextNodeCommand = nextNodeId( asNode, branchCheckpoint.getState(), config );
 
-            nextNodeId = nextNodeCommand.gotoNode().get();
+            nextNodeId = nextNodeCommand.gotoNode();
             branchCheckpoint =  branchCheckpoint.updateState( nextNodeCommand.update(), stateGraph.getChannels() );
 
         }
@@ -289,7 +289,7 @@ public class CompiledGraph<State extends AgentState> {
 
             var command = route.value().action().apply(derefState,config).get();
 
-            var newRoute = command.gotoNode().orElseThrow( () -> RunnableErrors.executionError.exception( "edge action returns null gotoNode" ));
+            var newRoute = command.gotoNode();
 
             String result = route.value().mappings().get(newRoute);
             if( result == null ) {
@@ -556,7 +556,7 @@ public class CompiledGraph<State extends AgentState> {
                             }
 
                             var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
-                            nextNodeId = nextNodeCommand.gotoNode().get();
+                            nextNodeId = nextNodeCommand.gotoNode();
                             currentState = nextNodeCommand.update();
 
                             resumedFromEmbed = true;
@@ -578,7 +578,7 @@ public class CompiledGraph<State extends AgentState> {
                         currentState = AgentState.updateState(currentState, updateState, stateGraph.getChannels());
 
                         var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
-                        nextNodeId = nextNodeCommand.gotoNode().get();
+                        nextNodeId = nextNodeCommand.gotoNode();
                         currentState = nextNodeCommand.update();
 
                         return Data.of( getNodeOutput() );
@@ -600,7 +600,7 @@ public class CompiledGraph<State extends AgentState> {
                     currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
 
                     var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
-                    nextNodeId = nextNodeCommand.gotoNode().get();
+                    nextNodeId = nextNodeCommand.gotoNode();
                     currentState = nextNodeCommand.update();
 
 
@@ -659,7 +659,7 @@ public class CompiledGraph<State extends AgentState> {
 
                 if( START.equals(currentNodeId) ) {
                     var nextNodeCommand = getEntryPoint(currentState, config) ;
-                    nextNodeId = nextNodeCommand.gotoNode().get();
+                    nextNodeId = nextNodeCommand.gotoNode();
                     currentState = nextNodeCommand.update();
 
                     var cp = addCheckpoint( config, START, currentState, nextNodeId );

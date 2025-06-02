@@ -15,10 +15,10 @@ public interface AsyncEdgeAction<S extends AgentState> extends Function<S, Compl
     /**
      * Applies this action to the given agent state.
      *
-     * @param t the agent state
+     * @param state the agent state
      * @return a CompletableFuture representing the result of the action
      */
-    CompletableFuture<String> apply(S t);
+    CompletableFuture<String> apply(S state);
 
     /**
      * Creates an asynchronous edge action from a synchronous edge action.
