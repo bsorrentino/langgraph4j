@@ -268,22 +268,6 @@ public class LangGraphStudioConfiguration extends AbstractLangGraphStudioConfig 
         return this.flow;
     }
 }
-
-```java
-var agentExecutor = AgentExecutor.graphBuilder()
-    .chatLanguageModel(chatLanguageModel)
-    // add object with tool
-    .toolSpecification(new TestTool())
-    // add dynamic tool
-    .toolExecutor(toolSpecification, toolExecutor)
-    .build();
-
-var workflow = agentExecutor.compile();
-
-var state =  workflow.stream( Map.of( "messages", UserMessage.from("Run my test!") ) );
-
-System.out.println( state.lastMessage() );
 ```
-
 
 [Spring AI]: https://spring.io/projects/spring-ai
