@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.internal.node;
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.SubGraphNode;
+import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Objects;
