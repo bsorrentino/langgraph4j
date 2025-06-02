@@ -391,10 +391,10 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 * [LangGraph4j Generator - Visually scaffold LangGraph Java code](https://dev.to/bsorrentino/langgraph4j-generator-2ika)
 * [AI Agent in Java with LangGraph4j][article01]
 * [Building Stateful Multi AI Agents -LangGraph4J & Spring AI](https://medium.com/@ganeshmoorthy5999/building-stateful-multi-ai-agents-langgraph4j-spring-ai-c0046e293d00)
-* [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 
 ## Projects
 
+* [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 * [AIDEEPIN: Ai-based productivity tools (Chat,Draw,RAG,Workflow etc)](https://github.com/moyangzhan/langchain4j-aideepin)
 * [Dynamo Multi AI Agent POC: Unlock the Power of Spring AI and LangGraph4J](https://github.com/Breezeware-OS/dynamo-multi-ai-agent-langgraph4j-starter)
 * [LangChain4j & LangGraph4j Integrate LangFuse](https://github.com/Kugaaa/langchain4j-langfuse)
