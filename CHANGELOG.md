@@ -2,6 +2,176 @@
 
 
 
+<!-- "name: v1.6.0-beta1" is a release tag -->
+
+## [v1.6.0-beta1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.6.0-beta1) (2025-06-02)
+
+### Features
+
+ *  finalize usage of CommandAction as Conditional Edges action ([8d25600e6bb5ff1](https://github.com/bsorrentino/langgraph4j/commit/8d25600e6bb5ff119c205977cf70a94da91979d6))
+     > resolve #109
+   
+ *  **StateGraph**  add node and conditional edges accepting command action ([6c4bf8b4ef272c4](https://github.com/bsorrentino/langgraph4j/commit/6c4bf8b4ef272c42a3f4c4f514593e38215a080f))
+     > work on #109
+   
+ *  **compiledgraph**  add support command in Edge evaluation ([8db59a12f613cb0](https://github.com/bsorrentino/langgraph4j/commit/8db59a12f613cb027d609d32cd55f7433efe1997))
+     > - From now conditional edge can contribute to state management
+     > work on #109
+   
+ *  **core**  handle the gotoNode command when evaluating the next node to go to ([41de390505796d1](https://github.com/bsorrentino/langgraph4j/commit/41de390505796d11926caea4e90791c2ac56017b))
+     > move enum RunnableErrors from StateGraph to CompiledGraph
+     > work on #109
+   
+ *  **core**  enforce optional semantic to gotoNode field to Command record ([09bb03c777ee70c](https://github.com/bsorrentino/langgraph4j/commit/09bb03c777ee70c22e0479fe53c5755d7a637f90))
+     > work on #109
+   
+ *  **core**  enforce optional semantic to gotoNode field to Command record ([0a65e51f5b66b6b](https://github.com/bsorrentino/langgraph4j/commit/0a65e51f5b66b6b002e1e7edb7301ec4acef8286))
+     > work on #109
+   
+ *  **core**  add metadata support to RunnableConfig ([84ef52315e2278c](https://github.com/bsorrentino/langgraph4j/commit/84ef52315e2278ca655fccffc771a7bfee089c9c))
+     > - Introduced &#x60;HasMetadata&#x60;
+     > - Refactored &#x60;RunnableConfig&#x60; to include metadata management using builder.
+     > - Added unit tests for metadata handling in &#x60;StateGraphTest&#x60;.
+     > resolve #137
+   
+ *  **core**  add  command action support ([ccb31d7be762526](https://github.com/bsorrentino/langgraph4j/commit/ccb31d7be7625266b3ce57841445248a4098c148))
+     > - Added new &#x60;Command&#x60; class  to represent a navigational command for nodes and updating properties.
+     > - Implemented &#x60;AsyncCommandAction&#x60; and &#x60;CommandAction&#x60; functional interface for agent state management.
+     > work on #109
+   
+
+
+### Documentation
+
+ -  bump to version 1.6-SNAPSHOT ([d746aab981c719d](https://github.com/bsorrentino/langgraph4j/commit/d746aab981c719de106297feb24b5f97bede4211))
+
+ -  bump to version 1.6.0-beta1 ([e3341adc522e574](https://github.com/bsorrentino/langgraph4j/commit/e3341adc522e574193139f49a68eab1a29e890c4))
+
+ -  update site menu ([d82edb39006116e](https://github.com/bsorrentino/langgraph4j/commit/d82edb39006116e7b597aa8c681dd0fdd6f2c5fa))
+
+ -  refine decumentation ([acdc0a8a6a86199](https://github.com/bsorrentino/langgraph4j/commit/acdc0a8a6a86199672218fe5da3c94802a5c6c3f))
+
+ -  update projects links ([c4c3cba0600b274](https://github.com/bsorrentino/langgraph4j/commit/c4c3cba0600b274d3e86d767f0b1615d59e7b6df))
+
+ -  update projects links ([808699ec3edffa7](https://github.com/bsorrentino/langgraph4j/commit/808699ec3edffa7408b5914c9eec7ac9b725514b))
+
+ -  update projects links ([600183b762ed028](https://github.com/bsorrentino/langgraph4j/commit/600183b762ed0288246a534ee46daaeaf473ffa3))
+
+ -  update badges ([63fc1e8ab196bcb](https://github.com/bsorrentino/langgraph4j/commit/63fc1e8ab196bcbc9db472edf688867d262aa932))
+
+
+### Refactor
+
+ -  **spring-ai-agent**  remove deprecated chatService method ([8590cc4da73cabc](https://github.com/bsorrentino/langgraph4j/commit/8590cc4da73cabc1067d48bbc49df948610fdf19))
+    > BREAKING CHANGE:
+
+ -  **agent-executor**  remove deprecated methods for chat model selection ([1e6e4a6995ff120](https://github.com/bsorrentino/langgraph4j/commit/1e6e4a6995ff1206b5b01393650948de49581083))
+    > - Removed &#x60;chatLanguageModel&#x60;
+ > BREAKING CHANGE:
+
+ -  **langchain4j**  Remove deprecated ToolNode class ([1318e32652c34c9](https://github.com/bsorrentino/langgraph4j/commit/1318e32652c34c991b136c696ac1d5c0091d2d74))
+    > BREAKING CHANGE:
+
+ -  **core**  remove deprecation marked for removal ([697135a4a4f130e](https://github.com/bsorrentino/langgraph4j/commit/697135a4a4f130ec365b94946cc93ffa3fc1e234))
+    > - NodeOutput removed  &#x27;getState&#x27;.
+ > - Removed deprecated method of creating AppenderChannel and Channel replacing it with Channels.appender.
+ > BREAKING CHANGE:
+
+ -  **how-to**  refine implementation ([ad703b88f0afb7a](https://github.com/bsorrentino/langgraph4j/commit/ad703b88f0afb7a68cc3ff9205a9a29c5dc867aa))
+    > - use EdgeMappings in multi agent notebook
+ > - add workflow in plantuml notebook
+
+ -  **how-to**  bump to version 1.6-SNAPSHOT ([8d5b297bd7c22a7](https://github.com/bsorrentino/langgraph4j/commit/8d5b297bd7c22a7f3cb92344f2f6a6596c4e657c))
+   
+ -  **core**  remove support for returning command from node action ([f317936a999aea0](https://github.com/bsorrentino/langgraph4j/commit/f317936a999aea0935ea82753596207528ef7194))
+    > work on #109
+
+ -  **edgeCondition**  update action type to AsyncCommandAction ([74e4d5af40aac25](https://github.com/bsorrentino/langgraph4j/commit/74e4d5af40aac25ebfc95d9d253b490af9910a2c))
+    > work on #109
+
+ -  **StateGraph**  update edge construction with AsyncCommandAction ([529c3654ec81fc2](https://github.com/bsorrentino/langgraph4j/commit/529c3654ec81fc292853cea0b7f901679e78dc70))
+    > work on #109
+
+ -  **core**  refactor to use new  `AsyncCommandAction` ([6e73884974f5fa3](https://github.com/bsorrentino/langgraph4j/commit/6e73884974f5fa3e004a8fad05e863e0776f2dfe))
+    > work on #109
+
+
+### ALM 
+
+ -  bump to version 1.6.0-beta1 ([3eb0c45cf378901](https://github.com/bsorrentino/langgraph4j/commit/3eb0c45cf3789018e178ffecffc97780406cb620))
+   
+ -  **deploy-sitel**  fix site path ([9713fcccdd7533b](https://github.com/bsorrentino/langgraph4j/commit/9713fcccdd7533b8e30b834c2a5461e2ba0224d1))
+   
+ -  **deploy-sitel**  add python dependencies ([29d6f090bfe3fdd](https://github.com/bsorrentino/langgraph4j/commit/29d6f090bfe3fddac424d88c5cb0f3b3764c5074))
+   
+ -  bump to 1.6-SNAPSHOT ([1b65454d97e1ca1](https://github.com/bsorrentino/langgraph4j/commit/1b65454d97e1ca138cc8d7871563dff8d0d756c6))
+   
+
+
+
+
+
+
+<!-- "name: v1.6-20250601-1" is a release tag -->
+
+## [v1.6-20250601-1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.6-20250601-1) (2025-06-01)
+
+### Features
+
+ *  **AgentExecutor**  add a ReACT agent that make in evidence make in evidence the tools execution using and action dispatcher node ([ce5a7aefb0b1bc6](https://github.com/bsorrentino/langgraph4j/commit/ce5a7aefb0b1bc6807bdad49cdb34875f5ee355d))
+     > - good to see in action with Studio
+   
+ *  **core**  handle newValue as null in AppenderChannel ([25a760489ebbd84](https://github.com/bsorrentino/langgraph4j/commit/25a760489ebbd848685bd4a4f7ed5e744345a76b))
+     > - When newValue is null the channel is reset to default value
+     > BREAKING CHANGE: this change previous behaviour where the null value was ignored
+   
+ *  **AgentExecutor**  add a ReACT agent that make in evidence make in evidence the tools execution using and action dispatcher node ([8e9df91996cf5b6](https://github.com/bsorrentino/langgraph4j/commit/8e9df91996cf5b677d9e0f990a4b519ca44c18b1))
+     > - good to see in action with Studio
+   
+
+
+### Documentation
+
+ -  update changelog ([878bb035aa01f1b](https://github.com/bsorrentino/langgraph4j/commit/878bb035aa01f1b7ef73573a07a9f44ac727db48))
+
+ -  Added documentation created with Mkdocs framework able to generate the whole langgraph4j site ([0b78ce212aca56e](https://github.com/bsorrentino/langgraph4j/commit/0b78ce212aca56e77fb4d49492a173d85e6dbbff))
+
+
+### Refactor
+
+ -  **AgentExecutor**  clean code and review readme ([1f246146ccf27b0](https://github.com/bsorrentino/langgraph4j/commit/1f246146ccf27b09500f140fe97000ad28fe90fe))
+   
+ -  **core/AppenderChannel**  handle newValue  equals NULL ([369ba8d2c46df95](https://github.com/bsorrentino/langgraph4j/commit/369ba8d2c46df957fd90bf33695d7f93c7d579e2))
+    > -Reset to default value when newValue is null
+ > BREAKING CHANGE: this change previous behaviour where the null value was ignored
+
+ -  update project site using mkdocs ([ca73d5be1d692bd](https://github.com/bsorrentino/langgraph4j/commit/ca73d5be1d692bd2f8d13d713558e31464d72732))
+    > - add build script :
+ > - start maven site
+ > - copy javadoc before build
+ > - copy notebbok before site build
+ > merge PR #150
+
+ -  update project site using mkdocs ([98393d69abea40f](https://github.com/bsorrentino/langgraph4j/commit/98393d69abea40f42f86d0cf1e63f54985e1dbdc))
+    > - add build script :
+ > - start maven site
+ > - copy javadoc before build
+ > - copy notebbok before site build
+ > merge PR #150
+
+
+### ALM 
+
+ -  add deploy site action (alpha version) ([1afac3bb2475d38](https://github.com/bsorrentino/langgraph4j/commit/1afac3bb2475d382f755038d9d22611ff7649810))
+   
+ -  bump to SNAPSHOT 1.5-SNAPSHOT ([b54c78f62b9cac2](https://github.com/bsorrentino/langgraph4j/commit/b54c78f62b9cac25edbcf5ebef7d5e3c7cbfc096))
+   
+
+
+
+
+
+
 <!-- "name: v1.5.14" is a release tag -->
 
 ## [v1.5.14](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.5.14) (2025-05-28)
