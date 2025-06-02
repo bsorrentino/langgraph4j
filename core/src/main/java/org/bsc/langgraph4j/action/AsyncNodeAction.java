@@ -17,10 +17,10 @@ public interface AsyncNodeAction<S extends AgentState> extends Function<S, Compl
     /**
      * Applies this action to the given agent state.
      *
-     * @param t the agent state
+     * @param state the agent state
      * @return a CompletableFuture representing the result of the action
      */
-    CompletableFuture<Map<String, Object>> apply(S t);
+    CompletableFuture<Map<String, Object>> apply(S state);
 
     /**
      * Creates an asynchronous node action from a synchronous node action.

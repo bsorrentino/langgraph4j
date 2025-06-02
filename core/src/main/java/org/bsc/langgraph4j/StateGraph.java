@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j;
 
+import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
@@ -62,32 +63,6 @@ public class StateGraph<State extends AgentState> {
          */
         public GraphStateException exception(Object... args) {
             return new GraphStateException(format(errorMessage, (Object[]) args));
-        }
-    }
-
-    /**
-     * Enum representing various error messages related to graph runner.
-     */
-    enum RunnableErrors {
-        missingNodeInEdgeMapping("cannot find edge mapping for id: '%s' in conditional edge with sourceId: '%s' "),
-        missingNode("node with id: '%s' doesn't exist!"),
-        missingEdge("edge with sourceId: '%s' doesn't exist!"),
-        executionError("%s");
-
-        private final String errorMessage;
-
-        RunnableErrors(String errorMessage) {
-            this.errorMessage = errorMessage;
-        }
-
-        /**
-         * Creates a new GraphRunnerException with the formatted error message.
-         *
-         * @param args the arguments to format the error message
-         * @return a new GraphRunnerException
-         */
-        GraphRunnerException exception(String... args) {
-            return new GraphRunnerException(format(errorMessage, (Object[]) args));
         }
     }
 
@@ -167,15 +142,15 @@ public class StateGraph<State extends AgentState> {
     /**
      *
      * @param id the identifier of the node
-     * @param actionWithConfig the action to be performed by the node
+     * @param action the action to be performed by the node
      * @return this
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
-    public StateGraph<State> addNode(String id, AsyncNodeActionWithConfig<State> actionWithConfig) throws GraphStateException {
+    public StateGraph<State> addNode(String id, AsyncNodeActionWithConfig<State> action) throws GraphStateException {
         if (Objects.equals(id, END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
-        Node<State> node = new Node<>(id, (config ) -> actionWithConfig);
+        Node<State> node = new Node<>(id, (config ) -> action );
 
         if (nodes.elements.contains(node)) {
             throw Errors.duplicateNodeError.exception(id);
@@ -219,7 +194,7 @@ public class StateGraph<State extends AgentState> {
      * @param subGraph the compiled subgraph to be added
      * @return this state graph instance
      * @throws GraphStateException if the node identifier is invalid or the node already exists
-     * @Deprecated use {@code addNode( String, CompiledGraph<State> )} instead
+     * @deprecated use {@code addNode( String, CompiledGraph<State> )} instead
      */
     @Deprecated
     public StateGraph<State> addSubgraph(String id, CompiledGraph<State> subGraph) throws GraphStateException {
@@ -302,7 +277,7 @@ public class StateGraph<State extends AgentState> {
      * @param mappings  the mappings of conditions to target nodes
      * @throws GraphStateException if the edge identifier is invalid, the mappings are empty, or the edge already exists
      */
-    public StateGraph<State> addConditionalEdges(String sourceId, AsyncEdgeAction<State> condition, Map<String, String> mappings) throws GraphStateException {
+    public StateGraph<State> addConditionalEdges(String sourceId, AsyncCommandAction<State> condition, Map<String, String> mappings) throws GraphStateException {
         if (Objects.equals(sourceId, END)) {
             throw Errors.invalidEdgeIdentifier.exception(END);
         }
@@ -310,7 +285,7 @@ public class StateGraph<State extends AgentState> {
             throw Errors.edgeMappingIsEmpty.exception(sourceId);
         }
 
-        var newEdge =  new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>(condition, mappings)) );
+        var newEdge =  new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>( condition, mappings)) );
 
         if( edges.elements.contains( newEdge ) ) {
             throw Errors.duplicateConditionalEdgeError.exception(sourceId);
@@ -319,6 +294,18 @@ public class StateGraph<State extends AgentState> {
             edges.elements.add( newEdge );
         }
         return this;
+    }
+
+    /**
+     * Adds conditional edges to the graph.
+     *
+     * @param sourceId  the identifier of the source node
+     * @param condition the condition to determine the target node
+     * @param mappings  the mappings of conditions to target nodes
+     * @throws GraphStateException if the edge identifier is invalid, the mappings are empty, or the edge already exists
+     */
+    public StateGraph<State> addConditionalEdges(String sourceId, AsyncEdgeAction<State> condition, Map<String, String> mappings) throws GraphStateException {
+        return addConditionalEdges( sourceId, AsyncCommandAction.of(condition), mappings);
     }
 
     void validateGraph( ) throws GraphStateException {

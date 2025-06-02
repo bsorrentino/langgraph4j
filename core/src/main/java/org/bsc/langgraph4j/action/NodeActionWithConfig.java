@@ -8,6 +8,6 @@ import java.util.Map;
 
 @FunctionalInterface
 public interface NodeActionWithConfig<S extends AgentState> {
-    Map<String, Object> apply(S t, RunnableConfig config) throws Exception;
+    Map<String, Object> apply(S state, RunnableConfig config) throws Exception;
 
 }

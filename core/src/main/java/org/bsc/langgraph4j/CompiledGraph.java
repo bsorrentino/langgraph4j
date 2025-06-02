@@ -1,8 +1,10 @@
 package org.bsc.langgraph4j;
 
 import org.bsc.async.AsyncGenerator;
+import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
+import org.bsc.langgraph4j.action.Command;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.internal.edge.Edge;
@@ -34,6 +36,33 @@ import static org.bsc.langgraph4j.StateGraph.START;
  */
 public class CompiledGraph<State extends AgentState> {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CompiledGraph.class);
+
+    /**
+     * Enum representing various error messages related to graph runner.
+     */
+    enum RunnableErrors {
+        missingNodeInEdgeMapping("cannot find edge mapping for id: '%s' in conditional edge with sourceId: '%s' "),
+        missingNode("node with id: '%s' doesn't exist!"),
+        missingEdge("edge with sourceId: '%s' doesn't exist!"),
+        executionError("%s");
+
+        private final String errorMessage;
+
+        RunnableErrors(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+
+        /**
+         * Creates a new GraphRunnerException with the formatted error message.
+         *
+         * @param args the arguments to format the error message
+         * @return a new GraphRunnerException
+         */
+        GraphRunnerException exception(String... args) {
+            return new GraphRunnerException(format(errorMessage, (Object[]) args));
+        }
+    }
+
 
     public enum StreamMode {
         VALUES,
@@ -207,7 +236,11 @@ public class CompiledGraph<State extends AgentState> {
 
         String nextNodeId = null;
         if( asNode != null ) {
-            nextNodeId = nextNodeId( asNode, branchCheckpoint.getState() );
+            var nextNodeCommand = nextNodeId( asNode, branchCheckpoint.getState(), config );
+
+            nextNodeId = nextNodeCommand.gotoNode();
+            branchCheckpoint =  branchCheckpoint.updateState( nextNodeCommand.update(), stateGraph.getChannels() );
+
         }
         // update checkpoint in saver
         RunnableConfig newConfig = saver.put( config, branchCheckpoint );
@@ -243,25 +276,31 @@ public class CompiledGraph<State extends AgentState> {
         this.maxIterations = maxIterations;
     }
 
-    private String nextNodeId( EdgeValue<State> route , Map<String,Object> state, String nodeId ) throws Exception {
+    private Command nextNodeId(EdgeValue<State> route , Map<String,Object> state, String nodeId, RunnableConfig config ) throws Exception {
 
         if( route == null ) {
-            throw StateGraph.RunnableErrors.missingEdge.exception(nodeId);
+            throw RunnableErrors.missingEdge.exception(nodeId);
         }
         if( route.id() != null ) {
-            return route.id();
+            return new Command(route.id(), state);
         }
         if( route.value() != null ) {
             State derefState = stateGraph.getStateFactory().apply(state);
-            org.bsc.langgraph4j.action.AsyncEdgeAction<State> condition = route.value().action();
-            String newRoute = condition.apply(derefState).get();
+
+            var command = route.value().action().apply(derefState,config).get();
+
+            var newRoute = command.gotoNode();
+
             String result = route.value().mappings().get(newRoute);
             if( result == null ) {
-                throw StateGraph.RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
+                throw RunnableErrors.missingNodeInEdgeMapping.exception(nodeId, newRoute);
             }
-            return result;
+
+            var currentState = AgentState.updateState(state, command.update(), stateGraph.getChannels());
+
+            return new Command(result, currentState);
         }
-        throw StateGraph.RunnableErrors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
+        throw RunnableErrors.executionError.exception( format("invalid edge value for nodeId: [%s] !", nodeId) );
     }
 
     /**
@@ -269,17 +308,17 @@ public class CompiledGraph<State extends AgentState> {
      *
      * @param nodeId the current node ID
      * @param state the current state
-     * @return the next node ID
+     * @return the next node command
      * @throws Exception if there is an error determining the next node ID
      */
-    private String nextNodeId(String nodeId, Map<String,Object> state) throws Exception {
-        return nextNodeId(edges.get(nodeId), state, nodeId);
+    private Command nextNodeId(String nodeId, Map<String,Object> state, RunnableConfig config) throws Exception {
+        return nextNodeId(edges.get(nodeId), state, nodeId, config  );
 
     }
 
-    private String getEntryPoint( Map<String,Object> state ) throws Exception {
+    private Command getEntryPoint( Map<String,Object> state, RunnableConfig config ) throws Exception {
         var entryPoint = this.edges.get(START);
-        return nextNodeId(entryPoint, state, "entryPoint");
+        return nextNodeId(entryPoint, state, "entryPoint", config);
     }
 
     private boolean shouldInterruptBefore( String nodeId, String previousNodeId ) {
@@ -516,7 +555,10 @@ public class CompiledGraph<State extends AgentState> {
                                 }
                             }
 
-                            nextNodeId = nextNodeId(currentNodeId, currentState);
+                            var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
+                            nextNodeId = nextNodeCommand.gotoNode();
+                            currentState = nextNodeCommand.update();
+
                             resumedFromEmbed = true;
                         });
                     })
@@ -525,16 +567,19 @@ public class CompiledGraph<State extends AgentState> {
 
         private CompletableFuture<Data<Output>> evaluateAction(AsyncNodeActionWithConfig<State> action, State withState ) {
 
-                return action.apply( withState, config ).thenApply( partialState -> {
+                return action.apply( withState, config ).thenApply( updateState -> {
                     try {
 
-                        Optional<Data<Output>> embed = getEmbedGenerator( partialState );
+                        Optional<Data<Output>> embed = getEmbedGenerator( updateState );
                         if( embed.isPresent() ) {
                             return embed.get();
                         }
 
-                        currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
-                        nextNodeId   = nextNodeId(currentNodeId, currentState);
+                        currentState = AgentState.updateState(currentState, updateState, stateGraph.getChannels());
+
+                        var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
+                        nextNodeId = nextNodeCommand.gotoNode();
+                        currentState = nextNodeCommand.update();
 
                         return Data.of( getNodeOutput() );
                     }
@@ -553,7 +598,11 @@ public class CompiledGraph<State extends AgentState> {
             return action.apply( withState ).thenApply(  partialState -> {
                 try {
                     currentState = AgentState.updateState(currentState, partialState, stateGraph.getChannels());
-                    nextNodeId = nextNodeId(currentNodeId, currentState);
+
+                    var nextNodeCommand = nextNodeId(currentNodeId, currentState, config) ;
+                    nextNodeId = nextNodeCommand.gotoNode();
+                    currentState = nextNodeCommand.update();
+
 
                     Optional<Checkpoint>  cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
                     return ( cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS) ?
@@ -609,7 +658,9 @@ public class CompiledGraph<State extends AgentState> {
                 }
 
                 if( START.equals(currentNodeId) ) {
-                    nextNodeId = getEntryPoint( currentState );
+                    var nextNodeCommand = getEntryPoint(currentState, config) ;
+                    nextNodeId = nextNodeCommand.gotoNode();
+                    currentState = nextNodeCommand.update();
 
                     var cp = addCheckpoint( config, START, currentState, nextNodeId );
 
@@ -639,10 +690,10 @@ public class CompiledGraph<State extends AgentState> {
 
                 currentNodeId = nextNodeId;
 
-                AsyncNodeActionWithConfig<State> action = nodes.get(currentNodeId);
+                var action = nodes.get(currentNodeId);
 
                 if (action == null)
-                    throw StateGraph.RunnableErrors.missingNode.exception(currentNodeId);
+                    throw RunnableErrors.missingNode.exception(currentNodeId);
 
                 return evaluateAction(action, cloneState(currentState) ).get();
             }

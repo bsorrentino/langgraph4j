@@ -34,7 +34,7 @@ docker run -d \
   --name langgraph4j-builder-app \
   -p 3000:3000 \
   -e NODE_ENV=production \
-  -e LANGRAPH4J_GEN=generator-1.5-SNAPSHOT-jar-with-dependencies.jar \
+  -e LANGRAPH4J_GEN=generator-1.6-SNAPSHOT-jar-with-dependencies.jar \
   -e RUNNING_IN_DOCKER=true \
   bsorrentino/langgraph4j-builder:1.5.0-SNAPSHOT
 ```
