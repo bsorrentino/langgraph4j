@@ -6,7 +6,7 @@
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-studio-springboot</artifactId>
-    <version>1.5.14</version>
+    <version>1.6.0-beta1</version>
 </dependency>
 ```
 
