@@ -23,9 +23,9 @@ markdown_extensions:
 nav:
   - Home: 
     - Overview: index.md    
-    - Core Library:       
-      - Examples: https://github.com/langgraph4j/langgraph4j-examples
-      # - JavaDoc: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
+    # - Core Library:       
+    #   - Examples: https://github.com/langgraph4j/langgraph4j-examples
+    #   - JavaDoc: apidocs/index.html
     - How to(s): 
       - Adaptive RAG: how-tos/adaptiverag.ipynb
       - Agent Executor: how-tos/agentexecutor.ipynb
@@ -40,6 +40,7 @@ nav:
       - Langchain4j LLM Streaming: how-tos/llm-streaming.ipynb
       - Parallel Branch: how-tos/parallel-branch.ipynb
       - PlantUML: how-tos/plantuml.ipynb
+    - Examples: https://github.com/langgraph4j/langgraph4j-examples  
     - LangGraph4j Studio: studio/index.md
     - LangGraph4j Builder: builder/index.md
     - Integrations: integration.md      
