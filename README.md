@@ -1,5 +1,5 @@
 
-# 🦜🕸️ LangGraph for Java
+# 🦜🕸️ Welcome to LangGraph4j ( <i>AI Agentic workflow in Java<i> )
 
 ‼️ **Project has been moved here from personal space [bsorrentino](https://github.com/bsorrentino/bsorrentino)**
 ----

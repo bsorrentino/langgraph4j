@@ -1,7 +1,7 @@
-# 🦜🕸️ Welcome to LangGraph4j (a LangGraph for Java)
+# 🦜🕸️ Welcome to LangGraph4j ( <i>AI Agentic workflow in Java<i> )
 ----
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)](https://central.sonatype.com/namespace/org.bsc.langgraph4j)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg) [![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.6--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases][![discord](https://img.shields.io/discord/1364514593765986365?logo=discord&style=flat)](https://discord.gg/szVVztSYKh)
 
 <u>LangGraph for Java. A library for building stateful, multi-agents applications with LLMs</u>, built for work with [Langchain4j] and [Spring AI]
 > It is inspired by [LangGraph] solution, part of [LangChain AI project][langchain.ai].
@@ -18,13 +18,13 @@ At macro level these are the features that support the framework:
 
 - **Checkpoints** (save, replay), Breakpoints (pause/resume)
 
-- **Embeddable Playground Webapp** ([Studio])
+- **Visualization, Interaction, and Debugging using** [Studio] Web App **integrated with:** [Spring Boot], [Quarkus] & [Jetty]
 
 - **Graph visualization** (PlantUML, Mermaid)
 
 - **Multi-agent support**, threads, sub-graphs, and parallel node execution
 
-- **Integrations**: [Langchain4j], [Spring AI], [Quarkus], [Jetty]
+- **Integrations**: [Langchain4j], [Spring AI], 
 
 - **Visual builder** ([LangGraph4j Builder])
 
