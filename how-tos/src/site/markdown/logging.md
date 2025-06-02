@@ -1,19 +1,4 @@
-```java
-String userHomeDir = System.getProperty("user.home");
-String localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
-String slf4jVersion = "2.0.9";
-String langgraph4jVersion = "1.5-SNAPSHOT";
-```
-
-
-```java
-%dependency /add-repo local \{localRespoUrl} release|never snapshot|always
-// %dependency /list-repos
-%dependency /add org.bsc.langgraph4j:langgraph4j-core:\{langgraph4jVersion}
-%dependency /add org.slf4j:slf4j-jdk14:\{slf4jVersion}
-
-%dependency /resolve
-```
+# Logging 
 
 ## Initialize Logger 
 

@@ -97,19 +97,6 @@ public class AppenderChannel<T> implements Channel<List<T>> {
     }
 
     /**
-     * Creates an instance of `AppenderChannel` using the provided supplier to get the default list.
-     *
-     * @param <T> the type of elements in the list
-     * @param defaultProvider a supplier that provides the default list of elements
-     * @return a new instance of `AppenderChannel`
-     * @deprecated use {@link Channels#appender(Supplier)} instead
-     */
-    @Deprecated( forRemoval = true)
-    public static <T> AppenderChannel<T> of( Supplier<List<T>> defaultProvider ) {
-        return (AppenderChannel<T>) Channels.appender( defaultProvider );
-    }
-
-    /**
      * Constructs a new instance of {@code AppenderChannel} with the specified default provider.
      *
      * @param reducer a binary operator that is used to combine two lists into one

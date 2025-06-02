@@ -281,21 +281,11 @@ public interface AgentExecutor {
             return this;
         }
 
-        @Deprecated(forRemoval = true)
-        public Builder chatLanguageModel( ChatModel chatModel ) {
-            return chatModel( chatModel );
-        }
-
         public Builder chatModel( StreamingChatModel streamingChatModel ) {
             if( this.streamingChatModel == null ) {
                 this.streamingChatModel = streamingChatModel;
             }
             return this;
-        }
-
-        @Deprecated( forRemoval = true )
-        public Builder chatLanguageModel( StreamingChatModel streamingChatModel ) {
-            return chatModel( streamingChatModel );
         }
 
         public Builder systemMessage( SystemMessage systemMessage ) {

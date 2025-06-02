@@ -67,8 +67,8 @@ public final  class LC4jToolService {
          * @return the builder
          */
         @Deprecated
-        public Builder specification(Object objectWithTool) {
-            return super.toolsFromObject( objectWithTool );
+        public Builder specification(Object objectWithTools) {
+            return super.toolsFromObject( objectWithTools );
         }
 
         /**

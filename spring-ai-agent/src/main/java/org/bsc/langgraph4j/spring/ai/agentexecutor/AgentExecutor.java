@@ -103,12 +103,6 @@ public interface AgentExecutor {
             return this;
         }
 
-        @Deprecated(forRemoval = true)
-        public Builder chatService(ChatService chatService) {
-            this.chatService = chatService;
-            return this;
-        }
-
         /**
          * Builds and returns a StateGraph with the specified configuration.
          * Initializes the stateSerializer if it's null. Then, constructs a new StateGraph object using the provided schema

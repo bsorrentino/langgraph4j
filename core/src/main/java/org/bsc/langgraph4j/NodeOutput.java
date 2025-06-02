@@ -58,14 +58,6 @@ public class NodeOutput<State extends AgentState> {
     }
 
     /**
-     * @deprecated Use {@link #state()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public State getState( ) {
-        return state();
-    }
-
-    /**
      * Checks if the current node refers to the end of the graph.
      *
      * @return {@code true} if the current node refers to the end of the graph
