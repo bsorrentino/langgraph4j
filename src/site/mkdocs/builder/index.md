@@ -1,4 +1,4 @@
-## LangGraph4j Builder
+# 🦜🕸️ LangGraph4j Builder { .no-toc }
 
 Provides a powerful canvas for designing Agentic Workflow as LangGraph4j applications. 
 > If you have interest in the implementation and/or contribution go to project [langgraph4j-builder] 👀
@@ -8,6 +8,7 @@ Provides a powerful canvas for designing Agentic Workflow as LangGraph4j applica
 Based on project [langgraph-builder] we have integrate the **Langgraph4j** part (take a look to the [fork][langgraph-builder-fork]) so we can now **visually scaffolding a langchain4j graph** and **generate java code**
 
 ![builder](../images/langgraph4j-builder.mov.gif)
+
 ### Scaffolding
 
 This module generate a langgraph4j scaffold from a [Domain Specific Language (DSL)][DSL] based on [YAML] format.
@@ -29,15 +30,16 @@ edges:
     paths: [tool, __end__]
 ```
 
-
 ### Setup (with Docker)
 
 **Pull image**
+
 ```bash
 docker pull bsorrentino/langgraph4j-builder:1.6-SNAPSHOT
 ```
 
 **Run container**
+
 ```bash
 docker run --rm \
   --name langgraph4j-builder-app \
@@ -49,11 +51,11 @@ docker run --rm \
   bsorrentino/langgraph4j-builder:1.6-SNAPSHOT
 ```
 
-open browser on address [http://localhost:3000](http://localhost:3000])
+open browser on address [http://localhost:3000][localhost]
 
 ***
 
-[http://localhost:3000]: http://localhost:3000
+[localhost]: http://localhost:3000
 [langgraph4j-builder]: https://github.com/langgraph4j/langgraph4j-builder
 [DSL]: https://en.wikipedia.org/wiki/Domain-specific_language
 [YAML]: https://yaml.org
