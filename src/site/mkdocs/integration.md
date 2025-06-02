@@ -1,3 +1,5 @@
+# 🦜🕸️ LangGraph4j Integrations
+
 LangGraph4j seamlessly integrates with both **Langchain4j** and **Spring AI**, enabling developers to build powerful LLM-based applications using familiar tools in the Java ecosystem.
 
 **Features**
@@ -8,7 +10,7 @@ LangGraph4j seamlessly integrates with both **Langchain4j** and **Spring AI**, e
 
 - Tools
 
-## 🧠 Langchain4j Integration
+##  <img src="https://docs.langchain4j.dev/img/logo.svg" alt="logo" width="25"/> Langchain4j
 
 Langchain4j is a Java framework that allows developers to interact with Large Language Models (LLMs) like OpenAI, Claude, Mistral, or Ollama.
 
@@ -36,12 +38,12 @@ Benefits:
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-langchain4j</artifactId>
-    <version>1.5.13</version>
+    <version>1.6-SNAPSHOT</version>
 </dependency>
 ```
 
 
-### LangGraph4j Agent Executor implementation
+### ReACT Agent
 
 The **Agent Executor** is a **runtime for agents**.
 
@@ -76,7 +78,7 @@ public void main( String args[] ) throws Exception {
 
     var toolExecutor = (toolExecutionRequest, memoryId) -> getPCName();
 
-    var chatLanguageModel = OpenAiChatModel.builder()
+    var chatModel = OpenAiChatModel.builder()
             .apiKey( System.getenv( "OPENAI_API_KEY" ) )
             .modelName( "gpt-4o-mini" )
             .logResponses(true)
@@ -86,26 +88,28 @@ public void main( String args[] ) throws Exception {
             .build();
 
 
-    var agentExecutor = AgentExecutor.graphBuilder()
-            .chatLanguageModel(chatLanguageModel)
-            // add object with tool
-            .toolSpecification(new TestTool())
+    var agentExecutor = AgentExecutor.builder()
+            .chatModel(chatModel)
             // add dynamic tool
-            .toolExecutor(toolSpecification, toolExecutor)
+            .toolsFromObject(new TestTool())
+            // add dynamic tool
+            .tool(toolSpecification, toolExecutor)
             .build();
 
     var workflow = agentExecutor.compile();
 
-    var state =  workflow.stream( Map.of( "messages", UserMessage.from("Run my test!") ) );
+    var iterator =  workflow.stream( Map.of( "messages", UserMessage.from("Run my test!") ) );
 
-    System.out.println( state.lastMessage() );
+    for( var step : iterator ) {
+        System.out.println( step );
+    }
 }
 ```
 
 
 ⸻
 
-## 🌱 Spring AI Integration
+## ![logo](https://spring.io/img/favicon.ico) Spring AI
 
 Spring AI is Spring’s official framework for integrating AI capabilities into Spring Boot apps.
 
@@ -125,11 +129,11 @@ How LangGraph4j Integrates:
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-spring-ai</artifactId>
-    <version>1.5.13</version>
+    <version>1.6-SNAPSHOT</version>
 </dependency>
 ```
 
-### Langgraph4j and SpringAI AgentExecutor
+### ReACT Agent 
 
 This is an implementation of ReACT agent in [Spring AI] using Langgraph4j
 
@@ -149,7 +153,7 @@ public class SpringAiDemoApplication {
 }
 ```
 
-#### Create ChatModel configuration
+#### Configuration
 
 ```java
 @Configuration
@@ -187,7 +191,7 @@ public class ChatModelConfiguration {
 }
 ```
 
-#### Create agent executor and run in a console application
+#### Console application
 
 ```java
 @Controller
@@ -215,23 +219,17 @@ public class DemoConsoleController implements CommandLineRunner {
 
         var workflow = graph.compile();
 
-        var result = workflow.stream( Map.of( "messages", new UserMessage("what is the result of 234 + 45") ));
+        var iterator = workflow.stream( Map.of( "messages", new UserMessage("what is the result of 234 + 45") ));
 
-        var state = result.stream()
-                .peek( s -> System.out.println( s.node() ) )
-                .reduce((a, b) -> b)
-                .map( NodeOutput::state)
-                .orElseThrow();
+        for( var step : iterator ) {
+            System.out.println( step );
+        }
 
-        log.info( "result: {}", state.lastMessage()
-                                    .map(AssistantMessage.class::cast)
-                                    .map(AssistantMessage::getText)
-                                    .orElseThrow() );
     }
 }
 ```
 
-#### BONUS: Create Langgraph4j Studio configuration
+## 🚀 Studio configuration
 
 ```java
 @Configuration
@@ -272,21 +270,19 @@ public class LangGraphStudioConfiguration extends AbstractLangGraphStudioConfig 
 }
 
 ```java
-[Spring AI]: https://docs.spring.io/spring-ai/reference/index.html
+var agentExecutor = AgentExecutor.graphBuilder()
+    .chatLanguageModel(chatLanguageModel)
+    // add object with tool
+    .toolSpecification(new TestTool())
+    // add dynamic tool
+    .toolExecutor(toolSpecification, toolExecutor)
+    .build();
 
-    var agentExecutor = AgentExecutor.graphBuilder()
-        .chatLanguageModel(chatLanguageModel)
-        // add object with tool
-        .toolSpecification(new TestTool())
-        // add dynamic tool
-        .toolExecutor(toolSpecification, toolExecutor)
-        .build();
+var workflow = agentExecutor.compile();
 
-    var workflow = agentExecutor.compile();
+var state =  workflow.stream( Map.of( "messages", UserMessage.from("Run my test!") ) );
 
-    var state =  workflow.stream( Map.of( "messages", UserMessage.from("Run my test!") ) );
-
-    System.out.println( state.lastMessage() );
+System.out.println( state.lastMessage() );
 ```
 
 
