@@ -15,6 +15,7 @@ plugins:
   - search
   - tags
 markdown_extensions:
+  - attr_list
   - admonition
   - pymdownx.superfences:
       custom_fences:
@@ -41,8 +42,8 @@ nav:
       - Parallel Branch: how-tos/parallel-branch.ipynb
       - PlantUML: how-tos/plantuml.ipynb
     - Examples: https://github.com/langgraph4j/langgraph4j-examples  
-    - LangGraph4j Studio: studio/index.md
-    - LangGraph4j Builder: builder/index.md
+    - Studio: studio/index.md
+    - Builder: builder/index.md
     - Integrations: integration.md      
     - Latest Release Notes: release-notes.md
   - Getting Started: getting-started.md

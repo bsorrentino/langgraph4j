@@ -8,7 +8,7 @@
 
 LangGraph4j is a flexible, powerful orchestration framework built for Java developers working with LangChain4j. It helps you build intelligent applications using AI workflows, graphs, and multi-agent systems with ease.
 
-## LangGraph4j Features
+## Features
 
 At macro level these are the features that support the framework:
 
