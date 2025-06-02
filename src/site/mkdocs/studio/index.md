@@ -1,6 +1,6 @@
-## 🦜🕸️ LangGraph4j Studio
+# 🦜🕸️ LangGraph4j Studio { .no-toc }
 
-An **embed playground webapp** that runs a Langgraph4j workflow in visual way.
+**Studio** is a specialized agent IDE that enables visualization, interaction, and debugging of agentic systems that runs a **Langgraph4j workflow**.
 
 ![result](../images/studio-demo.gif)
 
@@ -23,7 +23,7 @@ An **embed playground webapp** that runs a Langgraph4j workflow in visual way.
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-studio-jetty</artifactId>
-    <version>1.5.13</version>
+    <version>1.6-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -61,7 +61,7 @@ public static void main(String[] args) throws Exception {
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-studio-springboot</artifactId>
-    <version>1.5.13</version>
+    <version>1.6-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -69,8 +69,6 @@ public static void main(String[] args) throws Exception {
 
 ```java
 import org.bsc.langgraph4j.studio.springboot.AbstractLangGraphStudioConfig;
-
-import javax.management.InvalidApplicationException;
 
 @Configuration
 public class LangGraphStudioSampleConfig extends AbstractLangGraphStudioConfig {
