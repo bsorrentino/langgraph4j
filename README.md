@@ -394,6 +394,7 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 
 ## Projects
 
+* [Multi Agent Banking Assistant with Java using Langraph4j](https://github.com/Azure-Samples/agent-openai-java-banking-assistant-langgraph4j)
 * [Java Async Generator, a Java version of Javascript async generator][java-async-generator]
 * [AIDEEPIN: Ai-based productivity tools (Chat,Draw,RAG,Workflow etc)](https://github.com/moyangzhan/langchain4j-aideepin)
 * [Dynamo Multi AI Agent POC: Unlock the Power of Spring AI and LangGraph4J](https://github.com/Breezeware-OS/dynamo-multi-ai-agent-langgraph4j-starter)
