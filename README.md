@@ -1,5 +1,5 @@
 
-# 🦜🕸️ Welcome to LangGraph4j ( <i>AI Agentic workflow in Java<i> )
+# 🦜🕸️ Welcome to LangGraph4j ( <i>AI Agentic workflow in Java</i> )
 
 ‼️ **Project has been moved here from personal space [bsorrentino](https://github.com/bsorrentino/bsorrentino)**
 ----
@@ -407,7 +407,7 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [langchain4j]: https://github.com/langchain4j/langchain4j
 [Spring AI]: https://spring.io/projects/spring-ai
 [langgraph]: https://github.com/langchain-ai/langgraph
-[documentation]: https://bsorrentino.github.io/langgraph4j/
+[documentation]: https://langgraph4j.github.io/langgraph4j/
 [releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
 [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/
 [PlantUML]: https://plantuml.com
