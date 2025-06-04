@@ -246,6 +246,7 @@ public class SimpleGraphApp {
 ```
 
 **Explanation:**
+
 *   We defined `SimpleState` with a `MESSAGES_KEY` that uses `AppenderChannel` to accumulate strings.
 *   `GreeterNode` adds a "Hello" message.
 *   `ResponderNode` checks for the greeting and adds an acknowledgment.
