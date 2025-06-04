@@ -164,8 +164,8 @@ Our state will hold a list of messages.
 
 ```java
 import org.bsc.langgraph4j.state.AgentState;
+import org.bsc.langgraph4j.state.Channels;
 import org.bsc.langgraph4j.state.Channel;
-import org.bsc.langgraph4j.state.MessageChannel;
 
 import java.util.Collections;
 import java.util.List;
@@ -178,15 +178,17 @@ class SimpleState extends AgentState {
 
     // Define the schema for the state.
     // MESSAGES_KEY will hold a list of strings, and new messages will be appended.
-    public static final Map<String, Channel.Reducer> SCHEMA =
-            Collections.singletonMap(MESSAGES_KEY, new MessageChannel.Appender<String>());
+    public static final Map<String, Channel<?>> SCHEMA = Map.of(
+            MESSAGES_KEY, Channels.appender(ArrayList::new)
+    );
 
     public SimpleState(Map<String, Object> initData) {
         super(initData);
     }
 
-    public Optional<List<String>> getMessages() {
-        return value(MESSAGES_KEY);
+    public List<String> messages() {
+        return this.<List<String>>value("messages")
+                .orElse( List.of() );
     }
 }
 ```
@@ -202,7 +204,7 @@ import java.util.Map;
 class GreeterNode implements NodeAction<SimpleState> {
     @Override
     public Map<String, Object> apply(SimpleState state) {
-        System.out.println("GreeterNode executing. Current messages: " + state.getMessages().orElse(Collections.emptyList()));
+        System.out.println("GreeterNode executing. Current messages: " + state.messages());
         return Map.of(SimpleState.MESSAGES_KEY, "Hello from GreeterNode!");
     }
 }
@@ -211,8 +213,8 @@ class GreeterNode implements NodeAction<SimpleState> {
 class ResponderNode implements NodeAction<SimpleState> {
     @Override
     public Map<String, Object> apply(SimpleState state) {
-        System.out.println("ResponderNode executing. Current messages: " + state.getMessages().orElse(Collections.emptyList()));
-        List<String> currentMessages = state.getMessages().orElse(Collections.emptyList());
+        System.out.println("ResponderNode executing. Current messages: " + state.messages());
+        List<String> currentMessages = state.messages();
         if (currentMessages.contains("Hello from GreeterNode!")) {
             return Map.of(SimpleState.MESSAGES_KEY, "Acknowledged greeting!");
         }
@@ -224,63 +226,55 @@ class ResponderNode implements NodeAction<SimpleState> {
 **3. Define and Compile the Graph:**
 
 ```java
-import org.bsc.langgraph4j.graph.StateGraph;
-import org.bsc.langgraph4j.graph.Graph; // Import Graph interface
-import org.bsc.langgraph4j.graph.Node; // Import Node class for constants
+import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.GraphStateException;
+import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
+import static org.bsc.langgraph4j.StateGraph.START;
+import static org.bsc.langgraph4j.StateGraph.END;
+
 import java.util.List;
 import java.util.Map;
 
 public class SimpleGraphApp {
-    public static void main(String[] args) {
+    
+    public static void main(String[] args) throws GraphStateException {
         // Initialize nodes
         GreeterNode greeterNode = new GreeterNode();
         ResponderNode responderNode = new ResponderNode();
 
         // Define the graph structure
-       var stateGraph = new StateGraph<>(SimpleState.SCHEMA, SimpleState::new)
-            .addNode("greeter", greeterNode)
-            .addNode("responder", responderNode)
+       var stateGraph = new StateGraph<>(SimpleState.SCHEMA, initData -> new SimpleState(initData))
+            .addNode("greeter", node_async(greeterNode))
+            .addNode("responder", node_async(responderNode))
             // Define edges
-            .addEdge(Node.START, "greeter") // Start with the greeter node
+            .addEdge(START, "greeter") // Start with the greeter node
             .addEdge("greeter", "responder")
-            .addEdge("responder", Node.END)   // End after the responder node
-
+            .addEdge("responder", END)   // End after the responder node
+             ;
         // Compile the graph
         var compiledGraph = stateGraph.compile();
-
-        // Prepare initial input for the graph
-        // We start with an empty state (no initial messages)
-        var initialState = new SimpleState(Collections.emptyMap());
 
         // Run the graph
         // The `stream` method returns an AsyncGenerator.
         // For simplicity, we'll collect results. In a real app, you might process them as they arrive.
         // Here, the final state after execution is the item of interest.
-        SimpleState finalState = null;
-        for (var item : compiledGraph.stream(initialState)) {
+        
+        for (var item : compiledGraph.stream( Map.of( SimpleState.MESSAGES_KEY, "Let's, begin!" ) ) ) {
 
             System.out.println( item );
-
-            finalState = item;
         }
 
-        if (finalState != null) {
-            System.out.println("Graph execution complete. Final messages:");
-            finalState.getMessages().ifPresent(msgs -> msgs.forEach(System.out::println));
-        } else {
-            throw new IllegaStateException("Graph execution did not produce a final state.");
-        }
     }
 }
 ```
 
 **Explanation:**
-*   We defined `SimpleState` with a `MESSAGES_KEY` that uses `MessageChannel.Appender` to accumulate strings.
+*   We defined `SimpleState` with a `MESSAGES_KEY` that uses `AppenderChannel` to accumulate strings.
 *   `GreeterNode` adds a "Hello" message.
 *   `ResponderNode` checks for the greeting and adds an acknowledgment.
 *   The `StateGraph` is defined, nodes are added, and edges specify the flow: `START` -> `greeter` -> `responder` -> `END`.
 *   `stateGraph.compile()` creates the runnable `CompiledGraph`.
-*   `compiledGraph.stream(initialState, null)` executes the graph. We iterate through the stream to get the final state. Each item in the stream represents the state after a node has executed.
+*   `compiledGraph.stream(initialState)` executes the graph. We iterate through the stream to get the final state. Each item in the stream represents the state after a node has executed.
 
 This example demonstrates the basic workflow: define state, define nodes, wire them with edges, compile, and run.
 
@@ -288,11 +282,10 @@ This example demonstrates the basic workflow: define state, define nodes, wire t
 
 As shown in the example, you typically run a compiled graph using one of its execution methods:
 
-*   `stream(S initialState, GraphContext context)`: Executes the graph and returns an `AsyncGenerator<S>`. Each yielded item is the state `S` after a node has completed. This is useful for observing the state at each step or for streaming partial results.
-*   `invoke(S initialState, GraphContext context)`: Executes the graph and returns a `CompletableFuture<S>` that completes with the final state of the graph after it reaches an `END` node.
-*   `invoke(S initialState, CheckpointSaver checkpointSaver, GraphContext context)`: Similar to `invoke` but with checkpoint saving capabilities.
+*   `stream(S initialState, RunnableConfig config)`: Executes the graph and returns an `AsyncGenerator<S>`. Each yielded item is the state `S` after a node has completed. This is useful for observing the state at each step or for streaming partial results.
+*   `invoke(S initialState, RunnableConfig config)`: Executes the graph and returns a `CompletableFuture<S>` that completes with the final state of the graph after it reaches an `END` node.
 
-The `GraphContext` can be used to pass in runtime configuration, like a `CheckpointSaver` or recursion limits.
+The `RunnableConfig` can be used to pass in runtime configuration.
 
 ## Studio 🤩 - Running Your Graph visually
 
