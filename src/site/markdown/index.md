@@ -3,7 +3,7 @@
 ‼️ **has been planned project relocation from personal to [langgraph4j](https://github.com/langgraph4j/) space**
 ----
 
-[License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)[![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.5--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
+[License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)[![docs](https://img.shields.io/badge/Site-Documentation-blue)][documentation] [![Static Badge](https://img.shields.io/badge/maven--snapshots-1.6--SNAPSHOT-blue)][snapshots] [![Maven Central](https://img.shields.io/maven-central/v/org.bsc.langgraph4j/langgraph4j-core.svg)][releases]
 [![discord](https://img.shields.io/discord/1364514593765986365?logo=discord&style=flat)](https://discord.gg/szVVztSYKh)
 
 LangGraph for Java. A library for building stateful, multi-agents applications with LLMs, built for work with [langchain4j] and [Spring AI]
@@ -17,7 +17,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| May 28, 2025 | `1.6.0-beta1` | official release
+| Jun 5, 2025 | `1.6.0-beta2` | official release
 
 ----
 
@@ -103,7 +103,7 @@ Make sure you are using Java 17 or later.
 **Latest Stable Version (Recommended):**
 ```xml
 <properties>
-    <langgraph4j.version>1.6.0-beta1</langgraph4j.version> <!-- Check for the actual latest version -->
+    <langgraph4j.version>1.6.0-beta2</langgraph4j.version> <!-- Check for the actual latest version -->
 </properties>
 
 <!-- Optional: Add the Bill of Materials (BOM) to manage langgraph4j module versions -->

@@ -30,7 +30,7 @@ Based on project [langgraph-builder] we have integrate the **Langgraph4j** part 
 ## Setup (with Docker)
 
 ```bash
-docker pull bsorrentino/langgraph4j-builder:1.5.0-SNAPSHOT
+docker pull bsorrentino/langgraph4j-builder:1.6-SNAPSHOT
 
 docker run -d \
   --name langgraph4j-builder-app \
@@ -38,7 +38,7 @@ docker run -d \
   -e NODE_ENV=production \
   -e LANGRAPH4J_GEN=generator-1.6-SNAPSHOT-jar-with-dependencies.jar \
   -e RUNNING_IN_DOCKER=true \
-  bsorrentino/langgraph4j-builder:1.5.0-SNAPSHOT
+  bsorrentino/langgraph4j-builder:1.6-SNAPSHOT
 ```
 
 open browser on address [http://localhost:3000](http://localhost:3000])
