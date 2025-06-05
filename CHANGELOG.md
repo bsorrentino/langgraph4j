@@ -2,6 +2,62 @@
 
 
 
+<!-- "name: v1.6.0-beta2" is a release tag -->
+
+## [v1.6.0-beta2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.6.0-beta2) (2025-06-05)
+
+
+
+### Documentation
+
+ -  bump to version 1.6.0-beta2 ([82d0ddae4f567b5](https://github.com/bsorrentino/langgraph4j/commit/82d0ddae4f567b53d9b9076f78238a749d58322b))
+
+ -  update getting started ([c0e6ec4521c7484](https://github.com/bsorrentino/langgraph4j/commit/c0e6ec4521c7484082bd8b62de269f283c5680da))
+
+ -  update getting started ([234aa25959e319a](https://github.com/bsorrentino/langgraph4j/commit/234aa25959e319a4a4fb748ed3f1936e170e0217))
+
+ -  update getting started ([98c064f69fc5f45](https://github.com/bsorrentino/langgraph4j/commit/98c064f69fc5f4509819765ab167bd0a68baecc7))
+
+ -  update site and readme ([4661d121c6885db](https://github.com/bsorrentino/langgraph4j/commit/4661d121c6885dbf0ad71fac4ef34a7e262d0429))
+
+ -  update site and readme ([965561f2f75c3ba](https://github.com/bsorrentino/langgraph4j/commit/965561f2f75c3badef22a2c2ec860ad257c7e41c))
+
+ -  update site ([6dcd3ee3d28a1a5](https://github.com/bsorrentino/langgraph4j/commit/6dcd3ee3d28a1a58aa3b0e0ed74f41c5dd2a33fd))
+
+ -  update site ([062594f1e8866f1](https://github.com/bsorrentino/langgraph4j/commit/062594f1e8866f14a6394bf243e2f634ea50d107))
+
+ -  update site ([6b20cabba77b8c1](https://github.com/bsorrentino/langgraph4j/commit/6b20cabba77b8c17c28b4b0bb58b2f3692abd55d))
+
+ -  fix builder link ([d792a33a4e0f4aa](https://github.com/bsorrentino/langgraph4j/commit/d792a33a4e0f4aaeece3aa632a130a3ff1d0122e))
+
+ -  update site ([6a2927293c627eb](https://github.com/bsorrentino/langgraph4j/commit/6a2927293c627ebca1f52d486c4731a3a7a4af08))
+
+ -  update site ([8782b6e17bbda04](https://github.com/bsorrentino/langgraph4j/commit/8782b6e17bbda04d81556c850c827555fae4f7e0))
+
+ -  update changelog ([47271c68e9d36fd](https://github.com/bsorrentino/langgraph4j/commit/47271c68e9d36fda97520904c62cca2f823613e7))
+
+
+### Refactor
+
+ -  **how-to**  remove useless output ([7832cfb377cd25f](https://github.com/bsorrentino/langgraph4j/commit/7832cfb377cd25f83b2f52b79214586487a355d0))
+   
+ -  **spring-ai-agent**  feat(AgentExecutor): add a ReACT agent that make in evidence make in evidence the tools execution using and action dispatcher node ([a8a6946473ae855](https://github.com/bsorrentino/langgraph4j/commit/a8a6946473ae855d7d6edf565fcff5a40a8f92e0))
+    > - good to see in action with Studio
+ > BREAKING CHANGE: ChatService is now private
+
+
+### ALM 
+
+ -  bump to version 1.6.0-beta2 ([893f4d41efbccd7](https://github.com/bsorrentino/langgraph4j/commit/893f4d41efbccd7d52fe91b9884b9e23e3e8ada3))
+   
+ -  bump to version 1.6-SNAPSHOT ([e96be89c71f153d](https://github.com/bsorrentino/langgraph4j/commit/e96be89c71f153d570064e2967e671f89e524f72))
+   
+
+
+
+
+
+
 <!-- "name: v1.6.0-beta1" is a release tag -->
 
 ## [v1.6.0-beta1](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.6.0-beta1) (2025-06-02)
