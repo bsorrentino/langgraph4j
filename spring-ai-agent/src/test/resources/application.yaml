@@ -5,9 +5,9 @@ spring:
     name: springai-agentexecutor
   main:
 # console app
-#    web-application-type: none
+    web-application-type: none
 # studio
-     web-application-type: servlet
+#     web-application-type: servlet
 
   ai:
 #    openai:

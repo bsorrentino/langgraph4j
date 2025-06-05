@@ -21,12 +21,10 @@ public class DemoConsoleController implements CommandLineRunner {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DemoConsoleController.class);
 
     private final ChatModel chatModel;
-    private final List<ToolCallback> tools;
 
-    public DemoConsoleController( ChatModel chatModel, List<ToolCallback> tools) {
+    public DemoConsoleController( ChatModel chatModel ) {
 
         this.chatModel = chatModel;
-        this.tools = tools;
     }
 
     /**
@@ -43,14 +41,14 @@ public class DemoConsoleController implements CommandLineRunner {
 
         log.info("Welcome to the Spring Boot CLI application!");
 
-        var agent = AgentExecutor.builder()
+        var agent = AgentExecutorEx.builder()
                         //.streamingChatModel(chatModel)
                         .chatModel(chatModel)
-                        .tools(tools) // Support without providing tools
+                        .toolsFromObject( new TestTool()) // Support without providing tools
                         .build()
                         .compile();
 
-        var result = agent.stream( Map.of( "messages", new UserMessage("how is the weather in Napoli?") ));
+        var result = agent.stream( Map.of( "messages", new UserMessage("perform test twice") ));
 
         var state = result.stream()
                 .peek( s -> {
