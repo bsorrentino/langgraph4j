@@ -294,61 +294,105 @@ The `RunnableConfig` can be used to pass in runtime configuration.
 
 To explore the **Langgraph4j Studio** go to [studio]
 
-## BONUS: Langghain4j integration
+## BONUS: built-in integrations
 
-As default use case to proof Langchain4j integration, We have implemented **AgentExecutor (aka ReACT Agent)** using LangGraph4j. In the [project's module][agent-executor], you can the complete working code with tests. Feel free to checkout and use it as a reference.
-Below you can find a piece of code of the `AgentExecutor` to give you an idea of how is has built in langgraph4j style.
+### LangChain4j 
 
+As default use case to proof [LangChain4j] integration, We have implemented **AgentExecutor (aka ReACT Agent)** using LangGraph4j. In the [project's module][agent-executor], you can the complete working code with tests. Feel free to checkout and use it as a reference.
+Below usage example of the `AgentExecutor`.
+
+#### Define Tools
 
 ```java
-class State extends MessagesState<ChatMessage> {
+public class TestTool {
 
-    public State(Map<String, Object> initData) {
-            super(initData);
+    @Tool("tool for test AI agent executor")
+    String execTest(@P("test message") String message) {
+        return format( "test tool ('%s') executed with result 'OK'", message);
     }
 
-    public Optional<String> finalResponse() {
-        return value("agent_response");
+    @Tool("return current number of system thread allocated by application")
+    int threadCount() {
+        return Thread.getAllStackTraces().size();
     }
 
 }
+```
 
-var toolService = LC4jToolService.builder()
-                    .toolSpecification( tools )
-                    .build();
+#### Run Agent
 
-var agent = Agent.builder()
-        .chatLanguageModel(chatLanguageModel)
-        .tools(toolService.toolSpecifications())
-        .build();
+```java
 
-var callAgent = new CallAgent(agent);
-var executeTools = new ExecuteTools(agent, toolService);
-                                 
-// Fluent Interface
-var app = new StateGraph<>(State.SCHEMA, State::new)
-                .addEdge(START,"agent")
-                .addNode("agent", node_async(callAgent))
-                .addNode("action", node_async(executeTools))
-                .addConditionalEdges(
-                        "agent",
-                        edge_async( state -> 
-                            state.finalResponse()
-                                .map(res -> "end")
-                                .orElse("continue");
-                        ),
-                        Map.of("continue", "action", "end", END)
-                )
-                .addEdge("action", "agent")
-                .compile();
+var model = OllamaChatModel.builder()
+            .modelName( "qwen2.5:7b" )
+            .baseUrl("http://localhost:11434")
+            .supportedCapabilities(Capability.RESPONSE_FORMAT_JSON_SCHEMA)
+            .logRequests(true)
+            .logResponses(true)
+            .maxRetries(2)
+            .temperature(0.0)
+            .build();
 
-for (var item : app.stream( Map.of( "messages", ..... ) ) ) {
+var agent = AgentExecutor.builder()
+            .chatModel(model)
+            .toolsFromObject(new TestTool())
+            .build()
+            .compile();
+
+for (var item : agent.stream( Map.of( "messages", "perform test twice and return number of current active threads" ) ) ) {
 
     System.out.println( item );
 }
 
 ```
 
+### Spring AI 
+
+As default use case to proof [Spring AI] integration, We have implemented **AgentExecutor (aka ReACT Agent)** using LangGraph4j. In the [project's module][spring-ai-agent], you can the complete working code with tests. Feel free to checkout and use it as a reference.
+Below usage example of the `AgentExecutor`.
+
+#### Define Tools
+
+```java
+public class TestTool {
+
+    @Tool(description = "tool for test AI agent executor")
+    String execTest( @ToolParam(description ="test message") String message ) {
+        return format( "test tool ('%s') executed with result 'OK'", message);
+    }
+
+    @Tool(description = "return current number of system thread allocated by application")
+    int threadCount() {
+        return Thread.getAllStackTraces().size();
+    }
+
+}
+```
+
+#### Run Agent
+
+```java
+
+var model = OllamaChatModel.builder()
+            .ollamaApi(OllamaApi.builder().baseUrl("http://localhost:11434").build())
+            .defaultOptions(OllamaOptions.builder()
+                    .model("qwen2.5:7b")
+                    .temperature(0.1)
+                    .build())
+            .build();
+
+var agent = AgentExecutor.builder()
+        .chatModel(model)
+        .toolsFromObject(new TestTool())
+        .build()
+        .compile()
+        ;
+
+for (var item : agent.stream( Map.of( "messages", "perform test twice and return number of current active threads" ) ) ) {
+
+    System.out.println( item );
+}
+```
 
 ## Key Capabilities Overview
 
@@ -411,6 +455,7 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [javadocs]: https://langgraph4j.github.io/langgraph4j/apidocs/
 [springai-agentexecutor]: spring-ai-agent
 [agent-executor]: agent-executor/
+[spring-ai-agent]: spring-ai-agent/
 [Studio]: studio/README.md
 [Jetty]: https://jetty.org
 [Spring Boot]: https://spring.io/projects/spring-boot
