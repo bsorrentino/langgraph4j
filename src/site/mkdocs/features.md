@@ -38,8 +38,9 @@ LangGraph4j uses:
 
 ## Embedded Playground Web App (Studio)
 
-LangGraph4j includes a web-based playground:
-👉 LangGraph4j Studio
+LangGraph4j comes with an embeddable web UI ([Studio]) that allows you to visualize, run, and interact with your graphs in real-time. This is excellent for development and debugging.
+
+👉 LangGraph4j [Studio]
 
   -	**Visualize and test your graph**
   -	**Simulate inputs**
@@ -76,12 +77,10 @@ LangGraph4j supports:
 
 ## Framework Integrations
 
-LangGraph4j works well with popular Java tools:
+LangGraph4j works well with popular Java AI tools:
 
   -	[Langchain4j]: Core LLM and AI integration.
   -	[Spring AI]: Build AI apps using Spring Boot.
-  -	[Quarkus]: Modern Java framework for fast startup.
-  -	[Jetty]: Lightweight web server for Java.
 
 🔌 Smooth integration into your existing Java tech stack.
 
@@ -90,7 +89,7 @@ LangGraph4j works well with popular Java tools:
 ## Visual Builder Tool
 
 Build your LangGraph4j applications visually using the official tool:
-👉 LangGraph4j Generator
+👉 LangGraph4j Builder
 
 🧱 No need to hand-code everything — click and build!
 
@@ -115,6 +114,6 @@ A classical ReACT agent plus RAG integration developed using a controllable and 
 [Spring Boot]: https://spring.io/projects/spring-boot
 [Quarkus]: https://quarkus.io
 [Spring AI]: https://spring.io/projects/spring-ai
-[Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
+[Studio]: /studio
 [Langchain4j]: https://github.com/langchain4j/langchain4j
 [LangGraph4j Builder]: https://github.com/langgraph4j/langgraph4j-builder
