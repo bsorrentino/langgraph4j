@@ -396,8 +396,9 @@ Now that you have a basic understanding of LangGraph4j, here's how you can conti
 We hope this guide helps you get started with LangGraph4j. Happy building!
 
 
-[agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/agent-executor
-[Studio]: https://bsorrentino.github.io/langgraph4j/studio/base/studio/langgraph4j-studio/index.html
+[agent-executor]: https://github.com/langgraph4j/langgraph4j/tree/main/agent-executor
+[spring-ai-agent]: https://github.com/langgraph4j/langgraph4j/tree/main/spring-ai-agent
+[Studio]: /studio
 
 [LangGraph]: https://github.com/langchain-ai/langgraph
 [Langchain4j]: https://github.com/langchain4j/langchain4j
@@ -406,7 +407,7 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [Mermaid]: https://mermaid.js.org/
 [PlantUML]: https://plantuml.com/
 
-[how-tos/]: how-tos/adaptiverag.ipynb
+[how-tos/]: how-tos/
 [how-tos/llm-streaming.ipynb]: how-tos/llm-streaming.ipynb
 [how-tos/plantuml.ipynb]: how-tos/plantuml.ipynb
 [how-tos/persistence.ipynb]:how-tos/persistence.ipynb
@@ -418,4 +419,4 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 
 [IJava]: https://github.com/SpencerPark/IJava
 [samples/]: https://github.com/langgraph4j/langgraph4j-examples
-[API documentation (Javadocs)]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
+[API documentation (Javadocs)]: https://langgraph4j.github.io/langgraph4j/apidocs/index.html
