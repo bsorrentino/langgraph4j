@@ -50,13 +50,13 @@ For more details please see [Features](features.md)
 [Quarkus]: https://quarkus.io
 [Spring AI]: https://spring.io/projects/spring-ai
 
-[documentation]: https://bsorrentino.github.io/langgraph4j/
-[javadocs]: https://bsorrentino.github.io/langgraph4j/apidocs/index.html
+[documentation]: https://langgraph4j.github.io/langgraph4j/
+[javadocs]: https://langgraph4j.github.io/langgraph4j/apidocs/
 [springai-agentexecutor]: spring-ai-agent
 [agent-executor]: agent-executor/
 
 
-[Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
+[Studio]: studio/
 [CompletableFuture]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html
 [article01]: https://bsorrentino.github.io/bsorrentino/ai/2024/05/20/langgraph-for-java.html
 [langgraph.blog]: https://blog.langchain.dev/langgraph/
