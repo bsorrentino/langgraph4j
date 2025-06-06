@@ -111,7 +111,7 @@ Make sure you are using Java 17 or later.
   <dependencies>
     <dependency>
       <groupId>org.bsc.langgraph4j</groupId>
-      <artifactId>langgraph4j-core</artifactId>
+      <artifactId>langgraph4j-bom</artifactId>
       <version>${langgraph4j.version}</version>
       <type>pom</type>
       <scope>import</scope>
