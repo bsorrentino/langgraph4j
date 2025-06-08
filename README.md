@@ -470,7 +470,7 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [java-async-generator]: https://github.com/bsorrentino/java-async-generator
 
 [how-tos/plantuml.ipynb]: how-tos/plantuml.ipynb
-[how-tos/persistence.ipyb]: how-tos/persistence.ipyb
+[how-tos/persistence.ipynb]: how-tos/persistence.ipynb
 [how-tos/llm-streaming.ipynb]: how-tos/llm-streaming.ipynb
 [how-tos/time-travel.ipynb]: how-tos/time-travel.ipynb
 [how-tos/subgraph-as-nodeaction.ipynb]: how-tos/subgraph-as-nodeaction.ipynb
