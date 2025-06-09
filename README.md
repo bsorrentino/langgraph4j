@@ -94,6 +94,26 @@ LangGraph4j allows you to save (`Checkpoint`) the state of your graph at any ste
 *   **Long-running processes:** Persist the state of long-running agent interactions.
 You'll typically use a `CheckpointSaver` implementation (e.g., `MemorySaver` for in-memory storage, or you can implement your own for persistent storage).
 
+## Project Structure
+
+```
+langgraph4j/
+├── langgraph4j-bom/                     # A2A4J dependency management
+├── langgraph4j-core/                    # Core A2A protocol implementation
+├── langchain4j/                         # LangChain4j integration
+│   ├── langchain4j-core/                # LangChain4j core components (integration required)
+│   └── langchain4j-agent/               # LangChain4j agent executor
+├── spring-ai/                           # Spring AI integration
+│   └── spring-ai-core/                  # Spring AI core components (integration required)
+│   └── spring-ai-agent/                 # Spring AI agent executor
+├── studio/                              # LangGraph4j Studio (web UI)
+│   └── base/                            # Base classes and interfaces
+│   └── jetty/                           # Jetty server implementation
+│   └── quarkus/                         # Quarkus server implementation
+│   └── springboot/                      # Spring Boot implementation
+├── how-tos/                             # How-tos and examples, examples repository: https://github.com/langgraph4j/langgraph4j-examples
+```
+
 ## Installation
 
 To use LangGraph4j in your project, you need to add it as a dependency.
