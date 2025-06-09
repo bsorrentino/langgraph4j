@@ -419,4 +419,4 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 
 [IJava]: https://github.com/SpencerPark/IJava
 [samples/]: https://github.com/langgraph4j/langgraph4j-examples
-[API documentation (Javadocs)]: https://langgraph4j.github.io/langgraph4j/apidocs/index.html
+[API documentation (Javadocs)]: /apidocs/index.html
