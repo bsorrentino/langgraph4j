@@ -474,8 +474,8 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [documentation]: https://langgraph4j.github.io/langgraph4j/
 [javadocs]: https://langgraph4j.github.io/langgraph4j/apidocs/
 [springai-agentexecutor]: spring-ai-agent
-[agent-executor]: agent-executor/
-[spring-ai-agent]: spring-ai-agent/
+[agent-executor]: langchain4j/langchain4j-agent
+[spring-ai-agent]: spring-ai/spring-ai-agent
 [Studio]: studio/README.md
 [Jetty]: https://jetty.org
 [Spring Boot]: https://spring.io/projects/spring-boot
