@@ -205,13 +205,13 @@
     <module>spring-ai/spring-ai-core</module>
     <module>spring-ai/spring-ai-agent</module>
 
-    <!-- studio -->
+    <!-- LangGraph4j studio and implementations-->
     <module>studio/base</module>
     <module>studio/jetty</module>
     <module>studio/quarkus</module>
     <module>studio/springboot</module>
 
-    <!-- examples, new repository: https://github.com/langgraph4j/langgraph4j-examples -->
+    <!-- LangGraph4j how-tos and examples, new examples repository: https://github.com/langgraph4j/langgraph4j-examples -->
     <module>how-tos</module>
   </modules>
 
