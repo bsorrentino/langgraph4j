@@ -2,6 +2,52 @@
 
 
 
+<!-- "name: Unreleased" is a release tag -->
+
+## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+
+
+
+### Documentation
+
+ -  bump to version 1.6.0-beta3 ([76198eaf8428a6a](https://github.com/bsorrentino/langgraph4j/commit/76198eaf8428a6acad339a9e860531dd66dee360))
+
+ -  fix link references in site ([986d1c85d871a41](https://github.com/bsorrentino/langgraph4j/commit/986d1c85d871a416189fff5fb356a098f8c2e0c6))
+
+ -  update javadoc ([034e0915c1adc3f](https://github.com/bsorrentino/langgraph4j/commit/034e0915c1adc3f027bebfb7af6b6639f64b0755))
+
+ -  fix javadoc links ([69e6d9b6de4ff83](https://github.com/bsorrentino/langgraph4j/commit/69e6d9b6de4ff83b20113660c9045df98e8399d2))
+
+ -  fix javadoc links ([41afd10131b2659](https://github.com/bsorrentino/langgraph4j/commit/41afd10131b2659d06ff8233b0da9efd240d6fd9))
+
+ -  update javadoc ([73c9c638d7232c5](https://github.com/bsorrentino/langgraph4j/commit/73c9c638d7232c5fb6c38c159e89f6b3aaf3b15a))
+
+ -  update javadoc ([5a68979fe931b62](https://github.com/bsorrentino/langgraph4j/commit/5a68979fe931b622256352770f499bcb068cbba0))
+
+ -  fix typo in reference link ([88c0002134ce029](https://github.com/bsorrentino/langgraph4j/commit/88c0002134ce02948cbfc8b92b7e81545930e334))
+     > merge PR #160
+
+ -  fix link references in site ([d0f9567fccafe65](https://github.com/bsorrentino/langgraph4j/commit/d0f9567fccafe6545996b4a49d00cd07cec076a9))
+
+ -  fix bom reference ([022aa5ac1420695](https://github.com/bsorrentino/langgraph4j/commit/022aa5ac1420695a3c1b5f8a448f8bb544cc630e))
+     > resolve #155
+
+ -  update changelog ([26cd7fc76dc4b6c](https://github.com/bsorrentino/langgraph4j/commit/26cd7fc76dc4b6c0cfaf7e0ad9d20777012dd01a))
+
+
+
+### ALM 
+
+ -  bump to version 1.6.0-beta3 ([3db174a8e60c93b](https://github.com/bsorrentino/langgraph4j/commit/3db174a8e60c93b6abbe738401c78695a99403a9))
+   
+ -  bump to version 1.6-SNAPSHOT ([3eab3b2d1ae7ff8](https://github.com/bsorrentino/langgraph4j/commit/3eab3b2d1ae7ff81b85c78f4811262710b51da3e))
+   
+
+
+
+
+
+
 <!-- "name: v1.6.0-beta2" is a release tag -->
 
 ## [v1.6.0-beta2](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.6.0-beta2) (2025-06-05)
