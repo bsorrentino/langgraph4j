@@ -45,7 +45,7 @@ public class NodeOutput<State extends AgentState> {
     }
 
     /**
-     * Returns the the node name.
+     * Returns the node name.
      *
      * @return the node name
      */
@@ -59,6 +59,7 @@ public class NodeOutput<State extends AgentState> {
 
     /**
      * Checks if the current node refers to the end of the graph.
+     * useful to understand if the workflow has been interrupted.
      *
      * @return {@code true} if the current node refers to the end of the graph
      */
