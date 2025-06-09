@@ -4,12 +4,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
-
 /**
  * Represents the outcome of a {@link CommandAction} within a LangGraph4j graph.
  * A {@code Command} encapsulates instructions for the graph's next step, including
- * an optional target node to transition to and a map of updates to be applied
+ * a target node to transition to and a map of updates to be applied
  * to the {@link org.bsc.langgraph4j.state.AgentState}.
  *
  * @param gotoNode containing the name of the next node to execute.
@@ -19,6 +17,9 @@ import static java.util.Optional.ofNullable;
  */
 public record Command(String gotoNode, Map<String,Object> update) {
 
+    /**
+     * check for null values
+     */
     public Command {
         Objects.requireNonNull(gotoNode, "gotoNode cannot be null");
         Objects.requireNonNull(update, "update cannot be null");
