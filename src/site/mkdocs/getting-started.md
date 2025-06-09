@@ -396,8 +396,8 @@ Now that you have a basic understanding of LangGraph4j, here's how you can conti
 We hope this guide helps you get started with LangGraph4j. Happy building!
 
 
-[agent-executor]: https://github.com/langgraph4j/langgraph4j/tree/main/agent-executor
-[spring-ai-agent]: https://github.com/langgraph4j/langgraph4j/tree/main/spring-ai-agent
+[agent-executor]: https://github.com/langgraph4j/langgraph4j/tree/main/langchain4j/langchain4j-agent
+[spring-ai-agent]: https://github.com/langgraph4j/langgraph4j/tree/main/spring-ai/spring-ai-agent
 [Studio]: /studio
 
 [LangGraph]: https://github.com/langchain-ai/langgraph

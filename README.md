@@ -473,7 +473,7 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [Mermaid]: https://mermaid.js.org
 [documentation]: https://langgraph4j.github.io/langgraph4j/
 [javadocs]: https://langgraph4j.github.io/langgraph4j/apidocs/
-[springai-agentexecutor]: spring-ai-agent
+[springai-agentexecutor]: spring-ai/spring-ai-agent
 [agent-executor]: langchain4j/langchain4j-agent
 [spring-ai-agent]: spring-ai/spring-ai-agent
 [Studio]: studio/README.md
@@ -496,14 +496,6 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [how-tos/subgraph-as-nodeaction.ipynb]: how-tos/subgraph-as-nodeaction.ipynb
 [how-tos/subgraph-as-compiledgraph.ipynb]: how-tos/subgraph-as-compiledgraph.ipynb
 [how-tos/subgraph-as-stategraph.ipynb]: how-tos/subgraph-as-stategraph.ipynb
-<!-- 
-[generator]: https://github.com/bsorrentino/langgraph4j/tree/main/generator
-[Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
-[releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
-[snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/ 
-[agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/agent-executor 
-[langchain.ai]: https://github.com/langchain-ai
--->
 
 
 
