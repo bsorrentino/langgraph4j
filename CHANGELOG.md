@@ -2,13 +2,15 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v1.6.0-beta3" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/langgraph4j/releases/tag/Unreleased) ()
+## [v1.6.0-beta3](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.6.0-beta3) (2025-06-09)
 
 
 
 ### Documentation
+
+ -  update changelog ([32611374228849b](https://github.com/bsorrentino/langgraph4j/commit/32611374228849b18d606d8747089bd1c609b50d))
 
  -  bump to version 1.6.0-beta3 ([76198eaf8428a6a](https://github.com/bsorrentino/langgraph4j/commit/76198eaf8428a6acad339a9e860531dd66dee360))
 
