@@ -390,7 +390,7 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 
 [agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/agent-executor
 [how-tos/plantuml.ipynb]: how-tos/langgraph4j-howtos/plantuml.html
-[how-tos/persistence.ipyb]: how-tos/langgraph4j-howtos/persistence.html
+[how-tos/persistence.ipynb]: how-tos/langgraph4j-howtos/persistence.html
 [how-tos/llm-streaming.ipynb]: how-tos/langgraph4j-howtos/llm-streaming.html
 [how-tos/time-travel.ipynb]: how-tos/langgraph4j-howtos/time-travel.html
 [how-tos/subgraph-as-nodeaction.ipynb]: how-tos/langgraph4j-howtos/subgraph-as-nodeaction.html
