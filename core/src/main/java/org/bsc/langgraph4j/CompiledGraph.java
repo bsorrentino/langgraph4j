@@ -167,7 +167,15 @@ public class CompiledGraph<State extends AgentState> {
         }
     }
 
-
+    /**
+     * Gets the history of graph states relate to a specific Thread ID. Useful for:
+     * - Debugging execution history
+     * - Implementing time travel
+     * - Analyzing graph behavior
+     *
+     * @param config the RunnableConfig containing the thread ID information
+     * @return collection of StateSnapshots of the given Thread ID. The first element of collection is the last state
+     */
     public Collection<StateSnapshot<State>> getStateHistory( RunnableConfig config ) {
         BaseCheckpointSaver saver = compileConfig.checkpointSaver().orElseThrow( () -> (new IllegalStateException("Missing CheckpointSaver!")) );
 
@@ -188,7 +196,6 @@ public class CompiledGraph<State extends AgentState> {
         return stateOf(config).orElseThrow( () -> (new IllegalStateException("Missing Checkpoint!")) );
     }
 
-
     /**
      * Get the StateSnapshot of the given RunnableConfig.
      *
@@ -201,7 +208,6 @@ public class CompiledGraph<State extends AgentState> {
 
         return saver.get(config)
                 .map( checkpoint -> StateSnapshot.of( checkpoint, config, stateGraph.getStateFactory() ) );
-
     }
 
     /**
