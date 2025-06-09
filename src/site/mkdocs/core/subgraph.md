@@ -78,12 +78,12 @@ Only in the case of  **state subgraph** visualization, since adding it implies i
 In the  adding both **state subgraph** and **compiled subgraph** the streaming is automatically enabled, while in the **subgraph as node action** the streaming is up to you
 
 
-[formatid]: /apidocs/org/bsc/langgraph4j/SubGraphNode.html#formatId
-[action]: /apidocs/org/bsc/langgraph4j/action/AsyncNodeAction.html
+[formatid]: /langgraph4j/apidocs/org/bsc/langgraph4j/SubGraphNode.html#formatId
+[action]: /langgraph4j/apidocs/org/bsc/langgraph4j/action/AsyncNodeAction.html
 [state_sample]: /how-tos/subgraph-as-stategraph
 [compiled_sample]: /how-tos/subgraph-as-compiledgraph
 [node_sample]: /how-tos/subgraph-as-nodeaction
-[sg_getgraph]: /apidocs/org/bsc/langgraph4j/StateGraph.html#getGraph
-[cg_getgraph]: /apidocs/org/bsc/langgraph4j/CompiledGraph.html#getGraph
+[sg_getgraph]: /langgraph4j/apidocs/org/bsc/langgraph4j/StateGraph.html#getGraph
+[cg_getgraph]: /langgraph4j/apidocs/org/bsc/langgraph4j/CompiledGraph.html#getGraph
 [plantUML]: https://plantuml.com
 [Mermaid.js]: https://mermaid.js.org
