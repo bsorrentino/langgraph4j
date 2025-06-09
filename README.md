@@ -98,8 +98,8 @@ You'll typically use a `CheckpointSaver` implementation (e.g., `MemorySaver` for
 
 ```
 langgraph4j/
-├── langgraph4j-bom/                     # A2A4J dependency management
-├── langgraph4j-core/                    # Core A2A protocol implementation
+├── langgraph4j-bom/                     # LangGraph4j dependency management
+├── langgraph4j-core/                    # LangGraph4j core components
 ├── langchain4j/                         # LangChain4j integration
 │   ├── langchain4j-core/                # LangChain4j core components (integration required)
 │   └── langchain4j-agent/               # LangChain4j agent executor
