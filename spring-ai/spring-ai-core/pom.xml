@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.6.0-beta2</version>
+        <version>1.6.0-beta3</version>
     </parent>
 
     <artifactId>langgraph4j-spring-ai</artifactId>
     <packaging>jar</packaging>
 
-    <name>langgraph4j::spring::ai</name>
+    <name>langgraph4j::springai</name>
     <description>Spring AI integration utilities</description>
 
     <properties>

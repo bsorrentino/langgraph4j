@@ -4,7 +4,7 @@
 
   <groupId>org.bsc.langgraph4j</groupId>
   <artifactId>langgraph4j-parent</artifactId>
-  <version>1.6.0-beta2</version>
+  <version>1.6.0-beta3</version>
   <packaging>pom</packaging>
 
   <name>langgraph4j::parent</name>
@@ -194,24 +194,24 @@
  </build>
 
   <modules>
-    <module>core</module>
+    <module>langgraph4j-core</module>
     <module>langgraph4j-bom</module>
 
-    <!-- LangGraph4j Integrate with LangChain4j -->
-    <module>langchain4j</module>
-    <module>agent-executor</module>
+    <!-- Integrating LangGraph4j with LangChain4j -->
+    <module>langchain4j/langchain4j-core</module>
+    <module>langchain4j/langchain4j-agent</module>
 
-    <!-- LangGraph4j Integrate with Spring AI -->
-    <module>spring-ai</module>
-    <module>spring-ai-agent</module>
+    <!-- Integrating LangGraph4j with Spring AI -->
+    <module>spring-ai/spring-ai-core</module>
+    <module>spring-ai/spring-ai-agent</module>
 
-    <!-- studio -->
+    <!-- LangGraph4j studio and implementations-->
     <module>studio/base</module>
     <module>studio/jetty</module>
     <module>studio/quarkus</module>
     <module>studio/springboot</module>
 
-    <!-- examples -->
+    <!-- LangGraph4j how-tos and examples, new examples repository: https://github.com/langgraph4j/langgraph4j-examples -->
     <module>how-tos</module>
   </modules>
 

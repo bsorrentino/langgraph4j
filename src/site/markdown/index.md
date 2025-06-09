@@ -17,7 +17,7 @@ LangGraph for Java. A library for building stateful, multi-agents applications w
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Jun 5, 2025 | `1.6.0-beta2` | official release
+| Jun 9, 2025 | `1.6.0-beta3` | official release
 
 ----
 
@@ -103,7 +103,7 @@ Make sure you are using Java 17 or later.
 **Latest Stable Version (Recommended):**
 ```xml
 <properties>
-    <langgraph4j.version>1.6.0-beta2</langgraph4j.version> <!-- Check for the actual latest version -->
+    <langgraph4j.version>1.6.0-beta3</langgraph4j.version> <!-- Check for the actual latest version -->
 </properties>
 
 <!-- Optional: Add the Bill of Materials (BOM) to manage langgraph4j module versions -->
@@ -388,7 +388,7 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [Mermaid]: https://mermaid.js.org
 
 
-[agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/agent-executor
+[agent-executor]: https://github.com/langgraph4j/langgraph4j/tree/main/langchain4j/langchain4j-agent
 [how-tos/plantuml.ipynb]: how-tos/langgraph4j-howtos/plantuml.html
 [how-tos/persistence.ipynb]: how-tos/langgraph4j-howtos/persistence.html
 [how-tos/llm-streaming.ipynb]: how-tos/langgraph4j-howtos/llm-streaming.html
