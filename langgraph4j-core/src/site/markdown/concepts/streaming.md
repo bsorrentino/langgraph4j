@@ -58,7 +58,7 @@ When we build [LLMStreamingGenerator] we must provide a mapping function `Functi
 
 ### Put all together in Node Action
 
-Now we are ready to implement a **Langgraph4j Node Action**, below a represenattiove code snippet, for a complete implementation take a look to [AgentExecutor] sample. 
+Now we are ready to implement a **Langgraph4j Node Action**, below a represenattiove code snippet, for a complete implementation take a look to [AgentExecutor] module. 
 
 ```java
 Map<String,Object> callAgent( State state )  {
@@ -102,6 +102,6 @@ Map<String,Object> callAgent( State state )  {
 [Langchain4j]: https://github.com/langchain4j/langchain4j
 [StreamingChatLanguageModel]: https://docs.langchain4j.dev/apidocs/dev/langchain4j/model/chat/StreamingChatLanguageModel.html
 [StreamingResponseHandler]: https://docs.langchain4j.dev/apidocs/dev/langchain4j/model/StreamingResponseHandler.html
-[LLMStreamingGenerator]: /langgraph4j/apidocs/org/bsc/langgraph4j/langchain4j/generators/LLMStreamingGenerator.html
-[llm-streaming]: https://github.com/bsorrentino/langgraph4j/blob/main/how-tos/llm-streaming.ipynb
-[AgentExecutor]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/agent-executor
+[LLMStreamingGenerator]: /apidocs/org/bsc/langgraph4j/langchain4j/generators/LLMStreamingGenerator.html
+[llm-streaming]: /how-tos/llm-streaming.ipynb
+[AgentExecutor]: https://github.com/bsorrentino/langgraph4j/tree/main/langchain4j/langchain4j-agent

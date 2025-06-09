@@ -11,7 +11,7 @@
     <artifactId>langgraph4j-spring-ai</artifactId>
     <packaging>jar</packaging>
 
-    <name>langgraph4j::spring::ai</name>
+    <name>langgraph4j::springai</name>
     <description>Spring AI integration utilities</description>
 
     <properties>

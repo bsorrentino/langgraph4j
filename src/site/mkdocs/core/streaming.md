@@ -104,4 +104,4 @@ Map<String,Object> callAgent( State state )  {
 [StreamingResponseHandler]: https://docs.langchain4j.dev/apidocs/dev/langchain4j/model/StreamingResponseHandler.html
 [LLMStreamingGenerator]: /apidocs/org/bsc/langgraph4j/langchain4j/generators/LLMStreamingGenerator.html
 [llm-streaming]: ../how-tos/llm-streaming.ipynb
-[AgentExecutor]: https://github.com/bsorrentino/langgraph4j/tree/main/samples/agent-executor
+[AgentExecutor]: https://github.com/bsorrentino/langgraph4j/tree/main/langchain4j/langchain4j-agent

@@ -94,6 +94,26 @@ LangGraph4j allows you to save (`Checkpoint`) the state of your graph at any ste
 *   **Long-running processes:** Persist the state of long-running agent interactions.
 You'll typically use a `CheckpointSaver` implementation (e.g., `MemorySaver` for in-memory storage, or you can implement your own for persistent storage).
 
+## Project Structure
+
+```
+langgraph4j/
+├── langgraph4j-bom/                     # LangGraph4j dependency management
+├── langgraph4j-core/                    # LangGraph4j core components
+├── langchain4j/                         # LangChain4j integration
+│   ├── langchain4j-core/                # LangChain4j core components (integration required)
+│   └── langchain4j-agent/               # LangChain4j agent executor
+├── spring-ai/                           # Spring AI integration
+│   └── spring-ai-core/                  # Spring AI core components (integration required)
+│   └── spring-ai-agent/                 # Spring AI agent executor
+├── studio/                              # LangGraph4j Studio (web UI)
+│   └── base/                            # Base classes and interfaces
+│   └── jetty/                           # Jetty server implementation
+│   └── quarkus/                         # Quarkus server implementation
+│   └── springboot/                      # Spring Boot implementation
+├── how-tos/                             # How-tos and examples, examples repository: https://github.com/langgraph4j/langgraph4j-examples
+```
+
 ## Installation
 
 To use LangGraph4j in your project, you need to add it as a dependency.
@@ -453,9 +473,9 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [Mermaid]: https://mermaid.js.org
 [documentation]: https://langgraph4j.github.io/langgraph4j/
 [javadocs]: https://langgraph4j.github.io/langgraph4j/apidocs/
-[springai-agentexecutor]: spring-ai-agent
-[agent-executor]: agent-executor/
-[spring-ai-agent]: spring-ai-agent/
+[springai-agentexecutor]: spring-ai/spring-ai-agent
+[agent-executor]: langchain4j/langchain4j-agent
+[spring-ai-agent]: spring-ai/spring-ai-agent
 [Studio]: studio/README.md
 [Jetty]: https://jetty.org
 [Spring Boot]: https://spring.io/projects/spring-boot
@@ -476,14 +496,6 @@ We hope this guide helps you get started with LangGraph4j. Happy building!
 [how-tos/subgraph-as-nodeaction.ipynb]: how-tos/subgraph-as-nodeaction.ipynb
 [how-tos/subgraph-as-compiledgraph.ipynb]: how-tos/subgraph-as-compiledgraph.ipynb
 [how-tos/subgraph-as-stategraph.ipynb]: how-tos/subgraph-as-stategraph.ipynb
-<!-- 
-[generator]: https://github.com/bsorrentino/langgraph4j/tree/main/generator
-[Studio]: https://bsorrentino.github.io/langgraph4j/studio/langgraph4j-studio/index.html
-[releases]: https://central.sonatype.com/search?q=a%3Alanggraph4j-parent
-[snapshots]: https://oss.sonatype.org/content/repositories/snapshots/org/bsc/langgraph4j/ 
-[agent-executor]: https://github.com/bsorrentino/langgraph4j/tree/main/agent-executor 
-[langchain.ai]: https://github.com/langchain-ai
--->
 
 
 

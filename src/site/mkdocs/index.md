@@ -52,8 +52,8 @@ For more details please see [Features](features.md)
 
 [documentation]: https://langgraph4j.github.io/langgraph4j/
 [javadocs]: /apidocs/
-[springai-agentexecutor]: spring-ai-agent
-[agent-executor]: agent-executor/
+[springai-agentexecutor]: spring-ai/spring-ai-agent
+[agent-executor]: langchain4j/langchain4j-agent
 
 
 [Studio]: studio/
