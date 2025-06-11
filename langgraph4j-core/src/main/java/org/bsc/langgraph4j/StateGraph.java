@@ -296,9 +296,28 @@ public class StateGraph<State extends AgentState> {
     var edgeStart = edges.edgeBySourceId(START).orElseThrow(Errors.missingEntryPoint::exception);
 
     edgeStart.validate(nodes);
+    validateNode(nodes);
 
     for (Edge<State> edge : edges.elements) {
       edge.validate(nodes);
+    }
+  }
+
+  private void validateNode(Nodes<State> nodes) throws GraphStateException {
+    List<CommandNode<State>> commandNodeList =
+        nodes.elements.stream()
+            .filter(
+                node -> {
+                  return node instanceof CommandNode<State> commandNode;
+                })
+            .map(node -> (CommandNode<State>) node)
+            .toList();
+    for (CommandNode<State> commandNode : commandNodeList) {
+      for (String key : commandNode.getMappings().keySet()) {
+        if (!nodes.anyMatchById(key)) {
+          throw Errors.missingNodeInEdgeMapping.exception(commandNode.id(), key);
+        }
+      }
     }
   }
 
