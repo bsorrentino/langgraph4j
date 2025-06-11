@@ -1,7 +1,6 @@
 package org.bsc.langgraph4j;
 
 import org.bsc.async.AsyncGenerator;
-import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.action.Command;
@@ -216,7 +215,7 @@ public class CompiledGraph<State extends AgentState> {
      * @param config - the RunnableConfig
      * @return the last StateSnapshot of the given RunnableConfig if any
      */
-    Optional<StateSnapshot<State>> lastStateOf( RunnableConfig config ) {
+    public Optional<StateSnapshot<State>> lastStateOf( RunnableConfig config ) {
         return getStateHistory( config ).stream().findFirst();
     }
 
