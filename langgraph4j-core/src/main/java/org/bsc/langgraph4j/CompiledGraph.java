@@ -15,9 +15,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bsc.async.AsyncGenerator;
-import org.bsc.langgraph4j.action.AsyncNodeAction;
-import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
-import org.bsc.langgraph4j.action.Command;
+import org.bsc.langgraph4j.action.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.internal.edge.Edge;
@@ -907,7 +905,16 @@ record ProcessedNodesEdgesAndConfig<State extends AgentState>(
                         newMappings.put(key, subgraphNode.formatId(value));
                       });
                   return new CommandNode<>(
-                      subgraphNode.formatId(n.id()), commandNode.getAction(), newMappings);
+                      subgraphNode.formatId(n.id()),
+                      AsyncCommandAction.node_async(
+                          (CommandAction<State>)
+                              (state, config1) -> {
+                                Command command =
+                                    commandNode.getAction().apply(state, config1).join();
+                                String NewGoToNode = subgraphNode.formatId(command.gotoNode());
+                                return new Command(NewGoToNode, command.update());
+                              }),
+                      newMappings);
                 }
                 return n.withIdUpdated(subgraphNode::formatId);
               })
