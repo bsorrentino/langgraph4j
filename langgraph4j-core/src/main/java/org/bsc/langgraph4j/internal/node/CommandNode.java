@@ -10,10 +10,16 @@ import org.bsc.langgraph4j.state.AgentState;
 public class CommandNode<State extends AgentState> extends Node<State> {
 
   private final Map<String, String> mappings;
+  private final AsyncCommandAction<State> action;
 
   public CommandNode(String id, AsyncCommandAction<State> action, Map<String, String> mappings) {
     super(id, (config) -> new AsyncCommandNodeActionWithConfig<>(action, mappings));
     this.mappings = mappings;
+    this.action = action;
+  }
+
+  public AsyncCommandAction<State> getAction() {
+    return action;
   }
 
   public Map<String, String> getMappings() {

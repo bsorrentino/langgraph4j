@@ -897,7 +897,20 @@ record ProcessedNodesEdgesAndConfig<State extends AgentState>(
       // Process nodes
       //
       sgWorkflow.nodes.elements.stream()
-          .map(n -> n.withIdUpdated(subgraphNode::formatId))
+          .map(
+              n -> {
+                if (n instanceof CommandNode<State> commandNode) {
+                  Map<String, String> mappings = commandNode.getMappings();
+                  HashMap<String, String> newMappings = new HashMap<>();
+                  mappings.forEach(
+                      (key, value) -> {
+                        newMappings.put(key, subgraphNode.formatId(value));
+                      });
+                  return new CommandNode<>(
+                      subgraphNode.formatId(n.id()), commandNode.getAction(), newMappings);
+                }
+                return n.withIdUpdated(subgraphNode::formatId);
+              })
           .forEach(nodes.elements::add);
     }
 
