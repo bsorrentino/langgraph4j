@@ -58,6 +58,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--
+        =========================================================
+        TEST dependencies
+        =========================================================
+        -->
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
