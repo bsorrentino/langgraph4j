@@ -1,11 +1,12 @@
-package org.bsc.langgraph4j.spring.ai.agentexecutor;
+package org.bsc.langgraph4j.spring.ai.studio;
 
 import org.bsc.langgraph4j.CompileConfig;
-import org.bsc.langgraph4j.GraphRepresentation;
 import org.bsc.langgraph4j.GraphStateException;
-import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.InterruptionMetadata;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
+import org.bsc.langgraph4j.spring.ai.agentexecutor.AgentExecutor;
+import org.bsc.langgraph4j.spring.ai.agentexecutor.AgentExecutorEx;
+import org.bsc.langgraph4j.spring.ai.tool.TestTools;
 import org.bsc.langgraph4j.studio.LangGraphStudioServer;
 import org.bsc.langgraph4j.studio.springboot.LangGraphStudioConfig;
 import org.springframework.ai.chat.messages.UserMessage;
