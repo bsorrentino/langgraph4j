@@ -1,5 +1,6 @@
 package org.bsc.langgraph4j.spring.ai.agentexecutor;
 
+import org.bsc.langgraph4j.spring.ai.AIModel;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,25 +12,25 @@ public class ChatModelConfiguration {
     @Bean
     @Profile("ollama")
     public ChatModel ollamaModel() {
-        return AiModel.OLLAMA.chatModel("qwen3");
+        return AIModel.OLLAMA.chatModel("qwen3");
     }
 
     @Bean
     @Profile("openai")
     public ChatModel openaiModel() {
-        return AiModel.OPENAI.chatModel("gpt-5-mini");
+        return AIModel.OPENAI.chatModel("gpt-5-mini");
     }
 
     @Bean
     @Profile("gemini")
     public ChatModel geminiModel() {
-        return AiModel.GEMINI.chatModel("gemini-2.5-pro");
+        return AIModel.GEMINI.chatModel("gemini-2.5-pro");
     }
 
     @Bean
     @Profile("github-models")
     public ChatModel githubModel() {
-        return AiModel.GITHUB_MODEL.chatModel("gpt-4o-mini");
+        return AIModel.GITHUB_MODEL.chatModel("gpt-4o-mini");
     }
 
 }
