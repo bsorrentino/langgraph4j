@@ -6,15 +6,19 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.agui.sdk.AGUIAgentRegistry;
+import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.studio.InitGraphData;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -90,6 +94,15 @@ public interface AGUILangGraphStudioServer {
      * Servlet for handling graph stream requests.
      */
     class StreamServlet extends HttpServlet implements LG4JLoggable {
+        record ExecutionKey(String sessionId, String agentId, String threadId) {
+            public ExecutionKey {
+                requireNonNull(sessionId);
+                requireNonNull(agentId);
+                requireNonNull(threadId);
+            }
+        }
+
+        final Map<ExecutionKey, Flow.Subscription> executionMap = new ConcurrentHashMap<>();
         final AGUIAgentRegistry agentRegistry;
         final AGUILangGraphStudioJacksonSerializer aguiSerializer;
 
@@ -124,7 +137,21 @@ public interface AGUILangGraphStudioServer {
          */
         @Override
         protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            super.doDelete(req, resp);
+
+            final var agentId = requireNonNull(req.getParameter("agent"), "agent id is not found in req");
+            final var threadId = requireNonNull(req.getParameter("thread"), "thread id is not found in req");
+            final var session = requireNonNull( req.getSession(true), "session cannot be null");
+            final var executionKey = new ExecutionKey(session.getId(), agentId, threadId);
+
+            final var s = executionMap.get( executionKey);
+
+            if( s == null) {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            s.cancel();
+            executionMap.remove(executionKey);
+            resp.setStatus(HttpServletResponse.SC_OK);
         }
 
         /**
@@ -159,14 +186,15 @@ public interface AGUILangGraphStudioServer {
                     .map(AGUILangGraphStudioAgent.class::cast)
                     .orElseThrow(() -> new ServletException(format("agent not found with id: [%s]", agentId)));
 
-            //final var session = requireNonNull( req.getSession(true), "session cannot be null");
+            final var session = requireNonNull( req.getSession(true), "session cannot be null");
 
+            final var executionKey = new ExecutionKey(session.getId(), agentId, input.threadId());
             // Start asynchronous processing
             final var asyncContext = req.startAsync();
             asyncContextTimeout.ifPresent(asyncContext::setTimeout);
             final var out = resp.getOutputStream();
 
-            final var subscriptionRef = new AtomicReference<Flow.Subscription>();
+            //final var subscriptionRef = new AtomicReference<Flow.Subscription>();
             final var finished = new AtomicBoolean();
 
             final Runnable finish = () -> {
@@ -178,7 +206,7 @@ public interface AGUILangGraphStudioServer {
                 }
             };
             final Runnable cancelUpstream = () -> {
-                var s = subscriptionRef.get();
+                final var s = executionMap.get( executionKey);
                 if (s != null) s.cancel();
             };
 
@@ -211,7 +239,7 @@ public interface AGUILangGraphStudioServer {
                     .subscribe(new Flow.Subscriber<Event>() {
                         @Override
                         public void onSubscribe(Flow.Subscription subscription) {
-                            subscriptionRef.set(subscription);
+                            executionMap.put( executionKey, subscription);
                             subscription.request(Long.MAX_VALUE);
                         }
 
