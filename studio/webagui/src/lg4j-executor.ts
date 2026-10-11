@@ -5,7 +5,12 @@ import {
   LitElement,
   type PropertyDeclarations,
 } from "lit";
-import { type BaseEvent, HttpAgent, type RunAgentInput } from "@ag-ui/client";
+import {
+  type BaseEvent,
+  HttpAgent,
+  type RunAgentInput,
+  type UserMessage,
+} from "@ag-ui/client";
 import { type Subscription } from "rxjs";
 
 import { debug } from "./debug";
@@ -287,7 +292,6 @@ export class LG4JExecutorElement extends LitElement {
     result: [string, UpdatedState & { next: string }] | Error | null,
   ) {
     this._executing = false;
-
   }
 
   /**
@@ -391,7 +395,6 @@ export class LG4JExecutorElement extends LitElement {
 
   async #callResume() {
     this.#startExecution();
-    let result = null;
 
     try {
       // if (this.test) {
@@ -399,14 +402,13 @@ export class LG4JExecutorElement extends LitElement {
       //   return
       // }
 
-      result = await this.#callResumeAction();
+      await this.#callResumeAction();
     } catch (err) {
       if (err instanceof Error) {
         this.#requestShowError(err.message);
-        result = err;
       }
     } finally {
-      this.#stopExecution(result);
+      this.#stopExecution(null);
     }
   }
 
@@ -448,34 +450,55 @@ export class LG4JExecutorElement extends LitElement {
     this.dispatchEvent(event);
   }
 
-async _callSubmit() {
-    _DBG("callSubmit");
-    
+  async _callSubmit() {
+    _DBG("callSubmit", this.formMetaData);
+
     // Get input as object
-    const result: Record<string, any> = {};
-    const data: Record<string, any> = this.formMetaData.reduce((acc, md) => {
+    const messages = this.formMetaData.reduce((acc, md) => {
       const { name, type } = md;
       const elem = this.shadowRoot?.getElementById(name);
 
-      switch (type) {
-        case "STRING":
-          //@ts-ignore
-          acc[name] = elem?.value;
-          break;
-        case "IMAGE":
-          //@ts-ignore
-          acc[name] = elem?.value;
-          break;
+      //@ts-ignore
+      const content = elem?.value;
+
+      if (content) {
+        switch (type) {
+          case "STRING":
+            /*
+            acc.push({
+              id: name,
+              role: "user",
+              content: [{ type: "text", text: content }],
+            });
+            */
+            acc.push({
+              id: name,
+              role: "user",
+              content: content
+            });
+            break;
+          case "IMAGE":
+            /*
+            acc.push({
+              id: name,
+              role: "user",
+              content: [{
+                type: "image",
+                source: { type: "data", value: content, mimeType: "image/png" },
+              }],
+            });
+            */
+            throw new Error("IMAGE type not yet implemented");
+            break;
+        }
       }
-
       return acc;
-    }, result);
+    }, new Array<UserMessage>());
 
-    
     this.#startExecution();
 
     const catchError = (error: unknown) => {
-      let result:Error;
+      let result: Error;
       if (error instanceof Error) {
         result = error;
       } else {
@@ -486,7 +509,6 @@ async _callSubmit() {
     };
 
     try {
-
       let agent = new HttpAgent({
         url:
           `${this._contextPath}/stream/${this.#instanceId}?thread=${this._selectedThread}`,
@@ -496,8 +518,8 @@ async _callSubmit() {
       let input: RunAgentInput = {
         runId: "run1",
         threadId: this._selectedThread!,
-        state: data,
-        messages: [],
+        state: {},
+        messages: messages,
         tools: [],
         context: [],
       };
