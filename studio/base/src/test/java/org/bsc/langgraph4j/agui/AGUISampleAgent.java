@@ -41,7 +41,7 @@ public interface AGUISampleAgent {
                 .id(id)
                 .title("LangGraph Studio (Base Agent)")
                 .stateGraph(graph)
-                .addInputStringArg("input")
+                //.addInputStringArg("input")
                 .build();
 
     }
