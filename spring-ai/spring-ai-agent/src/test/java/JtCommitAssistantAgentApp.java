@@ -20,7 +20,7 @@ import org.bsc.langgraph4j.agent.AgentEx;
 import org.bsc.langgraph4j.agent.skill.SkillPath;
 import org.bsc.langgraph4j.checkpoint.FileSystemSaver;
 import org.bsc.langgraph4j.spring.ai.agent.AgentCommitAssistant;
-import org.bsc.langgraph4j.spring.ai.agent.AiModel;
+import org.bsc.langgraph4j.spring.ai.AIModel;
 import org.bsc.langgraph4j.spring.ai.agent.LogNodeHook;
 import org.bsc.langgraph4j.spring.ai.agentexecutor.AgentExecutorEx;
 import org.bsc.langgraph4j.spring.ai.serializer.jackson.SpringAIJacksonStateSerializer;
@@ -74,7 +74,7 @@ public class JtCommitAssistantAgentApp {
         var model = modelOptional.get();
 
         var chatModel = switch (model.provider()) {
-            case OPENAI -> AiModel.OPENAI.chatModel(model.name());
+            case OPENAI -> AIModel.OPENAI.chatModel(model.name());
             case GITHUB -> {
                 Jt.warning("GITHUB model is not supported yet").use();
                 yield null;
@@ -83,7 +83,7 @@ public class JtCommitAssistantAgentApp {
                 Jt.warning("GEMINI model is not supported yet").use();
                 yield null;
             }
-            case OLLAMA -> AiModel.OLLAMA.chatModel(model.name());
+            case OLLAMA -> AIModel.OLLAMA.chatModel(model.name());
         };
 
         if (chatModel != null) {
