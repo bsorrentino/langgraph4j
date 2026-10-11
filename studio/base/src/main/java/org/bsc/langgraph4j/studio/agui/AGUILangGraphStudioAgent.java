@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.studio.agui;
 import com.agui.community.core.agent.RunAgentInput;
 import com.agui.community.core.event.CustomEvent;
 import com.agui.community.core.event.Event;
+import com.agui.community.core.message.Message;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.agui.sdk.AGUIAgentBase;
 import org.bsc.langgraph4j.agui.sdk.AGUINodeOutput;
@@ -13,10 +14,9 @@ import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.studio.ArgumentMetadata;
 import org.bsc.langgraph4j.studio.InitGraphData;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -54,8 +54,9 @@ public class AGUILangGraphStudioAgent extends AGUIAgentBase {
             return this;
         }
 
-        public Builder addInputStringArg(String name, boolean required, Function<Object,Object> converter) {
-            inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.STRING, required, converter));
+        @SuppressWarnings("unchecked")
+        public <I,O> Builder addInputStringArg(String name, boolean required, Function<I,O> converter) {
+            inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.STRING, required, (Function<Object,Object>)converter));
             return this;
         }
 
@@ -90,8 +91,9 @@ public class AGUILangGraphStudioAgent extends AGUIAgentBase {
         }
 
 
-        public Builder addInputImageArg(String name, boolean required, Function<Object,Object> converter) {
-            inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.IMAGE, required, converter));
+        @SuppressWarnings("unchecked")
+        public <I,O> Builder addInputImageArg(String name, boolean required, Function<I,O> converter) {
+            inputArgs.add(new ArgumentMetadata(name, ArgumentMetadata.ArgumentType.IMAGE, required, (Function<Object,Object>)converter));
             return this;
         }
 
@@ -158,24 +160,16 @@ public class AGUILangGraphStudioAgent extends AGUIAgentBase {
 
     @Override
     protected GraphInput graphInput(RunAgentInput input) {
-
-        /*
-        @SuppressWarnings("unchecked")
-        final Map<String, Object> candidateDataMap = (Map<String, Object>) input.state();
-
-        final var dataMap = candidateDataMap.entrySet().stream()
-                .map( entry -> {
-                    var newValue = args.stream()
-                            .filter(arg -> arg.name().equals(entry.getKey()) && arg.converter() != null).findAny()
-                            .map(arg -> arg.converter().apply(entry.getValue()));
-                    return newValue.map( v -> entryOf(entry.getKey(), v ))
-                            .orElse(entry);
-                })
+        final var inputMap = input.messages().stream()
+                .map( message ->
+                    inputArgs.stream()
+                            .filter(arg -> arg.name().equals(message.id()) && arg.converter() != null).findAny()
+                            .map(arg -> Map.entry(message.id(), arg.converter().apply(message)))
+                            .orElse(null)
+                )
+                .filter(Objects::nonNull)
                 .collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue) );
 
-        return GraphInput.args(dataMap);
-        */
-
-        return GraphInput.noArgs();
+        return GraphInput.args(inputMap);
     }
 }
