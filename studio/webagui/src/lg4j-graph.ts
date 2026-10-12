@@ -25,8 +25,15 @@ import {
 } from '@xyflow/react';
 
 import { debug } from './debug.js';
-import type { GraphState, NextNodeData } from './types.js';
-import { EventType, type BaseEvent, type RunFinishedCancelledOutcome, type RunFinishedEvent, type RunFinishedInterruptOutcome, type RunStartedEvent, type StepFinishedEvent, type StepStartedEvent } from '@ag-ui/client';
+import type { NextNodeData } from './types.js';
+import { 
+  EventType, type BaseEvent, 
+  type RunFinishedEvent, 
+  type RunFinishedInterruptOutcome, 
+  type StepFinishedEvent, 
+  type StepStartedEvent, 
+  type CustomEvent as AGUICustomEvent
+ } from '@ag-ui/client';
 
 const _DBG = debug( { on: true, topic: 'LG4JGraph' } )
 
@@ -1364,20 +1371,20 @@ export class LG4JDSLViewElement extends HTMLElement {
         break;  
         case EventType.RUN_FINISHED: {
           const e = <RunFinishedEvent>aguiEvent;
-          if( e.outcome ) {
-            if( e.outcome.type === 'interrupt' ) {
-                const interrupt = <RunFinishedInterruptOutcome>e.outcome;
-                _DBG("graph interrupted", interrupt.interrupts)
-                this.#renderInterruption()
-                return;
-            }
-            if( e.outcome.type === 'cancelled' ) {
-                _DBG("graph cancelled")
-                return;
-            }
-            
+          if( e.outcome  && e.outcome.type === 'interrupt' ) {
+              const interrupt = <RunFinishedInterruptOutcome>e.outcome;
+              _DBG("graph interrupted", interrupt.interrupts)
+              this.#renderInterruption()
+              return;
           }
-          this.activeNodeId = '__END__'
+          else if( e.outcome && e.outcome.type === 'cancelled' ) {
+                _DBG("graph cancelled")
+                this.interruptedNodeId = this.activeNodeId;
+                break;
+          }
+          else {
+            this.activeNodeId = '__END__'
+          }
         }
         break;
         case EventType.STEP_STARTED: {
@@ -1395,7 +1402,14 @@ export class LG4JDSLViewElement extends HTMLElement {
           
         }
         break;
-        case EventType.CUSTOM:
+        case EventType.CUSTOM: {
+          const e = <AGUICustomEvent>aguiEvent;
+          if( e.name === 'cancelled') {
+            _DBG("graph cancelled via custom event")
+            this.interruptedNodeId = this.activeNodeId;
+          }
+        }
+        break;
         case EventType.RUN_ERROR:      
           break;
 
