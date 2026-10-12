@@ -3,7 +3,6 @@ package org.bsc.langgraph4j.studio.agui;
 import com.agui.community.core.agent.RunAgentInput;
 import com.agui.community.core.event.CustomEvent;
 import com.agui.community.core.event.Event;
-import com.agui.community.core.message.Message;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.agui.sdk.AGUIAgentBase;
 import org.bsc.langgraph4j.agui.sdk.AGUINodeOutput;
@@ -146,6 +145,20 @@ public class AGUILangGraphStudioAgent extends AGUIAgentBase {
 
         }
         return super.onNextEvents(input, output);
+    }
+
+    @Override
+    protected Collection<? extends Event> onCompleteEvents(RunAgentInput input, GraphResult result) {
+        return switch( result.type() ) {
+            case CANCELLED -> List.of(
+                    new CustomEvent(
+                            "cancelled",
+                            "cancelled",
+                            System.currentTimeMillis(),
+                            null)
+                    );
+            default -> super.onCompleteEvents(input, result);
+        };
     }
 
     @Override
