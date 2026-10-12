@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Map;
 
 @Configuration
-public abstract class AGUILangGraphStudioConfig {
+public abstract class AGUILangGraphStudioBaseConfig {
 
     @Bean
     public AGUILangGraphStudioJacksonSerializer aguiSerializer() {
