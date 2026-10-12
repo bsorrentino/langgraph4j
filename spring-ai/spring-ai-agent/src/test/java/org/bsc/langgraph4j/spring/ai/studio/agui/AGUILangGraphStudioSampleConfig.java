@@ -7,18 +7,29 @@ import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.spring.ai.AIModel;
 import org.bsc.langgraph4j.spring.ai.agentexecutor.AgentExecutor;
 import org.bsc.langgraph4j.spring.ai.agentexecutor.AgentExecutorEx;
+import org.bsc.langgraph4j.spring.ai.serializer.jackson.SpringAIJacksonStateSerializer;
 import org.bsc.langgraph4j.spring.ai.tool.TestTools;
+import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.studio.agui.AGUILangGraphStudioAgent;
-import org.bsc.langgraph4j.studio.springboot.agui.AGUILangGraphStudioConfig;
+import org.bsc.langgraph4j.studio.serializer.NodeOutputSerializer;
+import org.bsc.langgraph4j.studio.springboot.agui.AGUILangGraphStudioBaseConfig;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Map;
 import java.util.function.Function;
 
 @Configuration
-public class AGUILangGraphSampleConfig extends AGUILangGraphStudioConfig {
+public class AGUILangGraphStudioSampleConfig extends AGUILangGraphStudioBaseConfig {
+
     @Override
     protected AGUIAgentRegistry agentRegistry() throws Exception {
+
+        final var stateSerializer = new SpringAIJacksonStateSerializer<>(AgentState::new);
+
+        aguiSerializer().serializeAttributes(
+                Map.of(NodeOutputSerializer.STATE_SERIALIZER, stateSerializer)
+        );
 
         final var chatModel = AIModel.OLLAMA.chatModel("qwen2.5:7b");
         final var tools = new TestTools();

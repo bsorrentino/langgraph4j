@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import({AGUILangGraphSampleConfig.class,
+@Import({AGUILangGraphStudioSampleConfig.class,
         CORSFilterConfig.class})
 public class AGUILangGraphStudioServerApplication {
 

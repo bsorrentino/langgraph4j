@@ -5,7 +5,7 @@ import org.bsc.langgraph4j.agui.sdk.AGUIAgentRegistry;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AGUILangGraphSampleConfig extends AGUILangGraphStudioConfig {
+public class AGUILangGraphSampleConfig extends AGUILangGraphStudioBaseConfig {
 
     @Override
     protected AGUIAgentRegistry agentRegistry() throws Exception {
