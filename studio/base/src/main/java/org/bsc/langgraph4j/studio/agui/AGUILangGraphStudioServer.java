@@ -6,10 +6,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.agui.sdk.AGUIAgentRegistry;
-import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.studio.InitGraphData;
 
 import java.io.IOException;
@@ -22,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -138,9 +135,13 @@ public interface AGUILangGraphStudioServer {
         @Override
         protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-            final var agentId = requireNonNull(req.getParameter("agent"), "agent id is not found in req");
-            final var threadId = requireNonNull(req.getParameter("thread"), "thread id is not found in req");
-            final var session = requireNonNull( req.getSession(true), "session cannot be null");
+            final var agentId = agentIdFromRequest(req)
+                    .orElseThrow(() -> new ServletException("agent id is not found in req"));
+            final var threadId = ofNullable(req.getParameter("thread"))
+                    .orElseThrow(() -> new ServletException("thread id is not found in req"));
+            final var session = ofNullable( req.getSession(true))
+                    .orElseThrow(() -> new ServletException("session cannot be null"));
+
             final var executionKey = new ExecutionKey(session.getId(), agentId, threadId);
 
             final var s = executionMap.get( executionKey);
@@ -186,7 +187,8 @@ public interface AGUILangGraphStudioServer {
                     .map(AGUILangGraphStudioAgent.class::cast)
                     .orElseThrow(() -> new ServletException(format("agent not found with id: [%s]", agentId)));
 
-            final var session = requireNonNull( req.getSession(true), "session cannot be null");
+            final var session = ofNullable( req.getSession(true))
+                    .orElseThrow(() -> new ServletException("session cannot be null"));
 
             final var executionKey = new ExecutionKey(session.getId(), agentId, input.threadId());
             // Start asynchronous processing
@@ -252,9 +254,10 @@ public interface AGUILangGraphStudioServer {
                                 out.write(toSse(data));
                                 out.flush();
                                 asyncContext.getResponse().flushBuffer();
-                                TimeUnit.SECONDS.sleep(1);
-                            } catch (IOException | InterruptedException |
-                                     RuntimeException e) {   // client gone or serialization failure
+                                TimeUnit.MILLISECONDS.sleep(750);   // throttle to avoid overwhelming the client
+                            } catch (InterruptedException e) {
+                                log.warn("interruption occurred", e);
+                            } catch (IOException | RuntimeException e) {   // client gone or serialization failure
                                 log.warn("write failed, cancelling", e);
                                 cancelUpstream.run();
                                 finish.run();
