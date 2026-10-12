@@ -1,14 +1,16 @@
-import { html, css, LitElement, type PropertyDeclarations } from 'lit';
-import { debug } from './debug';
-import type { NextNodeData, Instance } from './types';
-import { EventType, type BaseEvent, type RunFinishedEvent } from '@ag-ui/client';
+import { css, html, LitElement, type PropertyDeclarations } from "lit";
+import { debug } from "./debug";
+import type { Instance, NextNodeData } from "./types";
+import {
+  type BaseEvent,
+  type CustomEvent as AGUICustomEvent,
+  EventType,
+  type RunFinishedEvent,
+} from "@ag-ui/client";
 
-
-const _LOG = debug( { on: true, topic: 'LG4JWorkbench' } )
-
+const _LOG = debug({ on: true, topic: "LG4JWorkbench" });
 
 export class LG4JWorkbenchElement extends LitElement {
-
   static styles = [css`
     :host {
       display: block;
@@ -16,7 +18,8 @@ export class LG4JWorkbenchElement extends LitElement {
       color: #e5e7eb;
       background: #0f172a;
       font-size: var(--lg4j-workbench-font-size, 12px);
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
     }
 
     .shell {
@@ -176,18 +179,18 @@ export class LG4JWorkbenchElement extends LitElement {
     }
   `];
 
-  static properties:PropertyDeclarations = {
+  static properties: PropertyDeclarations = {
     title: {},
     resultPanelVisible: {
       type: Boolean,
       converter: {
-        fromAttribute: ( value: string) => value !== 'false',
+        fromAttribute: (value: string) => value !== "false",
       },
     },
-  }
-  
+  };
+
   declare resultPanelVisible: boolean;
-  
+
   constructor() {
     super();
     this.resultPanelVisible = false;
@@ -198,186 +201,200 @@ export class LG4JWorkbenchElement extends LitElement {
   }
 
   /**
-   * @param {CustomEvent} e 
+   * @param {CustomEvent} e
    * @param {string} [slot]
    */
-  #routeEvent( e:CustomEvent<any>, slot?: string ) {
-    
-    const { type, detail } = e
-    
-    if( !slot ) {
-      slot = type.split('-')[0]
+  #routeEvent(e: CustomEvent<any>, slot?: string) {
+    const { type, detail } = e;
+
+    if (!slot) {
+      slot = type.split("-")[0];
     }
 
-    _LOG( 'routeEvent', type, slot )
-    
-    const event = new CustomEvent( type, { detail } );
+    _LOG("routeEvent", type, slot);
 
-    const elem = this.querySelector(`[slot="${slot}"]`)
-    if( !elem ) {
-      console.error( `slot '${slot}' not found!` )
-      return
+    const event = new CustomEvent(type, { detail });
+
+    const elem = this.querySelector(`[slot="${slot}"]`);
+    if (!elem) {
+      console.error(`slot '${slot}' not found!`);
+      return;
     }
-    elem.dispatchEvent( event )
-
+    elem.dispatchEvent(event);
   }
 
   /**
    * Event handler for the 'init' event.
-   * 
+   *
    * @param {CustomEvent<Instance>} e - The event object containing init data.
    */
-  #routeInitEvent( e:CustomEvent<Instance> ) {
-      const { graph, title, threads  } = e.detail 
+  #routeInitEvent(e: CustomEvent<Instance>) {
+    const { graph, title, threads } = e.detail;
 
-      this.#routeEvent( new CustomEvent( 'graph', { detail: graph }));
-      this.#routeEvent( new CustomEvent( 'init-threads', { detail: threads }), 'result');
+    this.#routeEvent(new CustomEvent("graph", { detail: graph }));
+    this.#routeEvent(
+      new CustomEvent("init-threads", { detail: threads }),
+      "result",
+    );
 
-      if( title ) {
-        this.title = title
-        this.requestUpdate()
-      }
+    if (title) {
+      this.title = title;
+      this.requestUpdate();
+    }
   }
 
   /**
    * Event handler for the 'updates' event.
-   * 
+   *
    * @param {CustomEvent} e - The event object containing the updated data.
    */
-  #routeUpdateEvent( e:CustomEvent<any> ) {
-    _LOG( 'got updated event', e );
-    this.#routeEvent( new CustomEvent( `${e.type}`, { detail: e.detail }), 'executor');
+  #routeUpdateEvent(e: CustomEvent<any>) {
+    _LOG("got updated event", e);
+    this.#routeEvent(
+      new CustomEvent(`${e.type}`, { detail: e.detail }),
+      "executor",
+    );
   }
 
-  private routeAGUIEvent( event:CustomEvent<BaseEvent> ): void {
-    const elem = this.shadowRoot?.getElementById('spinner')
+  private routeAGUIEvent(event: CustomEvent<BaseEvent>): void {
+    const elem = this.shadowRoot?.getElementById("spinner");
 
     const { type } = event.detail;
 
     switch (type) {
-      case EventType.RUN_STARTED: {
-          elem?.classList.remove('hidden') 
-      }
-      break;
+      case EventType.RUN_STARTED:
+        {
+          elem?.classList.remove("hidden");
+        }
+        break;
       case EventType.RUN_ERROR:
-          elem?.classList.add('hidden')
-      break;
-      case EventType.RUN_FINISHED: {
-          elem?.classList.add('hidden')
+        elem?.classList.add("hidden");
+        break;
+      case EventType.RUN_FINISHED:
+        {
+          elem?.classList.add("hidden");
 
-          const e = <RunFinishedEvent>event.detail;
-          if( e.outcome?.type === 'interrupt') {
-            this.#writeMessage( 'INTERRUPTED' )
+          const e = <RunFinishedEvent> event.detail;
+          if (e.outcome?.type === "interrupt") {
+            this.#writeMessage("INTERRUPTED");
+          } else if (e.outcome?.type === "cancelled") {
+            this.#writeMessage("CANCELLED");
           }
-      }
-      break;
+        }
+        break;
+      case EventType.CUSTOM:
+        {
+          const e = <AGUICustomEvent> event.detail;
+          if (e.name === "cancelled") {
+            elem?.classList.add("hidden");
+            this.#writeMessage("CANCELLED");
+          }
+        }
+        break;
     }
 
-    this.#routeEvent(  event , "graph");
-    this.#routeEvent(  event , "result");
+    this.#routeEvent(event, "graph");
+    this.#routeEvent(event, "result");
   }
 
   /**
-   * 
-   * @param {string} message 
+   * @param {string} message
    */
-  #writeMessage( message: string ) {
-    const elem = this.shadowRoot?.getElementById('message')
-    if( elem ) {
-      elem.textContent = message
+  #writeMessage(message: string) {
+    const elem = this.shadowRoot?.getElementById("message");
+    if (elem) {
+      elem.textContent = message;
     }
   }
 
   /**
-   * 
-   * @param {CustomEvent<NextNodeData>} e 
+   * @param {CustomEvent<NextNodeData>} e
    */
-  #onGraphActive( e:CustomEvent<NextNodeData> ) {
-    this.#writeMessage( e.detail.node )
-    this.#routeEvent( e )
+  #onGraphActive(e: CustomEvent<NextNodeData>) {
+    this.#writeMessage(e.detail.node);
+    this.#routeEvent(e);
   }
-
 
   connectedCallback() {
-    super.connectedCallback()
+    super.connectedCallback();
 
     // @ts-ignore
-    this.addEventListener( 'init', this.#routeInitEvent );
+    this.addEventListener("init", this.#routeInitEvent);
     // @ts-ignore
-    this.addEventListener( 'result', this.#routeEvent );
+    this.addEventListener("result", this.#routeEvent);
     // @ts-ignore
-    this.addEventListener( 'graph-active', this.#onGraphActive);
+    this.addEventListener("graph-active", this.#onGraphActive);
     // @ts-ignore
-    this.addEventListener( 'thread-updated', this.#routeUpdateEvent );
+    this.addEventListener("thread-updated", this.#routeUpdateEvent);
     // @ts-ignore
-    this.addEventListener( 'node-updated', this.#routeUpdateEvent )
+    this.addEventListener("node-updated", this.#routeUpdateEvent);
     // @ts-ignore
-    this.addEventListener( 'agui-event', this.routeAGUIEvent );
-
+    this.addEventListener("agui-event", this.routeAGUIEvent);
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback()
+    super.disconnectedCallback();
 
     // @ts-ignore
-    this.removeEventListener( 'node-updated', this.#routeUpdateEvent )
+    this.removeEventListener("node-updated", this.#routeUpdateEvent);
     // @ts-ignore
-    this.removeEventListener( 'thread-updated', this.#routeUpdateEvent );
+    this.removeEventListener("thread-updated", this.#routeUpdateEvent);
     // @ts-ignore
-    this.removeEventListener( 'graph-active', this.#onGraphActive );
+    this.removeEventListener("graph-active", this.#onGraphActive);
     // @ts-ignore
-    this.removeEventListener( 'result', this.#routeEvent );
+    this.removeEventListener("result", this.#routeEvent);
     // @ts-ignore
-    this.removeEventListener( 'init', this.#routeInitEvent );
+    this.removeEventListener("init", this.#routeInitEvent);
     // @ts-ignore
-    this.removeEventListener( 'agui-event', this.routeAGUIEvent );
-
+    this.removeEventListener("agui-event", this.routeAGUIEvent);
   }
 
   // firstUpdated() {
   // }
-  
+
   render() {
-    const resultToggleLabel = this.resultPanelVisible ? 'Hide result panel' : 'Show result panel';
+    const resultToggleLabel = this.resultPanelVisible
+      ? "Hide result panel"
+      : "Show result panel";
 
     return html`
-<div class="shell">
+      <div class="shell">
+        <div class="navbar">
+          <div>
+            <a class="title">${this.title}</a>
+          </div>
 
-  <div class="navbar">
+          <div class="status">
+            <span id="spinner" class="hidden spinner"></span>
+            <span id="message"></span>
+          </div>
 
-    <div>
-      <a class="title">${this.title}</a>
-    </div>
+          <button
+            class="toggle-results"
+            type="button"
+            title="${resultToggleLabel}"
+            aria-label="${resultToggleLabel}"
+            aria-expanded="${this.resultPanelVisible}"
+            @click="${this.#toggleResultPanel}">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+        </div>
 
-    <div class="status">
-      <span id="spinner" class="hidden spinner"></span>
-      <span id="message"></span>
-    </div>
-
-    <button
-      class="toggle-results"
-      type="button"
-      title="${resultToggleLabel}"
-      aria-label="${resultToggleLabel}"
-      aria-expanded="${this.resultPanelVisible}"
-      @click="${this.#toggleResultPanel}">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-      </svg>
-    </button>
-
-</div>
-
-  <div class="layout ${this.resultPanelVisible ? '' : 'results-hidden'}">    
-    <div class="left-column">
-      <div class="graph-panel"><slot name="graph">LEFT</slot></div>
-      <div class="executor-panel"><slot name="executor">BOTTOM</slot></div>
-    </div>
-    <div class="result-panel" ?hidden="${!this.resultPanelVisible}"><slot name="result">RIGHT</slot></div>
-  </div>
-</div>
+        <div class="layout ${this.resultPanelVisible ? "" : "results-hidden"}">
+          <div class="left-column">
+            <div class="graph-panel"><slot name="graph">LEFT</slot></div>
+            <div class="executor-panel"><slot name="executor">BOTTOM</slot></div>
+          </div>
+          <div class="result-panel"
+            ?hidden="${!this
+              .resultPanelVisible}"><slot name="result">RIGHT</slot></div>
+        </div>
+      </div>
     `;
   }
 }
 
-window.customElements.define('lg4j-workbench', LG4JWorkbenchElement);
+window.customElements.define("lg4j-workbench", LG4JWorkbenchElement);
