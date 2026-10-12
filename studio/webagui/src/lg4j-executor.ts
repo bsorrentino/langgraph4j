@@ -394,25 +394,29 @@ export class LG4JExecutorElement extends LitElement {
   }
 
   async #callResume() {
-    this.#startExecution();
 
-    try {
-      // if (this.test) {
-      //   await test.callSubmitAction(this, this.#selectedThread);
-      //   return
-      // }
+    const updatedState = this.#updatedState;
 
-      await this.#callResumeAction();
-    } catch (err) {
-      if (err instanceof Error) {
-        this.#requestShowError(err.message);
-      }
-    } finally {
-      this.#stopExecution(null);
-    }
-  }
+    if( !updatedState ) return;
 
-  async #callResumeAction() {
+    const input: RunAgentInput = {
+        runId: "run1",
+        threadId: this._selectedThread!,
+        state: {},
+        messages: [],
+        tools: [],
+        context: [],
+        resume: [ {
+          interruptId: updatedState.node,
+          status: "resolved",
+          payload: { 
+            checkpoint: updatedState.checkpoint,
+            data: JSON.stringify(updatedState.data)
+          },
+          metadata: undefined,
+        }],
+      };
+      await this.runAgent(input);
   }
 
   /**
@@ -434,23 +438,6 @@ export class LG4JExecutorElement extends LitElement {
     if (!execResponse.ok) {
       throw new LG4JFetchError(execResponse);
     }
-
-
-    /*
-    const event = new CustomEvent<[string, ResultData]>("result", {
-      detail: [this._selectedThread!, {
-        node: "",
-        next: "",
-        state: {},
-        subgraphNode: undefined,
-        cancelled: true,
-      }],
-      bubbles: true,
-      composed: true,
-      cancelable: true,
-    });
-    this.dispatchEvent(event);
-    */
   }
 
   async _callSubmit() {
@@ -498,7 +485,22 @@ export class LG4JExecutorElement extends LitElement {
       return acc;
     }, new Array<UserMessage>());
 
-    this.#startExecution();
+    const input: RunAgentInput = {
+        runId: "run1",
+        threadId: this._selectedThread!,
+        state: {},
+        messages: messages,
+        tools: [],
+        context: [],
+      };
+
+    await this.runAgent(input);
+
+  }
+
+
+  private async runAgent(input: RunAgentInput) {
+      this.#startExecution();
 
     const catchError = (error: unknown) => {
       let result: Error;
@@ -518,14 +520,6 @@ export class LG4JExecutorElement extends LitElement {
         fetch: (url, init) => fetch(url, { ...init, credentials: "include" }),
       });
 
-      let input: RunAgentInput = {
-        runId: "run1",
-        threadId: this._selectedThread!,
-        state: {},
-        messages: messages,
-        tools: [],
-        context: [],
-      };
 
       this.subscription = agent.run(input).subscribe({
         next: (event) => {
@@ -547,6 +541,7 @@ export class LG4JExecutorElement extends LitElement {
     }
 
   }
+
 
   /**
    * Renders the HTML template for the component.
