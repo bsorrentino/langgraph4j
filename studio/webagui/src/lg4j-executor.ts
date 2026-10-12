@@ -424,7 +424,7 @@ export class LG4JExecutorElement extends LitElement {
     if (!this._executing) return;
 
     const execResponse = await fetch(
-      `${this._contextPath}/stream/${this.#instanceId}?thread=${this._selectedThread}&cancel=true`,
+      `${this._contextPath}/stream/${this.#instanceId}?thread=${this._selectedThread}&interrupt=true`,
       {
         method: "DELETE", // *GET, POST, PUT, DELETE, etc.
         credentials: "include",
@@ -435,6 +435,8 @@ export class LG4JExecutorElement extends LitElement {
       throw new LG4JFetchError(execResponse);
     }
 
+
+    /*
     const event = new CustomEvent<[string, ResultData]>("result", {
       detail: [this._selectedThread!, {
         node: "",
@@ -448,6 +450,7 @@ export class LG4JExecutorElement extends LitElement {
       cancelable: true,
     });
     this.dispatchEvent(event);
+    */
   }
 
   async _callSubmit() {
@@ -542,6 +545,7 @@ export class LG4JExecutorElement extends LitElement {
     } catch (error: unknown) {
       catchError(error);
     }
+
   }
 
   /**
