@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.spring.ai.agentexecutor.gemini;
+package org.bsc.langgraph4j.spring.ai.tool.gemini;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;

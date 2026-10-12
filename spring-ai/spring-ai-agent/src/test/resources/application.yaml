@@ -27,6 +27,11 @@ spring:
 
 cors:
   allowed-origins: "http://localhost:1234"
+server:
+  port: 8081
+  compression:
+    enabled: false
+
 weather:
   api-key: ${WEATHER_API_KEY}
   api-url: https://api.weatherapi.com/v1

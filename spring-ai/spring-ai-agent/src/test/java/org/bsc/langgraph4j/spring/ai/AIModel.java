@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.spring.ai.agentexecutor;
+package org.bsc.langgraph4j.spring.ai;
 
 import com.google.genai.Client;
 import com.openai.client.OpenAIClientImpl;
@@ -16,7 +16,7 @@ import java.util.function.BiFunction;
 
 import static java.util.Objects.requireNonNull;
 
-public enum AiModel {
+public enum AIModel {
 
     OPENAI( (model, extra) ->
             OpenAiChatModel.builder()
@@ -82,7 +82,7 @@ public enum AiModel {
         return this.model.apply(model, extraAttributes);
     }
 
-    AiModel( BiFunction<String, Map<String,String>, ChatModel> model ) {
+    AIModel(BiFunction<String, Map<String,String>, ChatModel> model ) {
         this.model = model;
     }
 

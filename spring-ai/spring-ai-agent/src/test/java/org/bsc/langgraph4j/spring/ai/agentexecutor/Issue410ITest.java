@@ -1,5 +1,7 @@
 package org.bsc.langgraph4j.spring.ai.agentexecutor;
 
+import org.bsc.langgraph4j.spring.ai.AIModel;
+import org.bsc.langgraph4j.spring.ai.tool.TestTools;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -74,7 +76,7 @@ public class Issue410ITest {
         final var toolCallingManager = DefaultToolCallingManager.builder()
                 .build();
 
-        final var chatModel = AiModel.OLLAMA.chatModel("qwen3.5");
+        final var chatModel = AIModel.OLLAMA.chatModel("qwen3.5");
 
         final var chatClient = ChatClient.builder( chatModel )
                 .defaultTools(new TestTools())
