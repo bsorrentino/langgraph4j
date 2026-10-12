@@ -2,7 +2,7 @@ import { html, css, LitElement } from 'lit';
 import { Stack } from './stack';
 import { debug } from './debug';
 import { EventType, type BaseEvent, type CustomEvent as AGUICustomEvent, type RunFinishedEvent, type RunFinishedInterruptOutcome } from '@ag-ui/client';
-import type { GraphState, ResultData } from './types.js';
+import type { ResultData } from './types.js';
 
 
 const _LOG = debug( { on: true, topic: 'LG4JResult' } )
