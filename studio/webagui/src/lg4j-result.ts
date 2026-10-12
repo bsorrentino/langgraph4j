@@ -207,6 +207,10 @@ export class LG4JResultElement extends LitElement {
         case EventType.CUSTOM: {
           const e = <AGUICustomEvent>aguiEvent;
           _DBG( "customEvent", e)
+          if( e.name === 'cancelled') {
+            _DBG("graph cancelled via custom event")
+            return;
+          }
           this.#onResult( new CustomEvent("custom", { detail: e.value } ) )
         }
         break;
