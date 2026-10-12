@@ -8,12 +8,15 @@ import org.bsc.langgraph4j.LG4JLoggable;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.dsl.JsonDslGenerator;
+import org.bsc.langgraph4j.serializer.StateSerializer;
+import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
 import org.bsc.langgraph4j.studio.LangGraphStudioServer;
 import org.bsc.langgraph4j.subgraph.SubGraphOutput;
 import org.bsc.langgraph4j.utils.TypeRef;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
@@ -24,6 +27,9 @@ import static java.util.Optional.ofNullable;
 @SuppressWarnings("rawtypes")
 public class NodeOutputSerializer extends StdSerializer<NodeOutput> implements LG4JLoggable {
 
+    public static final String STATE_SERIALIZER = "stateSerializer";
+    public static final String THREAD_ID = "threadId";
+
     /**
      * Constructs a new NodeOutputSerializer.
      * Calls the superclass constructor with the NodeOutput class type.
@@ -32,6 +38,16 @@ public class NodeOutputSerializer extends StdSerializer<NodeOutput> implements L
         super( NodeOutput.class );
     }
 
+    @SuppressWarnings("unchecked")
+    private <State extends AgentState> Optional<StateSerializer<State>> stateSerializer(SerializerProvider serializerProvider) {
+        return ofNullable(serializerProvider.getAttribute(STATE_SERIALIZER))
+                .map( s -> (StateSerializer<State>) s );
+    }
+
+    private Optional<String> threadId(SerializerProvider serializerProvider) {
+        return ofNullable(serializerProvider.getAttribute(THREAD_ID))
+                .map(Object::toString);
+    }
     /**
      * Serializes a NodeOutput instance into JSON.
      *
@@ -45,9 +61,7 @@ public class NodeOutputSerializer extends StdSerializer<NodeOutput> implements L
             IOException {
         log.trace( "NodeOutputSerializer start! {}", nodeOutput.getClass() );
 
-        final var threadId = ofNullable(serializerProvider.getAttribute("threadId"))
-                .map(Object::toString)
-                .orElse("default");
+        final var threadId = threadId(serializerProvider).orElse("default");
 
         gen.writeStartArray();
         gen.writeString(threadId);
@@ -85,9 +99,16 @@ public class NodeOutputSerializer extends StdSerializer<NodeOutput> implements L
             gen.writeStringField("subgraphNode", subGraphNode);
         }
 
-        // serializerProvider.defaultSerializeField("state", nodeOutput.state().data(), gen);
-
-        gen.writeObjectField("state", nodeOutput.state().data());
+        final var stateSerializer = stateSerializer(serializerProvider);
+        if( stateSerializer.isPresent() ) {
+            gen.writeFieldName("state");
+            final var json = stateSerializer.get().writeDataAsString(nodeOutput.state());
+            gen.writeRawValue(json);
+        }
+        else {
+            // serializerProvider.defaultSerializeField("state", nodeOutput.state().data(), gen);
+            gen.writeObjectField("state", nodeOutput.state().data());
+        }
 
         if( nodeOutput instanceof StateSnapshot<?> snapshot ) {
             gen.writeObjectField("next", snapshot.nextNodeId() );
