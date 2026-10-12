@@ -3,10 +3,13 @@ package org.bsc.langgraph4j.studio.agui;
 import com.agui.community.core.agent.RunAgentInput;
 import com.agui.community.core.event.CustomEvent;
 import com.agui.community.core.event.Event;
+import com.agui.community.core.event.RunFinishedEvent;
+import com.agui.community.core.interrupt.Interrupt;
+import com.agui.community.core.interrupt.InterruptOutcome;
+import com.agui.community.core.interrupt.ResumeStatus;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.agui.sdk.AGUIAgentBase;
 import org.bsc.langgraph4j.agui.sdk.AGUINodeOutput;
-import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.dsl.JsonDslGenerator;
 import org.bsc.langgraph4j.state.AgentState;
@@ -28,7 +31,6 @@ public class AGUILangGraphStudioAgent extends AGUIAgentBase {
         CompileConfig compileConfig;
         List<ArgumentMetadata> inputArgs = new ArrayList<>();
         String id;
-        BaseCheckpointSaver checkpointSaver;
 
         public Builder id(String id) {
             this.id = id;
@@ -115,25 +117,24 @@ public class AGUILangGraphStudioAgent extends AGUIAgentBase {
         super(requireNonNull(builder.id, "id cannot be null"));
         this.stateGraph = requireNonNull(builder.stateGraph, "stateGraph cannot be null");
         this.title = ofNullable(builder.title).orElse("Studio Agent [%s]".formatted(id()));
-        this.compileConfig = builder.compileConfig;
         this.inputArgs = builder.inputArgs;
+        this.compileConfig = ofNullable(builder.compileConfig)
+                                .orElseGet( () -> CompileConfig.builder()
+                                .checkpointSaver( new MemorySaver())
+                                .build());
     }
 
     public final InitGraphData toInitGraphData()  {
 
-            final var representation = stateGraph.reduce( new JsonDslGenerator<>() );
+        final var representation = stateGraph.reduce( new JsonDslGenerator<>() );
 
-            return new InitGraphData(id(), title, representation, inputArgs);
+        return new InitGraphData(id(), title, representation, inputArgs);
 
     }
 
     @Override
     protected CompiledGraph<? extends AgentState> newGraph() throws Exception {
-        final var config = ofNullable(this.compileConfig)
-                                .orElseGet( () -> CompileConfig.builder()
-                                        .checkpointSaver(new MemorySaver())
-                                        .build());
-        return stateGraph.compile(config);
+        return stateGraph.compile(compileConfig);
     }
 
     @Override
@@ -150,13 +151,24 @@ public class AGUILangGraphStudioAgent extends AGUIAgentBase {
     @Override
     protected Collection<? extends Event> onCompleteEvents(RunAgentInput input, GraphResult result) {
         return switch( result.type() ) {
-            case CANCELLED -> List.of(
-                    new CustomEvent(
-                            "cancelled",
-                            "cancelled",
-                            System.currentTimeMillis(),
-                            null)
-                    );
+            case INTERRUPTION_METADATA -> {
+                final var interruptionMetadata = result.asInterruptionMetadata();
+
+                final var interrupt = new Interrupt(
+                        interruptionMetadata.nodeId(),
+                        interruptionMetadata.reason().orElse("Agent interrupted"),
+                        interruptionMetadata.metadata("message")
+                                .map(Object::toString)
+                                .orElse("Agent interrupted"));
+                yield List.of(
+                        new RunFinishedEvent(
+                                input.threadId(),
+                                input.runId(),
+                                new InterruptOutcome(List.of(interrupt)),
+                                null,
+                                System.currentTimeMillis(),
+                                null)                    );
+            }
             default -> super.onCompleteEvents(input, result);
         };
     }
@@ -173,16 +185,67 @@ public class AGUILangGraphStudioAgent extends AGUIAgentBase {
 
     @Override
     protected GraphInput graphInput(RunAgentInput input) {
-        final var inputMap = input.messages().stream()
-                .map( message ->
-                    inputArgs.stream()
-                            .filter(arg -> arg.name().equals(message.id()) && arg.converter() != null).findAny()
-                            .map(arg -> Map.entry(message.id(), arg.converter().apply(message)))
-                            .orElse(null)
-                )
-                .filter(Objects::nonNull)
-                .collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue) );
 
-        return GraphInput.args(inputMap);
+        if( !input.resume().isEmpty()) {
+            if( input.resume().size() > 1 ) {
+                throw new IllegalArgumentException("Resume input must contain only one message");
+            }
+
+            final var interrupt = input.resume().get(0);
+
+            if( interrupt.status() ==  ResumeStatus.CANCELLED) {
+                throw new UnsupportedOperationException("Resume cancelled not supported yet");
+            }
+
+            if( !(interrupt.payload() instanceof Map<?,?>)) {
+                throw new IllegalArgumentException("Resume input payload must be a Map");
+            }
+
+            @SuppressWarnings("unchecked")
+            final var payloadMap = (Map<String,String>) interrupt.payload();
+
+            final String checkpointId = ofNullable(payloadMap.get("checkpoint"))
+                                            .orElseThrow(() -> new IllegalArgumentException("'checkpoint' id not provided in resume payload"));
+            final var data = ofNullable(payloadMap.get("data"))
+                                            .orElseThrow(() -> new IllegalArgumentException("'data' not provided in resume payload"));
+
+            final AgentState state;
+            try {
+                state = stateGraph.getStateSerializer().readDataFromString(data);
+            }
+            catch (Exception e) {
+                throw new IllegalArgumentException("Failed to deserialize state data from resume payload", e);
+            }
+
+            final var config = RunnableConfig.builder()
+                    .threadId(input.threadId())
+                    .checkPointId(checkpointId)
+                    .build();
+
+            final var checkpointSaver = compileConfig.checkpointSaver()
+                    .orElseThrow(() -> new IllegalStateException("Checkpoint saver not configured in compileConfig"));
+
+            final var checkpoint = checkpointSaver.get(config)
+                    .map( c -> c.updateState( state.data(), stateGraph.getChannels()) )
+                    .orElseThrow(() -> new IllegalArgumentException("Checkpoint with id '%s' not found".formatted(checkpointId)));
+
+
+            return GraphInput.resume(checkpoint);
+
+        }
+        else {
+
+            final var inputMap = input.messages().stream()
+                    .map(message ->
+                            inputArgs.stream()
+                                    .filter(arg -> arg.name().equals(message.id()) && arg.converter() != null).findAny()
+                                    .map(arg -> Map.entry(message.id(), arg.converter().apply(message)))
+                                    .orElse(null)
+                    )
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            return GraphInput.args(inputMap);
+        }
     }
 }
