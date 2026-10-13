@@ -2,6 +2,179 @@
 
 
 
+<!-- "name: v1.9.5" is a release tag -->
+
+## [v1.9.5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.9.5) (2026-10-13)
+
+### Features
+
+ *  **studio/webagui**  enhance resume handling with updated state and input structure ([edc3f1abcd17d4d](https://github.com/bsorrentino/langgraph4j/commit/edc3f1abcd17d4da9e2fe8de9e1af36ae2ffb670))
+     > work on #481
+
+ *  **studio**  enhance NodeOutput serialization with optional state serializer handling and thread ID ([49d608c58309b94](https://github.com/bsorrentino/langgraph4j/commit/49d608c58309b94ea09529391a47109445966644))
+     > work on #481
+
+ *  **studio**  enhance resume handling and interrupt processing in AGUILangGraphStudioAgent ([84d17dd95ca67b0](https://github.com/bsorrentino/langgraph4j/commit/84d17dd95ca67b05f18a186421e73137bfe65760))
+
+ *  **ag-ui-json**  add support for custom serialization attributes in AGUIJacksonSerializer ([da6b8c8adca3126](https://github.com/bsorrentino/langgraph4j/commit/da6b8c8adca31266ef62e65563cde728077e8477))
+     > work on #481
+
+ *  **ag-ui-sdk**  return custom event for cancelled run in onCompleteEvents ([bbe75251921469d](https://github.com/bsorrentino/langgraph4j/commit/bbe75251921469dbbbc4c1985a7e68e06d6a2602))
+     > work on #481
+
+ *  **studio/webagui**  implement  cancellation request ([4c17c3f5c1f99ad](https://github.com/bsorrentino/langgraph4j/commit/4c17c3f5c1f99ad814035496f64578506fbd9c5f))
+     > work on #481
+
+ *  **studio/webagui**  enhance handling of 'cancelled' events in graph processing ([6637ad450b065b3](https://github.com/bsorrentino/langgraph4j/commit/6637ad450b065b3e98886bec2e3547a0c0b93160))
+     > work on #481
+
+ *  **studio/webagui**  handle 'cancelled' custom event in event processing ([5ee5acba334f0da](https://github.com/bsorrentino/langgraph4j/commit/5ee5acba334f0da14e43af971889d16894e54a58))
+     > work on #481
+
+ *  **studio**  add cancellation  on DELETE http service ([092c1a4e648620d](https://github.com/bsorrentino/langgraph4j/commit/092c1a4e648620df307886654c5fae6739824477))
+     > work on #481
+
+ *  **studio**  add handling for cancelled events in onCompleteEvents method ([ddc66c48800c43f](https://github.com/bsorrentino/langgraph4j/commit/ddc66c48800c43ff21ac3b524ecbb008b852c5bf))
+     > work on #481
+
+ *  **studio**  implement execution tracking for asynchronous requests. ([8bae2e70bbd7042](https://github.com/bsorrentino/langgraph4j/commit/8bae2e70bbd70425244e416fb96e834b72c9c7cb))
+     > - prepare for cancellation support
+     > work on #481
+
+ *  **studio/webagui**  setup agui UserMessage to provide in RunAgentInput ([20b824ea38bf4e9](https://github.com/bsorrentino/langgraph4j/commit/20b824ea38bf4e9876c2c87ede054da557d8f53f))
+     > work on #481
+
+ *  **studio/webagui**  add missing import for LG4JNodeOutput in main.ts ([a70d91303ae57c8](https://github.com/bsorrentino/langgraph4j/commit/a70d91303ae57c8cccf12327f86476c1e2d54247))
+     > work on #481
+
+ *  **studio/webagui**  add AGUI event routing in LG4JWorkbenchElement ([20d5fb6267355b9](https://github.com/bsorrentino/langgraph4j/commit/20d5fb6267355b98b1c1d0b4b64964d5066bb8e4))
+     > work on #481
+
+ *  **studio/webagui**  enhance LG4JResultElement with AGUI event handling and TypeScript type annotations ([1e3c1b253de00b1](https://github.com/bsorrentino/langgraph4j/commit/1e3c1b253de00b11adf6074fed1f49a3e7fcdd1c))
+     > work on #481
+
+ *  **studio/webagui**  implement AGUI event handling in LG4JDSLViewElement ([a81f1fbedca46bb](https://github.com/bsorrentino/langgraph4j/commit/a81f1fbedca46bb1324c6b6f05451119dbcc23c8))
+     > work on #481
+
+ *  **studio/webagui**  add TypeScript type annotations for DebugConfig and debug function ([0e28a71b41da7af](https://github.com/bsorrentino/langgraph4j/commit/0e28a71b41da7afea57c51001d1365d49eb3d625))
+     > work on #481
+
+ *  **studio/webagui**  enhance LG4JDSLViewElement with TypeScript type declarations and event handling improvements ([d95d438b6258506](https://github.com/bsorrentino/langgraph4j/commit/d95d438b62585063b24837d9a70e7cd13f32dc99))
+     > work on #481
+
+ *  **studio/webagui**  duplicate original webui for adapt to AG-UI protocoll ([faeda7db177baf6](https://github.com/bsorrentino/langgraph4j/commit/faeda7db177baf684aa358379f90a24a5f6bfab9))
+     > work on #481
+
+ *  **studio/webagui**  start with new project for Studio web interface based on AG-UI protocol ([eeea8c90bb2496e](https://github.com/bsorrentino/langgraph4j/commit/eeea8c90bb2496eef62c8bc5dd940342e0d27f67))
+
+ *  **studio**  refine AGUI Studio implementation classes: ([9484376f7855975](https://github.com/bsorrentino/langgraph4j/commit/9484376f7855975b9adb8fa3aca1bf9b4fb37aa5))
+     > - AGUIAbstractAgent
+     > - AGUILangGraphStudioAgent
+     > - AGUILangGraphStudioJacksonSerializer
+     > - AGUILangGraphStudioServer
+     > work on #481
+
+ *  **agui**  propagate cancel subscription to the graph async generator ([b8f251f800106a6](https://github.com/bsorrentino/langgraph4j/commit/b8f251f800106a60ded78ac5d46d7a2b8a563ddd))
+
+ *  **studio**  first candidate implemention of AGUIAgent to be used in Studio ([3e04791c3f42ad7](https://github.com/bsorrentino/langgraph4j/commit/3e04791c3f42ad71ceabf24eee6b304a1f400dad))
+
+
+### Bug Fixes
+
+ -  **studio**  remove an optional from initGraphDataFromRequest method in AGUILangGraphStudioServer ([e66b419a3d568c6](https://github.com/bsorrentino/langgraph4j/commit/e66b419a3d568c6f1e11dc17ec12e7035718de39))
+     > work on #481
+
+ -  **core**  stop graph execution when a stream is cancelled ([ef20cf3ef9f517c](https://github.com/bsorrentino/langgraph4j/commit/ef20cf3ef9f517c45785f4f7c4d8fd98d7ce81b4))
+
+
+### Refactor
+
+ -  **studio**  rename AGUILangGraphStudioConfig to AGUILangGraphStudioBaseConfig ([4b1c2aa3e956164](https://github.com/bsorrentino/langgraph4j/commit/4b1c2aa3e956164b93f9c4b780552d0704638169))
+    > work on #481
+
+ -  **studio/webagui**  handle cancellation event ([ba918bfb931e3ff](https://github.com/bsorrentino/langgraph4j/commit/ba918bfb931e3ff7ce129f17b34c17fd607e52f1))
+    > work on #481
+
+ -  **studio/webagui**  enhance event handling in LG4JWorkbenchElement and remove deprecated state update logic ([557f7501b6fe2fc](https://github.com/bsorrentino/langgraph4j/commit/557f7501b6fe2fc3047401dad5424a34d67ae779))
+    > work on #481
+
+ -  **studio/webagui**  remove unused state update handling and enhance event processing in LG4JResultElement ([ff2941083942d34](https://github.com/bsorrentino/langgraph4j/commit/ff2941083942d34c0805033eeb695952f2ca2f63))
+    > work on #481
+
+ -  **studio/webagui**  remove deprecated state update handling in LG4JDSLViewElement ([3ce6569f75b020f](https://github.com/bsorrentino/langgraph4j/commit/3ce6569f75b020f5c5c6fcedb742d7b71d1f4855))
+    > work on #481
+
+ -  **studio/webagui**  remove redundant event dispatching in LG4JExecutorElement ([fd2c2411111f343](https://github.com/bsorrentino/langgraph4j/commit/fd2c2411111f3439a4d7fdbda9c2cdad65a19da6))
+    > work on #481
+
+ -  **stack**  enhance type safety with TypeScript annotations ([663a6eb93039639](https://github.com/bsorrentino/langgraph4j/commit/663a6eb9303963994d2ec6935ec3373e9974d06f))
+    > work on #481
+
+ -  **studio/webagui**  enhance type safety with TypeScript annotations in LG4JNodeOutput ([125088936743947](https://github.com/bsorrentino/langgraph4j/commit/1250889367439471ca8fdc101a82261171ae2e00))
+    > work on #481
+
+ -  **studio/webagui**  improve code structure and formatting in LG4JExecutorElement ([545e35cb2e2ba3d](https://github.com/bsorrentino/langgraph4j/commit/545e35cb2e2ba3d5983d6f0bb5a7cf28724caccf))
+    > work on #481
+
+
+### Test
+
+ -  **spring-ai-agent**  enable new AG-UI studio. ([ce95ee0a8e49c1a](https://github.com/bsorrentino/langgraph4j/commit/ce95ee0a8e49c1a83637fa9fe9c3d22d8fa8f511))
+    > - verify interruption and resume
+ > work on #481
+
+ -  **spring-ai**  add new AG-UI based studio support ([62e529cc6712cc1](https://github.com/bsorrentino/langgraph4j/commit/62e529cc6712cc183922644af479bc8ed7dbb616))
+    > work on #481
+
+ -  **spring-ai**  update server configuration with port and compression settings ([409964bfce0ad7b](https://github.com/bsorrentino/langgraph4j/commit/409964bfce0ad7b38eb667c40ba3d64fe84af0e1))
+    > work on #481
+
+ -  add cancellation test for issue 486 in LG4JCancellationTest ([37059fee4823ae9](https://github.com/bsorrentino/langgraph4j/commit/37059fee4823ae91191d50d8f9a62228e0e5b6bf))
+
+
+### Documentation
+
+ -  **core-library**  update resume execution section to include Checkpoint usage ([174b53d0f04d748](https://github.com/bsorrentino/langgraph4j/commit/174b53d0f04d74823bdb130d3fb19293a6776b9c))
+
+ -  **how-tos**  add Parallel Search MCP notebook ([c8036d9d0a4f071](https://github.com/bsorrentino/langgraph4j/commit/c8036d9d0a4f071f134bbe2e79c61dd2ccdd696c))
+     > Adds how-tos/parallel-search-mcp.ipynb, a single Java notebook following the
+     > agentexecutor-mcp.ipynb layout, that wires the AgentExecutor to the keyless
+     > Parallel Search MCP server over streamable HTTP and registers its web_search
+     > and web_fetch tools.
+     > Replaces the maven submodule proposed earlier: how-tos holds one source per
+     > how-to, not nested modules.
+     > Co-authored-by: George Pickett &lt;georgeatparallel@users.noreply.github.com&gt;
+
+ -  update changelog ([7ed27eacfe24e18](https://github.com/bsorrentino/langgraph4j/commit/7ed27eacfe24e1852cd606fa51ab7ef864a02abc))
+
+ -  **studio/webagui**  agent instructions to replicate studio/webui project for AG-UI protocol using Lit framework ([4fc9193fadb0d34](https://github.com/bsorrentino/langgraph4j/commit/4fc9193fadb0d34d3f47e5c53a29f1053ea94812))
+     > work on #481
+
+
+### ALM
+
+ -  bump to next version 1.9.5 ([88c8e8e48ab432a](https://github.com/bsorrentino/langgraph4j/commit/88c8e8e48ab432a42235fac1263c5b3bc46b7f86))
+
+ -  **ag-ui-json**  add jspecify dependency for enhanced type safety ([1218bba31d33d62](https://github.com/bsorrentino/langgraph4j/commit/1218bba31d33d62633825054ef0298aee1daf8b9))
+    > work on #481
+
+ -  **how-tos**  update langchain4j and langchain4jbeta versions to 1.22.0 and 1.22.0-beta32 ([8c4a15abc31b57c](https://github.com/bsorrentino/langgraph4j/commit/8c4a15abc31b57c1620ebc5f94ceedb5977013f8))
+
+ -  bump to next dev version 1.9-SNAPSHOT ([f9494ae361cd1c9](https://github.com/bsorrentino/langgraph4j/commit/f9494ae361cd1c94c3533d794a5970ee5c08a6f6))
+
+ -  update Maven distribution URL to version 3.9.16 ([1ce587190672c19](https://github.com/bsorrentino/langgraph4j/commit/1ce587190672c1989a885c65b5d9abdaba27d557))
+
+ -  update Jackson version to 2.21.4 and add new langgraph4j dependencies ([45721d1eae09a13](https://github.com/bsorrentino/langgraph4j/commit/45721d1eae09a13419e9a5a3110e2d669acd8eb8))
+
+
+### Continuous Integration
+
+ -  update CI and deployment scripts to use mvnw ([6732ed2dca86065](https://github.com/bsorrentino/langgraph4j/commit/6732ed2dca8606531db4617e7b3c5266b7f37e8f))
+
+
+
+
+
 <!-- "name: v1.9.4" is a release tag -->
 
 ## [v1.9.4](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.9.4) (2026-10-09)
