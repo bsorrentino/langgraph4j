@@ -703,7 +703,9 @@ public CompletableFuture<Map<String, Object>> apply(State state, RunnableConfig 
 
 You **MUST** use a [checkpoiner](#checkpointer) when using interruption. This is because your graph needs to be able to resume execution.
 
-In order to resume execution, you can just invoke your graph with `GraphInput.resume()` or `GraphInput.resume(Map)` as the input.
+### Resume execution
+
+In order to resume execution, you can just invoke your graph with `GraphInput.resume()`, `GraphInput.resume(Map)` or `GraphInput.resume(Checkpoint)` as the input.
 
 ```java
 // Initial run of graph
@@ -714,6 +716,11 @@ graph.stream(GraphInput.resume(), config);
 
 // Let's assume it hit an interruption somewhere, you can then resume it passing new state data
 graph.stream(GraphInput.resume( Map.of( "key", "value")), config);
+
+
+// Let's assume it hit an interruption somewhere, you can then resume it passing the checkpoint from which you want resume
+final var checkpoint = saver.get(config)
+graph.stream(GraphInput.resume(checkpoint), config);
 
 ```
 

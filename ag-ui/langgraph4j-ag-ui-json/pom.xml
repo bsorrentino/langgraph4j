@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.bsc.langgraph4j</groupId>
         <artifactId>langgraph4j-parent</artifactId>
-        <version>1.9.4</version>
+        <version>1.9.5</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -28,6 +28,11 @@
             <groupId>com.ag-ui.community</groupId>
             <artifactId>java-core</artifactId>
             <version>${ag-ui.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
         </dependency>
 
         <dependency>

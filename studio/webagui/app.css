@@ -1,0 +1,10 @@
+:root {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: #e5e7eb;
+  background: #0f172a;
+  color-scheme: dark;
+}
+body { margin: 0; }
+html, body { min-height: 100%; }
+body { min-height: 100vh; }
+* { box-sizing: border-box; }

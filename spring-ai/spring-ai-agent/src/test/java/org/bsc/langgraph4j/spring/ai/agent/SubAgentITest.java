@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.spring.ai.agent;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.agent.AgentEx;
 import org.bsc.langgraph4j.checkpoint.FileSystemSaver;
+import org.bsc.langgraph4j.spring.ai.AIModel;
 import org.bsc.langgraph4j.spring.ai.agent.skill.SkillResource;
 import org.bsc.langgraph4j.spring.ai.agentexecutor.AgentExecutorEx;
 import org.bsc.langgraph4j.spring.ai.serializer.jackson.SpringAIJacksonStateSerializer;
@@ -30,7 +31,7 @@ public class SubAgentITest {
         final var saver = new FileSystemSaver( rootPath, stateSerializer);
 
         //final var chatModel = AiModel.OPENAI.chatModel("gpt-5-mini");
-        final var chatModel = AiModel.OLLAMA.chatModel("qwen3.5");
+        final var chatModel = AIModel.OLLAMA.chatModel("qwen3.5");
 
         var compileConfig = CompileConfig.builder()
                 .checkpointSaver( saver )
@@ -93,7 +94,7 @@ public class SubAgentITest {
                 .build();
 
         //final var chatModel = AiModel.OPENAI.chatModel("gpt-5-mini");
-        final var chatModel = AiModel.OLLAMA.chatModel("qwen3.5");
+        final var chatModel = AIModel.OLLAMA.chatModel("qwen3.5");
 
         final var agentCommit = AgentExecutorEx.builder()
                 .stateSerializer(stateSerializer)
