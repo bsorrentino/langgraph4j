@@ -875,6 +875,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../agentic-rag/" class="md-nav__link">
         
   
@@ -1991,6 +2019,34 @@
     
   
     Agent Executor + MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
   
 
     
@@ -3229,15 +3285,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="highlight-ipynb hl-java"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="n">userHomeDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">getProperty</span><span class="p">(</span><span class="s">"user.home"</span><span class="p">);</span>
 <span class="kd">var</span><span class="w"> </span><span class="n">localRespoUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"file://"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">userHomeDir</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"/.m2/repository/"</span><span class="p">;</span>
-<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.0.1"</span><span class="p">;</span>
-<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jbeta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.0.1-beta6"</span><span class="p">;</span>
-<span class="kd">var</span><span class="w"> </span><span class="n">langgraph4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.9.2"</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.22.0"</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jbeta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.22.0-beta32"</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">langgraph4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.9.5"</span><span class="p">;</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">var userHomeDir = System.getProperty("user.home");
 var localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
-var langchain4jVersion = "1.0.1";
-var langchain4jbeta = "1.0.1-beta6";
-var langgraph4jVersion = "1.9.2";</div>
+var langchain4jVersion = "1.22.0";
+var langchain4jbeta = "1.22.0-beta32";
+var langgraph4jVersion = "1.9.5";</div>
 </div>
 </div>
 </div>
@@ -3267,7 +3323,7 @@ var langgraph4jVersion = "1.9.2";</div>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">slf4j</span><span class="p">:</span><span class="n">slf4j</span><span class="o">-</span><span class="n">jdk14</span><span class="p">:</span><span class="mf">2.0.9</span>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">bsc</span><span class="p">.</span><span class="na">langgraph4j</span><span class="p">:</span><span class="n">langgraph4j</span><span class="o">-</span><span class="n">core</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langgraph4jVersion</span><span class="p">}</span>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">bsc</span><span class="p">.</span><span class="na">langgraph4j</span><span class="p">:</span><span class="n">langgraph4j</span><span class="o">-</span><span class="n">langchain4j</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langgraph4jVersion</span><span class="p">}</span>
-<span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">bsc</span><span class="p">.</span><span class="na">langgraph4j</span><span class="p">:</span><span class="n">langgraph4j</span><span class="o">-</span><span class="n">agent</span><span class="o">-</span><span class="n">executor</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langgraph4jVersion</span><span class="p">}</span>
+<span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">bsc</span><span class="p">.</span><span class="na">langgraph4j</span><span class="p">:</span><span class="n">langgraph4j</span><span class="o">-</span><span class="n">langchain4j</span><span class="o">-</span><span class="n">agentexecutor</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langgraph4jVersion</span><span class="p">}</span>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">dev</span><span class="p">.</span><span class="na">langchain4j</span><span class="p">:</span><span class="n">langchain4j</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langchain4jVersion</span><span class="p">}</span>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">dev</span><span class="p">.</span><span class="na">langchain4j</span><span class="p">:</span><span class="n">langchain4j</span><span class="o">-</span><span class="kd">open</span><span class="o">-</span><span class="n">ai</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langchain4jVersion</span><span class="p">}</span>
 
@@ -3278,7 +3334,7 @@ var langgraph4jVersion = "1.9.2";</div>
 %dependency /add org.slf4j:slf4j-jdk14:2.0.9
 %dependency /add org.bsc.langgraph4j:langgraph4j-core:\{langgraph4jVersion}
 %dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j:\{langgraph4jVersion}
-%dependency /add org.bsc.langgraph4j:langgraph4j-agent-executor:\{langgraph4jVersion}
+%dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j-agentexecutor:\{langgraph4jVersion}
 %dependency /add dev.langchain4j:langchain4j:\{langchain4jVersion}
 %dependency /add dev.langchain4j:langchain4j-open-ai:\{langchain4jVersion}
 

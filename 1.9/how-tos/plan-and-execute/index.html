@@ -881,6 +881,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../agentic-rag/" class="md-nav__link">
         
   
@@ -2171,6 +2199,34 @@
     
   
     Agent Executor + MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
   
 
     
@@ -3547,7 +3603,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </style>
 <!-- End of mermaid configuration --><div class="jupyter-wrapper">
 <div class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0e91d02a">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0534dc20">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3591,7 +3647,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=e18eee3d">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=feadf5f1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3611,14 +3667,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="highlight-ipynb hl-java"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="n">userHomeDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">getProperty</span><span class="p">(</span><span class="s">"user.home"</span><span class="p">);</span>
 <span class="kd">var</span><span class="w"> </span><span class="n">localRespoUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"file://"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">userHomeDir</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"/.m2/repository/"</span><span class="p">;</span>
-<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.18.1"</span><span class="p">;</span>
-<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jbeta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.18.1-beta28"</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.22.0"</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jbeta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.22.0-beta32"</span><span class="p">;</span>
 <span class="kd">var</span><span class="w"> </span><span class="n">langgraph4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.8.22"</span><span class="p">;</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">var userHomeDir = System.getProperty("user.home");
 var localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
-var langchain4jVersion = "1.18.1";
-var langchain4jbeta = "1.18.1-beta28";
+var langchain4jVersion = "1.22.0";
+var langchain4jbeta = "1.22.0-beta32";
 var langgraph4jVersion = "1.8.22";
 </div>
 </div>
@@ -3627,7 +3683,7 @@ var langgraph4jVersion = "1.8.22";
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2b7ee494">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4ed55d7b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3638,7 +3694,7 @@ var langgraph4jVersion = "1.8.22";
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=2ed7baf9">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=9eef8bfc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3668,7 +3724,7 @@ rm -rf \{userHomeDir}/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/o
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=df9e281c">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f87f83c6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3679,7 +3735,7 @@ rm -rf \{userHomeDir}/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/o
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=371afedb">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cd76cb74">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3760,7 +3816,7 @@ Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4a9e1cc4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=65477a12">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3771,7 +3827,7 @@ Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=85ccdb39">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=157631d8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3807,7 +3863,7 @@ var log = org.slf4j.LoggerFactory.getLogger("PlanAndExecute");
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=74c4d7fa">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2306583a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3818,7 +3874,7 @@ var log = org.slf4j.LoggerFactory.getLogger("PlanAndExecute");
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a1c0d34e">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=61bb35a6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3878,7 +3934,7 @@ java.awt.Image plantUML2PNG( String code ) throws IOException {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bcfa9e14">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=19d92ff5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3894,7 +3950,7 @@ java.awt.Image plantUML2PNG( String code ) throws IOException {
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=962cb54a">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=4e3c5fe1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4022,7 +4078,7 @@ class PlanExecuteState extends AgentState {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a4eb1295">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=690c11a4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4033,7 +4089,7 @@ class PlanExecuteState extends AgentState {
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=162a74ee">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=024e6d6a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4121,7 +4177,7 @@ String formatPastSteps(List&lt;PastStep&gt; past) {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=092a1d6e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ef56558e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4132,7 +4188,7 @@ String formatPastSteps(List&lt;PastStep&gt; past) {
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=72608766">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=1c61dabb">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4266,7 +4322,7 @@ class StubReplanNode implements NodeAction&lt;PlanExecuteState&gt; {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c3455789">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4c57c7fb">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4277,7 +4333,7 @@ class StubReplanNode implements NodeAction&lt;PlanExecuteState&gt; {
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=b7d119da">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=3c38fd4c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4343,7 +4399,7 @@ var stubApp = stubWorkflow.compile();
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=25af71d7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0730164e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4354,7 +4410,7 @@ var stubApp = stubWorkflow.compile();
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=02ced479">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=fe8680a5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4402,7 +4458,7 @@ f0aaad13-2791-4fd1-b083-e41b95b35ce3
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1b721711">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7cfd1f8b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4413,7 +4469,7 @@ f0aaad13-2791-4fd1-b083-e41b95b35ce3
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c0303031">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=75c3afa0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4542,7 +4598,7 @@ Synthesize a final answer for: What is the weather in San Francisco? =&gt; San F
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8829f68a">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f26c43bc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4558,7 +4614,7 @@ Synthesize a final answer for: What is the weather in San Francisco? =&gt; San F
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3dfa0617">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7f842e38">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4655,7 +4711,7 @@ if (llmEnabled) {
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=ee06394c">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=e7fbb4ce">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4755,7 +4811,7 @@ interface StepAgentService {
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=ebee1707">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f53ac918">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4931,7 +4987,7 @@ class LlmReplanNode implements NodeAction&lt;PlanExecuteState&gt; {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=04aeef51">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=13e4495a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -4942,7 +4998,7 @@ class LlmReplanNode implements NodeAction&lt;PlanExecuteState&gt; {
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2c8aaf2c">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=65b45624">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -5094,7 +5150,7 @@ LLM STEP: NodeOutput{ node=__END__, state={
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=614ed602">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ada34abe">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>

@@ -881,6 +881,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../how-tos/parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../how-tos/agentic-rag/" class="md-nav__link">
         
   
@@ -2166,6 +2194,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../how-tos/parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../how-tos/multi-agent-supervisor/" class="md-nav__link">
         
   
@@ -2746,6 +2802,7 @@
 <li><code>maxInterval(Duration)</code> defaults to <code>128 s</code> and caps the backoff delay before jitter is added.</li>
 <li><code>jitter(boolean)</code> defaults to <code>true</code> and adds a random delay from zero up to the capped delay. With jitter enabled, the actual delay can be nearly twice <code>maxInterval</code>.</li>
 </ul>
+<p>Attempts and back-off run on the graph execution thread, which waits for the node anyway, so the hook returns once the node succeeds or retries are exhausted. To bound each attempt, put a timeout inside the retry, not around it.</p>
 <p>Apply retry policies only to idempotent operations, or operations that have their own idempotency key, to avoid repeated side effects.</p>
 <h2 id="code-examples">Code Examples</h2>
 <p>See <a href="how-tos/hooks.ipynb">Hooks samples notebook</a></p>

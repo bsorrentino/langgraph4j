@@ -881,6 +881,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../how-tos/parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../how-tos/agentic-rag/" class="md-nav__link">
         
   
@@ -1665,41 +1693,13 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Cancelling a Graph Stream">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#consuming-the-stream-with-foreachasync" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consuming the Stream with forEachAsync
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#consuming-the-stream-with-an-iterator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consuming the Stream with an Iterator
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#checking-for-cancellation" class="md-nav__link">
+  <a href="#subgraphs-and-parallel-execution" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Checking for Cancellation
+        Subgraphs and Parallel Execution
       
     </span>
   </a>
@@ -1707,10 +1707,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cancellation-and-subgraphs" class="md-nav__link">
+  <a href="#checkpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cancellation and Subgraphs
+        Checkpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-cancellation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking Cancellation
       
     </span>
   </a>
@@ -2124,6 +2135,34 @@
     
   
     Agent Executor + MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-tos/parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
   
 
     
@@ -2611,88 +2650,41 @@
 
 
 <h1 id="langgraph4j-graph-execution-cancellation">LangGraph4j - Graph Execution Cancellation</h1>
-<p>LangGraph4j provides a powerful mechanism to cancel the execution of a graph, which is particularly useful for long-running processes. This feature is built upon the cancellation capabilities of the <code>java-async-generator</code> library.</p>
+<p>Graph streams execute eagerly: the graph can continue running while its outputs are queued. Stopping a <code>for-each</code> loop or abandoning an asynchronous consumer does not cancel graph execution. Call <code>cancel(boolean mayInterruptIfRunning)</code> when the caller no longer needs the result.</p>
 <h2 id="cancelling-a-graph-stream">Cancelling a Graph Stream</h2>
-<p>When you execute a graph using the <code>stream</code> method, you get an <code>AsyncGenerator</code> instance. This generator can be cancelled, allowing you to stop the graph's execution gracefully or immediately.</p>
-<p>To cancel a stream, you need to call the <code>cancel(boolean mayInterruptIfRunning)</code> method on the generator.</p>
-<p>In the example below we test cancellation considering to make a request from a different thread from the main one using the following method</p>
-<h3 id="consuming-the-stream-with-foreachasync">Consuming the Stream with <code>forEachAsync</code></h3>
-<p>When you consume the stream using <code>forEachAsync</code>, the graph execution runs in a separate thread.</p>
+<p>Both <code>stream</code> and <code>streamSnapshots</code> return a cancellable generator.</p>
 <ul>
-<li>
-<p><strong><code>cancel(true)</code> (Immediate Cancellation):</strong> This will interrupt the execution thread, causing the <code>CompletableFuture</code> returned by <code>forEachAsync</code> to complete exceptionally with an <code>InterruptedException</code>.</p>
-</li>
-<li>
-<p><strong><code>cancel(false)</code> (Graceful Cancellation):</strong> This will let the currently executing node finish, and then stop the execution before starting the next node.</p>
-</li>
+<li><code>cancel(false)</code> stops the graph before it starts another node. The current node may finish.</li>
+<li><code>cancel(true)</code> also requests interruption of the graph execution thread. A node's external operation or future may not support interruption; cancellation does not guarantee that an already running operation stops.</li>
 </ul>
-<p>Here is an example from <code>CancellationTest.java</code> that demonstrates immediate cancellation:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">workflow</span><span class="p">.</span><span class="na">stream</span><span class="p">(</span><span class="n">GraphInput</span><span class="p">.</span><span class="na">noArgs</span><span class="p">(),</span><span class="w"> </span><span class="n">RunnableConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">build</span><span class="p">());</span>
+<p>After cancellation, the generator stops delivering buffered outputs and completes with a <code>CANCELLED</code> result. Cancelling a stream after its final result has already been consumed preserves that result.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">workflow</span><span class="p">.</span><span class="na">stream</span><span class="p">(</span><span class="n">GraphInput</span><span class="p">.</span><span class="na">args</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">()),</span><span class="w"> </span><span class="n">RunnableConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">build</span><span class="p">());</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">completion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generator</span><span class="p">.</span><span class="na">forEachAsync</span><span class="p">(</span><span class="n">output</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">thenApply</span><span class="p">(</span><span class="n">GraphResult</span><span class="p">::</span><span class="n">from</span><span class="p">);</span>
 
-<span class="c1">// Request cancellation after 500 milliseconds from a new thread different from main one</span>
-<span class="n">CompletableFuture</span><span class="p">.</span><span class="na">runAsync</span><span class="p">(</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
-<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generator</span><span class="p">.</span><span class="na">cancel</span><span class="p">(</span><span class="n">mayInterruptIfRunning</span><span class="p">);</span>
-<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;cancellation executed with result: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InterruptedException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RuntimeException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">});</span>
+<span class="c1">// For example, request cancellation when the client disconnects.</span>
+<span class="n">generator</span><span class="p">.</span><span class="na">cancel</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
 
-<span class="kd">var</span><span class="w"> </span><span class="n">futureResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generator</span><span class="p">.</span><span class="na">forEachAsync</span><span class="p">(</span><span class="n">output</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;iteration is on: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">);</span>
-<span class="p">}).</span><span class="na">exceptionally</span><span class="p">(</span><span class="n">ex</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">assertTrue</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">isCancelled</span><span class="p">());</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;CANCELLED&quot;</span><span class="p">;</span>
-<span class="p">});</span>
-
-<span class="kd">var</span><span class="w"> </span><span class="n">genericResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">futureResult</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">TimeUnit</span><span class="p">.</span><span class="na">SECONDS</span><span class="p">);</span>
-
-<span class="n">assertTrue</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">isCancelled</span><span class="p">());</span>
-<span class="n">assertEquals</span><span class="p">(</span><span class="s">&quot;CANCELLED&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">genericResult</span><span class="p">);</span>
-</code></pre></div>
-<h3 id="consuming-the-stream-with-an-iterator">Consuming the Stream with an Iterator</h3>
-<p>When you use a <code>for-each</code> loop to iterate over the stream, the execution runs on the current thread.</p>
-<ul>
-<li><strong><code>cancel(true)</code> or <code>cancel(false)</code>:</strong> Both will cause the <code>hasNext()</code> method of the iterator to return <code>false</code>, effectively stopping the loop.</li>
-</ul>
-<p>Here is an example from <code>CancellationTest.java</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">workflow</span><span class="p">.</span><span class="na">stream</span><span class="p">(</span><span class="n">GraphInput</span><span class="p">.</span><span class="na">noArgs</span><span class="p">(),</span><span class="w"> </span><span class="n">RunnableConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">build</span><span class="p">());</span>
-
-<span class="c1">// Request cancellation after 500 milliseconds from a new thread different from main one</span>
-<span class="n">CompletableFuture</span><span class="p">.</span><span class="na">runAsync</span><span class="p">(</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
-<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generator</span><span class="p">.</span><span class="na">cancel</span><span class="p">(</span><span class="n">mayInterruptIfRunning</span><span class="p">);</span>
-<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;cancellation executed with result: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InterruptedException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RuntimeException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">});</span>
-
-
-<span class="n">NodeOutput</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">currentOutput</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
-
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">generator</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;iteration is on: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">);</span>
-<span class="w">    </span><span class="n">currentOutput</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">output</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">completion</span><span class="p">.</span><span class="na">join</span><span class="p">();</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="na">isCancelled</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Graph execution was cancelled&quot;</span><span class="p">);</span>
 <span class="p">}</span>
-
-<span class="n">assertNotNull</span><span class="p">(</span><span class="n">currentOutput</span><span class="p">);</span>
-<span class="n">assertNotEquals</span><span class="p">(</span><span class="n">END</span><span class="p">,</span><span class="w"> </span><span class="n">currentOutput</span><span class="p">.</span><span class="na">node</span><span class="p">());</span>
-<span class="n">assertTrue</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">isCancelled</span><span class="p">());</span>
 </code></pre></div>
-<h2 id="checking-for-cancellation">Checking for Cancellation</h2>
-<p>You can check if a stream has been cancelled by calling the <code>isCancelled()</code> method on the generator.</p>
+<p>Explicit cancellation also ends an iterator's loop. Simply stopping iteration still leaves the eager graph running.</p>
+<h2 id="subgraphs-and-parallel-execution">Subgraphs and Parallel Execution</h2>
+<p>Cancelling a parent graph propagates to its compiled subgraphs, including subgraphs in parallel branches. They stop before starting another node, and the parent does not proceed to its next node.</p>
+<p>Work already started in a parallel node may finish. Cancellation does not shut down an executor supplied by the caller or forcibly cancel external services.</p>
+<p>If an embedded generator returns <code>CANCELLED</code>, the parent ends with that result instead of merging it into the state or evaluating the next edge.</p>
+<h2 id="checkpoints">Checkpoints</h2>
+<p>Cancellation retains active checkpoints instead of releasing the thread as a normally completed graph. Use the same thread configuration with <code>GraphInput.resume()</code> to continue from the retained checkpoint. A running node may have completed and saved its checkpoint before cancellation takes effect.</p>
+<h2 id="checking-cancellation">Checking Cancellation</h2>
 <div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">isCancelled</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Handle cancellation</span>
+<span class="w">    </span><span class="c1">// A cancellation request was accepted for this generator.</span>
 <span class="p">}</span>
 </code></pre></div>
-<h2 id="cancellation-and-subgraphs">Cancellation and Subgraphs</h2>
-<p>Cancellation also works with nested graphs (subgraphs). If you cancel the execution of a parent graph, the cancellation is propagated to any currently executing subgraph.</p>
+<p><code>LG4JCancellationTest</code> covers graph and snapshot streams, compiled and parallel subgraphs, asynchronous consumers, and checkpoint recovery using controlled futures and synchronization signals.</p>
 <h2 id="further-reading">Further Reading</h2>
-<p>The cancellation mechanism is provided by the <code>java-async-generator</code> library. For a more in-depth explanation of the underlying cancellation mechanism, please refer to the <a href="https://github.com/bsorrentino/java-async-generator/blob/main/CANCELLATION.md">CANCELLATION.md</a> document in the <code>java-async-generator</code> repository.</p>
+<p>See the <a href="https://github.com/bsorrentino/java-async-generator/blob/main/CANCELLATION.md">java-async-generator cancellation documentation</a> for the underlying generator mechanism.</p>
 
 
 

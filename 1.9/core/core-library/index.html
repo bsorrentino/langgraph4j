@@ -881,6 +881,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../how-tos/parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../how-tos/agentic-rag/" class="md-nav__link">
         
   
@@ -2080,6 +2108,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#resume-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resume execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#achieve-interruptionmetadata-object-after-interruption" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2670,6 +2709,34 @@
     
   
     Agent Executor + MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-tos/parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
   
 
     
@@ -3337,6 +3404,10 @@ The <code>invokeFinal()</code> method blocks until the graph completes and retur
 <td>Optional maximum number of execution steps for this invocation. When absent, the graph uses its configured default. The builder rejects values less than or equal to zero.</td>
 </tr>
 <tr>
+<td><code>streamExecutor( Executor )</code></td>
+<td>Optional executor that runs the graph execution loop, inherited by compiled subgraphs; defaults to <code>CompletableFuture</code>'s async executor. An executor that captures thread-bound state on submission (MDC, tracing) carries it into nodes. The loop blocks while subgraphs run on the same executor, so avoid bounded pools: prefer a cached, virtual-thread or <code>ForkJoinPool</code> executor.</td>
+</tr>
+<tr>
 <td><code>addParallelNodeExecutor( String nodeId, Executor)</code> stores an internal executor under a generated key in the form <code>__PARALLEL__(nodeId)</code>. Use that helper rather than writing the key directly.</td>
 <td></td>
 </tr>
@@ -3863,7 +3934,8 @@ wait for external input before proceeding.</p>
 </ul>
 <hr />
 <p>You <strong>MUST</strong> use a <a href="#checkpointer">checkpoiner</a> when using interruption. This is because your graph needs to be able to resume execution.</p>
-<p>In order to resume execution, you can just invoke your graph with <code>GraphInput.resume()</code> or <code>GraphInput.resume(Map)</code> as the input.</p>
+<h3 id="resume-execution">Resume execution</h3>
+<p>In order to resume execution, you can just invoke your graph with <code>GraphInput.resume()</code>, <code>GraphInput.resume(Map)</code> or <code>GraphInput.resume(Checkpoint)</code> as the input.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Initial run of graph</span>
 <span class="n">graph</span><span class="p">.</span><span class="na">stream</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
 
@@ -3872,6 +3944,11 @@ wait for external input before proceeding.</p>
 
 <span class="c1">// Let&#39;s assume it hit an interruption somewhere, you can then resume it passing new state data</span>
 <span class="n">graph</span><span class="p">.</span><span class="na">stream</span><span class="p">(</span><span class="n">GraphInput</span><span class="p">.</span><span class="na">resume</span><span class="p">(</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;key&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;value&quot;</span><span class="p">)),</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
+
+
+<span class="c1">// Let&#39;s assume it hit an interruption somewhere, you can then resume it passing the checkpoint from which you want resume</span>
+<span class="kd">final</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="n">checkpoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">saver</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="n">graph</span><span class="p">.</span><span class="na">stream</span><span class="p">(</span><span class="n">GraphInput</span><span class="p">.</span><span class="na">resume</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">),</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="achieve-interruptionmetadata-object-after-interruption">Achieve InterruptionMetadata object after interruption</h3>
 <p>It is most important understand that the <strong>nodes iterator holds the final result of graph execution</strong>. In the case of interruption the <code>InterruptionMetadata</code> instance will be set as iterator's result so you can achieve it using : <a href="#graphresult">GraphResult</a> as shown below</p>

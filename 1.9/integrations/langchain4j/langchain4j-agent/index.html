@@ -875,6 +875,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../how-tos/parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../how-tos/agentic-rag/" class="md-nav__link">
         
   
@@ -2011,6 +2039,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../how-tos/parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../how-tos/multi-agent-supervisor/" class="md-nav__link">
         
   
@@ -2498,6 +2554,30 @@ flowchart TD
     agent:::agent --&gt;|continue| action:::action
     action:::action --&gt; agent:::agent</code></pre>
 <h2 id="how-to-use">How to use</h2>
+<h3 id="maven-dependency">Maven dependency</h3>
+<p>Starting with release <code>1.9.4</code>, use:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>org.bsc.langgraph4j<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>langgraph4j-langchain4j-agentexecutor<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>1.9.5<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div>
+<p>The previous artifact ID, <code>langgraph4j-agent-executor</code>, is deprecated. For the
+1.9.5 release, its POM redirects Maven to the new artifact ID at the same version
+and emits a migration warning. Java packages and APIs are unchanged. Versions
+already published, including <code>1.9.3</code>, keep their original coordinates.</p>
+<h3 id="publishing-the-relocation">Publishing the relocation</h3>
+<p>The root reactor includes <code>langchain4j/langchain4j-agent-relocation</code>, a POM-only
+module with the old artifact ID. It inherits the parent version, publishing
+configuration and release signing, so the existing root snapshot and release
+workflows publish both coordinates. Run release version updates from the root
+so both modules receive the same version. When publishing selected modules,
+include both <code>langchain4j/langchain4j-agent</code> and
+<code>langchain4j/langchain4j-agent-relocation</code>, together with their required modules.
+The relocation module publishes no replacement JAR; consumers receive the JAR
+from the new coordinates. The BOM manages both names to support migration.</p>
+<p>This follows the <a href="https://maven.apache.org/guides/mini/guide-relocation.html">Maven relocation guide</a>.</p>
+<h3 id="java-usage">Java usage</h3>
 <div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TestTool</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">lastResult</span><span class="p">;</span>
 

@@ -950,6 +950,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../agentic-rag/" class="md-nav__link">
         
   
@@ -2140,6 +2168,34 @@
     
   
     Agent Executor + MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parallel-search-mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Executor + Parallel Search MCP
   
 
     
@@ -3378,15 +3434,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="highlight-ipynb hl-java"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="n">userHomeDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">getProperty</span><span class="p">(</span><span class="s">"user.home"</span><span class="p">);</span>
 <span class="kd">var</span><span class="w"> </span><span class="n">localRespoUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"file://"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">userHomeDir</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"/.m2/repository/"</span><span class="p">;</span>
-<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.9.2"</span><span class="p">;</span>
-<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jbeta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.9.2-beta17"</span><span class="p">;</span>
-<span class="kd">var</span><span class="w"> </span><span class="n">langgraph4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.9.2"</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.22.0"</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">langchain4jbeta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.22.0-beta32"</span><span class="p">;</span>
+<span class="kd">var</span><span class="w"> </span><span class="n">langgraph4jVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"1.9.5"</span><span class="p">;</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">var userHomeDir = System.getProperty("user.home");
 var localRespoUrl = "file://" + userHomeDir + "/.m2/repository/";
-var langchain4jVersion = "1.9.2";
-var langchain4jbeta = "1.9.2-beta17";
-var langgraph4jVersion = "1.9.2";</div>
+var langchain4jVersion = "1.22.0";
+var langchain4jbeta = "1.22.0-beta32";
+var langgraph4jVersion = "1.9.5";</div>
 </div>
 </div>
 </div>
@@ -3467,7 +3523,7 @@ rm -rf \{userHomeDir}/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/o
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">slf4j</span><span class="p">:</span><span class="n">slf4j</span><span class="o">-</span><span class="n">jdk14</span><span class="p">:</span><span class="mf">2.0.9</span>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">bsc</span><span class="p">.</span><span class="na">langgraph4j</span><span class="p">:</span><span class="n">langgraph4j</span><span class="o">-</span><span class="n">core</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langgraph4jVersion</span><span class="p">}</span>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">bsc</span><span class="p">.</span><span class="na">langgraph4j</span><span class="p">:</span><span class="n">langgraph4j</span><span class="o">-</span><span class="n">langchain4j</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langgraph4jVersion</span><span class="p">}</span>
-<span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">bsc</span><span class="p">.</span><span class="na">langgraph4j</span><span class="p">:</span><span class="n">langgraph4j</span><span class="o">-</span><span class="n">agent</span><span class="o">-</span><span class="n">executor</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langgraph4jVersion</span><span class="p">}</span>
+<span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">bsc</span><span class="p">.</span><span class="na">langgraph4j</span><span class="p">:</span><span class="n">langgraph4j</span><span class="o">-</span><span class="n">langchain4j</span><span class="o">-</span><span class="n">agentexecutor</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langgraph4jVersion</span><span class="p">}</span>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">dev</span><span class="p">.</span><span class="na">langchain4j</span><span class="p">:</span><span class="n">langchain4j</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langchain4jVersion</span><span class="p">}</span>
 <span class="o">%</span><span class="n">dependency</span><span class="w"> </span><span class="o">/</span><span class="n">add</span><span class="w"> </span><span class="n">dev</span><span class="p">.</span><span class="na">langchain4j</span><span class="p">:</span><span class="n">langchain4j</span><span class="o">-</span><span class="kd">open</span><span class="o">-</span><span class="n">ai</span><span class="p">:</span><span class="err">\</span><span class="p">{</span><span class="n">langchain4jVersion</span><span class="p">}</span>
 
@@ -3478,7 +3534,7 @@ rm -rf \{userHomeDir}/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/o
 %dependency /add org.slf4j:slf4j-jdk14:2.0.9
 %dependency /add org.bsc.langgraph4j:langgraph4j-core:\{langgraph4jVersion}
 %dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j:\{langgraph4jVersion}
-%dependency /add org.bsc.langgraph4j:langgraph4j-agent-executor:\{langgraph4jVersion}
+%dependency /add org.bsc.langgraph4j:langgraph4j-langchain4j-agentexecutor:\{langgraph4jVersion}
 %dependency /add dev.langchain4j:langchain4j:\{langchain4jVersion}
 %dependency /add dev.langchain4j:langchain4j-open-ai:\{langchain4jVersion}
 
@@ -3499,8 +3555,8 @@ Adding dependency <span class="ansi-green-intense-fg ansi-bold">org.slf4j:slf4j-
 </span>Adding dependency <span class="ansi-green-intense-fg ansi-bold">org.bsc.langgraph4j:langgraph4j-core:1.7-SNAPSHOT
 </span>Adding dependency <span class="ansi-green-intense-fg ansi-bold">org.bsc.langgraph4j:langgraph4j-langchain4j:1.7-SNAPSHOT
 </span>Adding dependency <span class="ansi-green-intense-fg ansi-bold">org.bsc.langgraph4j:langgraph4j-agent-executor:1.7-SNAPSHOT
-</span>Adding dependency <span class="ansi-green-intense-fg ansi-bold">dev.langchain4j:langchain4j:1.9.2
-</span>Adding dependency <span class="ansi-green-intense-fg ansi-bold">dev.langchain4j:langchain4j-open-ai:1.9.2
+</span>Adding dependency <span class="ansi-green-intense-fg ansi-bold">dev.langchain4j:langchain4j:1.9.3
+</span>Adding dependency <span class="ansi-green-intense-fg ansi-bold">dev.langchain4j:langchain4j-open-ai:1.9.3
 </span>Solving dependencies
 Resolved artifacts count: 78
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/slf4j/slf4j-jdk14/2.0.9/slf4j-jdk14-2.0.9.jar</span>
@@ -3509,7 +3565,7 @@ Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/async/async-generator/4.0.0-beta2/async-generator-4.0.0-beta2.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/langgraph4j/langgraph4j-langchain4j/1.7-SNAPSHOT/langgraph4j-langchain4j-1.7-SNAPSHOT.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/bsc/langgraph4j/langgraph4j-agent-executor/1.7-SNAPSHOT/langgraph4j-agent-executor-1.7-SNAPSHOT.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-github-models/1.9.2-beta17/langchain4j-github-models-1.9.2-beta17.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-github-models/1.9.3-beta17/langchain4j-github-models-1.9.3-beta17.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/azure/azure-ai-inference/1.0.0-beta.5/azure-ai-inference-1.0.0-beta.5.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/azure/azure-json/1.5.0/azure-json-1.5.0.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/azure/azure-core/1.55.3/azure-core-1.55.3.jar</span>
@@ -3542,7 +3598,7 @@ Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/azure/azure-core-http-jdk-httpclient/1.0.3/azure-core-http-jdk-httpclient-1.0.3.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/azure/azure-core-http-okhttp/1.12.10/azure-core-http-okhttp-1.12.10.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/squareup/okio/okio-jvm/3.9.1/okio-jvm-3.9.1.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/kotlin/kotlin-stdlib/1.9.25/kotlin-stdlib-1.9.25.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/kotlin/kotlin-stdlib/1.9.35/kotlin-stdlib-1.9.35.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/annotations/13.0/annotations-13.0.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/squareup/okhttp3/okhttp/4.12.0/okhttp-4.12.0.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jetbrains/kotlin/kotlin-stdlib-jdk8/1.8.21/kotlin-stdlib-jdk8-1.8.21.jar</span>
@@ -3559,7 +3615,7 @@ Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/junit/jupiter/junit-jupiter-params/5.11.2/junit-jupiter-params-5.11.2.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/apache/ant/ant/1.10.14/ant-1.10.14.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/apache/ant/ant-launcher/1.10.14/ant-launcher-1.10.14.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-azure-open-ai/1.9.2/langchain4j-azure-open-ai-1.9.2.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-azure-open-ai/1.9.3/langchain4j-azure-open-ai-1.9.3.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/azure/azure-ai-openai/1.0.0-beta.16/azure-ai-openai-1.0.0-beta.16.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/io/netty/netty-codec-http2/4.1.128.Final/netty-codec-http2-4.1.128.Final.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/io/netty/netty-common/4.1.128.Final/netty-common-4.1.128.Final.jar</span>
@@ -3569,17 +3625,17 @@ Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/io/netty/netty-codec/4.1.128.Final/netty-codec-4.1.128.Final.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/io/netty/netty-handler/4.1.128.Final/netty-handler-4.1.128.Final.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/io/netty/netty-codec-http/4.1.128.Final/netty-codec-http-4.1.128.Final.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-ollama/1.9.2/langchain4j-ollama-1.9.2.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j/1.9.2/langchain4j-1.9.2.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-core/1.9.2/langchain4j-core-1.9.2.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-ollama/1.9.3/langchain4j-ollama-1.9.3.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j/1.9.3/langchain4j-1.9.3.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-core/1.9.3/langchain4j-core-1.9.3.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/fasterxml/jackson/core/jackson-annotations/2.20/jackson-annotations-2.20.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/fasterxml/jackson/core/jackson-core/2.20.1/jackson-core-2.20.1.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/fasterxml/jackson/core/jackson-databind/2.20.1/jackson-databind-2.20.1.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/org/apache/opennlp/opennlp-tools/2.5.4/opennlp-tools-2.5.4.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-open-ai/1.9.2/langchain4j-open-ai-1.9.2.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-http-client/1.9.2/langchain4j-http-client-1.9.2.jar</span>
-Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-http-client-jdk/1.9.2/langchain4j-http-client-jdk-1.9.2.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-open-ai/1.9.3/langchain4j-open-ai-1.9.3.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-http-client/1.9.3/langchain4j-http-client-1.9.3.jar</span>
+Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/dev/langchain4j/langchain4j-http-client-jdk/1.9.3/langchain4j-http-client-jdk-1.9.3.jar</span>
 Add to classpath: <span class="ansi-green-fg">/Users/bsorrentino/Library/Jupyter/kernels/rapaio-jupyter-kernel/mima_cache/com/knuddels/jtokkit/1.1.0/jtokkit-1.1.0.jar</span>
 </pre>
 </div>
