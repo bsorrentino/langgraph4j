@@ -136,13 +136,22 @@ public abstract class AGUIAgentBase implements AGUIAgent {
      * @return the events to emit for the completion, typically a single {@link RunFinishedEvent}
      */
     protected Collection<? extends Event> onCompleteEvents(RunAgentInput input, GraphResult result) {
-        return List.of(new RunFinishedEvent(
+        return switch( result.type() ) {
+            case CANCELLED -> List.of(
+                    new CustomEvent(
+                            "cancelled",
+                            "cancelled",
+                            System.currentTimeMillis(),
+                            null)
+            );
+            default -> List.of(new RunFinishedEvent(
                 input.threadId(),
                 input.runId(),
                 new SuccessOutcome(),
                 null,
                 System.currentTimeMillis(),
                 null));
+        };
     }
 
     /**

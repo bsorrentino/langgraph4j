@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.spring.ai.agentexecutor;
+package org.bsc.langgraph4j.spring.ai;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;

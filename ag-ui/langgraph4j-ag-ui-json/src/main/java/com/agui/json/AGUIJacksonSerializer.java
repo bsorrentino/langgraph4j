@@ -20,8 +20,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -36,6 +38,7 @@ import java.util.Objects;
 public class AGUIJacksonSerializer implements Serializer {
 
     protected final ObjectMapper objectMapper;
+    private Map<String,Object> serializeAttributes;
 
     /**
      * Creates a new serializer, building and configuring the underlying Jackson
@@ -87,6 +90,15 @@ public class AGUIJacksonSerializer implements Serializer {
     }
 
     /**
+     * Sets the attributes to be used during serialization.
+     *
+     * @param attributes a map of attributes to be used during serialization
+     */
+    public void serializeAttributes( @Nullable Map<String, Object> attributes) {
+        this.serializeAttributes = attributes;
+    }
+
+    /**
      * Serializes the given value to its JSON string representation.
      *
      * @param value the object to serialize
@@ -96,7 +108,15 @@ public class AGUIJacksonSerializer implements Serializer {
     @Override
     public String serialize(Object value) {
         try {
-            return objectMapper.writeValueAsString(value);
+
+            if( serializeAttributes != null ) {
+                return objectMapper.writer()
+                        .withAttributes(serializeAttributes)
+                        .writeValueAsString(value);
+            }
+            else {
+                return objectMapper.writeValueAsString(value);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Failed to serialize object to JSON", e);
         }
