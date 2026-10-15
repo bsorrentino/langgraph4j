@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.internal.hook;
+package org.bsc.langgraph4j.hook;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
