@@ -76,7 +76,7 @@ try (var saver = MongoDBSaver.builder()
 |---|---|---|
 | `stateSerializer` | required | Serializer for the state; its content type is stored with each checkpoint |
 | `mongoClient` / `mongoDatabase` / `connectionString` | one required | Exactly one must be set |
-| `databaseName` | - | Required with `mongoClient`; optional with `connectionString` if the URI has a database |
+| `databaseName` | - | Required with `mongoClient`; optional with `connectionString` if the URI has a database; rejected with `mongoDatabase` |
 | `collectionPrefix` | `lg4j` | Collections are `<prefix>_thread` and `<prefix>_checkpoint` |
 | `createIndexes` | `true` | Create the indexes on build. Set `false` if you manage them yourself |
 | `dropCollectionsFirst` | `false` | Drop both collections before creating the indexes. Destructive |
@@ -94,9 +94,10 @@ Two collections. Collections are created lazily: creating the indexes (or the fi
 | `status` | `ACTIVE` while running, `RELEASED` after a release |
 | `version` | Release version (1, 2, ...) per `thread_name`; only on released threads |
 | `seq` | Last checkpoint sequence number handed out for this thread |
-| `is_interrupted` | `true` after `registerInterruption` |
+| `is_interrupted` | `true` after `registerInterruption`, back to `false` when the next checkpoint is added |
+| `interruption_reason` | Reason of the pending interruption; kept if the thread is released while interrupted |
 | `is_error` | `true` if released with `releaseOnError` |
-| `message` | Interruption reason, release message, or error message |
+| `message` | Release message, or the error message for `releaseOnError` |
 | `created_at`, `released_at` | Timestamps |
 
 ### `<prefix>_checkpoint`: one document per checkpoint
@@ -126,12 +127,13 @@ Two collections. Collections are created lazily: creating the indexes (or the fi
 - **Release**: `release` marks the live thread `RELEASED` and assigns the next version. The next `put` for the same thread id starts a new live thread with an empty history. Releasing a thread with no live thread is a no-op.
 - **Tags**: `tag(config, version)` returns the checkpoints of a released version, `lastTag(config)` the latest one. Both return empty if there is none.
 - **Errors**: `releaseOnError` releases like `release` and sets `is_error` and the error message.
-- **Interruption**: `registerInterruption` sets `is_interrupted` and the reason on the live thread. The flag is not cleared when the thread resumes; it is dropped from the live view when the thread is released.
+- **Interruption**: `registerInterruption` sets `is_interrupted` and `interruption_reason` on the live thread, overwriting any earlier reason. Adding the next checkpoint (the run resumed) clears both. Replacing a checkpoint, as `updateState` does while the run waits, does not.
+- **Concurrent releases**: a release acts on the exact run it loaded; if another process released that run first, it reports the version that run got and never releases a newer run of the same thread.
 - **Subgraphs**: sub-graph savers are registered and released together with their parent, as for the other savers.
 
 ## Limitations
 
 - A MongoDB document is limited to 16 MB, so a single serialized checkpoint state must fit within it.
 - No multi-document transactions are used, so a standalone server is enough. If a writer fails between reserving a sequence number and inserting the checkpoint, the sequence has a gap; the history is unaffected.
-- A write that races with a release of the same thread from another process may land in the released version.
+- A `put` that races with a `release` of the same thread from another process is kept, but it may land in the version being released rather than in the next run, and the `Tag` returned by that release does not list it.
 - Not compatible with the other savers' storage: it is a new data model.

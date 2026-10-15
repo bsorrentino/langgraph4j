@@ -20,6 +20,7 @@ import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.utils.ExceptionUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -37,6 +38,7 @@ import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.inc;
 import static com.mongodb.client.model.Updates.set;
 import static com.mongodb.client.model.Updates.setOnInsert;
+import static com.mongodb.client.model.Updates.unset;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -159,6 +161,10 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
             throw new IllegalArgumentException(
                     "exactly one of 'mongoDatabase', 'mongoClient' or 'connectionString' must be provided");
         }
+        if (builder.mongoDatabase != null && builder.databaseName != null) {
+            // the database already has a name: accepting a second one would silently write elsewhere
+            throw new IllegalArgumentException("'databaseName' cannot be combined with 'mongoDatabase'");
+        }
 
         MongoClient owned = null;
         try {
@@ -268,12 +274,15 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
     /**
      * Atomically gets (creating it if absent) the live thread and reserves the next checkpoint
      * sequence number on it. Safe with concurrent writers, also from other processes.
+     *
+     * <p>A new checkpoint means the execution has moved on, so a pending interruption is cleared.
      */
     private Document claimSeq(String threadName) {
         final var options = new FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER);
         final var update = combine(
                 inc("seq", 1L),
-                setOnInsert("is_interrupted", false),
+                set("is_interrupted", false),
+                unset("interruption_reason"),
                 setOnInsert("is_error", false),
                 setOnInsert("created_at", new Date()));
         for (var attempt = 0; ; attempt++) {
@@ -317,6 +326,8 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
     @Override
     protected void insertedCheckpoint(RunnableConfig config, LinkedList<Checkpoint> checkpoints, Checkpoint checkpoint)
             throws Exception {
+        // serialize first: a state that cannot be written must not create a live thread
+        final var stateData = encodeState(checkpoint.state());
         final var thread = claimSeq(threadId(config));
 
         this.checkpoints.insertOne(new Document()
@@ -325,7 +336,7 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
                 .append("seq", thread.getLong("seq"))
                 .append("node_id", checkpoint.nodeId())
                 .append("next_node_id", checkpoint.nextNodeId())
-                .append("state_data", encodeState(checkpoint.state()))
+                .append("state_data", stateData)
                 .append("state_content_type", stateSerializer.contentType())
                 .append("saved_at", new Date()));
         log.debug("Checkpoint {} for thread {} inserted successfully.", checkpoint.id(), threadId(config));
@@ -374,14 +385,22 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
     }
 
     private Tag release(String threadName, LinkedList<Checkpoint> checkpoints, @Nullable String message, boolean isError) {
-        for (var attempt = 0; attempt < MAX_RETRIES; attempt++) {
-            final var thread = findActiveThread(threadName);
-            if (thread == null) {
-                // nothing was saved for this thread (or it was already released): nothing to tag
-                log.debug("no active thread '{}' to release", threadName);
-                return new Tag(threadName, checkpoints);
-            }
+        final var thread = findActiveThread(threadName);
+        if (thread == null) {
+            // nothing was saved for this thread (or it was already released): nothing to tag
+            log.debug("no active thread '{}' to release", threadName);
+            return new Tag(threadName, checkpoints);
+        }
+        return releaseThread(thread.getObjectId("_id"), threadName, checkpoints, message, isError);
+    }
 
+    /**
+     * Releases exactly the given thread document. It is never looked up again by name, so a
+     * release that loses a race can not release a newer run of the same thread.
+     */
+    Tag releaseThread(ObjectId threadRef, String threadName, LinkedList<Checkpoint> checkpoints,
+                      @Nullable String message, boolean isError) {
+        for (var attempt = 0; attempt < MAX_RETRIES; attempt++) {
             final var last = threads.find(and(eq("thread_name", threadName), eq("status", STATUS_RELEASED)))
                     .sort(Indexes.descending("version"))
                     .first();
@@ -389,7 +408,7 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
 
             try {
                 final var released = threads.findOneAndUpdate(
-                        and(eq("_id", thread.getObjectId("_id")), eq("status", STATUS_ACTIVE)),
+                        and(eq("_id", threadRef), eq("status", STATUS_ACTIVE)),
                         combine(set("status", STATUS_RELEASED),
                                 set("version", version),
                                 set("is_error", isError),
@@ -398,8 +417,12 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
                 if (released != null) {
                     return new Tag(threadName, version, checkpoints);
                 }
+                // someone else released this thread first: report the version it got
+                log.debug("thread '{}' was already released", threadName);
+                final var current = threads.find(eq("_id", threadRef)).first();
+                return new Tag(threadName, current == null ? null : current.getInteger("version"), checkpoints);
             } catch (MongoException e) {
-                // another release took this version: recompute it
+                // another thread with the same name took this version: recompute it
                 if (!isDuplicateKey(e)) {
                     throw e;
                 }
@@ -412,10 +435,11 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
     public <State extends AgentState> CompletableFuture<InterruptionMetadata<State>> registerInterruption(
             RunnableConfig config, InterruptionMetadata<State> interruptionMetadata) {
         try {
+            // always overwrite: a resumed thread can be interrupted again, and the latest reason wins
             threads.updateOne(
-                    and(activeThread(threadId(config)), eq("is_interrupted", false)),
+                    activeThread(threadId(config)),
                     combine(set("is_interrupted", true),
-                            set("message", interruptionMetadata.reason().orElse(NO_REASON))));
+                            set("interruption_reason", interruptionMetadata.reason().orElse(NO_REASON))));
             return completedFuture(interruptionMetadata);
         } catch (Exception e) {
             return failedFuture(e);

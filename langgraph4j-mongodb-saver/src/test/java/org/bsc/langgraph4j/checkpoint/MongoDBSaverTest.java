@@ -210,10 +210,64 @@ public class MongoDBSaverTest extends AbstractCheckpointSaverTest {
         var doc = threads.find(new Document("thread_name", "t").append("status", "ACTIVE")).first();
         assertNotNull(doc);
         assertTrue(doc.getBoolean("is_interrupted"));
-        assertEquals("waiting for approval", doc.getString("message"));
+        assertEquals("waiting for approval", doc.getString("interruption_reason"));
 
         // checkpoints survive a new saver instance (resume after restart)
         assertEquals(c, newSaver("interrupt").get(cfg).orElseThrow());
+    }
+
+    private static InterruptionMetadata<AgentState> interruption(String reason) {
+        return InterruptionMetadata.builder("n", new AgentState(Map.of())).reason(reason).build();
+    }
+
+    @Test
+    void testInterruptionLifecycleAcrossResumes() throws Exception {
+        var saver = newSaver("reinterrupt");
+        var cfg = thread("t");
+        var threads = client.getDatabase(DB).getCollection("reinterrupt_thread");
+        var live = new Document("thread_name", "t").append("status", "ACTIVE");
+
+        var c1 = checkpoint("n1", "x");
+        saver.put(cfg, c1);
+        saver.registerInterruption(cfg, interruption("before agent_2")).get();
+
+        // a human edits the state while interrupted: still waiting
+        saver.put(RunnableConfig.builder(cfg).checkPointId(c1.id()).build(),
+                new Checkpoint(c1.id(), Map.of("v", "edited"), "n1", "agent_2"));
+        assertTrue(threads.find(live).first().getBoolean("is_interrupted"));
+
+        // resume: the next node writes a checkpoint, the interruption is over
+        saver.put(cfg, checkpoint("agent_2", "y"));
+        var doc = threads.find(live).first();
+        assertFalse(doc.getBoolean("is_interrupted"));
+        assertNull(doc.getString("interruption_reason"));
+
+        // interrupted again: the new reason is recorded
+        saver.registerInterruption(cfg, interruption("before agent_3")).get();
+        doc = threads.find(live).first();
+        assertTrue(doc.getBoolean("is_interrupted"));
+        assertEquals("before agent_3", doc.getString("interruption_reason"));
+
+        // a plain release keeps the interruption reason apart from the (null) release message
+        saver.release(cfg);
+        doc = threads.find(new Document("thread_name", "t").append("version", 1)).first();
+        assertEquals("before agent_3", doc.getString("interruption_reason"));
+        assertNull(doc.getString("message"));
+    }
+
+    @Test
+    void testUnserializableStateCreatesNoThread() throws Exception {
+        var saver = newSaver("unserializable");
+        var cfg = thread("t");
+        var bad = Checkpoint.builder().nodeId("n1").nextNodeId("n2")
+                .state(Map.<String, Object>of("v", new Object())) // not Serializable
+                .build();
+
+        assertThrows(java.io.IOException.class, () -> saver.put(cfg, bad));
+
+        assertEquals(0, client.getDatabase(DB).getCollection("unserializable_thread").countDocuments());
+        assertTrue(saver.releaseOnError(cfg, new RuntimeException("boom")).version().isEmpty(),
+                "no empty version may be tagged for a run that saved nothing");
     }
 
     // ---- subgraph savers ---------------------------------------------------------------------------
@@ -279,6 +333,9 @@ public class MongoDBSaverTest extends AbstractCheckpointSaverTest {
         assertThrows(IllegalArgumentException.class, () -> builder("x").databaseName(" ").build());
         assertThrows(IllegalArgumentException.class,
                 () -> builder("x").mongoDatabase(client.getDatabase(DB)).build(), "two sources are ambiguous");
+        assertThrows(IllegalArgumentException.class, () -> MongoDBSaver.builder()
+                .mongoDatabase(client.getDatabase("other")).databaseName(DB)
+                .stateSerializer(serializer()).build(), "databaseName would be silently ignored");
         assertThrows(IllegalArgumentException.class, () -> builder("x").collectionPrefix("").build());
     }
 
@@ -412,21 +469,63 @@ public class MongoDBSaverTest extends AbstractCheckpointSaverTest {
     }
 
     @Test
-    void testConcurrentReleasesGetDistinctVersions() throws Exception {
+    void testSuccessiveRunsReleasedFromDifferentSaversGetIncreasingVersions() throws Exception {
         final var rounds = 6;
         final var cfg = thread("rel");
-        var pool = Executors.newFixedThreadPool(2);
-        var versions = ConcurrentHashMap.<Integer>newKeySet();
-
-        // alternate threads of the same name released from different saver instances
         for (var i = 0; i < rounds; i++) {
             var saver = newSaver("relver");
             saver.put(cfg, checkpoint("n", i));
-            versions.add(pool.submit(() -> saver.release(cfg).version().orElseThrow()).get(30, TimeUnit.SECONDS));
+            assertEquals(Optional.of(i + 1), saver.release(cfg).version());
         }
-        pool.shutdown();
-        assertEquals(rounds, versions.size());
         assertEquals(rounds, newSaver("relver").lastTag(cfg).orElseThrow().version().orElseThrow());
+    }
+
+    @Test
+    void testConcurrentReleasesOfOneRunReleaseItOnce() throws Exception {
+        final var releasers = 8;
+        final var cfg = thread("rel-race");
+        newSaver("relrace").put(cfg, checkpoint("n", "x"));
+
+        var pool = Executors.newFixedThreadPool(releasers);
+        var start = new CountDownLatch(1);
+        var futures = new ArrayList<Future<Optional<Integer>>>();
+        for (var i = 0; i < releasers; i++) {
+            final var saver = newSaver("relrace");
+            futures.add(pool.submit(() -> {
+                start.await();
+                return saver.release(cfg).version();
+            }));
+        }
+        start.countDown();
+        var versions = new ArrayList<Optional<Integer>>();
+        for (var f : futures) versions.add(f.get(60, TimeUnit.SECONDS));
+        pool.shutdown();
+
+        // one RELEASED document, and every releaser that saw the run reports the version it got
+        assertEquals(1, client.getDatabase(DB).getCollection("relrace_thread")
+                .countDocuments(new Document("thread_name", "rel-race")));
+        assertTrue(versions.stream().allMatch(v -> v.isEmpty() || v.equals(Optional.of(1))), versions::toString);
+        assertTrue(versions.contains(Optional.of(1)));
+    }
+
+    @Test
+    void testLateReleaseDoesNotReleaseANewerRun() throws Exception {
+        var saver = newSaver("stale");
+        var cfg = thread("t");
+        var threads = client.getDatabase(DB).getCollection("stale_thread");
+
+        saver.put(cfg, checkpoint("n1", "run-1"));
+        var run1 = threads.find(new Document("thread_name", "t")).first().getObjectId("_id");
+        saver.release(cfg);                       // another process releases run 1 as version 1...
+        saver.put(cfg, checkpoint("n1", "run-2")); // ...and run 2 starts
+
+        // a release that loaded run 1 before all this now completes
+        var tag = saver.releaseThread(run1, "t", new LinkedList<>(), null, false);
+
+        assertEquals(Optional.of(1), tag.version(), "reports the version run 1 already got");
+        var run2 = threads.find(new Document("thread_name", "t").append("status", "ACTIVE")).first();
+        assertNotNull(run2, "run 2 must still be live");
+        assertEquals(1, saver.list(cfg).size());
     }
 
     // ---- helpers -----------------------------------------------------------------------------------
