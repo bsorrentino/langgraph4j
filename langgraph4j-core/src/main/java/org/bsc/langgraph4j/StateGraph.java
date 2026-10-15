@@ -3,16 +3,15 @@ package org.bsc.langgraph4j;
 import org.bsc.langgraph4j.action.*;
 import org.bsc.langgraph4j.hook.EdgeHook;
 import org.bsc.langgraph4j.hook.NodeHook;
-import org.bsc.langgraph4j.internal.edge.Edge;
-import org.bsc.langgraph4j.internal.edge.EdgeCondition;
-import org.bsc.langgraph4j.internal.edge.EdgeValue;
-import org.bsc.langgraph4j.internal.hook.EdgeHooks;
-import org.bsc.langgraph4j.internal.hook.NodeHooks;
-import org.bsc.langgraph4j.internal.node.Node;
-import org.bsc.langgraph4j.internal.node.SubCompiledGraphNode;
-import org.bsc.langgraph4j.internal.node.SubStateGraphNode;
+import org.bsc.langgraph4j.edge.Edge;
+import org.bsc.langgraph4j.edge.EdgeCondition;
+import org.bsc.langgraph4j.edge.EdgeValue;
+import org.bsc.langgraph4j.hook.EdgeHooks;
+import org.bsc.langgraph4j.hook.NodeHooks;
+import org.bsc.langgraph4j.node.Node;
+import org.bsc.langgraph4j.node.SubCompiledGraphNode;
+import org.bsc.langgraph4j.node.SubStateGraphNode;
 import org.bsc.langgraph4j.serializer.StateSerializer;
-import org.bsc.langgraph4j.serializer.std.StdStateSerializer;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
@@ -21,7 +20,6 @@ import org.bsc.langgraph4j.state.Channel;
 import java.util.*;
 
 import static java.lang.String.format;
-import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -144,7 +142,7 @@ public non-sealed class StateGraph<State extends AgentState> implements GraphDef
 
 
     public Map<String, Channel<?>> getChannels() {
-        return unmodifiableMap(channels);
+        return Map.copyOf(channels);
     }
 
 
@@ -208,20 +206,24 @@ public non-sealed class StateGraph<State extends AgentState> implements GraphDef
         return this;
     }
 
-    public StateGraph<State> addNode(String id, Node.ActionFactory<State> actionFactory) throws GraphStateException {
-        if (Objects.equals(id, END)) {
+    public final StateGraph<State> add(Node<State> node) throws GraphStateException {
+        requireNonNull(node, "node cannot be null");
+        if (Objects.equals(node.id(), END)) {
             throw Errors.invalidNodeIdentifier.exception(END);
         }
 
-        // var node = new Node<>(id, ManagedAsyncNodeAction.factory( id, action ) );
-        var node = new Node<>(id, requireNonNull(actionFactory, "actionFactory cannot be null") );
-
         if (nodes.elements.contains(node)) {
-            throw Errors.duplicateNodeError.exception(id);
+            throw Errors.duplicateNodeError.exception(node.id());
         }
 
         nodes.elements.add(node);
         return this;
+
+    }
+
+
+    public StateGraph<State> addNode(String id, Node.ActionFactory<State> actionFactory) throws GraphStateException {
+        return add( new Node<>(id, requireNonNull(actionFactory, "actionFactory cannot be null") ) );
     }
 
     /**
@@ -288,19 +290,7 @@ public non-sealed class StateGraph<State extends AgentState> implements GraphDef
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
     public StateGraph<State> addNode(String id, CompiledGraph<State> subGraph) throws GraphStateException {
-        if (Objects.equals(id, END)) {
-            throw Errors.invalidNodeIdentifier.exception(END);
-        }
-
-        var node = new SubCompiledGraphNode<>(id, subGraph);
-
-        if (nodes.elements.contains(node)) {
-            throw Errors.duplicateNodeError.exception(id);
-        }
-
-        nodes.elements.add(node);
-        return this;
-
+        return add(new SubCompiledGraphNode<>(id, subGraph));
     }
 
     /**
@@ -313,50 +303,46 @@ public non-sealed class StateGraph<State extends AgentState> implements GraphDef
      * @throws GraphStateException if the node identifier is invalid or the node already exists
      */
     public StateGraph<State> addNode(String id, StateGraph<State> subGraph) throws GraphStateException {
-        if (Objects.equals(id, END)) {
-            throw Errors.invalidNodeIdentifier.exception(END);
+        return add(new SubStateGraphNode<>(id, subGraph));
+    }
+
+
+    public StateGraph<State> add( Edge<State> newEdge ) throws GraphStateException {
+
+        if (Objects.equals(newEdge.sourceId(), END)) {
+            throw Errors.invalidEdgeIdentifier.exception(END);
         }
 
-        subGraph.validateGraph();
+        final var target = newEdge.target();
 
-        var node = new SubStateGraphNode<>( id, subGraph );
+        if( target.id() == null ) { // CONDITIONAL EDGE
+            final var mappings = target.value().mappings();
 
-        if (nodes.elements.contains(node)) {
-            throw Errors.duplicateNodeError.exception(id);
+            if (mappings == null || mappings.isEmpty()) {
+                throw Errors.edgeMappingIsEmpty.exception(newEdge.sourceId());
+            }
+
+            if( edges.elements.contains( newEdge ) ) {
+                throw Errors.duplicateConditionalEdgeError.exception(newEdge.sourceId());
+            }
+
+            edges.elements.add( newEdge );
+
+        }
+        else { // SIMPLE EDGE
+            int index = edges.elements.indexOf(newEdge);
+
+            if (index >= 0) {
+                final var newTargets = new ArrayList<>(edges.elements.get(index).targets());
+                newTargets.add(newEdge.target());
+                edges.elements.set(index, new Edge<>(newEdge.sourceId(), newTargets));
+
+            } else {
+                edges.elements.add(newEdge);
+            }
         }
 
-        nodes.elements.add(node);
         return this;
-    }
-
-    /**
-     * Adds a subgraph to the state graph by creating a node with the specified identifier.
-     * This implies that Subgraph share the same state with parent graph
-     *
-     * @param id the identifier of the node representing the subgraph
-     * @param subGraph the subgraph to be added. it will be compiled on compilation of the parent
-     * @return this state graph instance
-     * @throws GraphStateException if the node identifier is invalid or the node already exists
-     * @deprecated use {@code add( String id, StateGraph<State> )} instead
-     */
-    @Deprecated(forRemoval = true)
-    public StateGraph<State> addSubgraph(String id, StateGraph<State> subGraph) throws GraphStateException {
-        return addNode( id, subGraph );
-    }
-
-    /**
-     * Adds a subgraph to the state graph by creating a node with the specified identifier.
-     * This implies that Subgraph share the same state with parent graph
-     *
-     * @param id the identifier of the node representing the subgraph
-     * @param subGraph the compiled subgraph to be added
-     * @return this state graph instance
-     * @throws GraphStateException if the node identifier is invalid or the node already exists
-     * @deprecated use {@code addNode( String, CompiledGraph<State> )} instead
-     */
-    @Deprecated(forRemoval = true)
-    public StateGraph<State> addSubgraph(String id, CompiledGraph<State> subGraph) throws GraphStateException {
-        return addNode(id, subGraph);
     }
 
     /**
@@ -367,23 +353,7 @@ public non-sealed class StateGraph<State extends AgentState> implements GraphDef
      * @throws GraphStateException if the edge identifier is invalid or the edge already exists
      */
     public StateGraph<State> addEdge(String sourceId, String targetId) throws GraphStateException {
-        if (Objects.equals(sourceId, END)) {
-            throw Errors.invalidEdgeIdentifier.exception(END);
-        }
-
-        var newEdge = new Edge<>(sourceId, new EdgeValue<State>(targetId) );
-
-        int index = edges.elements.indexOf( newEdge );
-        if( index >= 0 ) {
-            var newTargets = new ArrayList<>(edges.elements.get(index).targets());
-            newTargets.add( newEdge.target() );
-            edges.elements.set( index, new Edge<>(sourceId, newTargets) );
-        }
-        else {
-            edges.elements.add( newEdge );
-        }
-
-        return this;
+        return add(new Edge<>(sourceId, new EdgeValue<State>(targetId)));
     }
 
     /**
@@ -395,22 +365,7 @@ public non-sealed class StateGraph<State extends AgentState> implements GraphDef
      * @throws GraphStateException if the edge identifier is invalid, the mappings are empty, or the edge already exists
      */
     public StateGraph<State> addConditionalEdges(String sourceId, AsyncCommandAction<State> condition, Map<String, String> mappings) throws GraphStateException {
-        if (Objects.equals(sourceId, END)) {
-            throw Errors.invalidEdgeIdentifier.exception(END);
-        }
-        if (mappings == null || mappings.isEmpty()) {
-            throw Errors.edgeMappingIsEmpty.exception(sourceId);
-        }
-
-        var newEdge =  new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>( condition, mappings)) );
-
-        if( edges.elements.contains( newEdge ) ) {
-            throw Errors.duplicateConditionalEdgeError.exception(sourceId);
-        }
-        else {
-            edges.elements.add( newEdge );
-        }
-        return this;
+        return add( new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>( condition, mappings)) ));
     }
 
     /**
