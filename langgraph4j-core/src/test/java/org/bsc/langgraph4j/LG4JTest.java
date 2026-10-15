@@ -4,7 +4,7 @@ import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.action.Command;
 import org.bsc.langgraph4j.hook.*;
-import org.bsc.langgraph4j.internal.node.Node;
+import org.bsc.langgraph4j.node.Node;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.*;
 import org.bsc.langgraph4j.utils.EdgeMappings;

@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.internal.edge;
+package org.bsc.langgraph4j.edge;
 
 import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.state.AgentState;

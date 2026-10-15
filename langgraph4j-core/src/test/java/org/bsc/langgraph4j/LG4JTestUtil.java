@@ -5,7 +5,7 @@ import org.bsc.async.v5.AsyncGeneratorFlow;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.action.InterruptibleAction;
 import org.bsc.langgraph4j.action.InterruptionMetadata;
-import org.bsc.langgraph4j.internal.node.Node;
+import org.bsc.langgraph4j.node.Node;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.serializer.plain_text.jackson.JacksonStateSerializer;

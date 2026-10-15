@@ -7,12 +7,12 @@ import org.bsc.async.v5.AsyncGeneratorFlow;
 import org.bsc.langgraph4j.action.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
-import org.bsc.langgraph4j.internal.edge.Edge;
-import org.bsc.langgraph4j.internal.edge.EdgeCondition;
-import org.bsc.langgraph4j.internal.edge.EdgeValue;
+import org.bsc.langgraph4j.edge.Edge;
+import org.bsc.langgraph4j.edge.EdgeCondition;
+import org.bsc.langgraph4j.edge.EdgeValue;
 import org.bsc.langgraph4j.action.SubCompiledGraphNodeAction;
-import org.bsc.langgraph4j.internal.node.Node;
-import org.bsc.langgraph4j.internal.node.ParallelNode;
+import org.bsc.langgraph4j.node.Node;
+import org.bsc.langgraph4j.node.ParallelNode;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 import org.bsc.langgraph4j.state.StateSnapshot;
@@ -1182,7 +1182,8 @@ public final class CompiledGraph<State extends AgentState> implements GraphDefin
                 // Process nodes
                 //
                 sgWorkflow.nodes.elements.stream()
-                        .map( n -> n.withIdUpdated( subgraphNode::formatId) )
+                        .map( n -> new Node<>( subgraphNode.formatId(n.id()), n.actionFactory()) )
+                        //.map( n -> n.withIdUpdated( subgraphNode::formatId) )
                         .forEach(nodes.elements::add);
 
             }
