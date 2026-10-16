@@ -1,12 +1,14 @@
 package org.bsc.langgraph4j.action;
 
 import org.bsc.langgraph4j.utils.CollectionsUtils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.bsc.langgraph4j.utils.CollectionsUtils.mergeMap;
 
@@ -29,7 +31,7 @@ public record Command(String gotoNode, Map<String,Object> update) {
     }
 
     public String gotoNode() {
-        return Objects.requireNonNull(gotoNode, "gotoNode cannot be null");
+        return requireNonNull(gotoNode, "gotoNode cannot be null");
     }
 
     public Map<String,Object> update() {
@@ -110,6 +112,7 @@ public record Command(String gotoNode, Map<String,Object> update) {
     }
 
     @Override
+    @NonNull
     public String toString() {
         if( update == null && gotoNode == null ) {
             return "empty command";
