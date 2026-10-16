@@ -43,13 +43,19 @@ class SkillParserTest {
 
         final var parser = SkillParser.of(markdown);
 
-        assertEquals("Compare before---after\nKeep the next line", parser.getFrontMatter().values().get("description"));
+        assertEquals("""
+        Compare before---after
+        Keep the next line""", parser.getFrontMatter().values().get("description"));
         assertEquals("# Body", parser.getContent());
     }
 
     @Test
     void requiresAClosingDelimiterLine() {
-        String markdown = "---\nname: demo-skill\ndescription: before---after";
+        String markdown = """
+                ---
+                name: demo-skill
+                description: before---after
+                """;
 
         final var parser = SkillParser.of(markdown);
 
@@ -76,7 +82,11 @@ class SkillParserTest {
         final var parser = SkillParser.of(markdown);
 
         assertEquals("demo-skill", parser.getFrontMatter().values().get("name"));
-        assertEquals("First line\nSecond line\n\nFourth line", parser.getFrontMatter().values().get("description"));
+        assertEquals("""
+        First line
+        Second line
+
+        Fourth line""", parser.getFrontMatter().values().get("description"));
         assertEquals("""
                 # Body
                 line1
