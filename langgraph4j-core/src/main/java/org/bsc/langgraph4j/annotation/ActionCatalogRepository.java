@@ -23,11 +23,35 @@ import java.util.function.Function;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 
+/**
+ * A repository of node and edge actions built from the annotated methods of an {@link ActionCatalog}.
+ */
 public interface ActionCatalogRepository {
 
+    /**
+     * Returns the node action factories, indexed by action name.
+     *
+     * @return the node actions
+     */
     Map<String, Node.ActionFactory<? extends AgentState>> nodeActions();
+
+    /**
+     * Returns the edge actions, indexed by action name.
+     *
+     * @return the edge actions
+     */
     Map<String, AsyncCommandAction<? extends AgentState>> edgeActions();
 
+    /**
+     * Creates a conditional edge from the given source node using a registered edge action.
+     *
+     * @param sourceId the source node id
+     * @param actionId the edge action name
+     * @param mappings the mapping between action results and target node ids
+     * @param <State>  the agent state type
+     * @return the edge
+     * @throws IllegalArgumentException if the edge action is not found
+     */
     default <State extends AgentState> Edge<State> edge(String sourceId, String actionId, Map<String, String> mappings) {
         @SuppressWarnings("unchecked")
         final var condition = (AsyncCommandAction<State>) edgeActions().get(actionId);
@@ -37,6 +61,14 @@ public interface ActionCatalogRepository {
         return new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>( condition, mappings)) );
     }
 
+    /**
+     * Returns the registered node action factory with the given name.
+     *
+     * @param actionId the node action name
+     * @param <State>  the agent state type
+     * @return the action factory
+     * @throws IllegalArgumentException if the node action is not found
+     */
     default <State extends AgentState> Node.ActionFactory<State> nodeAction(String actionId) {
         @SuppressWarnings("unchecked")
         final var action = (Node.ActionFactory<State>)nodeActions().get(actionId);
@@ -47,6 +79,14 @@ public interface ActionCatalogRepository {
         return action;
     }
 
+    /**
+     * Creates a node whose id is the given action name.
+     *
+     * @param id      the node action name, also used as node id
+     * @param <State> the agent state type
+     * @return the node
+     * @throws IllegalArgumentException if the node action is not found
+     */
     default <State extends AgentState> Node<State> node(String id)  {
         @SuppressWarnings("unchecked")
         final var action = (Node.ActionFactory<State>)nodeActions().get(id);
@@ -56,6 +96,15 @@ public interface ActionCatalogRepository {
         return new Node<>(id, action);
     }
 
+    /**
+     * Builds a repository from the public methods of the catalog annotated with
+     * {@link NodeAction} or {@link EdgeAction}.
+     *
+     * @param catalog the catalog instance
+     * @param <Catalog> the catalog type
+     * @return the repository
+     * @throws IllegalArgumentException if action names are duplicated or a method signature is unsupported
+     */
     static <Catalog extends ActionCatalog> ActionCatalogRepository of( Catalog catalog) {
 
         record CatalogRepositoryImpl(
