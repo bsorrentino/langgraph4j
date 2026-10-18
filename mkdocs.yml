@@ -89,6 +89,7 @@ nav:
       - Emit custom output: core/emit-custom-output.md
       - Subgraphs: core/subgraph.md
       - Cancellation: core/cancellation.md
+      - Annotations: core/annotations.md
       - Checkpoint saver:
         - SQLite: core/sqlite-saver/README.md
         - Postgres: core/postgres-saver/README.md
