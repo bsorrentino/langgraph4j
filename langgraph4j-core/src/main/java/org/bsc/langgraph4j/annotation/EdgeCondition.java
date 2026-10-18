@@ -13,6 +13,8 @@ import java.lang.annotation.Target;
  * {@link org.bsc.langgraph4j.RunnableConfig} (in any order) and return a
  * {@link org.bsc.langgraph4j.action.Command}, a {@code String} (the target node),
  * a {@code CompletableFuture<Command>} or {@code null}.
+ *
+ * @since 1.9.6
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

@@ -20,5 +20,7 @@
  *   <li>Edge action return: {@link org.bsc.langgraph4j.action.Command}, {@code String} (target node),
  *       {@code CompletableFuture<Command>} or {@code null}.</li>
  * </ul>
+ *
+ * @since 1.9.6
  */
 package org.bsc.langgraph4j.annotation;

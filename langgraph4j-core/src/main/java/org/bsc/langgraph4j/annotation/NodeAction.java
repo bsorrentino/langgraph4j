@@ -13,6 +13,8 @@ import java.lang.annotation.Target;
  * {@link org.bsc.langgraph4j.RunnableConfig} (in any order) and return a {@code Map},
  * a {@code CompletableFuture<Map>} or {@code null}; alternatively it may accept a single
  * {@link org.bsc.langgraph4j.CompileConfig} and return a node action.
+ *
+ * @since 1.9.6
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

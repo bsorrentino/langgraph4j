@@ -24,6 +24,8 @@ import static java.util.concurrent.CompletableFuture.failedFuture;
 
 /**
  * A repository of node and edge actions built from the annotated methods of an {@link ActionCatalog}.
+ *
+ * @since 1.9.6
  */
 public interface ActionCatalogRepository {
 
