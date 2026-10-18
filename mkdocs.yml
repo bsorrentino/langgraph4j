@@ -96,6 +96,10 @@ nav:
         - MySQL: core/mysql-saver/README.md
         - Oracle: core/oracle-saver/README.md
         - MongoDB: core/mongodb-saver/README.md
+        - Redis: core/redis-saver/README.md
+        - DynamoDB: core/dynamodb-saver/README.md
+        - CockroachDB: core/cockroachdb-saver/README.md
+        - Hazelcast: core/hazelcast-saver/README.md
   - Features: features.md
   - Examples: https://github.com/langgraph4j/langgraph4j-examples
   - How to(s):
