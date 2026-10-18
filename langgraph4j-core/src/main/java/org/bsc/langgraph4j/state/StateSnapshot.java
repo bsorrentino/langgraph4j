@@ -5,6 +5,7 @@ import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.SnapshotOutput;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import static java.lang.String.*;
@@ -24,6 +25,7 @@ public final class StateSnapshot<State extends AgentState> extends NodeOutput<St
 
     private final String checkpointId;
     private final String checkpointNextNodeId;
+    private final Instant checkpointCreatedAt;
 
     public String nextNodeId( ) {
         return checkpointNextNodeId;
@@ -33,17 +35,28 @@ public final class StateSnapshot<State extends AgentState> extends NodeOutput<St
         return checkpointId;
     }
 
+    /**
+     * The creation date of the checkpoint this snapshot refers to.
+     *
+     * @return the checkpoint creation date
+     * @since 1.9.6
+     */
+    public Instant createdAt() {
+        return checkpointCreatedAt;
+    }
+
     private StateSnapshot( String node, Checkpoint checkpoint, AgentStateFactory<State> factory) {
         super( node, factory.apply(checkpoint.state()) );
         this.checkpointId = Objects.requireNonNull(checkpoint.id(), "checkpointId cannot be null");
         this.checkpointNextNodeId = Objects.requireNonNull(checkpoint.nextNodeId(), "checkpointNextNodeId cannot be null");
+        this.checkpointCreatedAt = Objects.requireNonNull(checkpoint.createdAt(), "checkpointCreatedAt cannot be null");
     }
 
     @Override
     public String toString() {
 
-        return "StateSnapshot{node=%s, state=%s, checkpointId=%s, checkpointNextNodeId=%s}"
-                .formatted(node(), state(), checkpointId(), nextNodeId());
+        return "StateSnapshot{node=%s, state=%s, checkpointId=%s, checkpointNextNodeId=%s, createdAt=%s}"
+                .formatted(node(), state(), checkpointId(), nextNodeId(), checkpointCreatedAt);
     }
 
 

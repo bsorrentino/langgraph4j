@@ -4,6 +4,7 @@ import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 import org.jspecify.annotations.NonNull;
 
+import java.time.Instant;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -15,13 +16,19 @@ import static java.util.Objects.requireNonNull;
  * and a {@code String} that represents the next state.
  * The checkpoint is serializable and can be persisted and restored.
  *
+ * <p>Every checkpoint carries the {@link #createdAt() creation date} that
+ * can be used to order checkpoints reliably ( ie. by custom checkpoint savers )
+ * even when the underlying storage doesn't preserve insertion order.
+ *
  * @see AgentState
+ * @since 1.0.0
  */
 public record Checkpoint(
         String id,
         Map<String, Object> state,
         String nodeId,
-        String nextNodeId
+        String nextNodeId,
+        Instant createdAt
 ) {
 
     public Checkpoint {
@@ -30,7 +37,21 @@ public record Checkpoint(
         requireNonNull( state, "state cannot be null" );
         requireNonNull( nodeId, "nodeId cannot be null" );
         requireNonNull( nextNodeId, "Checkpoint.nextNodeId cannot be null" );
+        requireNonNull( createdAt, "Checkpoint.createdAt cannot be null" );
 
+    }
+
+    /**
+     * Creates a checkpoint without an explicit creation date.
+     * The creation date defaults to {@link Instant#now()}.
+     *
+     * @param id         the checkpoint id
+     * @param state      the checkpoint state
+     * @param nodeId     the node that produced the checkpoint
+     * @param nextNodeId the next node to execute
+     */
+    public Checkpoint( String id, Map<String,Object> state, String nodeId, String nextNodeId ) {
+        this( id, state, nodeId, nextNodeId, Instant.now() );
     }
 
     @Deprecated
@@ -61,7 +82,8 @@ public record Checkpoint(
         return new Checkpoint( UUID.randomUUID().toString(),
                                 checkpoint.state,
                                 checkpoint.nodeId,
-                                checkpoint.nextNodeId);
+                                checkpoint.nextNodeId,
+                                Instant.now());
     }
 
 
@@ -74,6 +96,7 @@ public record Checkpoint(
         private Map<String,Object> state = null;
         private String nodeId = null ;
         private String nextNodeId = null;
+        private Instant createdAt = Instant.now();
 
         public Builder id( String id ) {
             this.id = id;
@@ -96,11 +119,25 @@ public record Checkpoint(
             return this;
         }
 
+        /**
+         * Set the creation date of the checkpoint.
+         * It defaults to {@link Instant#now()} if not provided.
+         *
+         * @param createdAt the creation date (cannot be null)
+         * @return this builder
+         * @since 1.9.6
+         */
+        public Builder createdAt( Instant createdAt ) {
+            this.createdAt = requireNonNull( createdAt, "createdAt cannot be null" );
+            return this;
+        }
+
         public Checkpoint build() {
             return new Checkpoint(  id,
                                     state,
                                     nodeId,
-                                    nextNodeId );
+                                    nextNodeId,
+                                    createdAt );
         }
     }
 
@@ -120,6 +157,9 @@ public record Checkpoint(
     /**
      * Returns a new Checkpoint with updated state and a new nextNodeId.
      *
+     * <p>The creation date is preserved because the checkpoint keeps its identity
+     * ( ie. the same {@link #id()} ) and it is updated in place.
+     *
      * @param values     the partial state updates to merge into this checkpoint's state
      * @param channels   the registered channels used to resolve and update values;
      *                   may be null if values are already resolved
@@ -133,16 +173,18 @@ public record Checkpoint(
         return new Checkpoint( this.id,
                 AgentState.updateState( this.state, values, channels ),
                 this.nodeId,
-                requireNonNull(nextNodeId, "nextNodeId cannot be null") );
+                requireNonNull(nextNodeId, "nextNodeId cannot be null"),
+                this.createdAt );
     }
 
     @Override
     @NonNull
     public String toString() {
-        return  "Checkpoint{ id=%s, nodeId=%s, nextNodeId=%s, state=%s }".formatted(
+        return  "Checkpoint{ id=%s, nodeId=%s, nextNodeId=%s, createdAt=%s, state=%s }".formatted(
                 id,
                 nodeId,
                 nextNodeId,
+                createdAt,
                 state
         );
     }

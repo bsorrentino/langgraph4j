@@ -11,6 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -359,6 +360,59 @@ public class LG4JFileSystemSaverTest implements LG4JLoggable {
         assertIterableEquals( state_1.get().data().entrySet(), tagState.get().entrySet() );
 
 
+    }
+
+    @ParameterizedTest
+    @EnumSource( StateSerializerEnum.class )
+    public void testCheckpointCreationDateSurvivesPersistence( StateSerializerEnum stateSerializer ) throws Exception {
+        final var checkpointStore = Paths.get( rootPath, "testCheckpointCreationDateSurvivesPersistence" );
+
+        final var workflow = new StateGraph<>(State.SCHEMA, stateSerializer.value )
+                .addEdge(START, "agent_1")
+                .addNode("agent_1", node_async( state ->
+                        Map.of("steps", 1, "messages", "agent_1:step 1") ))
+                .addEdge("agent_1", END);
+
+        final var saver = new FileSystemSaver( checkpointStore, workflow.getStateSerializer() );
+
+        final var compileConfig = CompileConfig.builder()
+                .checkpointSaver(saver)
+                .releaseThread(false)
+                .build();
+
+        final var app = workflow.compile( compileConfig );
+
+        final var runnableConfig = RunnableConfig.builder()
+                .threadId("thread_1")
+                .build();
+
+        try {
+            final var state = app.invoke( GraphInput.noArgs(), runnableConfig );
+
+            assertTrue(state.isPresent());
+            assertEquals(1, state.get().steps());
+
+            // reload the checkpoints from the file system using a brand new saver instance
+            final var reloadedSaver = new FileSystemSaver( checkpointStore, workflow.getStateSerializer() );
+            final var checkpoints = new ArrayList<Checkpoint>( reloadedSaver.list( runnableConfig ) );
+
+            assertFalse(checkpoints.isEmpty());
+            for( final var checkpoint : checkpoints ) {
+                assertNotNull( checkpoint.createdAt(), "creation date must survive the persistence round trip" );
+            }
+
+            // checkpoints are returned newest first: creation dates must not increase going deeper in the list
+            for( int i = 0 ; i < checkpoints.size() - 1 ; i++ ) {
+                assertFalse( checkpoints.get(i).createdAt().isBefore( checkpoints.get(i+1).createdAt() ) );
+            }
+
+            final var snapshot = app.getState( runnableConfig );
+            assertNotNull(snapshot);
+            assertEquals( checkpoints.get(0).createdAt(), snapshot.createdAt() );
+        }
+        finally {
+            saver.release( runnableConfig );
+        }
     }
 
 }
