@@ -8,6 +8,15 @@
  * <ul>
  *   <li>{@link org.bsc.langgraph4j.StateGraph} - Represents a state graph with nodes and edges.</li>
  *   <li>{@link org.bsc.langgraph4j.CompiledGraph} - Represents a compiled state graph ready for execution.</li>
+ *   <li>{@link org.bsc.langgraph4j.CompileConfig} - Configures how a state graph is compiled (checkpointing, interrupts, ...).</li>
+ *   <li>{@link org.bsc.langgraph4j.RunnableConfig} - Configures a single graph execution (thread, checkpoint, ...).</li>
+ *   <li>{@link org.bsc.langgraph4j.NodeOutput} - The output produced by a node during streaming execution.</li>
+ * </ul>
+ *
+ * <p>Related packages:</p>
+ * <ul>
+ *   <li>{@link org.bsc.langgraph4j.annotation} - Annotation-based definition of node and edge actions
+ *       ({@link org.bsc.langgraph4j.annotation.NodeAction}, {@link org.bsc.langgraph4j.annotation.EdgeAction}).</li>
  * </ul>
  *
  * <p>Utility classes:</p>

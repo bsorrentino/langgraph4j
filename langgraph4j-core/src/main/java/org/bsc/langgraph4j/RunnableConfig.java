@@ -1,7 +1,7 @@
 package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.action.SubCompiledGraphNodeAction;
-import org.bsc.langgraph4j.internal.node.ParallelNode;
+import org.bsc.langgraph4j.node.ParallelNode;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.utils.CollectionsUtils;
 import org.bsc.langgraph4j.utils.TypeRef;

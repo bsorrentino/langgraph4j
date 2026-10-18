@@ -1,8 +1,7 @@
-package org.bsc.langgraph4j.internal.node;
+package org.bsc.langgraph4j.node;
 
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.StateGraph;
-import org.bsc.langgraph4j.SubGraphNode;
 import org.bsc.langgraph4j.action.SubCompiledGraphNodeAction;
 import org.bsc.langgraph4j.state.AgentState;
 

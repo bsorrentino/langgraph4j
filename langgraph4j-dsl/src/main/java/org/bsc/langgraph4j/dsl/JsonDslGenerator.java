@@ -3,9 +3,9 @@ package org.bsc.langgraph4j.dsl;
 import org.bsc.langgraph4j.GraphDefinition;
 import org.bsc.langgraph4j.GraphPath;
 import org.bsc.langgraph4j.StateGraph;
-import org.bsc.langgraph4j.SubGraphNode;
-import org.bsc.langgraph4j.internal.edge.EdgeValue;
-import org.bsc.langgraph4j.internal.node.Node;
+import org.bsc.langgraph4j.node.SubGraphNode;
+import org.bsc.langgraph4j.edge.EdgeValue;
+import org.bsc.langgraph4j.node.Node;
 import org.bsc.langgraph4j.state.AgentState;
 import org.jspecify.annotations.NonNull;
 

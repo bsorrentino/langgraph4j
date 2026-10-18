@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.internal.node;
+package org.bsc.langgraph4j.node;
 
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.GraphResult;
