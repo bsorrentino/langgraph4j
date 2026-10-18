@@ -1,7 +1,8 @@
 package org.bsc.langgraph4j;
 
 
-import org.bsc.langgraph4j.internal.edge.EdgeCondition;
+import org.bsc.langgraph4j.edge.EdgeCondition;
+import org.bsc.langgraph4j.node.SubGraphNode;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.Objects;
@@ -40,7 +41,7 @@ public abstract class DiagramGenerator {
 
         private Stream<String> subGraphIds( StateGraph.Nodes<?> subGraphNode ) {
             return subGraphNode.elements.stream()
-                    .filter( node -> node instanceof SubGraphNode<?> )
+                    .filter( node -> node instanceof SubGraphNode<?>)
                     .flatMap( node -> {
                         var subGraph = ((SubGraphNode<?>) node).subGraph();
                         return Stream.concat(

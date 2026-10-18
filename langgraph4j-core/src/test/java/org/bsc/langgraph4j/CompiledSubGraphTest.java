@@ -6,7 +6,7 @@ import org.bsc.langgraph4j.checkpoint.FileSystemSaver;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.hook.LogNodeHook;
 import org.bsc.langgraph4j.hook.WrapCallHookSubgraphAware;
-import org.bsc.langgraph4j.internal.node.Node;
+import org.bsc.langgraph4j.node.Node;
 import org.bsc.langgraph4j.serializer.StateSerializer;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;

@@ -1,8 +1,8 @@
-package org.bsc.langgraph4j.internal.edge;
+package org.bsc.langgraph4j.edge;
 
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
-import org.bsc.langgraph4j.internal.node.Node;
+import org.bsc.langgraph4j.node.Node;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.util.*;

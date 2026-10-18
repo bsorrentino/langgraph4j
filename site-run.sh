@@ -44,6 +44,45 @@ rsync -avm \
 --exclude='*' \
 langgraph4j-oracle-saver/ target/mkdocs/core/oracle-saver/
 
+# Copy MongoDB Checkpoint Saver docs
+rsync -avm \
+--include='*/' \
+--include='README.md' \
+--include='SAVER*.md' \
+--exclude='*' \
+langgraph4j-mongodb-saver/ target/mkdocs/core/mongodb-saver/
+
+# Copy Redis Checkpoint Saver docs
+rsync -avm \
+--include='*/' \
+--include='README.md' \
+--include='SAVER*.md' \
+--exclude='*' \
+langgraph4j-redis-saver/ target/mkdocs/core/redis-saver/
+
+# Copy DynamoDB Checkpoint Saver docs
+rsync -avm \
+--include='*/' \
+--include='README.md' \
+--include='SAVER*.md' \
+--exclude='*' \
+langgraph4j-dynamodb-saver/ target/mkdocs/core/dynamodb-saver/
+
+# Copy CockroachDB Checkpoint Saver docs
+rsync -avm \
+--include='*/' \
+--include='README.md' \
+--include='SAVER*.md' \
+--exclude='*' \
+langgraph4j-cockroachdb-saver/ target/mkdocs/core/cockroachdb-saver/
+
+# Copy Hazelcast Checkpoint Saver docs
+rsync -avm \
+--include='*/' \
+--include='README.md' \
+--include='SAVER*.md' \
+--exclude='*' \
+langgraph4j-hazelcast-saver/ target/mkdocs/core/hazelcast-saver/
 
 # Copy Spring AI docs
 rsync -avm \
