@@ -359,7 +359,7 @@ public class LG4JAnnotationTest implements LG4JLoggable {
                 };
             }
 
-            @EdgeAction( /*name = "route_to_node"*/ )
+            @EdgeCondition( /*name = "route_to_node"*/ )
             public Command route_to_node() {
                 return new Command("node_4" );
             }

@@ -16,7 +16,7 @@
  * <p>Related packages:</p>
  * <ul>
  *   <li>{@link org.bsc.langgraph4j.annotation} - Annotation-based definition of node and edge actions
- *       ({@link org.bsc.langgraph4j.annotation.NodeAction}, {@link org.bsc.langgraph4j.annotation.EdgeAction}).</li>
+ *       ({@link org.bsc.langgraph4j.annotation.NodeAction}, {@link EdgeCondition}).</li>
  * </ul>
  *
  * <p>Utility classes:</p>
@@ -30,3 +30,5 @@
  * </ul>
  */
 package org.bsc.langgraph4j;
+
+import org.bsc.langgraph4j.annotation.EdgeCondition;

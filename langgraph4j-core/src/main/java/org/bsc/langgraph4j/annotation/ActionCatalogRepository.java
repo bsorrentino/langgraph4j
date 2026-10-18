@@ -6,7 +6,6 @@ import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.action.Command;
 import org.bsc.langgraph4j.action.NodeActionWithConfig;
 import org.bsc.langgraph4j.edge.Edge;
-import org.bsc.langgraph4j.edge.EdgeCondition;
 import org.bsc.langgraph4j.edge.EdgeValue;
 import org.bsc.langgraph4j.node.Node;
 import org.bsc.langgraph4j.state.AgentState;
@@ -58,7 +57,7 @@ public interface ActionCatalogRepository {
         if (condition == null) {
             throw new IllegalArgumentException("edge action '%s' not found: ".formatted(actionId));
         }
-        return new Edge<>(sourceId, new EdgeValue<>( new EdgeCondition<>( condition, mappings)) );
+        return new Edge<>(sourceId, new EdgeValue<>( new org.bsc.langgraph4j.edge.EdgeCondition<>( condition, mappings)) );
     }
 
     /**
@@ -98,7 +97,7 @@ public interface ActionCatalogRepository {
 
     /**
      * Builds a repository from the public methods of the catalog annotated with
-     * {@link NodeAction} or {@link EdgeAction}.
+     * {@link NodeAction} or {@link EdgeCondition}.
      *
      * @param catalog the catalog instance
      * @param <Catalog> the catalog type
@@ -138,7 +137,7 @@ public interface ActionCatalogRepository {
                 continue;
             }
 
-            final var edgeAnnotation = method.getAnnotation(EdgeAction.class);
+            final var edgeAnnotation = method.getAnnotation(EdgeCondition.class);
             if (edgeAnnotation != null) {
                 if (edgeActions.containsKey(edgeAnnotation.name())) {
                     throw new IllegalArgumentException("duplicated edge action name: %s".formatted(edgeAnnotation.name()));
@@ -283,6 +282,9 @@ public interface ActionCatalogRepository {
                         }
                         if (res instanceof Command command) {
                             return completedFuture(command);
+                        }
+                        if (res instanceof String gotoNode) {
+                            return completedFuture(new Command(gotoNode));
                         }
                         return unsupportedReturn.apply(res.getClass());
                     });

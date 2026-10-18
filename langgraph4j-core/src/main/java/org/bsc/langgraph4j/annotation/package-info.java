@@ -9,7 +9,7 @@
  * <ul>
  *   <li>{@link org.bsc.langgraph4j.annotation.ActionCatalog} - Marker interface for classes that declare actions.</li>
  *   <li>{@link org.bsc.langgraph4j.annotation.NodeAction} - Marks a method as a node action.</li>
- *   <li>{@link org.bsc.langgraph4j.annotation.EdgeAction} - Marks a method as a conditional-edge action.</li>
+ *   <li>{@link EdgeCondition} - Marks a method as a conditional-edge action.</li>
  *   <li>{@link org.bsc.langgraph4j.annotation.ActionCatalogRepository} - Builds node and edge actions from an annotated catalog.</li>
  * </ul>
  *
