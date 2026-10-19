@@ -236,7 +236,7 @@ public final class CompiledGraph<State extends AgentState> implements GraphDefin
      * Update the state of the graph with the given values.
      * If asNode is given, it will be used to determine the next node to run.
      * If not given, the next node will be determined by the state graph.
-     * 
+     *
      * @param config the RunnableConfig containg the graph state
      * @param values the values to be updated
      * @param asNode the node id to be used for the next node. can be null
@@ -799,7 +799,14 @@ public final class CompiledGraph<State extends AgentState> implements GraphDefin
                                 }
 
                                 if( embedResult.isEmpty() ) {
-                                    context.setCurrentState(AgentState.updateState(context.currentState(), partial, stateGraph.getChannels()));
+                                    // A parallel node returns the full merged state (not a delta),
+                                    // so it replaces the current state instead of being merged as a
+                                    // delta (which would apply non-idempotent reducers twice).
+                                    if (action instanceof ParallelNode.AsyncParallelNodeAction) {
+                                        context.setCurrentState(partial);
+                                    } else {
+                                        context.setCurrentState(AgentState.updateState(context.currentState(), partial, stateGraph.getChannels()));
+                                    }
                                 }
 
                                 if (compileConfig.interruptBeforeEdge() && compileConfig.interruptsAfter().contains(context.currentNodeId())) {
