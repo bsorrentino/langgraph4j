@@ -5,8 +5,10 @@ import org.bsc.langgraph4j.GraphResult;
 import org.bsc.langgraph4j.NodeOutput;
 import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
+import org.bsc.langgraph4j.action.SubCompiledGraphNodeAction;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
+import org.bsc.langgraph4j.subgraph.SubGraphOutput;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -36,12 +38,38 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
                         return result;
                     })
                     .thenApply(list -> {
-                        Map<String, Object> result = initPartialState;
-                        for (var output : list) {
-                            result = AgentState.updateState(result, output.state().data(), channels);
+                        // A subgraph branch yields full-state snapshots. Merging every snapshot
+                        // would apply non-idempotent reducers multiple times, so its contribution
+                        // is the final state itself (apply() merges it via key replacement).
+                        if (!list.isEmpty() && list.get(0) instanceof SubGraphOutput) {
+                            return subgraphFinalState(generator);
                         }
-                        return mergeGeneratorResultValue(generator, result);
+                        // Chunk outputs are progress notifications: their state is the branch's
+                        // starting state, not a delta. Like the serial path (embedGenerator),
+                        // only the generator's final result value contributes to the branch delta.
+                        // Merging every chunk's full state would turn the branch result into a
+                        // full-state map, which apply() would then merge as a delta - reverting
+                        // sibling branches' writes and double-applying non-idempotent reducers.
+                        return mergeGeneratorResultValue(generator, initPartialState);
                     });
+        }
+
+        // Extracts the final full state produced by a subgraph branch, without merging
+        // intermediate snapshots (which would double-apply non-idempotent reducers).
+        // Returns null if the branch produced no result (empty/cancelled).
+        private Map<String, Object> subgraphFinalState(AsyncGenerator<NodeOutput<State>> generator) {
+            final var result = GraphResult.from(generator);
+
+            if (result.isEmpty() || result.isCancelled()) {
+                return null;
+            }
+            if (result.isStateDataOrCheckpointSaverTag()) {
+                return result.asStateDataOrLastCheckpointStateData();
+            }
+            if (result.isInterruptionMetadata()) {
+                throw new UnsupportedOperationException("Interruption metadata cannot be returned from a parallel branch streaming generator");
+            }
+            throw new IllegalArgumentException("Unsupported parallel branch streaming result type: %s".formatted(result.type()));
         }
 
         @SuppressWarnings("unchecked")
@@ -126,18 +154,52 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
                     .map(executor -> (Function<AsyncNodeActionWithConfig<State>, CompletableFuture<Map<String, Object>>>) action -> evalNodeActionAsync(action, state, config, executor))
                     .orElseGet(() -> (Function<AsyncNodeActionWithConfig<State>, CompletableFuture<Map<String, Object>>>) action -> evalNodeActionSync(action, state, config));
 
-            @SuppressWarnings("unchecked") final CompletableFuture<Map<String, Object>>[] actionsArray = actions.stream()
-                    .map(evalNodeAction)
+            // Track which branches are subgraphs: they produce a full final state (not a delta),
+            // so their results must REPLACE changed keys instead of being merged as deltas
+            // (merging a full state as a delta would apply non-idempotent reducers twice).
+            record Branch(boolean isSubgraph, CompletableFuture<Map<String, Object>> future) {}
+
+            final var branches = actions.stream()
+                    .map(action -> new Branch(
+                            action instanceof SubCompiledGraphNodeAction,
+                            evalNodeAction.apply(action)))
+                    .toList();
+
+            @SuppressWarnings("unchecked") final var futuresArray = branches.stream()
+                    .map(Branch::future)
                     .toArray(CompletableFuture[]::new);
 
-            return allOfFailFast(config, actionsArray).thenApply(v ->
-                    Stream.of(actionsArray)
-                            .map(CompletableFuture::join)
-                            .reduce(state.data(),
-                                    (result, actionResult) ->
-                                            AgentState.updateState(result, actionResult, channels)
-                                    /* , (f1, f2) -> AgentState.updateState( f1, f2, channels) )  */)
-            );
+            return allOfFailFast(config, futuresArray).thenApply(v -> {
+                // Deterministic merge order: subgraph branches first (via key replacement),
+                // then regular branches (via channel merge of deltas). This way a regular
+                // branch's delta is applied on top of subgraph results, not overwritten by them.
+                final var parentState = state.data();
+                final Map<String, Object> result = new HashMap<>(parentState);
+
+                for (var branch : branches) {
+                    if (!branch.isSubgraph()) continue;
+                    var finalState = branch.future().join();
+                    if (finalState == null) continue; // cancelled/empty branch: no contribution
+                    // Replace keys the subgraph changed; drop keys it removed.
+                    for (var entry : finalState.entrySet()) {
+                        if (!Objects.equals(entry.getValue(), parentState.get(entry.getKey()))) {
+                            result.put(entry.getKey(), entry.getValue());
+                        }
+                    }
+                    for (var key : parentState.keySet()) {
+                        if (!finalState.containsKey(key)) {
+                            result.remove(key);
+                        }
+                    }
+                }
+
+                var merged = result;
+                for (var branch : branches) {
+                    if (branch.isSubgraph()) continue;
+                    merged = AgentState.updateState(merged, branch.future().join(), channels);
+                }
+                return merged;
+            });
 
         }
     }
