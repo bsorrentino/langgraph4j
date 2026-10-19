@@ -50,6 +50,8 @@ public abstract class GsonStateSerializer<State extends AgentState> extends Plai
             for( String key : transientAttributeSet ) {
                 if( serializedData.containsKey(key) ) {
                     transientData.put(key, serializedData.remove(key));
+                } else {
+                    transientData.remove(key);
                 }
             }
         }

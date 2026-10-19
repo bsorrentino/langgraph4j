@@ -68,6 +68,8 @@ public abstract class JacksonStateSerializer <State extends AgentState> extends 
             for( String key : transientAttributeSet ) {
                 if( serializedData.containsKey(key) ) {
                     transientData.put(key, serializedData.remove(key));
+                } else {
+                    transientData.remove(key);
                 }
             }
         }
