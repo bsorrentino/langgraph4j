@@ -2,11 +2,14 @@ package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.action.EdgeAction;
 import org.bsc.langgraph4j.action.NodeAction;
+import org.bsc.langgraph4j.annotation.ActionCatalog;
+import org.bsc.langgraph4j.annotation.ActionCatalogRepository;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.StateSnapshot;
+import org.bsc.langgraph4j.utils.EdgeMappings;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -41,32 +44,41 @@ public class LG4JMemorySaverTest
 
     }
 
-    NodeAction<State> agent_whether = state -> {
-        String lastMessage = state.lastMessage().orElseThrow( () -> new IllegalStateException("No last message!") );
+    static final ActionCatalog catalog = new ActionCatalog() {
 
-        if( lastMessage.contains( "temperature")) {
-            return Map.of("messages", "whether in Naples is sunny");
+        @org.bsc.langgraph4j.annotation.NodeAction(name = "agent_whether")
+        public Map<String,Object> agentWhether( State state ) {
+                String lastMessage = state.lastMessage()
+                        .orElseThrow( () -> new IllegalStateException("No last message!") );
+
+                if( lastMessage.contains( "temperature")) {
+                    return Map.of("messages", "whether in Naples is sunny");
+                }
+                if( lastMessage.contains( "whether")) {
+                    return Map.of("messages", "tool_calls");
+                }
+                if( lastMessage.contains( "bartolo")) {
+                    return Map.of("messages", "Hi bartolo, nice to meet you too! How can I assist you today?");
+                }
+                if(state.messages().stream().anyMatch(m -> m.contains("bartolo"))) {
+                    return Map.of("messages", "Hi, bartolo welcome back?");
+                }
+                throw new IllegalStateException( "unknown message!" );
+            }
+
+        @org.bsc.langgraph4j.annotation.NodeAction(name = "tool_whether")
+        public Map<String,Object> toolWhether( State state ) {
+            return Map.of( "messages", "temperature in Napoli is 30 degree");
         }
-        if( lastMessage.contains( "whether")) {
-            return Map.of("messages", "tool_calls");
+
+        @org.bsc.langgraph4j.annotation.EdgeCondition(name = "shouldContinue_whether")
+        public String shouldContinueWhether( State state ) {
+            return state.lastMessage().filter(m -> m.equals("tool_calls"))
+                    .map(m -> "tools")
+                    .orElse(END);
         }
-        if( lastMessage.contains( "bartolo")) {
-            return Map.of("messages", "Hi bartolo, nice to meet you too! How can I assist you today?");
-        }
-        if(state.messages().stream().anyMatch(m -> m.contains("bartolo"))) {
-            return Map.of("messages", "Hi, bartolo welcome back?");
-        }
-        throw new IllegalStateException( "unknown message!" );
     };
 
-    // Simulate LLM agent
-    NodeAction<State> tool_whether = state ->
-            Map.of( "messages", "temperature in Napoli is 30 degree");
-
-    EdgeAction<State> shouldContinue_whether = state ->
-            state.lastMessage().filter( m -> m.equals("tool_calls")  )
-                    .map( m -> "tools" )
-                    .orElse(END);
 
     @BeforeAll
     public static void initLogging() throws IOException {
@@ -251,13 +263,18 @@ public class LG4JMemorySaverTest
     @Test
     public void testViewAndUpdatePastGraphState() throws Exception {
 
+        final var repo = ActionCatalogRepository.of(catalog);
+
         var workflow = new StateGraph<>(State.SCHEMA, State::new)
-                .addNode("agent", node_async(agent_whether) )
-                .addNode("tools", node_async(tool_whether) )
+                .addNode("agent", repo.nodeAction("agent_whether") )
+                .addNode("tools", repo.nodeAction("tool_whether") )
                 .addEdge(START, "agent")
-                .addConditionalEdges("agent",
-                        edge_async(shouldContinue_whether),
-                        Map.of("tools", "tools", END, END))
+                .add( repo.edge("agent",
+                        "shouldContinue_whether",
+                        EdgeMappings.builder()
+                                .to("tools")
+                                .toEND()
+                                .build()))
                 .addEdge("tools", "agent");
 
 
@@ -331,14 +348,18 @@ public class LG4JMemorySaverTest
 
     @Test
     public void testPauseAndUpdatePastGraphState() throws Exception {
+        final var repo = ActionCatalogRepository.of(catalog);
 
         var workflow = new StateGraph<>(State.SCHEMA, State::new)
-                .addNode("agent", node_async(agent_whether) )
-                .addNode("tools", node_async(tool_whether) )
+                .addNode("agent", repo.nodeAction("agent_whether") )
+                .addNode("tools", repo.nodeAction("tool_whether") )
                 .addEdge(START, "agent")
-                .addConditionalEdges("agent",
-                        edge_async(shouldContinue_whether),
-                        Map.of("tools", "tools", END, END))
+                .add( repo.edge("agent",
+                        "shouldContinue_whether",
+                        EdgeMappings.builder()
+                                .to("tools")
+                                .toEND()
+                                .build()))
                 .addEdge("tools", "agent");
 
         var saver = new MemorySaver();
