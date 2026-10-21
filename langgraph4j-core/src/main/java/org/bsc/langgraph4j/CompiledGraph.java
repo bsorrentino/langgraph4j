@@ -7,12 +7,12 @@ import org.bsc.async.v5.AsyncGeneratorFlow;
 import org.bsc.langgraph4j.action.*;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
-import org.bsc.langgraph4j.internal.edge.Edge;
-import org.bsc.langgraph4j.internal.edge.EdgeCondition;
-import org.bsc.langgraph4j.internal.edge.EdgeValue;
+import org.bsc.langgraph4j.edge.Edge;
+import org.bsc.langgraph4j.edge.EdgeCondition;
+import org.bsc.langgraph4j.edge.EdgeValue;
 import org.bsc.langgraph4j.action.SubCompiledGraphNodeAction;
-import org.bsc.langgraph4j.internal.node.Node;
-import org.bsc.langgraph4j.internal.node.ParallelNode;
+import org.bsc.langgraph4j.node.Node;
+import org.bsc.langgraph4j.node.ParallelNode;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 import org.bsc.langgraph4j.state.StateSnapshot;
@@ -268,7 +268,7 @@ public final class CompiledGraph<State extends AgentState> implements GraphDefin
                 .checkPointId( branchCheckpoint.id() )
                 .nextNode( nextNodeId );
 
-        if( stateGraph.nodes.hasSubGraphs() ) {
+        if( stateGraph.nodes.isSubgraphNode( branchCheckpoint.nextNodeId() ) ) {
             runnableConfigBuilder.putMetadata( RunnableConfig.SUBGRAPH_RESUME_UPDATE_DATA, values ) ;
         }
 
@@ -764,9 +764,7 @@ public final class CompiledGraph<State extends AgentState> implements GraphDefin
                                             partialStateWithoutGenerator,
                                             stateGraph.getChannels());
 
-                                    final var intermediateState = AgentState.updateState(context.currentState(),
-                                            generatorStateMerged,
-                                            stateGraph.getChannels());
+                                    final var intermediateState = (action instanceof SubCompiledGraphNodeAction) ? generatorStateMerged : AgentState.updateState(context.currentState(), generatorStateMerged, stateGraph.getChannels());
 
                                     context.setCurrentState(intermediateState);
 
@@ -1182,7 +1180,8 @@ public final class CompiledGraph<State extends AgentState> implements GraphDefin
                 // Process nodes
                 //
                 sgWorkflow.nodes.elements.stream()
-                        .map( n -> n.withIdUpdated( subgraphNode::formatId) )
+                        .map( n -> new Node<>( subgraphNode.formatId(n.id()), n.actionFactory()) )
+                        //.map( n -> n.withIdUpdated( subgraphNode::formatId) )
                         .forEach(nodes.elements::add);
 
             }

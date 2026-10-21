@@ -2,6 +2,97 @@
 
 
 
+<!-- "name: v1.9.6" is a release tag -->
+
+## [v1.9.6](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.9.6) (2026-10-18)
+
+### Features
+
+ *  **StateGraph**  add methods from action catalog created by annotated methods ([898274ff34a3f6e](https://github.com/bsorrentino/langgraph4j/commit/898274ff34a3f6eb6b72fd0ddb53a016e15b3f28))
+     > - remove deprecated methods
+     > work on #440
+
+ *  **annotation**  add ActionCatalog tag interface defining action catalog ([f9e3513f4966947](https://github.com/bsorrentino/langgraph4j/commit/f9e3513f4966947de7b1d99b9851ea8c7d6df75f))
+     > work on #440
+
+ *  **annotation**  add ActionCatalogRepository interface for managing node and edge actions ([75217aa6d117576](https://github.com/bsorrentino/langgraph4j/commit/75217aa6d117576718f85e173b242eedebfecfa6))
+     > work on #440
+
+ *  **annotation**  add EdgeAction annotation to decorate methods implementing edge conditional action ([37e332efb840a27](https://github.com/bsorrentino/langgraph4j/commit/37e332efb840a27c32c6d0b79859976bd226afb6))
+     > work on #440
+
+ *  **annotation**  add NodeAction annotation decorate method implementing node action ([0e54fd2e9a0d1b4](https://github.com/bsorrentino/langgraph4j/commit/0e54fd2e9a0d1b4fcc064da3a571e9eb93171612))
+     > work on #440
+
+ *  **mongodb-saver**  add MongoDB checkpoint saver module ([2660379aea3678d](https://github.com/bsorrentino/langgraph4j/commit/2660379aea3678d5886389ca3a8d622191ef48fe))
+
+
+### Bug Fixes
+
+ -  **core**  apply updateState values once on resume; replace parent state with subgraph result ([2b292acfeec9674](https://github.com/bsorrentino/langgraph4j/commit/2b292acfeec9674ae3c3549baf282bf4e94a6172))
+
+ -  **mongodb-saver**  harden release, interruption and serialization paths ([e0f0e52486e553a](https://github.com/bsorrentino/langgraph4j/commit/e0f0e52486e553a53e685bc1d5119d7099d04256))
+
+ -  **core**  preserve inline dashes in skill front matter ([93a30e088869163](https://github.com/bsorrentino/langgraph4j/commit/93a30e0888691635fb5428e5e4fbc7ed951711f8))
+
+
+### Refactor
+
+ -  rename EdgeAction to EdgeCondition and update references ([042fb6772acf1d9](https://github.com/bsorrentino/langgraph4j/commit/042fb6772acf1d9667159071a529ce7d031edc8f))
+
+ -  reorganize package node and edge structure moving out from  internal one and update related imports ([123a214ddacbfa9](https://github.com/bsorrentino/langgraph4j/commit/123a214ddacbfa93e7ef58b96b197b62b67a1420))
+    > work on #440
+
+
+### Test
+
+ -  add UpdateStateResumeTest for updateState-on-resume semantics ([cca55f69ee428b8](https://github.com/bsorrentino/langgraph4j/commit/cca55f69ee428b8be345f38441f26977fb271aaa))
+    > This test class contains regression tests for the updateState method in CompiledGraph, ensuring correct behavior when resuming into regular and subgraph nodes.
+
+ -  flip Issue260Test to assert fixed behavior ([e79cd56a1b90e87](https://github.com/bsorrentino/langgraph4j/commit/e79cd56a1b90e878da25ca76998075a65b9d9470))
+
+ -  update SkillParserTest to use multiline string literals for descriptions ([08a5a5efecdc287](https://github.com/bsorrentino/langgraph4j/commit/08a5a5efecdc287ef86a72ec1074ba6e23b0e4c7))
+
+ -  **annotation**  add unit tests for ActionCatalog and NodeAction functionality ([947765c5302ebb4](https://github.com/bsorrentino/langgraph4j/commit/947765c5302ebb462299fa0510fc1400a3518a88))
+    > work on #440
+
+
+### Documentation
+
+ -  add documentation for Redis, DynamoDB, CockroachDB, and Hazelcast Checkpoint Savers ([607b9854211f01b](https://github.com/bsorrentino/langgraph4j/commit/607b9854211f01b3eae641e12399d43939c551d5))
+
+ -  **dynamodb-saver**  add  README ([d78e817015650df](https://github.com/bsorrentino/langgraph4j/commit/d78e817015650df3ebd4d0d4320ca9e8e509ad9a))
+
+ -  **cockroachdb-saver**  add README ([4958cd6a092be64](https://github.com/bsorrentino/langgraph4j/commit/4958cd6a092be64c6eec76ad6f83772822670ee4))
+
+ -  **annotation**  add @since 1.9.6 annotation ([c6221e44a0a33a3](https://github.com/bsorrentino/langgraph4j/commit/c6221e44a0a33a3fa4ca02e8106fd994b993edab))
+
+ -  add documentation for annotations defining actions on graph nodes and edges ([b85d3b6b3696e10](https://github.com/bsorrentino/langgraph4j/commit/b85d3b6b3696e103130850953933d0aa88c7e0e3))
+
+ -  update package documentation ([3fc39f4c8d77cdd](https://github.com/bsorrentino/langgraph4j/commit/3fc39f4c8d77cdd05aa5c3fcd64454c0af8fb743))
+
+ -  **annotation**  add package documentation ([24b075ec016d450](https://github.com/bsorrentino/langgraph4j/commit/24b075ec016d4502562cefb56a0aafe68b78412b))
+
+ -  **annotation**  add documentation for ActionCatalog and related interfaces ([f3100d0ff913ede](https://github.com/bsorrentino/langgraph4j/commit/f3100d0ff913ede0094e33309b3fe38d3c22a5fa))
+
+ -  **mongodb-saver**  add the saver to the checkpoint saver site nav ([473e3526d9b08c8](https://github.com/bsorrentino/langgraph4j/commit/473e3526d9b08c82ed33f28f601895d93eddc0b6))
+
+ -  update changelog ([cc56ee6d326ba46](https://github.com/bsorrentino/langgraph4j/commit/cc56ee6d326ba462bb7cd3cb6e902fe410564f36))
+
+
+### ALM
+
+ -  bump to next version 1.9.6 ([388288c04a74d76](https://github.com/bsorrentino/langgraph4j/commit/388288c04a74d768c863c593d048715ebe312f46))
+
+ -  **mongodd-saver**  update langgraph4j-parent version to 1.9-SNAPSHOT ([e59a2c825fb956c](https://github.com/bsorrentino/langgraph4j/commit/e59a2c825fb956c2203f4db6b349c2329426e2f3))
+
+ -  bump to next dev version 1.9-SNAPSHOT ([9ab5c7dd0d2976e](https://github.com/bsorrentino/langgraph4j/commit/9ab5c7dd0d2976ec3cd41a510562a9311d03b0c6))
+
+
+
+
+
+
 <!-- "name: v1.9.5" is a release tag -->
 
 ## [v1.9.5](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.9.5) (2026-10-13)
