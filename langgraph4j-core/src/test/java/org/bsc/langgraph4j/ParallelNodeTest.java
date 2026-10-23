@@ -7,7 +7,7 @@ import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.action.InterruptionMetadata;
 import org.bsc.langgraph4j.checkpoint.BaseCheckpointSaver;
 import org.bsc.langgraph4j.checkpoint.Checkpoint;
-import org.bsc.langgraph4j.internal.node.ParallelNode;
+import org.bsc.langgraph4j.node.ParallelNode;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.Channels;

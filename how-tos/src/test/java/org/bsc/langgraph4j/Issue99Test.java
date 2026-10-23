@@ -1,6 +1,7 @@
 package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.action.NodeAction;
+import org.bsc.langgraph4j.node.SubGraphNode;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 import org.junit.jupiter.api.Test;

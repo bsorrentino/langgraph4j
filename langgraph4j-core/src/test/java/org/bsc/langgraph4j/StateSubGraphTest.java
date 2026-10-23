@@ -7,6 +7,7 @@ import org.bsc.langgraph4j.action.Command;
 import org.bsc.langgraph4j.checkpoint.MemorySaver;
 import org.bsc.langgraph4j.hook.EdgeHook;
 import org.bsc.langgraph4j.hook.NodeHook;
+import org.bsc.langgraph4j.node.SubGraphNode;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.prebuilt.MessagesStateGraph;
 import org.bsc.langgraph4j.utils.EdgeMappings;
