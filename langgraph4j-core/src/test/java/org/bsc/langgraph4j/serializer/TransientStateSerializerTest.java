@@ -1,5 +1,8 @@
 package org.bsc.langgraph4j.serializer;
 
+import org.bsc.langgraph4j.GraphInput;
+import org.bsc.langgraph4j.GraphResult;
+import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.serializer.plain_text.gson.GsonStateSerializer;
 import org.bsc.langgraph4j.serializer.plain_text.jackson.JacksonStateSerializer;
@@ -60,17 +63,25 @@ class TransientStateSerializerTest {
     void removedTransientAttributeStaysRemovedInTheNextNode(StateSerializer<AgentState> serializer) throws Exception {
         serializer.declareTransientAttributes("transient");
         var graph = new StateGraph<>(serializer)
-                .addNode("remove", node_async(state -> Map.of("transient", AgentState.MARK_FOR_REMOVAL)))
-                .addNode("observe", node_async(state -> Map.of("visible", state.data().containsKey("transient"))))
+                .addNode("remove", node_async(state ->
+                        Map.of("transient", AgentState.MARK_FOR_REMOVAL)))
+                .addNode("observe", node_async(state ->
+                        Map.of("visible", state.data().containsKey("transient"))))
                 .addEdge(START, "remove")
                 .addEdge("remove", "observe")
                 .addEdge("observe", END)
                 .compile();
 
-        var result = graph.invoke(Map.of("transient", new Object(), "keep", "value")).orElseThrow();
+        final var input = Map.of("transient", new Object(), "keep", "value");
 
-        assertEquals(false, result.data().get("visible"));
-        assertFalse(result.data().containsKey("transient"));
-        assertEquals("value", result.data().get("keep"));
+        graph.stream( GraphInput.args(input), RunnableConfig.empty())
+                .toCompletableFuture()
+                .thenApply( GraphResult::from )
+                .thenAccept( result -> {
+                    final var stateData = result.asStateDataOrLastCheckpointStateData();
+                    assertEquals(false, stateData.get("visible"));
+                    assertFalse(stateData.containsKey("transient"));
+                    assertEquals("value", stateData.get("keep"));
+                });
     }
 }
