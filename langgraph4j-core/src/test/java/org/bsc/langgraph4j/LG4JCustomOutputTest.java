@@ -1,19 +1,19 @@
 package org.bsc.langgraph4j;
 
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
+import org.bsc.langgraph4j.annotation.ActionCatalog;
+import org.bsc.langgraph4j.annotation.ActionCatalogRepository;
+import org.bsc.langgraph4j.annotation.NodeAction;
 import org.bsc.langgraph4j.hook.NodeHook;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.Temporal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import static java.util.concurrent.CompletableFuture.completedFuture;
-import static java.util.concurrent.CompletableFuture.failedFuture;
 import static org.bsc.langgraph4j.GraphDefinition.END;
 import static org.bsc.langgraph4j.GraphDefinition.START;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -65,27 +65,29 @@ public class LG4JCustomOutputTest implements LG4JTestUtil {
 
     }
 
-    @Test
-    void testOneNodeWithDispatchAsyncCustomOutput() throws Exception {
+    final ActionCatalog actionCatalog = new ActionCatalog() {
 
-        final AsyncNodeActionWithConfig<State> nodeWithCustomOutput = (state, config) -> {
+        @NodeAction
+        public Map<String, Object> nodeWithCustomOutput( State state, RunnableConfig config) throws  Exception {
 
             config.<State, CustomOutput>customDispatcher()
                     .dispatchAsync(CustomOutput.of("A.START", state));
 
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return failedFuture(e);
-            }
+            Thread.sleep(1000);
 
-            return completedFuture(Map.of("messages", "A"));
-        };
+            return Map.of("messages", "A");
+        }
 
+    };
+
+    @Test
+    void testOneNodeWithDispatchAsyncCustomOutput() throws Exception {
+
+        final var repo = ActionCatalogRepository.of(actionCatalog);
 
         final var graph = new StateGraph<>(State.SCHEMA, State::new)
                 .addWrapCallNodeHook(new ElapsedNodeHook())
-                .addNode("A", nodeWithCustomOutput)
+                .addNode("A", repo.nodeAction("nodeWithCustomOutput"))
                 .addEdge(START, "A")
                 .addEdge("A", END)
                 .compile(CompileConfig.builder().build());
@@ -126,25 +128,11 @@ public class LG4JCustomOutputTest implements LG4JTestUtil {
 
     @Test
     void testOneNodeWithDispatchSyncCustomOutput() throws Exception {
-        final AsyncNodeActionWithConfig<State> nodeWithCustomOutput = (state, config) -> {
-
-            try {
-                config.<State, CustomOutput>customDispatcher()
-                        .dispatchSync(CustomOutput.of("A.START", state));
-
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                return failedFuture(e);
-            }
-
-            return completedFuture(Map.of("messages", "A"));
-
-        };
-
+        final var repo = ActionCatalogRepository.of(actionCatalog);
 
         final var graph = new StateGraph<>(State.SCHEMA, State::new)
                 .addWrapCallNodeHook(new ElapsedNodeHook())
-                .addNode("A", nodeWithCustomOutput)
+                .addNode("A", repo.nodeAction("nodeWithCustomOutput"))
                 .addEdge(START, "A")
                 .addEdge("A", END)
                 .compile(CompileConfig.builder().build());
