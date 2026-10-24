@@ -8,8 +8,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 
 /**
  * Represents a checkpoint of an agent state.
@@ -25,15 +25,14 @@ import static java.util.Objects.requireNonNull;
  * @since 1.0.0
  */
 public record Checkpoint(
-        String id,
-        Map<String, Object> state,
-        String nodeId,
-        String nextNodeId,
-        Instant createdAt
+        @NonNull String id,
+        @NonNull Map<String, Object> state,
+        @NonNull String nodeId,
+        @NonNull String nextNodeId,
+        @NonNull Instant createdAt
 ) {
 
     public Checkpoint {
-
         requireNonNull( id, "id cannot be null" );
         requireNonNull( state, "state cannot be null" );
         requireNonNull( nodeId, "nodeId cannot be null" );
@@ -100,7 +99,7 @@ public record Checkpoint(
         private Map<String,Object> state = null;
         private String nodeId = null ;
         private String nextNodeId = null;
-        private Instant createdAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+        private Instant createdAt = null;
 
         public Builder id( String id ) {
             this.id = id;
@@ -125,15 +124,28 @@ public record Checkpoint(
 
         /**
          * Set the creation date of the checkpoint.
-         * It defaults to {@link Instant#now()}, truncated to millisecond
-         * precision, if not provided.
+         * Warning: The Instant by default {@link Instant#now()} use nanoseconds precision.
+         * This could have side effects on your Checkpoint saver underlying storage.
+         * Just in case use {@code truncatedTo(ChronoUnit.MILLIS)} to truncated to millisecond precision.
          *
-         * @param createdAt the creation date (cannot be null)
+         * @param createdAt the creation date
          * @return this builder
-         * @since 1.9.6
+         * @since 1.9.7
          */
         public Builder createdAt( Instant createdAt ) {
-            this.createdAt = requireNonNull( createdAt, "createdAt cannot be null" );
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        /**
+         * Set the creation date of the checkpoint using a {@link Date}.
+         *
+         * @param createdAt the creation date
+         * @return this builder
+         * @since 1.9.7
+         */
+        public Builder createdAt( Date createdAt ) {
+            this.createdAt = createdAt != null ? createdAt.toInstant() : null;
             return this;
         }
 
@@ -142,7 +154,8 @@ public record Checkpoint(
                                     state,
                                     nodeId,
                                     nextNodeId,
-                                    createdAt );
+                                    ofNullable(createdAt)
+                                            .orElseGet( () -> Instant.now().truncatedTo(ChronoUnit.MILLIS) ) );
         }
     }
 
