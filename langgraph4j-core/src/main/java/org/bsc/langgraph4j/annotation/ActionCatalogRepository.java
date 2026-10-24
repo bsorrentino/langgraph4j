@@ -98,6 +98,25 @@ public interface ActionCatalogRepository {
     }
 
     /**
+     * Creates a node with the given id and a registered node action.
+     *
+     * @param id       the node id
+     * @param actionId the node action name
+     * @param <State>  the agent state type
+     * @return the node
+     * @throws IllegalArgumentException if the node action is not found
+     * @since 1.9.7
+     */
+    default <State extends AgentState> Node<State> node(String id, String actionId)  {
+        @SuppressWarnings("unchecked")
+        final var action = (Node.ActionFactory<State>)nodeActions().get(actionId);
+        if (action == null) {
+            throw new IllegalArgumentException("node action '%s' not found: ".formatted(actionId));
+        }
+        return new Node<>(id, action);
+    }
+
+    /**
      * Builds a repository from the public methods of the catalog annotated with
      * {@link NodeAction} or {@link EdgeCondition}.
      *

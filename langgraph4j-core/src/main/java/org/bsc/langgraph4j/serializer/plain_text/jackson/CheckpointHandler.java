@@ -11,6 +11,7 @@ import org.bsc.langgraph4j.checkpoint.Checkpoint;
 import org.bsc.langgraph4j.state.AgentState;
 
 import java.io.IOException;
+import java.time.Instant;
 
 public record CheckpointHandler(StdSerializer<Checkpoint> serializer, StdDeserializer<Checkpoint>  deserializer )  {
 
@@ -33,6 +34,7 @@ public record CheckpointHandler(StdSerializer<Checkpoint> serializer, StdDeseria
             gen.writeStringField( "id", cp.id());
             gen.writeStringField("nodeId", cp.nodeId());
             gen.writeStringField("nextNodeId", cp.nextNodeId());
+            gen.writeStringField("createdAt", cp.createdAt().toString());
             gen.writeFieldName("state");
             gen.writeRawValue( stateSerializer.writeDataAsString( cp.state()) );
             gen.writeEndObject();
@@ -56,6 +58,12 @@ public record CheckpointHandler(StdSerializer<Checkpoint> serializer, StdDeseria
             resultBuilder.id( root.get("id").asText() );
             resultBuilder.nodeId( root.get("nodeId").asText() );
             resultBuilder.nextNodeId( root.get("nextNodeId").asText() );
+
+            // createdAt is optional to keep backward compatibility with payloads written before its introduction
+            final var createdAt = root.get("createdAt");
+            if( createdAt != null && !createdAt.isNull() ) {
+                resultBuilder.createdAt( Instant.parse( createdAt.asText() ) );
+            }
 
             final var stateJson = root.get("state").toString();
             resultBuilder.state( stateSerializer.readDataFromString( stateJson ) );
