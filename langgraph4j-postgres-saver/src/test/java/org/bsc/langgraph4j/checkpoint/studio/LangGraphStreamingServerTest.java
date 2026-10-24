@@ -6,7 +6,7 @@ import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.*;
 import org.bsc.langgraph4j.checkpoint.CustomPostgreSQLWaitStrategy;
 import org.bsc.langgraph4j.checkpoint.PostgresSaver;
-import org.bsc.langgraph4j.internal.node.Node;
+import org.bsc.langgraph4j.node.Node;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 import org.bsc.langgraph4j.serializer.std.ObjectStreamStateSerializer;
 import org.bsc.langgraph4j.state.AgentState;

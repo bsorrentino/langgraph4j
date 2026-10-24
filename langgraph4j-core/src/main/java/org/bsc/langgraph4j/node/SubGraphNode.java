@@ -1,5 +1,6 @@
-package org.bsc.langgraph4j;
+package org.bsc.langgraph4j.node;
 
+import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.state.AgentState;
 
 import static java.lang.String.format;

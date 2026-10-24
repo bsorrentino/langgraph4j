@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.internal.node;
+package org.bsc.langgraph4j.node;
 
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
@@ -65,9 +65,6 @@ public class Node<State extends AgentState> {
         return false;
     }
 
-    public Node<State> withIdUpdated( Function<String,String> newId ) {
-        return new Node<>( newId.apply( id), actionFactory );
-    }
 
     public void validate() throws GraphStateException {
         if( Objects.equals(id, StateGraph.END) || Objects.equals(id, StateGraph.START) ) {

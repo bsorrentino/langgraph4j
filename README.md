@@ -16,7 +16,7 @@ Take a look to [What's new in release 1.9](https://langgraph4j.github.io/langgra
 
 | Date         | Release        | info
 |--------------|----------------| ---
-| Oct 13, 2026 | `1.9.5` | last release
+| Oct 18, 2026 | `1.9.6` | last release
 
 
 | Release line | Java baseline | Notes |
@@ -122,6 +122,7 @@ Useful starting points for persistence:
 - [`langgraph4j-mysql-saver/README.md`](langgraph4j-mysql-saver/README.md) for MySQL-backed checkpoints
 - [`langgraph4j-postgres-saver/README.md`](langgraph4j-postgres-saver/README.md) for PostgreSQL-backed checkpoints
 - [`langgraph4j-redis-saver/README.md`](langgraph4j-redis-saver/README.md) for Redis-backed checkpoints
+- [`langgraph4j-mongodb-saver/README.md`](langgraph4j-mongodb-saver/README.md) for MongoDB-backed checkpoints
 
 If you only want to see the minimal integration point first, look for `CompileConfig.builder().checkpointSaver(...)` in the saver module examples before diving into the full storage details.
 
@@ -137,6 +138,7 @@ langgraph4j/
 ├── langgraph4j-postgres-saver           # LangGraph4j persistent checkpoint saver based on PostgresSQL
 ├── langgraph4j-dynamodb-saver           # LangGraph4j persistent checkpoint saver based on Amazon DynamoDB
 ├── langgraph4j-cockroachdb-saver        # LangGraph4j persistent checkpoint saver based on CockroachDB
+├── langgraph4j-mongodb-saver            # LangGraph4j persistent checkpoint saver based on MongoDB
 ├── langgraph4j-redis-saver              # LangGraph4j persistent checkpoint saver based on Redis
 ├── langgraph4j-hazelcast-saver          # LangGraph4j persistent checkpoint saver based on Hazelcast
 ├── langgraph4j-sqlite-saver             # LangGraph4j persistent checkpoint saver based on SQLite
@@ -173,7 +175,7 @@ Make sure you are using Java 17 or later.
 **Latest Stable Version (Recommended):**
 ```xml
 <properties>
-    <langgraph4j.version>1.9.5</langgraph4j.version> <!-- Check for the actual latest version -->
+    <langgraph4j.version>1.9.6</langgraph4j.version> <!-- Check for the actual latest version -->
 </properties>
 
 <!-- Optional: Add the Bill of Materials (BOM) to manage langgraph4j module versions -->
@@ -205,7 +207,7 @@ If you want to use the latest unreleased features, you can use a snapshot versio
 <dependency>
     <groupId>org.bsc.langgraph4j</groupId>
     <artifactId>langgraph4j-core</artifactId>
-    <version>1.9.5</version> <!-- Or the current snapshot version -->
+    <version>1.9.6</version> <!-- Or the current snapshot version -->
 </dependency>
 ```
 You might need to configure your `settings.xml` or `pom.xml` to include the Sonatype OSS snapshots repository:

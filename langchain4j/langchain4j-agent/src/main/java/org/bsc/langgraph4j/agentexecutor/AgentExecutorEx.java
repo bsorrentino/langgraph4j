@@ -11,6 +11,8 @@ import org.bsc.langgraph4j.LG4JLoggable;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.*;
 import org.bsc.langgraph4j.agent.AgentEx;
+import org.bsc.langgraph4j.hook.EdgeHook;
+import org.bsc.langgraph4j.hook.NodeHook;
 import org.bsc.langgraph4j.langchain4j.serializer.jackson.LC4jJacksonStateSerializer;
 import org.bsc.langgraph4j.langchain4j.serializer.std.LC4jStateSerializer;
 import org.bsc.langgraph4j.langchain4j.tool.LC4jToolService;
@@ -298,6 +300,61 @@ public interface AgentExecutorEx extends LG4JLoggable {
 
         private final Map<String,AgentEx.ApprovalNodeAction<ChatMessage,State>> approvals = new LinkedHashMap<>();
 
+        /**
+         * Hooks are registered here and forwarded to the underlying agent builder, so
+         * callers can intercept nodes and edges — the approval edge in particular, which
+         * is where an application decides what a resume means (eg. skip a long running
+         * tool call and inject its externally produced result).
+         */
+        private final AgentEx.Builder<ChatMessage, State, ToolSpecification> agentBuilder = AgentEx.builder();
+
+        public Builder addNodeHook( NodeHook.BeforeCall<State> hook ) {
+            agentBuilder.addNodeHook( hook );
+            return this;
+        }
+        public Builder addNodeHook( NodeHook.WrapCall<State> hook ) {
+            agentBuilder.addNodeHook( hook );
+            return this;
+        }
+        public Builder addNodeHook( NodeHook.AfterCall<State> hook ) {
+            agentBuilder.addNodeHook( hook );
+            return this;
+        }
+
+        public Builder addEdgeHook( EdgeHook.BeforeCall<State> hook ) {
+            agentBuilder.addEdgeHook( hook );
+            return this;
+        }
+        public Builder addEdgeHook( EdgeHook.WrapCall<State> hook ) {
+            agentBuilder.addEdgeHook( hook );
+            return this;
+        }
+        public Builder addEdgeHook( EdgeHook.AfterCall<State> hook ) {
+            agentBuilder.addEdgeHook( hook );
+            return this;
+        }
+
+        public Builder addCallModelHook( NodeHook.WrapCall<State> wrapCall ) {
+            agentBuilder.addNodeHook( AgentEx.CALL_MODEL_NODE, wrapCall );
+            return this;
+        }
+        public Builder addDispatchToolsHook( NodeHook.WrapCall<State> wrapCall ) {
+            agentBuilder.addNodeHook( AgentEx.ACTION_DISPATCHER_NODE, wrapCall );
+            return this;
+        }
+        public Builder addApprovalActionHook( EdgeHook.WrapCall<State> wrapCall ) {
+            agentBuilder.addEdgeHook( AgentEx.APPROVAL_ACTION, wrapCall );
+            return this;
+        }
+        public Builder addDispatchActionHook( EdgeHook.WrapCall<State> wrapCall ) {
+            agentBuilder.addEdgeHook( AgentEx.ACTION_DISPATCHER_NODE, wrapCall );
+            return this;
+        }
+        public Builder addShouldContinueHook( EdgeHook.WrapCall<State> wrapCall ) {
+            agentBuilder.addEdgeHook( AgentEx.CALL_MODEL_NODE, wrapCall );
+            return this;
+        }
+
         public Builder approvalOn( String actionId, BiFunction<String, State, InterruptionMetadata<State>> interruptionMetadataProvider  ) {
             var action = AgentEx.ApprovalNodeAction.<ChatMessage,AgentExecutorEx.State>builder()
                     .interruptionMetadataProvider( interruptionMetadataProvider )
@@ -334,7 +391,7 @@ public interface AgentExecutorEx extends LG4JLoggable {
                         new FunctionToolBehaviour( toolService, entry.getKey(), entry.getValue() ))
                     .toList();
 
-            return AgentEx.<ChatMessage, State, ToolSpecification>builder()
+            return agentBuilder
                     .stateSerializer( stateSerializer )
                     .schema( State.SCHEMA )
                     .callModelAction( new CallModel<>(this) )

@@ -2,9 +2,10 @@ package org.bsc.langgraph4j;
 
 import org.bsc.async.AsyncGenerator;
 import org.bsc.async.v5.AsyncGeneratorFlow;
-import org.bsc.langgraph4j.internal.edge.Edge;
-import org.bsc.langgraph4j.internal.node.Node;
-import org.bsc.langgraph4j.internal.node.SubStateGraphNode;
+import org.bsc.langgraph4j.edge.Edge;
+import org.bsc.langgraph4j.node.Node;
+import org.bsc.langgraph4j.node.SubGraphNode;
+import org.bsc.langgraph4j.node.SubStateGraphNode;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 

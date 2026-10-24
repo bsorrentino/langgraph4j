@@ -1,4 +1,4 @@
-package org.bsc.langgraph4j.internal.hook;
+package org.bsc.langgraph4j.hook;
 
 import org.bsc.langgraph4j.GraphDefinition;
 import org.bsc.langgraph4j.GraphStateException;
@@ -6,7 +6,6 @@ import org.bsc.langgraph4j.RunnableConfig;
 import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.action.AsyncCommandAction;
 import org.bsc.langgraph4j.action.Command;
-import org.bsc.langgraph4j.hook.EdgeHook;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 import org.bsc.langgraph4j.state.Channel;

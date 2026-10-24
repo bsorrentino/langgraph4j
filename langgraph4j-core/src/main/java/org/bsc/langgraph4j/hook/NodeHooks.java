@@ -1,11 +1,10 @@
-package org.bsc.langgraph4j.internal.hook;
+package org.bsc.langgraph4j.hook;
 
 import org.bsc.async.AsyncGenerator;
 import org.bsc.langgraph4j.*;
 import org.bsc.langgraph4j.action.AsyncNodeActionWithConfig;
 import org.bsc.langgraph4j.action.InterruptibleAction;
 import org.bsc.langgraph4j.action.InterruptionMetadata;
-import org.bsc.langgraph4j.hook.NodeHook;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.AgentStateFactory;
 import org.bsc.langgraph4j.state.Channel;
