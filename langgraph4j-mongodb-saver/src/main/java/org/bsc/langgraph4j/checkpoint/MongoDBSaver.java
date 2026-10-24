@@ -74,6 +74,30 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
 
     public static final String DEFAULT_COLLECTION_PREFIX = "lg4j";
 
+    /**
+     * Fields mapping the {@link Checkpoint} class to the MongoDB checkpoint document.
+     */
+    enum FieldEnum {
+        ID("checkpoint_id"),
+        THREAD_REF("thread_ref"),
+        SEQ("seq"),
+        NODE_ID("node_id"),
+        NEXT_NODE_ID("next_node_id"),
+        STATE_DATA("state_data"),
+        STATE_CONTENT_TYPE("state_content_type"),
+        CREATED_AT("created_at");
+
+        private final String fieldName;
+
+        FieldEnum(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        public String fieldName() {
+            return fieldName;
+        }
+    }
+
     static final String STATUS_ACTIVE = "ACTIVE";
     static final String STATUS_RELEASED = "RELEASED";
 
@@ -222,11 +246,12 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
                 .name("uq_released_thread_name_version")
                 .unique(true)
                 .partialFilterExpression(eq("status", STATUS_RELEASED)));
-        checkpoints.createIndex(Indexes.ascending("checkpoint_id"), new IndexOptions()
+        checkpoints.createIndex(Indexes.ascending(FieldEnum.ID.fieldName()), new IndexOptions()
                 .name("uq_checkpoint_id")
                 .unique(true));
         // checkpoint history, newest first
-        checkpoints.createIndex(Indexes.compoundIndex(Indexes.ascending("thread_ref"), Indexes.descending("seq")),
+        checkpoints.createIndex(Indexes.compoundIndex(Indexes.ascending(FieldEnum.THREAD_REF.fieldName()),
+                        Indexes.descending(FieldEnum.SEQ.fieldName())),
                 new IndexOptions().name("uq_thread_ref_seq").unique(true));
     }
 
@@ -310,14 +335,16 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
 
     private LinkedList<Checkpoint> loadCheckpoints(Document thread) throws IOException, ClassNotFoundException {
         final var result = new LinkedList<Checkpoint>();
-        final var cursor = checkpoints.find(eq("thread_ref", thread.getObjectId("_id")))
-                .sort(Indexes.descending("seq"));
+        final var cursor = checkpoints.find(eq(FieldEnum.THREAD_REF.fieldName(), thread.getObjectId("_id")))
+                .sort(Indexes.descending(FieldEnum.SEQ.fieldName()));
         for (var doc : cursor) {
             result.add(Checkpoint.builder()
-                    .id(doc.getString("checkpoint_id"))
-                    .nodeId(doc.getString("node_id"))
-                    .nextNodeId(doc.getString("next_node_id"))
-                    .state(decodeState(doc.getString("state_data"), doc.getString("state_content_type")))
+                    .id(doc.getString(FieldEnum.ID.fieldName()))
+                    .nodeId(doc.getString(FieldEnum.NODE_ID.fieldName()))
+                    .nextNodeId(doc.getString(FieldEnum.NEXT_NODE_ID.fieldName()))
+                    .createdAt(doc.getDate(FieldEnum.CREATED_AT.fieldName()))
+                    .state(decodeState(doc.getString(FieldEnum.STATE_DATA.fieldName()),
+                            doc.getString(FieldEnum.STATE_CONTENT_TYPE.fieldName())))
                     .build());
         }
         return result;
@@ -331,14 +358,14 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
         final var thread = claimSeq(threadId(config));
 
         this.checkpoints.insertOne(new Document()
-                .append("checkpoint_id", checkpoint.id())
-                .append("thread_ref", thread.getObjectId("_id"))
-                .append("seq", thread.getLong("seq"))
-                .append("node_id", checkpoint.nodeId())
-                .append("next_node_id", checkpoint.nextNodeId())
-                .append("state_data", stateData)
-                .append("state_content_type", stateSerializer.contentType())
-                .append("saved_at", new Date()));
+                .append(FieldEnum.ID.fieldName(), checkpoint.id())
+                .append(FieldEnum.THREAD_REF.fieldName(), thread.getObjectId("_id"))
+                .append(FieldEnum.SEQ.fieldName(), thread.getLong("seq"))
+                .append(FieldEnum.NODE_ID.fieldName(), checkpoint.nodeId())
+                .append(FieldEnum.NEXT_NODE_ID.fieldName(), checkpoint.nextNodeId())
+                .append(FieldEnum.STATE_DATA.fieldName(), stateData)
+                .append(FieldEnum.STATE_CONTENT_TYPE.fieldName(), stateSerializer.contentType())
+                .append(FieldEnum.CREATED_AT.fieldName(), checkpoint.createdAt()));
         log.debug("Checkpoint {} for thread {} inserted successfully.", checkpoint.id(), threadId(config));
     }
 
@@ -356,13 +383,14 @@ public class MongoDBSaver extends AbstractCheckpointSaver implements LG4JLoggabl
 
         // replaced in place: the checkpoint keeps its position (seq) in the history
         final var result = this.checkpoints.updateOne(
-                and(eq("thread_ref", thread.getObjectId("_id")), eq("checkpoint_id", previousId)),
-                combine(set("checkpoint_id", checkpoint.id()),
-                        set("node_id", checkpoint.nodeId()),
-                        set("next_node_id", checkpoint.nextNodeId()),
-                        set("state_data", encodeState(checkpoint.state())),
-                        set("state_content_type", stateSerializer.contentType()),
-                        set("saved_at", new Date())));
+                and(eq(FieldEnum.THREAD_REF.fieldName(), thread.getObjectId("_id")),
+                        eq(FieldEnum.ID.fieldName(), previousId)),
+                combine(set(FieldEnum.ID.fieldName(), checkpoint.id()),
+                        set(FieldEnum.NODE_ID.fieldName(), checkpoint.nodeId()),
+                        set(FieldEnum.NEXT_NODE_ID.fieldName(), checkpoint.nextNodeId()),
+                        set(FieldEnum.STATE_DATA.fieldName(), encodeState(checkpoint.state())),
+                        set(FieldEnum.STATE_CONTENT_TYPE.fieldName(), stateSerializer.contentType()),
+                        set(FieldEnum.CREATED_AT.fieldName(), checkpoint.createdAt())));
         if (result.getMatchedCount() == 0) {
             throw new NoSuchElementException(format("Checkpoint with id %s not found!", previousId));
         }
