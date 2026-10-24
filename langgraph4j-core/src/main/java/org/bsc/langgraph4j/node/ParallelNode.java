@@ -147,6 +147,37 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
         }
 
 
+        // True when a subgraph's final value for a key is a list that extends the
+        // parent list by appending: the parent list is a prefix of the final list.
+        // A wholesale replacement (or element removal) is not an append and keeps
+        // the pass-1 replacement behavior.
+        private static boolean isAppendedList(Object parentValue, Object finalValue) {
+            if (!(parentValue instanceof List<?> parentList) || !(finalValue instanceof List<?> finalList)) {
+                return false;
+            }
+            if (finalList.size() < parentList.size()) {
+                return false;
+            }
+            return finalList.subList(0, parentList.size()).equals(parentList);
+        }
+
+        // For each append-style list key, the subgraph's contribution is the suffix
+        // it appended beyond the parent list (a copy, never a view of the state).
+        private static Map<String, Object> appendedListDelta(Map<String, Object> parentState, Map<String, Object> finalState) {
+            Map<String, Object> delta = new HashMap<>();
+            for (var entry : finalState.entrySet()) {
+                var parentValue = parentState.get(entry.getKey());
+                if (isAppendedList(parentValue, entry.getValue())) {
+                    var parentList = (List<?>) parentValue;
+                    var finalList = (List<?>) entry.getValue();
+                    if (finalList.size() > parentList.size()) {
+                        delta.put(entry.getKey(), new ArrayList<>(finalList.subList(parentList.size(), finalList.size())));
+                    }
+                }
+            }
+            return delta;
+        }
+
         @Override
         public CompletableFuture<Map<String, Object>> apply(State state, RunnableConfig config) {
 
@@ -170,9 +201,21 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
                     .toArray(CompletableFuture[]::new);
 
             return allOfFailFast(config, futuresArray).thenApply(v -> {
-                // Deterministic merge order: subgraph branches first (via key replacement),
-                // then regular branches (via channel merge of deltas). This way a regular
-                // branch's delta is applied on top of subgraph results, not overwritten by them.
+                // Two-pass merge.
+                //
+                // Pass 1: subgraph branches first, via key replacement. This is
+                // load-bearing for non-append keys: a subgraph that removes a key
+                // (or computes an aggregate through a non-idempotent reducer) must
+                // win over sibling deltas, which are applied afterwards.
+                //
+                // Pass 2: every branch's contribution in declaration order. Regular
+                // branches merge their deltas via channels, as before. A subgraph
+                // branch contributes only the suffix it appended to each
+                // append-style list key (its final list minus the parent prefix).
+                // Merging a subgraph's full list here would re-apply the parent
+                // prefix, and replacing it would let a later subgraph clobber an
+                // earlier branch's elements -- both observed as Issue104Test
+                // failures, where subgraph messages jumped ahead of siblings.
                 final var parentState = state.data();
                 final Map<String, Object> result = new HashMap<>(parentState);
 
@@ -180,8 +223,10 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
                     if (!branch.isSubgraph()) continue;
                     var finalState = branch.future().join();
                     if (finalState == null) continue; // cancelled/empty branch: no contribution
-                    // Replace keys the subgraph changed; drop keys it removed.
                     for (var entry : finalState.entrySet()) {
+                        // Append-style list keys are deferred to pass 2.
+                        if (isAppendedList(parentState.get(entry.getKey()), entry.getValue())) continue;
+                        // Replace keys the subgraph changed; drop keys it removed.
                         if (!Objects.equals(entry.getValue(), parentState.get(entry.getKey()))) {
                             result.put(entry.getKey(), entry.getValue());
                         }
@@ -195,8 +240,16 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
 
                 var merged = result;
                 for (var branch : branches) {
-                    if (branch.isSubgraph()) continue;
-                    merged = AgentState.updateState(merged, branch.future().join(), channels);
+                    if (branch.isSubgraph()) {
+                        var finalState = branch.future().join();
+                        if (finalState == null) continue;
+                        var delta = appendedListDelta(parentState, finalState);
+                        if (!delta.isEmpty()) {
+                            merged = AgentState.updateState(merged, delta, channels);
+                        }
+                    } else {
+                        merged = AgentState.updateState(merged, branch.future().join(), channels);
+                    }
                 }
                 return merged;
             });
