@@ -5,6 +5,7 @@ import org.bsc.langgraph4j.state.Channel;
 import org.jspecify.annotations.NonNull;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -43,7 +44,10 @@ public record Checkpoint(
 
     /**
      * Creates a checkpoint without an explicit creation date.
-     * The creation date defaults to {@link Instant#now()}.
+     * The creation date defaults to {@link Instant#now()} truncated to
+     * millisecond precision, so a value that survives a round trip through a
+     * database ( most of which store milliseconds at best ) compares equal to
+     * the one held in memory.
      *
      * @param id         the checkpoint id
      * @param state      the checkpoint state
@@ -51,7 +55,7 @@ public record Checkpoint(
      * @param nextNodeId the next node to execute
      */
     public Checkpoint( String id, Map<String,Object> state, String nodeId, String nextNodeId ) {
-        this( id, state, nodeId, nextNodeId, Instant.now() );
+        this( id, state, nodeId, nextNodeId, Instant.now().truncatedTo(ChronoUnit.MILLIS) );
     }
 
     @Deprecated
@@ -83,7 +87,7 @@ public record Checkpoint(
                                 checkpoint.state,
                                 checkpoint.nodeId,
                                 checkpoint.nextNodeId,
-                                Instant.now());
+                                Instant.now().truncatedTo(ChronoUnit.MILLIS));
     }
 
 
@@ -96,7 +100,7 @@ public record Checkpoint(
         private Map<String,Object> state = null;
         private String nodeId = null ;
         private String nextNodeId = null;
-        private Instant createdAt = Instant.now();
+        private Instant createdAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
         public Builder id( String id ) {
             this.id = id;
@@ -121,7 +125,8 @@ public record Checkpoint(
 
         /**
          * Set the creation date of the checkpoint.
-         * It defaults to {@link Instant#now()} if not provided.
+         * It defaults to {@link Instant#now()}, truncated to millisecond
+         * precision, if not provided.
          *
          * @param createdAt the creation date (cannot be null)
          * @return this builder

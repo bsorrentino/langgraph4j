@@ -3,6 +3,7 @@ package org.bsc.langgraph4j.checkpoint;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +17,9 @@ public class CheckpointTest {
 
     @Test
     void createdAtDefaultsToNowOnConstructor() {
-        final var before = Instant.now();
+        // createdAt is truncated to milliseconds, so the lower bound is truncated too;
+        // otherwise Instant.now()'s stray nanos would make createdAt look "before" it.
+        final var before = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         final var checkpoint = new Checkpoint("id", Map.of(), "node", "next");
         final var after = Instant.now();
 
@@ -27,7 +30,9 @@ public class CheckpointTest {
 
     @Test
     void createdAtDefaultsToNowOnBuilder() {
-        final var before = Instant.now();
+        // createdAt is truncated to milliseconds, so the lower bound is truncated too;
+        // otherwise Instant.now()'s stray nanos would make createdAt look "before" it.
+        final var before = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         final var checkpoint = Checkpoint.builder()
                 .nodeId("node")
                 .nextNodeId("next")
@@ -46,6 +51,41 @@ public class CheckpointTest {
                 () -> new Checkpoint("id", Map.of(), "node", "next", null));
         assertThrows(NullPointerException.class,
                 () -> Checkpoint.builder().createdAt(null));
+    }
+
+    @Test
+    void createdAtDefaultsToMillisecondPrecision() {
+        // Instant.now() carries nanosecond precision, which most databases cannot
+        // round-trip. The generated creation date is truncated to milliseconds so a
+        // stored checkpoint compares equal to the one held in memory.
+        final var fromConstructor = new Checkpoint("id", Map.of(), "node", "next");
+        final var fromBuilder = Checkpoint.builder()
+                .nodeId("node")
+                .nextNodeId("next")
+                .state(Map.of())
+                .build();
+        final var copy = Checkpoint.copyOf(fromConstructor);
+
+        assertEquals(0, fromConstructor.createdAt().getNano() % 1_000_000,
+                "constructor default should be truncated to milliseconds");
+        assertEquals(0, fromBuilder.createdAt().getNano() % 1_000_000,
+                "builder default should be truncated to milliseconds");
+        assertEquals(0, copy.createdAt().getNano() % 1_000_000,
+                "copyOf should be truncated to milliseconds");
+    }
+
+    @Test
+    void explicitCreatedAtIsPreserved() {
+        // A caller-supplied instant is used as-is; only the generated default is truncated.
+        final var explicit = Instant.parse("2025-09-10T10:37:31.123456789Z");
+        final var checkpoint = Checkpoint.builder()
+                .nodeId("node")
+                .nextNodeId("next")
+                .state(Map.of())
+                .createdAt(explicit)
+                .build();
+
+        assertEquals(explicit, checkpoint.createdAt());
     }
 
     @Test
