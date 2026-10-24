@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -181,6 +182,7 @@ public class JacksonSerializerTest {
                     .nodeId("NODE%d".formatted(i))
                     .nextNodeId("NEXT_NODE%d".formatted(i + 1))
                     .state(state)
+                    .createdAt(Instant.parse("2025-09-10T10:37:3%dZ".formatted(i)))
                     .build();
 
             checkpoints.add(cp);
@@ -194,10 +196,10 @@ public class JacksonSerializerTest {
 
         assertEquals("""
                 [
-                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID1","nodeId":"NODE1","nextNodeId":"NEXT_NODE2","state":{"prop1":"value1"}},
-                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID2","nodeId":"NODE2","nextNodeId":"NEXT_NODE3","state":{"prop2":"value2","prop1":"value1"}},
-                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID3","nodeId":"NODE3","nextNodeId":"NEXT_NODE4","state":{"prop2":"value2","prop1":"value1","prop3":"value3"}},
-                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID4","nodeId":"NODE4","nextNodeId":"NEXT_NODE5","state":{"prop2":"value2","prop1":"value1","prop4":"value4","prop3":"value3"}}]
+                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID1","nodeId":"NODE1","nextNodeId":"NEXT_NODE2","createdAt":"2025-09-10T10:37:31Z","state":{"prop1":"value1"}},
+                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID2","nodeId":"NODE2","nextNodeId":"NEXT_NODE3","createdAt":"2025-09-10T10:37:32Z","state":{"prop2":"value2","prop1":"value1"}},
+                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID3","nodeId":"NODE3","nextNodeId":"NEXT_NODE4","createdAt":"2025-09-10T10:37:33Z","state":{"prop2":"value2","prop1":"value1","prop3":"value3"}},
+                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID4","nodeId":"NODE4","nextNodeId":"NEXT_NODE5","createdAt":"2025-09-10T10:37:34Z","state":{"prop2":"value2","prop1":"value1","prop4":"value4","prop3":"value3"}}]
                 """.replace("\n", ""), result );
 
         final var newCheckpoints = cpSerializer.readDataFromString( result );
@@ -208,9 +210,31 @@ public class JacksonSerializerTest {
             assertEquals( checkpoints.get(i).id(), newCheckpoints.get(i).id() );
             assertEquals( checkpoints.get(i).nodeId(), newCheckpoints.get(i).nodeId() );
             assertEquals( checkpoints.get(i).nextNodeId(), newCheckpoints.get(i).nextNodeId() );
+            assertEquals( checkpoints.get(i).createdAt(), newCheckpoints.get(i).createdAt() );
             assertEquals( checkpoints.get(i).state(), newCheckpoints.get(i).state() );
         }
 
+    }
+
+    @Test
+    void checkPointDeserializationWithoutCreatedAtTest() throws Exception {
+
+        final var serializer = new MyJacksonStateSerializer();
+        final var cpSerializer = new JacksonCheckpointListSerializer(serializer);
+
+        // payload written before the introduction of the creation date
+        final var legacyJson = """
+                [
+                {"@type":"org.bsc.langgraph4j.checkpoint.Checkpoint","id":"ID1","nodeId":"NODE1","nextNodeId":"NEXT_NODE2","state":{"prop1":"value1"}}]
+                """.replace("\n", "");
+
+        final var checkpoints = cpSerializer.readDataFromString( legacyJson );
+
+        assertNotNull( checkpoints );
+        assertEquals( 1, checkpoints.size() );
+        final var checkpoint = checkpoints.get(0);
+        assertEquals( "ID1", checkpoint.id() );
+        assertNotNull( checkpoint.createdAt(), "missing creation date must fall back to the default one" );
     }
 
     private record NonSerializableElement(  String value )  {

@@ -6,6 +6,7 @@ import org.bsc.langgraph4j.state.AgentState;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.Instant;
 
 public  record CheckpointSerializer(
         StdStateSerializer<AgentState> stateSerializer) implements NullableObjectSerializer<Checkpoint> {
@@ -17,6 +18,7 @@ public  record CheckpointSerializer(
         writeNullableUTF(object.nextNodeId(), out);
         AgentState state = stateSerializer.stateFactory().apply(object.state());
         stateSerializer.write( state, out);
+        StdSerializer.writeUTF(object.createdAt().toString(), out);
     }
 
     @Override
@@ -26,6 +28,7 @@ public  record CheckpointSerializer(
                 .nodeId(readNullableUTF(in).orElse(null))
                 .nextNodeId(readNullableUTF(in).orElse(null))
                 .state(stateSerializer.read(in))
+                .createdAt(Instant.parse(StdSerializer.readUTF(in)))
                 .build();
     }
 
