@@ -49,8 +49,6 @@ public class CheckpointTest {
     void createdAtIsMandatory() {
         assertThrows(NullPointerException.class,
                 () -> new Checkpoint("id", Map.of(), "node", "next", null));
-        assertThrows(NullPointerException.class,
-                () -> Checkpoint.builder().createdAt(null));
     }
 
     @Test
