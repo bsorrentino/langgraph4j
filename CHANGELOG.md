@@ -2,6 +2,128 @@
 
 
 
+<!-- "name: v1.9.7" is a release tag -->
+
+## [v1.9.7](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.9.7) (2026-10-24)
+
+### Features
+
+ *  **Checkpoint**  add Date conversion for createdAt attribute ([6de4fdd4edd4837](https://github.com/bsorrentino/langgraph4j/commit/6de4fdd4edd48370998041495fba716091611ca2))
+
+ *  **annotation**  add method to create node with registered action in ActionCatalogRepository ([78c8a8091c4976b](https://github.com/bsorrentino/langgraph4j/commit/78c8a8091c4976ba3882d34c389fb24a21dd6039))
+
+ *  **langchain4j**  forward node and edge hooks from AgentExecutorEx.Builder ([ea4723055518fa6](https://github.com/bsorrentino/langgraph4j/commit/ea4723055518fa6e2deceb013e3ea08386198433))
+     > The Spring AI ReactAgentBuilderEx exposes addNodeHook/addEdgeHook plus the
+     > dedicated call model, dispatch tools, approval action, dispatch action and
+     > should continue hooks, but the langchain4j AgentExecutorEx.Builder built its
+     > graph from a fresh AgentEx builder and dropped any hook a caller registered.
+     > This brings the langchain4j executor to parity: the builder keeps the
+     > AgentEx.Builder as a field, exposes the same hook methods and forwards them
+     > when the graph is built.
+     > The use case that motivated it is the one in #412: with an approval edge hook
+     > an application can interrupt before a long running tool, run that tool outside
+     > the graph and resume by injecting the external result while skipping the
+     > in-graph call. AgentExecutorExHooksTest pins that flow with a scripted
+     > ChatModel; without the forwarding the hook is silently ignored and the test
+     > fails on the injected result.
+
+ *  **core**  add creation date to Checkpoint ([927d283068ef39c](https://github.com/bsorrentino/langgraph4j/commit/927d283068ef39cc9cc2dff542a3b5eb970aede4))
+     > Every checkpoint now carries a createdAt timestamp, assigned at creation
+     > time (defaulting to Instant.now()), that survives serialization round
+     > trips and is exposed through Checkpoint.createdAt() and
+     > StateSnapshot.createdAt().
+     > This allows checkpoint savers (eg. custom stores that don&#x27;t preserve the
+     > insertion order) to order checkpoints reliably.
+     > The 4-args constructor and the builder keep their previous behaviour, so
+     > existing code compiles unchanged; the JSON deserializer tolerates
+     > payloads written before this change.
+     > Closes #234
+
+
+### Bug Fixes
+
+ -  **core**  keep subgraph list contributions in branch order in parallel nodes ([068a892e023156b](https://github.com/bsorrentino/langgraph4j/commit/068a892e023156b671dacc8cb9957f72f642465f))
+
+ -  **core**  truncate default Checkpoint creation date to milliseconds ([8a846056c016f66](https://github.com/bsorrentino/langgraph4j/commit/8a846056c016f669778c568b985e1334e3e59014))
+     > Instant.now() carries nanosecond precision, which most databases cannot
+     > round-trip ( MySQL DATETIME(3), PostgreSQL timestamp(3), SQLite text ).
+     > A checkpoint written and read back therefore no longer compares equal to
+     > the one held in memory. Truncate the generated createdAt to milliseconds,
+     > as suggested in the review, so the value is stable across a storage round
+     > trip.
+     > Only the generated default is truncated; an explicit createdAt(Instant)
+     > is preserved as supplied, so callers restoring a checkpoint from storage
+     > keep the exact value. The two &quot;defaults to now&quot; tests now compare against
+     > a millisecond-truncated lower bound instead of a raw Instant.now().
+
+ -  **how-tos**  add com.fasterxml.jackson.core:jackson-databind:2.21.1 dependency ([189ebe24f2788b8](https://github.com/bsorrentino/langgraph4j/commit/189ebe24f2788b8cea80b2e4b0d082fb96ec68e5))
+
+ -  **core**  stop restoring removed transient state attributes ([a540936beb62462](https://github.com/bsorrentino/langgraph4j/commit/a540936beb624626e99aa7b653b19e54ddd7a3b4))
+
+ -  **core**  parallel node result replaces state instead of merging as delta ([79ba11291e9a85f](https://github.com/bsorrentino/langgraph4j/commit/79ba11291e9a85ff990e7b21860d4c32dc7d6975))
+     > Refactor state update logic in CompiledGraph.java to handle parallel nodes correctly.
+
+ -  **core**  parallel streaming/subgraph branches merged correctly ([d44430bab737496](https://github.com/bsorrentino/langgraph4j/commit/d44430bab7374964bec743cad2f6c82670ab24d0))
+
+ -  **core**  do not return the latest tag for a missing version ([82d5ef64fa3a18e](https://github.com/bsorrentino/langgraph4j/commit/82d5ef64fa3a18efd9f66e73ca0bfb34974f78d7))
+
+
+### Refactor
+
+ -  **MongoDBSaver**  add support for new checkpoint attribute createdAt ([faa35ffc3800b01](https://github.com/bsorrentino/langgraph4j/commit/faa35ffc3800b01f978a40dc4da5d021ba5cb51d))
+
+
+### Test
+
+ -  **CheckpointTest**  remove redundant null check for createdAt in builder ([7ed06eae5e62dd4](https://github.com/bsorrentino/langgraph4j/commit/7ed06eae5e62dd4bce63002b38758bcff7067c55))
+
+ -  **TransientStateSerializer**  refactor test to use stream and CompletableFuture for async handling ([b7aab35d9c5119b](https://github.com/bsorrentino/langgraph4j/commit/b7aab35d9c5119b16fec1361f9b9111fc35b23e1))
+
+ -  integrate ActionCatalog for node actions in LG4JMemorySaverTest ([0203694943dcf1c](https://github.com/bsorrentino/langgraph4j/commit/0203694943dcf1ce1c0328ed89eb58b6d3bd4f7d))
+
+ -  update LG4JCustomOutputTest to use ActionCatalog for node actions ([e75374d350c2830](https://github.com/bsorrentino/langgraph4j/commit/e75374d350c28302d82ccc11a446f20e87270ec8))
+
+ -  add ParallelSubgraphTest ([8cef3c23d41a99a](https://github.com/bsorrentino/langgraph4j/commit/8cef3c23d41a99a9304ca16c58ee00e407714c58))
+    > This test class contains regression tests for parallel branches that include subgraphs, ensuring correct state updates and removal propagation.
+
+ -  add ParallelStreamingBranchTest ([974874a38b743d8](https://github.com/bsorrentino/langgraph4j/commit/974874a38b743d8141dbe8a07c1397bb56f15fe0))
+    > Add regression tests for streaming branches in ParallelNode to ensure sibling branch writes are preserved and appender content is not duplicated.
+
+
+### Documentation
+
+ -  **annotation**  requirements for add support for passing constant values via @Context in @NodeAction ([41eb314fe86aa93](https://github.com/bsorrentino/langgraph4j/commit/41eb314fe86aa93efb0a73d7bed1f14bf40cd6a2))
+
+ -  update changelog ([2ffd5a5bb822325](https://github.com/bsorrentino/langgraph4j/commit/2ffd5a5bb8223251699651d68d28e4b75eb2a330))
+
+ -  **how-tos**  demonstrate interrupt-before-tool and resume with an external result ([647cdeebd219567](https://github.com/bsorrentino/langgraph4j/commit/647cdeebd21956711489ef546f1b5987fa21bf99))
+     > Adds a how-to notebook and a regression test for issue #412: an agent
+     > calls a long running (MCP) tool, the graph interrupts before the call,
+     > the application executes the tool outside the graph and resumes by
+     > injecting the external result and skipping the in-graph call.
+     > The mechanism is the approval edge hook: approvalOn() produces the
+     > interruption, and a custom EdgeHook.WrapCall on the approval edge
+     > replaces the built-in APPROVED/REJECTED handling with a Command that
+     > carries the external tool response, mirroring the framework&#x27;s rejection
+     > path but with the real result.
+     > Issue412Test pins the behaviour with a scripted ChatModel: the tool never
+     > runs inside the graph, the external result reaches the conversation and
+     > the agent answers from it, while a control test shows that without the
+     > hook APPROVED does execute the tool.
+     > Addresses #412
+
+
+### ALM
+
+ -  bump to next version 1.9.7 ([16e7b12d2b57986](https://github.com/bsorrentino/langgraph4j/commit/16e7b12d2b57986928ffefb98f2e118b55e32b62))
+
+ -  bump to next dev version 1.9-SNAPSHOT ([beff58720f27924](https://github.com/bsorrentino/langgraph4j/commit/beff58720f2792431025d1fe906e99757afd89f5))
+
+
+
+
+
+
 <!-- "name: v1.9.6" is a release tag -->
 
 ## [v1.9.6](https://github.com/bsorrentino/langgraph4j/releases/tag/v1.9.6) (2026-10-18)
