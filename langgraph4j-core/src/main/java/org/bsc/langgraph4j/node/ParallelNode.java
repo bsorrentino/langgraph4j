@@ -21,16 +21,42 @@ import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 public class ParallelNode<State extends AgentState> extends Node<State> {
-    private static final String PARALLEL_PREFIX = "__PARALLEL__";
-
-    public static String formatNodeId(String nodeId) {
-        return "%s(%s)".formatted(PARALLEL_PREFIX, requireNonNull(nodeId, "nodeId cannot be null!"));
-    }
 
     public record AsyncParallelNodeAction<State extends AgentState>(
             String nodeId,
             List<AsyncNodeActionWithConfig<State>> actions,
             Map<String, Channel<?>> channels) implements AsyncNodeActionWithConfig<State> {
+
+        // True when a subgraph's final value for a key is a list that extends the
+        // parent list by appending: the parent list is a prefix of the final list.
+        // A wholesale replacement (or element removal) is not an append and keeps
+        // the pass-1 replacement behavior.
+        private static boolean isAppendedList(Object parentValue, Object finalValue) {
+            if (!(parentValue instanceof List<?> parentList) || !(finalValue instanceof List<?> finalList)) {
+                return false;
+            }
+            if (finalList.size() < parentList.size()) {
+                return false;
+            }
+            return finalList.subList(0, parentList.size()).equals(parentList);
+        }
+
+        // For each append-style list key, the subgraph's contribution is the suffix
+        // it appended beyond the parent list (a copy, never a view of the state).
+        private static Map<String, Object> appendedListDelta(Map<String, Object> parentState, Map<String, Object> finalState) {
+            Map<String, Object> delta = new HashMap<>();
+            for (var entry : finalState.entrySet()) {
+                var parentValue = parentState.get(entry.getKey());
+                if (isAppendedList(parentValue, entry.getValue())) {
+                    var parentList = (List<?>) parentValue;
+                    var finalList = (List<?>) entry.getValue();
+                    if (finalList.size() > parentList.size()) {
+                        delta.put(entry.getKey(), new ArrayList<>(finalList.subList(parentList.size(), finalList.size())));
+                    }
+                }
+            }
+            return delta;
+        }
 
         private CompletableFuture<Map<String, Object>> evalGenerator(AsyncGenerator<NodeOutput<State>> generator, Map<String, Object> initPartialState) {
             return generator.reduce(new ArrayList<NodeOutput<State>>(), (result, value) -> {
@@ -146,38 +172,6 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
             return manager;
         }
 
-
-        // True when a subgraph's final value for a key is a list that extends the
-        // parent list by appending: the parent list is a prefix of the final list.
-        // A wholesale replacement (or element removal) is not an append and keeps
-        // the pass-1 replacement behavior.
-        private static boolean isAppendedList(Object parentValue, Object finalValue) {
-            if (!(parentValue instanceof List<?> parentList) || !(finalValue instanceof List<?> finalList)) {
-                return false;
-            }
-            if (finalList.size() < parentList.size()) {
-                return false;
-            }
-            return finalList.subList(0, parentList.size()).equals(parentList);
-        }
-
-        // For each append-style list key, the subgraph's contribution is the suffix
-        // it appended beyond the parent list (a copy, never a view of the state).
-        private static Map<String, Object> appendedListDelta(Map<String, Object> parentState, Map<String, Object> finalState) {
-            Map<String, Object> delta = new HashMap<>();
-            for (var entry : finalState.entrySet()) {
-                var parentValue = parentState.get(entry.getKey());
-                if (isAppendedList(parentValue, entry.getValue())) {
-                    var parentList = (List<?>) parentValue;
-                    var finalList = (List<?>) entry.getValue();
-                    if (finalList.size() > parentList.size()) {
-                        delta.put(entry.getKey(), new ArrayList<>(finalList.subList(parentList.size(), finalList.size())));
-                    }
-                }
-            }
-            return delta;
-        }
-
         @Override
         public CompletableFuture<Map<String, Object>> apply(State state, RunnableConfig config) {
 
@@ -196,7 +190,7 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
                             evalNodeAction.apply(action)))
                     .toList();
 
-            @SuppressWarnings("unchecked") final var futuresArray = branches.stream()
+            final var futuresArray = branches.stream()
                     .map(Branch::future)
                     .toArray(CompletableFuture[]::new);
 
@@ -255,6 +249,12 @@ public class ParallelNode<State extends AgentState> extends Node<State> {
             });
 
         }
+    }
+
+    private static final String PARALLEL_PREFIX = "__PARALLEL__";
+
+    public static String formatNodeId(String nodeId) {
+        return "%s(%s)".formatted(PARALLEL_PREFIX, requireNonNull(nodeId, "nodeId cannot be null!"));
     }
 
     public ParallelNode(String id, List<AsyncNodeActionWithConfig<State>> actions, Map<String, Channel<?>> channels) {
